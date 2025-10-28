@@ -1,20 +1,24 @@
 import React from 'react';
 
 /**
- * A creative logo for KUTTAWAALA, featuring stylized representations of a cat and a dog.
+ * A creative logo for PetBhai, featuring a stylized paw print.
  * This symbolizes the organization's care for all common pets.
  */
 const Logo: React.FC<{ className?: string }> = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
+    className={className} 
     aria-labelledby="logo-title"
-  >
-    <title id="logo-title">KUTTAWAALA Logo</title>
-    <path d="M12 3a2.5 2.5 0 0 0-2.5 2.5v.1a4.42 4.42 0 0 0-1.9 1.4 4.5 4.5 0 0 0-.4 2.5c.3 1.3 1.4 2.3 2.8 2.5h4c1.4-.2 2.5-1.2 2.8-2.5.2-.9-.1-1.8-.4-2.5a4.42 4.42 0 0 0-1.9-1.4V5.5A2.5 2.5 0 0 0 12 3zm-4 13s.6-1.8 4-1.8 4 1.8 4 1.8c-1.2 2.3-4 2.3-4 2.3-2.7 0-3-1.6-4-2.3z"/>
-  </svg>
+>
+    <title id="logo-title">PetBhai Logo</title>
+    <path d="M12.0001 14.62C10.1501 14.62 8.44006 15.61 7.50006 17.15C7.03006 18.01 6.79006 18.99 6.81006 19.99C6.83006 21.12 7.33006 22.18 8.19006 22.9C9.05006 23.63 10.2001 24 11.4101 24C12.9801 24 14.4501 23.32 15.4901 22.15C15.9301 21.65 16.2701 21.05 16.5001 20.41C16.9201 19.29 16.8101 18.02 16.2001 16.92C15.3601 15.44 13.7801 14.62 12.0001 14.62Z"></path>
+    <path d="M8.22 3.19001C9.66 3.19001 10.82 4.35001 10.82 5.79001C10.82 7.23001 9.66 8.39001 8.22 8.39001C6.78 8.39001 5.62 7.23001 5.62 5.79001C5.62 4.35001 6.78 3.19001 8.22 3.19001Z"></path>
+    <path d="M15.78 3.19001C17.22 3.19001 18.38 4.35001 18.38 5.79001C18.38 7.23001 17.22 8.39001 15.78 8.39001C14.34 8.39001 13.18 7.23001 13.18 5.79001C13.18 4.35001 14.34 3.19001 15.78 3.19001Z"></path>
+    <path d="M18.79 10.19C20.23 10.19 21.39 11.35 21.39 12.79C21.39 14.23 20.23 15.39 18.79 15.39C17.35 15.39 16.19 14.23 16.19 12.79C16.19 11.35 17.35 10.19 18.79 10.19Z"></path>
+    <path d="M5.21 10.19C6.65 10.19 7.81 11.35 7.81 12.79C7.81 14.23 6.65 15.39 5.21 15.39C3.77 15.39 2.61 14.23 2.61 12.79C2.61 11.35 3.77 10.19 5.21 10.19Z"></path>
+</svg>
 );
 
 export default Logo;

@@ -1,7 +1,7 @@
 {
-  "short_name": "KUTTAWAALA",
-  "name": "KUTTAWAALA - Animal Welfare",
-  "description": "A web application for the KUTTAWAALA animal welfare organization, featuring pet adoption, animal reporting, and an AI-powered vet assistant to answer your pet-related questions.",
+  "short_name": "PetBhai",
+  "name": "PetBhai - Animal Welfare",
+  "description": "A web application for the PetBhai animal welfare organization, featuring pet adoption, animal reporting, and an AI-powered vet assistant to answer your pet-related questions.",
   "icons": [
     {
       "src": "icon-192x192.png",

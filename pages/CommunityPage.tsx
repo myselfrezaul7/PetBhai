@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { MOCK_POSTS } from '../constants';
 import type { Post } from '../types';
 
-const POSTS_STORAGE_KEY = 'kuttawaala_posts';
+const POSTS_STORAGE_KEY = 'petbhai_posts';
 
 const getInitialPosts = (): Post[] => {
   try {

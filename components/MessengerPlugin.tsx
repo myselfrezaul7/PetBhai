@@ -13,7 +13,7 @@ const MessengerPlugin: React.FC = () => {
         }`}
       >
         <div className="flex justify-between items-center p-4 bg-orange-500 text-white rounded-t-2xl">
-          <h3 className="font-bold text-lg">Chat with KUTTAWAALA</h3>
+          <h3 className="font-bold text-lg">Chat with PetBhai</h3>
           <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded-full">
             <CloseIcon className="w-5 h-5" />
           </button>

@@ -14,7 +14,7 @@ const HomePage: React.FC = () => {
         <div className="relative text-center z-10 p-4">
           <h1 className="text-5xl md:text-7xl font-extrabold drop-shadow-2xl">Giving Paws a Second Chance</h1>
           <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg">
-            At KUTTAWAALA, we believe every animal deserves a loving home. Join us in our mission to rescue, rehabilitate, and rehome animals in need.
+            At PetBhai, we believe every animal deserves a loving home. Join us in our mission to rescue, rehabilitate, and rehome animals in need.
           </p>
           <Link
             to="/adopt"
@@ -30,7 +30,7 @@ const HomePage: React.FC = () => {
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-slate-800 mb-6">Our Mission</h2>
           <p className="max-w-3xl mx-auto text-lg text-slate-700 leading-relaxed">
-            KUTTAWAALA is dedicated to providing a safe haven for stray, abandoned, and abused animals. We offer medical care, nourishment, and a loving environment, with the ultimate goal of finding them a forever family. We are a community-powered organization, and your support makes all the difference.
+            PetBhai is dedicated to providing a safe haven for stray, abandoned, and abused animals. We offer medical care, nourishment, and a loving environment, with the ultimate goal of finding them a forever family. We are a community-powered organization, and your support makes all the difference.
           </p>
         </div>
       </section>

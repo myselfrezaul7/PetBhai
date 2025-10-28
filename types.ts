@@ -24,7 +24,7 @@ export interface Post {
   id: number;
   author: {
     id: number;
-    name: string;
+    name:string;
   };
   content: string;
   imageUrl?: string;
@@ -49,4 +49,8 @@ export interface Product {
   imageUrl: string;
   description: string;
   weight: string;
+}
+
+export interface CartItem extends Product {
+  quantity: number;
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kuttawaala-cache-v1';
+const CACHE_NAME = 'petbhai-cache-v1';
 // This list of files will be cached when the service worker is installed.
 const urlsToCache = [
   '/',

@@ -1,6 +1,6 @@
 {
-  "name": "KUTTAWAALA",
-  "description": "A web application for the KUTTAWAALA animal welfare organization, featuring pet adoption, a community hub, an online shop, and an AI-powered vet assistant.",
+  "name": "PetBhai",
+  "description": "A web application for the Pet Bhai animal welfare organization, featuring pet adoption, a community hub, an online shop, and an AI-powered vet assistant.",
   "requestFramePermissions": [
     "geolocation"
   ]

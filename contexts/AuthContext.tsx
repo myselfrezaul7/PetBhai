@@ -5,8 +5,8 @@ import { MOCK_USERS } from '../constants';
 // For demonstration purposes, we'll use localStorage to simulate a user database.
 // In a real application, this would be handled by a backend server.
 
-const USERS_STORAGE_KEY = 'kuttawaala_users';
-const CURRENT_USER_STORAGE_KEY = 'kuttawaala_currentUser';
+const USERS_STORAGE_KEY = 'petbhai_users';
+const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 
 const getInitialUsers = (): User[] => {
   try {

@@ -77,7 +77,7 @@ export const MOCK_POSTS: Post[] = [
     {
         id: 2,
         author: { id: 2, name: "Jamal Khan" },
-        content: "Just adopted Max from KUTTAWAALA last week! He's settling in so well. Thank you to the team for making the process so smooth. Here he is enjoying his new favorite spot.",
+        content: "Just adopted Max from PetBhai last week! He's settling in so well. Thank you to the team for making the process so smooth. Here he is enjoying his new favorite spot.",
         imageUrl: "https://picsum.photos/seed/post2/600/400",
         timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
         likes: 42,

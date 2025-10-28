@@ -34,7 +34,7 @@ const Header: React.FC = () => {
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
           <NavLink to="/" className="flex items-center space-x-2 text-2xl font-bold text-slate-800">
             <Logo className="w-10 h-10 text-orange-500" />
-            <span>KUTTAWAALA</span>
+            <span>PetBhai</span>
           </NavLink>
 
           {/* Desktop Menu */}
@@ -89,7 +89,7 @@ const Header: React.FC = () => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
            <NavLink to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-2 text-2xl font-bold text-slate-800">
             <Logo className="w-10 h-10 text-orange-500" />
-            <span>KUTTAWAALA</span>
+            <span>PetBhai</span>
           </NavLink>
           <button onClick={() => setIsMenuOpen(false)} className="text-slate-700 hover:text-orange-600">
             <CloseIcon className="w-8 h-8" />

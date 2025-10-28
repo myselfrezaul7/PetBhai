@@ -48,7 +48,7 @@ const AIAssistantPage: React.FC = () => {
                   <PawIcon className="w-6 h-6" />
               </div>
               <div className="bg-slate-100 p-4 rounded-xl rounded-tl-none max-w-lg">
-                <p className="text-slate-800">Hello! I'm KUTTAWAALA's AI Assistant. How can I help you with your pet today?</p>
+                <p className="text-slate-800">Hello! I'm PetBhai's AI Assistant. How can I help you with your pet today?</p>
               </div>
             </div>
 
