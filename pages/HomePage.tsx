@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HeartIcon } from '../components/icons';
 
 const HomePage: React.FC = () => {
   return (
@@ -32,20 +31,6 @@ const HomePage: React.FC = () => {
           <p className="max-w-3xl mx-auto text-lg text-slate-700 leading-relaxed">
             PetBhai is dedicated to providing a safe haven for stray, abandoned, and abused animals. We offer medical care, nourishment, and a loving environment, with the ultimate goal of finding them a forever family. We are a community-powered organization, and your support makes all the difference.
           </p>
-        </div>
-      </section>
-
-      {/* Donate Section */}
-      <section className="py-20 bg-slate-100">
-        <div className="container mx-auto px-6 text-center">
-          <HeartIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-4xl font-bold text-slate-800 mb-6">Your Support Saves Lives</h2>
-          <p className="max-w-3xl mx-auto text-lg text-slate-700 leading-relaxed mb-8">
-            Your generous donations help us provide food, shelter, and critical veterinary care to animals in need. Every contribution, big or small, helps us write a new chapter for a deserving animal.
-          </p>
-          <button className="bg-red-500 text-white font-bold py-4 px-10 rounded-full text-xl hover:bg-red-600 transition-transform transform hover:scale-105 duration-300 shadow-lg">
-            Donate Now
-          </button>
         </div>
       </section>
     </div>

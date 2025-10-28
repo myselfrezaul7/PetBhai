@@ -15,6 +15,7 @@ import OnlineVetPage from './pages/OnlineVetPage';
 import ShopPage from './pages/ShopPage';
 import MessengerPlugin from './components/MessengerPlugin';
 import { CartProvider } from './contexts/CartContext';
+import CheckoutPage from './pages/CheckoutPage';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/shop" element={<ShopPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
               </Routes>
             </main>
             <MessengerPlugin />

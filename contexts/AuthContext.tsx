@@ -40,6 +40,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
   signup: (name: string, email: string, password: string) => Promise<User>;
+  socialLogin: (socialUser: { firstName: string; lastName: string; email: string }) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -89,12 +90,39 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     return userWithoutPassword;
   };
 
+  const socialLogin = async (socialUser: { firstName: string; lastName: string; email: string }): Promise<User> => {
+    const users = getInitialUsers();
+    let user = users.find(u => u.email === socialUser.email);
+    
+    if (user) {
+      // User exists, log them in
+      const { password, ...userWithoutPassword } = user;
+      setCurrentUser(userWithoutPassword);
+      return userWithoutPassword;
+    } else {
+      // User does not exist, create a new account
+      const newUser: User = { 
+        id: Date.now(), 
+        name: `${socialUser.firstName} ${socialUser.lastName}`, 
+        email: socialUser.email,
+        // No password for social login, so the password property will be undefined
+      };
+      const updatedUsers = [...users, newUser];
+      window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+      
+      const { password: _, ...userWithoutPassword } = newUser;
+      setCurrentUser(userWithoutPassword);
+      return userWithoutPassword;
+    }
+  };
+
   const value = {
     currentUser,
     isAuthenticated: !!currentUser,
     login,
     logout,
     signup,
+    socialLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,60 +1,71 @@
-import React, { useState } from 'react';
-import { MessageCircleIcon, CloseIcon, SendIcon } from './icons';
+import React, { useEffect } from 'react';
+
+// FIX: Add global type declarations for Facebook SDK properties and custom attributes.
+// This informs TypeScript about properties on the `window` object and custom HTML attributes
+// that are dynamically added by the Facebook SDK, resolving compile-time errors.
+declare global {
+  // Extend the Window interface to include properties added by the Facebook SDK.
+  interface Window {
+    fbAsyncInit: () => void;
+    FB: {
+      init: (params: { xfbml: boolean; version: string }) => void;
+    };
+  }
+
+  // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.
+  namespace React {
+    interface HTMLAttributes<T> {
+      page_id?: string;
+      attribution?: string;
+      logged_in_greeting?: string;
+      logged_out_greeting?: string;
+    }
+  }
+}
 
 const MessengerPlugin: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    // This effect hook will run once when the component mounts.
+    // It's responsible for loading and initializing the Facebook SDK.
+
+    // Define the global fbAsyncInit function. The SDK calls this once it's loaded.
+    window.fbAsyncInit = function() {
+      // Initialize the SDK
+      if (window.FB) {
+          window.FB.init({
+            xfbml      : true,  // This tells the SDK to parse social plugins on the page.
+            version    : 'v19.0' // Use a specific, recent API version.
+          });
+      }
+    };
+
+    // This is a standard IIFE (Immediately Invoked Function Expression) to load an external script.
+    (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      // If the script tag with this ID already exists, don't add it again.
+      if (d.getElementById(id)) return;
+      js = d.createElement(s) as HTMLScriptElement; js.id = id;
+      js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+      if (fjs && fjs.parentNode) {
+        fjs.parentNode.insertBefore(js, fjs);
+      }
+    }(document, 'script', 'facebook-jssdk'));
+
+  }, []); // The empty dependency array means this effect runs only once.
 
   return (
     <>
-      {/* Chat Window */}
-      <div
-        className={`fixed bottom-24 right-5 w-80 md:w-96 bg-white rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-in-out transform ${
-          isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-        }`}
-      >
-        <div className="flex justify-between items-center p-4 bg-orange-500 text-white rounded-t-2xl">
-          <h3 className="font-bold text-lg">Chat with PetBhai</h3>
-          <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded-full">
-            <CloseIcon className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="p-4 h-80 overflow-y-auto bg-slate-50">
-           <div className="space-y-4">
-                <div className="flex items-start gap-2.5">
-                    <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl">
-                        <p className="text-sm font-normal text-gray-900">Hi there! How can we help you today?</p>
-                    </div>
-                </div>
-                <div className="flex items-start gap-2.5">
-                    <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl">
-                        <p className="text-sm font-normal text-gray-900">Our support team is available from 9 AM to 6 PM.</p>
-                    </div>
-                </div>
-           </div>
-        </div>
-        <div className="p-3 bg-white border-t border-slate-200 rounded-b-2xl">
-            <div className="flex items-center space-x-2">
-                <input
-                    type="text"
-                    placeholder="Type your message..."
-                    className="flex-grow p-2.5 border border-slate-300 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-                    disabled
-                />
-                <button disabled className="bg-orange-500 text-white rounded-full p-3 disabled:bg-orange-300">
-                    <SendIcon className="w-5 h-5" />
-                </button>
-            </div>
-        </div>
-      </div>
-
-      {/* FAB Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-5 right-5 w-16 h-16 bg-orange-500 rounded-full text-white shadow-xl z-40 flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-orange-300"
-        aria-label="Open chat"
-      >
-        {isOpen ? <CloseIcon className="w-8 h-8"/> : <MessageCircleIcon className="w-8 h-8" />}
-      </button>
+      <div id="fb-root"></div>
+      <div 
+        className="fb-customerchat"
+        // --- IMPORTANT ---
+        // You MUST replace '106952955493913' with your actual Facebook Page ID.
+        // You can find your Page ID in the "About" section of your Facebook Page.
+        page_id="106952955493913" 
+        attribution="biz_inbox"
+        logged_in_greeting="Hi! How can we help you with PetBhai today?"
+        logged_out_greeting="Hi! How can we help you with PetBhai today?"
+      ></div>
     </>
   );
 };

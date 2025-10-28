@@ -5,6 +5,8 @@ import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
 import { MOCK_POSTS } from '../constants';
 import type { Post } from '../types';
+import { GoogleIcon, AppleIcon } from '../components/icons';
+import { signInWithGoogle, signInWithApple } from '../services/authService';
 
 const POSTS_STORAGE_KEY = 'petbhai_posts';
 
@@ -25,8 +27,9 @@ const getInitialPosts = (): Post[] => {
 };
 
 const CommunityPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, socialLogin } = useAuth();
   const [posts, setPosts] = useState<Post[]>(getInitialPosts);
+  const [isLoading, setIsLoading] = useState<'google' | 'apple' | null>(null);
 
   useEffect(() => {
     try {
@@ -38,6 +41,20 @@ const CommunityPage: React.FC = () => {
 
   const handleAddPost = (newPost: Post) => {
     setPosts(prevPosts => [newPost, ...prevPosts]);
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'apple') => {
+      setIsLoading(provider);
+      try {
+          const socialUser = provider === 'google' ? await signInWithGoogle() : await signInWithApple();
+          await socialLogin(socialUser);
+          // The user is now logged in, and the component will re-render
+      } catch (error) {
+          console.error(`${provider} Sign-In failed`, error);
+          alert(`Failed to sign in with ${provider}. Please try again.`);
+      } finally {
+          setIsLoading(null);
+      }
   };
 
   return (
@@ -52,10 +69,29 @@ const CommunityPage: React.FC = () => {
       {isAuthenticated ? (
         <CreatePostForm onAddPost={handleAddPost} />
       ) : (
-        <div className="bg-orange-50 border-l-4 border-orange-500 text-orange-800 p-6 rounded-r-lg mb-8 text-center">
-          <p className="font-bold text-lg">Want to join the conversation?</p>
-          <p className="mt-2">
-            <Link to="/login" className="font-bold text-orange-600 hover:underline">Log in</Link> or <Link to="/signup" className="font-bold text-orange-600 hover:underline">sign up</Link> to create your own posts.
+        <div className="bg-white p-8 rounded-2xl shadow-lg mb-8 text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Join the Conversation!</h2>
+          <p className="text-slate-600 mb-6">Sign in to share your stories and connect with our community.</p>
+
+          <div className="space-y-4 max-w-sm mx-auto">
+              <button onClick={() => handleSocialLogin('google')} disabled={!!isLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                  <GoogleIcon className="w-6 h-6" />
+                  <span className="font-semibold text-slate-700">{isLoading === 'google' ? 'Signing in...' : 'Sign in with Google'}</span>
+              </button>
+                <button onClick={() => handleSocialLogin('apple')} disabled={!!isLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-900 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                  <AppleIcon className="w-6 h-6" />
+                  <span className="font-semibold">{isLoading === 'apple' ? 'Signing in...' : 'Sign in with Apple'}</span>
+              </button>
+          </div>
+          
+          <div className="flex items-center my-6">
+              <div className="flex-grow border-t border-slate-200"></div>
+              <span className="flex-shrink mx-4 text-slate-500 font-semibold text-sm">OR</span>
+              <div className="flex-grow border-t border-slate-200"></div>
+          </div>
+
+          <p className="text-slate-600">
+            <Link to="/login" className="font-semibold text-orange-600 hover:underline">Log in with email</Link> or <Link to="/signup" className="font-semibold text-orange-600 hover:underline">sign up</Link>.
           </p>
         </div>
       )}
