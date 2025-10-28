@@ -41,6 +41,7 @@ interface AuthContextType {
   logout: () => void;
   signup: (name: string, email: string, password: string) => Promise<User>;
   socialLogin: (socialUser: { firstName: string; lastName: string; email: string }) => Promise<User>;
+  updateProfile: (updatedData: { name?: string; profilePictureUrl?: string; }) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,9 +65,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     const users = getInitialUsers();
     const user = users.find(u => u.email === email && u.password === password);
     if (user) {
-      const { password, ...userWithoutPassword } = user;
-      setCurrentUser(userWithoutPassword);
-      return userWithoutPassword;
+      setCurrentUser(user);
+      return user;
     } else {
       throw new Error("Invalid email or password");
     }
@@ -81,13 +81,18 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     if (users.some(u => u.email === email)) {
       throw new Error("User with this email already exists");
     }
-    const newUser: User = { id: Date.now(), name, email, password };
+    const newUser: User = { 
+        id: Date.now(), 
+        name, 
+        email, 
+        password,
+        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200` // Default avatar
+    };
     const updatedUsers = [...users, newUser];
     window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
     
-    const { password: _, ...userWithoutPassword } = newUser;
-    setCurrentUser(userWithoutPassword);
-    return userWithoutPassword;
+    setCurrentUser(newUser);
+    return newUser;
   };
 
   const socialLogin = async (socialUser: { firstName: string; lastName: string; email: string }): Promise<User> => {
@@ -96,25 +101,49 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     
     if (user) {
       // User exists, log them in
-      const { password, ...userWithoutPassword } = user;
-      setCurrentUser(userWithoutPassword);
-      return userWithoutPassword;
+      setCurrentUser(user);
+      return user;
     } else {
       // User does not exist, create a new account
       const newUser: User = { 
         id: Date.now(), 
         name: `${socialUser.firstName} ${socialUser.lastName}`, 
         email: socialUser.email,
+        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`, // Default avatar
         // No password for social login, so the password property will be undefined
       };
       const updatedUsers = [...users, newUser];
       window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
       
-      const { password: _, ...userWithoutPassword } = newUser;
-      setCurrentUser(userWithoutPassword);
-      return userWithoutPassword;
+      setCurrentUser(newUser);
+      return newUser;
     }
   };
+  
+  const updateProfile = async (updatedData: { name?: string; profilePictureUrl?: string; }): Promise<User> => {
+    if (!currentUser) {
+        throw new Error("No user is currently logged in.");
+    }
+    
+    const users = getInitialUsers();
+    let userToUpdate: User | undefined;
+    const updatedUsers = users.map(u => {
+        if (u.id === currentUser.id) {
+            userToUpdate = { ...u, ...updatedData };
+            return userToUpdate;
+        }
+        return u;
+    });
+
+    if (!userToUpdate) {
+        throw new Error("Could not find the current user in the database.");
+    }
+
+    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+    setCurrentUser(userToUpdate);
+    return userToUpdate;
+  };
+
 
   const value = {
     currentUser,
@@ -123,6 +152,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     logout,
     signup,
     socialLogin,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

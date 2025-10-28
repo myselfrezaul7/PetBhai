@@ -31,3 +31,12 @@ export const signInWithGoogle = (): Promise<MockUser> => {
         email: 'israt.google@example.com'
     });
 };
+
+export const signInWithFacebook = (): Promise<MockUser> => {
+    console.log("Simulating Facebook Sign-In...");
+    return simulateApiCall({
+        firstName: 'Farhan',
+        lastName: 'Ahmed',
+        email: 'farhan.facebook@example.com'
+    });
+};

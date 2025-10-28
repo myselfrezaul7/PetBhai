@@ -5,7 +5,7 @@ import { MOCK_PRODUCTS } from '../constants';
 import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon } from '../components/icons';
 
-type FilterType = 'All' | 'Dog Food' | 'Cat Food';
+type FilterType = 'All' | 'Dog Food' | 'Cat Food' | 'Dog Supplies' | 'Cat Supplies' | 'Grooming';
 
 const ShopPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
@@ -20,10 +20,10 @@ const ShopPage: React.FC = () => {
   const FilterButton: React.FC<{ filter: FilterType }> = ({ filter }) => (
     <button
       onClick={() => setActiveFilter(filter)}
-      className={`px-6 py-2 rounded-full font-semibold transition-colors text-lg ${
+      className={`px-5 py-2 rounded-full font-semibold transition-colors text-base whitespace-nowrap ${
         activeFilter === filter
           ? 'bg-orange-500 text-white shadow-md'
-          : 'bg-white text-slate-600 hover:bg-orange-100'
+          : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-orange-100 dark:hover:bg-slate-600'
       }`}
     >
       {filter}
@@ -33,15 +33,18 @@ const ShopPage: React.FC = () => {
   return (
     <>
       <div className="container mx-auto px-6 py-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-4">Shop For Your Buddy</h1>
-        <p className="text-lg text-center text-slate-600 max-w-3xl mx-auto mb-10">
+        <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Shop For Your Buddy</h1>
+        <p className="text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
           All proceeds from our shop go directly towards funding our rescue and rehabilitation efforts.
         </p>
 
-        <div className="flex justify-center items-center space-x-2 md:space-x-4 mb-16 bg-slate-100 p-2 rounded-full max-w-md mx-auto">
+        <div className="flex justify-center items-center flex-wrap gap-3 md:gap-4 mb-16 bg-slate-100 dark:bg-slate-800 p-3 rounded-full max-w-2xl mx-auto">
           <FilterButton filter="All" />
           <FilterButton filter="Dog Food" />
           <FilterButton filter="Cat Food" />
+          <FilterButton filter="Dog Supplies" />
+          <FilterButton filter="Cat Supplies" />
+          <FilterButton filter="Grooming" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">

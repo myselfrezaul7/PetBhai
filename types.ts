@@ -18,6 +18,7 @@ export interface User {
   name: string;
   email: string;
   password?: string; // Only for registration, not stored in session
+  profilePictureUrl?: string;
 }
 
 export interface Post {
@@ -25,6 +26,7 @@ export interface Post {
   author: {
     id: number;
     name:string;
+    profilePictureUrl?: string;
   };
   content: string;
   imageUrl?: string;
@@ -44,7 +46,7 @@ export interface Vet {
 export interface Product {
   id: number;
   name: string;
-  category: 'Cat Food' | 'Dog Food';
+  category: 'Cat Food' | 'Dog Food' | 'Cat Supplies' | 'Dog Supplies' | 'Grooming';
   price: number;
   imageUrl: string;
   description: string;
