@@ -22,9 +22,9 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
         <p className="text-slate-700 dark:text-slate-300 mt-4 flex-grow text-base line-clamp-3">{animal.description}</p>
       </div>
        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 mt-auto">
-          <p className="text-center font-semibold text-orange-600 group-hover:text-orange-700">
-            View Details & Adopt
-          </p>
+          <div className="w-full text-center bg-orange-500 text-white font-bold py-2.5 px-4 rounded-lg group-hover:bg-orange-600 transition-colors">
+            Adopt Me
+          </div>
         </div>
     </Link>
   );
