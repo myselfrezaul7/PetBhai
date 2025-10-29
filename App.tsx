@@ -18,6 +18,8 @@ import { CartProvider } from './contexts/CartContext';
 import CheckoutPage from './pages/CheckoutPage';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilePage from './pages/ProfilePage';
+import NotFoundPage from './pages/NotFoundPage';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
@@ -41,9 +43,11 @@ function App() {
                   <Route path="/shop" element={<ShopPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </main>
               <MessengerPlugin />
+              <ScrollToTop />
               <Footer />
             </div>
           </HashRouter>

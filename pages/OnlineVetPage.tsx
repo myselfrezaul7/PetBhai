@@ -20,7 +20,7 @@ const OnlineVetPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-6 py-16 animate-fade-in">
         <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">Consult a Veterinarian Online</h1>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mt-4">

@@ -32,7 +32,7 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-6 py-16 animate-fade-in">
         <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Shop For Your Buddy</h1>
         <p className="text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
           All proceeds from our shop go directly towards funding our rescue and rehabilitation efforts.

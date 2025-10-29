@@ -15,7 +15,17 @@
       tailwind.config = {
         darkMode: 'class',
         theme: {
-          extend: {},
+          extend: {
+             animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out forwards',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+            },
+          },
         }
       }
     </script>
@@ -29,6 +39,34 @@
       /* Add a subtle transition to all elements for a smoother feel */
       * {
         transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+      }
+       /* Initial App Loader */
+      .app-loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100%;
+        background-color: #f8fafc;
+      }
+      .dark .app-loader {
+        background-color: #0f172a;
+      }
+      .app-loader .paw-print {
+        --paw-color: #f97316;
+        width: 60px;
+        height: 60px;
+        animation: paw-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes paw-pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 1;
+        }
       }
     </style>
   <script type="importmap">
@@ -44,7 +82,17 @@
 </script>
 </head>
   <body class="bg-slate-50 dark:bg-slate-900">
-    <div id="root"></div>
+    <div id="root">
+        <div class="app-loader">
+            <svg class="paw-print" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--paw-color)">
+                <path d="M12.0001 14.62C10.1501 14.62 8.44006 15.61 7.50006 17.15C7.03006 18.01 6.79006 18.99 6.81006 19.99C6.83006 21.12 7.33006 22.18 8.19006 22.9C9.05006 23.63 10.2001 24 11.4101 24C12.9801 24 14.4501 23.32 15.4901 22.15C15.9301 21.65 16.2701 21.05 16.5001 20.41C16.9201 19.29 16.8101 18.02 16.2001 16.92C15.3601 15.44 13.7801 14.62 12.0001 14.62Z"></path>
+                <path d="M8.22 3.19001C9.66 3.19001 10.82 4.35001 10.82 5.79001C10.82 7.23001 9.66 8.39001 8.22 8.39001C6.78 8.39001 5.62 7.23001 5.62 5.79001C5.62 4.35001 6.78 3.19001 8.22 3.19001Z"></path>
+                <path d="M15.78 3.19001C17.22 3.19001 18.38 4.35001 18.38 5.79001C18.38 7.23001 17.22 8.39001 15.78 8.39001C14.34 8.39001 13.18 7.23001 13.18 5.79001C13.18 4.35001 14.34 3.19001 15.78 3.19001Z"></path>
+                <path d="M18.79 10.19C20.23 10.19 21.39 11.35 21.39 12.79C21.39 14.23 20.23 15.39 18.79 15.39C17.35 15.39 16.19 14.23 16.19 12.79C16.19 11.35 17.35 10.19 18.79 10.19Z"></path>
+                <path d="M5.21 10.19C6.65 10.19 7.81 11.35 7.81 12.79C7.81 14.23 6.65 15.39 5.21 15.39C3.77 15.39 2.61 14.23 2.61 12.79C2.61 11.35 3.77 10.19 5.21 10.19Z"></path>
+            </svg>
+        </div>
+    </div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

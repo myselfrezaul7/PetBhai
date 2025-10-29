@@ -94,7 +94,7 @@ const CheckoutPage: React.FC = () => {
 
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 animate-fade-in">
       <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-10">Checkout</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
         

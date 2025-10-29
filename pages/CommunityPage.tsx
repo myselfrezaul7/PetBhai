@@ -65,7 +65,7 @@ const CommunityPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12 max-w-3xl">
+    <div className="container mx-auto px-6 py-12 max-w-3xl animate-fade-in">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-slate-800 dark:text-white">Community Hub</h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 mt-2">

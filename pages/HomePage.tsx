@@ -11,7 +11,7 @@ const HomePage: React.FC = () => {
   const featuredPost = MOCK_POSTS[0];
 
   return (
-    <div className="w-full">
+    <div className="w-full animate-fade-in">
       {/* Hero Section */}
       <section 
         className="relative bg-cover bg-center text-white min-h-[65vh] flex items-center justify-center" 

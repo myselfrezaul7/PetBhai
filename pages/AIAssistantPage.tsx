@@ -3,14 +3,46 @@ import type { ChatMessage } from '../types';
 import { getVetAssistantResponse } from '../services/geminiService';
 import { PawIcon, SendIcon } from '../components/icons';
 
+const CHAT_HISTORY_STORAGE_KEY = 'petbhai_ai_chat_history';
+
+const getInitialChatHistory = (): ChatMessage[] => {
+  try {
+    const storedHistory = window.localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+    if (storedHistory) {
+      const parsed = JSON.parse(storedHistory);
+      // Basic validation to ensure it's an array
+      if (Array.isArray(parsed)) {
+          return parsed;
+      }
+    }
+  } catch (error) {
+    console.error("Error reading chat history from localStorage", error);
+    // If parsing fails, remove the corrupted item to prevent future errors
+    window.localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+  }
+  return []; // Return empty array if nothing is stored or if there's an error
+};
+
 const AIAssistantPage: React.FC = () => {
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(getInitialChatHistory);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory]);
+  
+  useEffect(() => {
+    try {
+        if (chatHistory.length > 0) {
+            window.localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
+        } else {
+            window.localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+        }
+    } catch (error) {
+        console.error("Error saving chat history to localStorage", error);
+    }
   }, [chatHistory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,8 +66,12 @@ const AIAssistantPage: React.FC = () => {
     }
   };
 
+  const handleClearChat = () => {
+      setChatHistory([]);
+  };
+
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] container mx-auto p-4 max-w-3xl">
+    <div className="flex flex-col h-[calc(100vh-80px)] container mx-auto p-4 max-w-3xl animate-fade-in">
       <div className="text-center mb-6 pt-4">
         <h1 className="text-4xl font-bold text-slate-800 dark:text-white">AI Vet Assistant</h1>
         <p className="text-lg text-slate-600 dark:text-slate-300">Ask general questions about pet health and care.</p>
@@ -87,6 +123,13 @@ const AIAssistantPage: React.FC = () => {
           </div>
         </div>
         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+           {chatHistory.length > 0 && (
+             <div className="text-center mb-2">
+                <button onClick={handleClearChat} className="text-sm text-slate-500 dark:text-slate-400 hover:text-red-600 hover:underline">
+                  Clear Chat
+                </button>
+             </div>
+           )}
           <form onSubmit={handleSubmit} className="flex items-center space-x-3">
             <input
               type="text"

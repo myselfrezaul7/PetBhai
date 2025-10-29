@@ -11,7 +11,7 @@ const AnimalDetailPage: React.FC = () => {
 
   if (!animal) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 animate-fade-in">
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Animal not found!</h1>
         <p className="text-slate-600 dark:text-slate-300 mt-4">The animal you are looking for might have been adopted or the link is incorrect.</p>
         <Link to="/adopt" className="mt-8 inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-colors">
@@ -23,7 +23,7 @@ const AnimalDetailPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-6 py-12">
+      <div className="container mx-auto px-6 py-12 animate-fade-in">
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden md:flex">
             <div className="md:w-1/2">
                 <img src={animal.imageUrl} alt={animal.name} className="w-full h-full object-cover min-h-[300px]" />

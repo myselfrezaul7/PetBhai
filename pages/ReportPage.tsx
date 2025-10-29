@@ -70,7 +70,7 @@ const ReportPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 flex-grow flex items-center justify-center">
+    <div className="container mx-auto px-4 py-12 flex-grow flex items-center justify-center animate-fade-in">
       <div className="w-full max-w-2xl bg-white dark:bg-slate-800 p-8 md:p-12 rounded-2xl shadow-xl">
         <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-4">Report an Animal for Rescue</h1>
         <p className="text-lg text-center text-slate-600 dark:text-slate-300 mb-10">
