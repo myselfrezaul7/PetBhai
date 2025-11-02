@@ -264,7 +264,7 @@ const ProductDetailPage: React.FC = () => {
         {relatedProducts.length > 0 && (
             <div className="mt-16">
                 <h2 className="text-3xl font-bold text-center text-slate-800 dark:text-white mb-8">You Might Also Like</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
                     {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
                 </div>
             </div>

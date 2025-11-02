@@ -80,10 +80,10 @@ const CheckoutPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in">
       <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-10">Checkout</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+      <div className="flex flex-col-reverse lg:flex-row gap-12 max-w-5xl mx-auto">
         
         {/* Customer Form */}
-        <div className="glass-card p-8">
+        <div className="glass-card p-8 lg:w-[58%]">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{isAuthenticated ? 'Confirm Shipping Details' : 'Guest Checkout'}</h2>
             <p className="text-slate-600 dark:text-slate-300 mb-6">We'll use this information for delivery.</p>
              
@@ -177,7 +177,7 @@ const CheckoutPage: React.FC = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="glass-card p-8 h-fit">
+        <div className="glass-card p-8 h-fit lg:w-[42%]">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Order Summary</h2>
           <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
             {cartItems.map(item => (

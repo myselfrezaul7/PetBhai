@@ -213,7 +213,7 @@ const ProfilePage: React.FC = () => {
                             <div className="space-y-4">
                                 {currentUser.orderHistory.map(order => (
                                     <div key={order.orderId} className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
-                                        <div className="flex justify-between items-center mb-2">
+                                        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2">
                                             <p className="font-bold text-slate-800 dark:text-white">Order: {order.orderId}</p>
                                             <p className="font-semibold text-slate-800 dark:text-white">Total: ৳{order.total.toFixed(2)}</p>
                                         </div>

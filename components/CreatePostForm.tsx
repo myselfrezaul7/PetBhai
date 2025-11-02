@@ -68,12 +68,12 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
           ></textarea>
         </div>
         {image && (
-            <div className="mt-4 pl-16 relative">
+            <div className="mt-4 pl-4 sm:pl-16 relative">
                 <img src={image} alt="Preview" className="max-h-60 w-full rounded-lg object-cover" />
                 <button onClick={() => setImage(null)} className="absolute top-2 right-2 bg-black/50 text-white rounded-full h-7 w-7 flex items-center justify-center font-bold text-lg hover:bg-black/80">&times;</button>
             </div>
         )}
-        <div className="flex justify-between items-center mt-4 pl-16">
+        <div className="flex justify-between items-center mt-4 pl-4 sm:pl-16">
             <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center space-x-2 text-orange-600 hover:text-orange-800 dark:hover:text-orange-400 font-semibold">
                 <ImageIcon className="w-6 h-6" />
                 <span>Add Photo</span>

@@ -37,11 +37,11 @@ const HomePage: React.FC = () => {
       {/* Best Sellers Section */}
       <section className="py-20">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-4">Our Best Sellers</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white mb-4">Our Best Sellers</h2>
           <p className="max-w-3xl mx-auto text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-12">
             Loved by pets and their parents. Check out our top-rated products.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {bestSellers.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -57,7 +57,7 @@ const HomePage: React.FC = () => {
                     <img src="https://picsum.photos/seed/services-cta/600/400" alt="Professional Pet Services" className="rounded-2xl shadow-lg" loading="lazy" />
                 </div>
                 <div className="md:w-1/2 text-center md:text-left">
-                    <h2 className="text-4xl font-bold text-slate-800 dark:text-white">All The Care In One Place</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white">All The Care In One Place</h2>
                     <p className="text-lg text-slate-700 dark:text-slate-300 mt-4">
                         From expert veterinarians to trusted groomers and trainers, find and book all the professional services your pet deserves.
                     </p>
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
       {/* Shop by Brand Section */}
       <section className="py-20">
           <div className="container mx-auto px-6 text-center">
-              <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-12">Shop by Brand</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white mb-12">Shop by Brand</h2>
               <div className="flex flex-wrap justify-center items-center gap-8">
                   {MOCK_BRANDS.map(brand => (
                       <Link key={brand.id} to="/shop" state={{ brand: brand.name }} className="grayscale hover:grayscale-0 transition-all duration-300 transform hover:scale-110">
@@ -89,11 +89,11 @@ const HomePage: React.FC = () => {
       {/* New Arrivals Section */}
       <section className="py-20 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-4">New Arrivals</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white mb-4">New Arrivals</h2>
           <p className="max-w-3xl mx-auto text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-12">
             The latest and greatest products, fresh in our store.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {newArrivals.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="glass-card text-center p-10 md:p-16">
-            <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white drop-shadow-lg">Upgrade to PetBhai+</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white drop-shadow-lg">Upgrade to PetBhai+</h2>
             <p className="max-w-3xl mx-auto text-lg mt-4 text-slate-700 dark:text-slate-200 drop-shadow-md">
               Unlock exclusive benefits like free delivery, member-only discounts, and free vet consultations. Give your pet the best with our premium membership.
             </p>

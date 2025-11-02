@@ -24,7 +24,7 @@ const BlogPage: React.FC = () => {
             {popularArticles.length > 0 && (
                 <div className="mb-16">
                     <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">Recent Posts</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 max-w-6xl mx-auto">
                         {popularArticles.map(article => (
                             <ArticleCard key={article.id} article={article} />
                         ))}
@@ -37,7 +37,7 @@ const BlogPage: React.FC = () => {
             {otherArticles.length > 0 && (
                  <div>
                     <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">Older Articles</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 max-w-6xl mx-auto">
                         {otherArticles.map(article => (
                             <ArticleCard key={article.id} article={article} />
                         ))}
