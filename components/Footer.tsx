@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2 text-slate-600 dark:text-slate-300">
                 <li><Link to="/adopt" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Adopt a Pet</Link></li>
                 <li><Link to="/volunteer" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Volunteer</Link></li>
-                <li><Link to="/report" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Report an Animal</Link></li>
+                <li><Link to="/report" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Report a Rescue</Link></li>
                 <li><Link to="/faq" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">FAQ</Link></li>
             </ul>
           </div>

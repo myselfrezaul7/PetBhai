@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard';
 import CartSidebar from '../components/CartSidebar';
 import { MOCK_PRODUCTS, MOCK_BRANDS } from '../constants';
 import { useCart } from '../contexts/CartContext';
-import { ShoppingCartIcon } from '../components/icons';
+import { ShoppingCartIcon, SearchIcon } from '../components/icons';
 import type { Product } from '../types';
 
 type CategoryFilter = 'All' | 'Dog Food' | 'Cat Food' | 'Dog Supplies' | 'Cat Supplies' | 'Grooming';
@@ -15,18 +15,28 @@ const ShopPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('All');
   const [activeBrand, setActiveBrand] = useState<string>(location.state?.brand || 'All');
   const [sortOption, setSortOption] = useState<SortOption>('default');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { cartCount } = useCart();
 
   const sortedAndFilteredProducts = useMemo(() => {
     let products: Product[] = [...MOCK_PRODUCTS];
 
-    // Filter by category
+    // 1. Filter by search query
+    if (searchQuery.trim() !== '') {
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        products = products.filter(p => 
+            p.name.toLowerCase().includes(lowerCaseQuery) ||
+            p.category.toLowerCase().includes(lowerCaseQuery)
+        );
+    }
+
+    // 2. Filter by category
     if (activeCategory !== 'All') {
       products = products.filter(p => p.category === activeCategory);
     }
 
-    // Filter by brand
+    // 3. Filter by brand
     if (activeBrand !== 'All') {
         const brand = MOCK_BRANDS.find(b => b.name === activeBrand);
         if(brand) {
@@ -34,7 +44,7 @@ const ShopPage: React.FC = () => {
         }
     }
 
-    // Sort
+    // 4. Sort
     switch(sortOption) {
         case 'price-asc':
             products.sort((a, b) => a.price - b.price);
@@ -51,7 +61,7 @@ const ShopPage: React.FC = () => {
     }
 
     return products;
-  }, [activeCategory, activeBrand, sortOption]);
+  }, [activeCategory, activeBrand, sortOption, searchQuery]);
 
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = ({ filter }) => (
     <button
@@ -75,7 +85,22 @@ const ShopPage: React.FC = () => {
         </p>
         
         {/* Filters & Sorting */}
-        <div className="glass-card p-4 mb-12 space-y-4">
+        <div className="glass-card p-4 mb-12 space-y-6">
+            {/* Search Bar */}
+            <div className="relative max-w-lg mx-auto">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                </span>
+                <input
+                    type="text"
+                    placeholder="Search products by name or category..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full py-3 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    aria-label="Search products"
+                />
+            </div>
+
              <div className="flex flex-wrap items-center justify-center gap-2">
                 <CategoryFilterButton filter="All" />
                 <CategoryFilterButton filter="Dog Food" />
@@ -84,7 +109,7 @@ const ShopPage: React.FC = () => {
                 <CategoryFilterButton filter="Cat Supplies" />
                 <CategoryFilterButton filter="Grooming" />
             </div>
-             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-white/20 dark:border-slate-700/50">
+             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 border-t border-white/20 dark:border-slate-700/50">
                 <div className="flex items-center gap-2">
                     <label htmlFor="brand-filter" className="font-semibold text-slate-700 dark:text-slate-200">Brand:</label>
                     <select id="brand-filter" value={activeBrand} onChange={e => setActiveBrand(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500">

@@ -21,25 +21,30 @@ const VolunteerPage: React.FC = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label htmlFor="fullName" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Name</label>
+                                <label htmlFor="fullName" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Name <span className="text-red-500">*</span></label>
                                 <input type="text" id="fullName" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" />
                             </div>
                             <div>
-                                <label htmlFor="email" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Email Address</label>
+                                <label htmlFor="email" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Email Address <span className="text-red-500">*</span></label>
                                 <input type="email" id="email" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" />
                             </div>
                              <div>
-                                <label htmlFor="phone" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Phone Number</label>
+                                <label htmlFor="phone" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Phone Number <span className="text-red-500">*</span></label>
                                 <input type="tel" id="phone" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" />
                             </div>
                              <div>
-                                <label htmlFor="availability" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Availability</label>
+                                <label htmlFor="availability" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Availability <span className="text-red-500">*</span></label>
                                 <select id="availability" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50">
                                     <option>Weekdays</option>
                                     <option>Weekends</option>
                                     <option>Flexible</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="address" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Address <span className="text-red-500">*</span></label>
+                            <textarea id="address" rows={3} required placeholder="Your full address for coordination purposes" className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"></textarea>
                         </div>
 
                         <div>
@@ -50,7 +55,7 @@ const VolunteerPage: React.FC = () => {
                                 <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Rescue Transport</span></label>
                                 <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Fundraising</span></label>
                                 <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Photography</span></label>
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Admin Support</span></label>
+                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Spot Treatment</span></label>
                             </div>
                         </div>
 

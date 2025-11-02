@@ -20,7 +20,7 @@ const HomePage: React.FC = () => {
           <div className="max-w-xl">
             <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-2xl">A Loving Home For Every Animal</h1>
             <p className="mt-4 text-lg md:text-xl max-w-lg drop-shadow-lg">
-              Your trusted partner in animal welfare. Adopt, find expert services, and shop premium supplies to give them the life they deserve.
+              Your trusted partner in animal welfare. Adopt, find expert services, and shop premium essentials to give them the life they deserve.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-start items-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link

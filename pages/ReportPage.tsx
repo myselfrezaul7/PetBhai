@@ -10,7 +10,7 @@ const ReportPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -39,7 +39,7 @@ const ReportPage: React.FC = () => {
 
     if (selectedFile) {
         if (selectedFile.size > MAX_FILE_SIZE) {
-            setFileError('File is too large. Please select a file under 5MB.');
+            setFileError('File is too large. Please select a file under 10MB.');
             setFile(null);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
@@ -72,7 +72,7 @@ const ReportPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-12 flex-grow flex items-center justify-center animate-fade-in">
       <div className="w-full max-w-2xl glass-card p-8 md:p-12">
-        <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-4">Report an Animal for Rescue</h1>
+        <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-4">Report a Rescue</h1>
         <p className="text-lg text-center text-slate-700 dark:text-slate-200 mb-10">
           See an animal that needs help? Fill out the form below, and our rescue team will be alerted.
         </p>
@@ -104,7 +104,7 @@ const ReportPage: React.FC = () => {
                     {!file && <p>No file selected.</p>}
                 </div>
             </div>
-             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-1">Max file size: 5MB. Videos and images are accepted.</p>
+             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-1">Max file size: 10MB. Videos and images are accepted.</p>
              {fileError && <p className="text-sm text-red-600 mt-2">{fileError}</p>}
           </div>
 

@@ -59,34 +59,51 @@ const AdoptPage: React.FC = () => {
       
 
       {/* Filters Section */}
-      <div className="glass-card p-4 mb-16 space-y-4">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-200 mr-2">Species:</span>
-            <FilterButton label="All" isActive={animalTypeFilter === 'All'} onClick={() => setAnimalTypeFilter('All')} />
-            <FilterButton label="Dogs" isActive={animalTypeFilter === 'Dog'} onClick={() => setAnimalTypeFilter('Dog')} />
-            <FilterButton label="Cats" isActive={animalTypeFilter === 'Cat'} onClick={() => setAnimalTypeFilter('Cat')} />
-        </div>
-         <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-200 mr-2">Gender:</span>
-            <FilterButton label="Any" isActive={genderFilter === 'All'} onClick={() => setGenderFilter('All')} />
-            <FilterButton label="Male" isActive={genderFilter === 'Male'} onClick={() => setGenderFilter('Male')} />
-            <FilterButton label="Female" isActive={genderFilter === 'Female'} onClick={() => setGenderFilter('Female')} />
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-200 mr-2">Age:</span>
-            <FilterButton label="Any" isActive={ageFilter === 'All'} onClick={() => setAgeFilter('All')} />
-            <FilterButton label="Puppy/Kitten" isActive={ageFilter === 'Puppy/Kitten'} onClick={() => setAgeFilter('Puppy/Kitten')} />
-            <FilterButton label="Young" isActive={ageFilter === 'Young'} onClick={() => setAgeFilter('Young')} />
-            <FilterButton label="Adult" isActive={ageFilter === 'Adult'} onClick={() => setAgeFilter('Adult')} />
-            <FilterButton label="Senior" isActive={ageFilter === 'Senior'} onClick={() => setAgeFilter('Senior')} />
-        </div>
-         <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-200 mr-2">Status:</span>
-            <FilterButton label="Available" isActive={statusFilter === 'Available'} onClick={() => setStatusFilter('Available')} />
-            <FilterButton label="Pending" isActive={statusFilter === 'Pending'} onClick={() => setStatusFilter('Pending')} />
-            <FilterButton label="Adopted" isActive={statusFilter === 'Adopted'} onClick={() => setStatusFilter('Adopted')} />
-            <FilterButton label="All" isActive={statusFilter === 'All'} onClick={() => setStatusFilter('All')} />
-        </div>
+      <div className="glass-card p-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Species Filter */}
+              <div className="flex flex-col space-y-2">
+                  <label className="font-bold text-slate-700 dark:text-slate-200">Species</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                      <FilterButton label="All" isActive={animalTypeFilter === 'All'} onClick={() => setAnimalTypeFilter('All')} />
+                      <FilterButton label="Dogs" isActive={animalTypeFilter === 'Dog'} onClick={() => setAnimalTypeFilter('Dog')} />
+                      <FilterButton label="Cats" isActive={animalTypeFilter === 'Cat'} onClick={() => setAnimalTypeFilter('Cat')} />
+                  </div>
+              </div>
+
+              {/* Gender Filter */}
+              <div className="flex flex-col space-y-2">
+                  <label className="font-bold text-slate-700 dark:text-slate-200">Gender</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                      <FilterButton label="Any" isActive={genderFilter === 'All'} onClick={() => setGenderFilter('All')} />
+                      <FilterButton label="Male" isActive={genderFilter === 'Male'} onClick={() => setGenderFilter('Male')} />
+                      <FilterButton label="Female" isActive={genderFilter === 'Female'} onClick={() => setGenderFilter('Female')} />
+                  </div>
+              </div>
+
+              {/* Age Filter */}
+              <div className="flex flex-col space-y-2">
+                  <label className="font-bold text-slate-700 dark:text-slate-200">Age</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                      <FilterButton label="Any" isActive={ageFilter === 'All'} onClick={() => setAgeFilter('All')} />
+                      <FilterButton label="Puppy/Kitten" isActive={ageFilter === 'Puppy/Kitten'} onClick={() => setAgeFilter('Puppy/Kitten')} />
+                      <FilterButton label="Young" isActive={ageFilter === 'Young'} onClick={() => setAgeFilter('Young')} />
+                      <FilterButton label="Adult" isActive={ageFilter === 'Adult'} onClick={() => setAgeFilter('Adult')} />
+                      <FilterButton label="Senior" isActive={ageFilter === 'Senior'} onClick={() => setAgeFilter('Senior')} />
+                  </div>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex flex-col space-y-2">
+                  <label className="font-bold text-slate-700 dark:text-slate-200">Status</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                      <FilterButton label="Available" isActive={statusFilter === 'Available'} onClick={() => setStatusFilter('Available')} />
+                      <FilterButton label="Pending" isActive={statusFilter === 'Pending'} onClick={() => setStatusFilter('Pending')} />
+                      <FilterButton label="Adopted" isActive={statusFilter === 'Adopted'} onClick={() => setStatusFilter('Adopted')} />
+                      <FilterButton label="All" isActive={statusFilter === 'All'} onClick={() => setStatusFilter('All')} />
+                  </div>
+              </div>
+          </div>
       </div>
 
       {filteredAnimals.length > 0 ? (
