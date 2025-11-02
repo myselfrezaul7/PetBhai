@@ -3,11 +3,12 @@ import { MOCK_ARTICLES } from '../constants';
 import ArticleCard from '../components/ArticleCard';
 
 const BlogPage: React.FC = () => {
-    // IDs of the new, important articles
-    const popularArticleIds = [4, 5, 6, 7, 8];
+    // Sort all articles by date, newest first
+    const sortedArticles = [...MOCK_ARTICLES].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    const popularArticles = MOCK_ARTICLES.filter(article => popularArticleIds.includes(article.id));
-    const otherArticles = MOCK_ARTICLES.filter(article => !popularArticleIds.includes(article.id));
+    // Take the first 5 as featured/popular
+    const popularArticles = sortedArticles.slice(0, 5);
+    const otherArticles = sortedArticles.slice(5);
 
 
     return (
@@ -22,7 +23,7 @@ const BlogPage: React.FC = () => {
             {/* Popular Topics Section */}
             {popularArticles.length > 0 && (
                 <div className="mb-16">
-                    <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">Popular Topics</h2>
+                    <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">Recent Posts</h2>
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
                         {popularArticles.map(article => (
                             <ArticleCard key={article.id} article={article} />
@@ -35,7 +36,7 @@ const BlogPage: React.FC = () => {
             {/* All Articles Section */}
             {otherArticles.length > 0 && (
                  <div>
-                    <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">More Articles</h2>
+                    <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">Older Articles</h2>
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
                         {otherArticles.map(article => (
                             <ArticleCard key={article.id} article={article} />

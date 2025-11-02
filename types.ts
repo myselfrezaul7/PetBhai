@@ -17,7 +17,7 @@ export interface Brand {
 export interface Article {
   id: number;
   title: string;
-  excerpt: string;
+  content: string;
   imageUrl: string;
   author: string;
   date: string; // ISO string

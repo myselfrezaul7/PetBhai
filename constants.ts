@@ -1,4 +1,6 @@
-import type { User, Post, Vet, Product, Order, Comment, Brand, Review, Article, Animal, VetReview, Groomer, Trainer, PetSitter } from './types';
+
+
+import type { User, Post, Vet, Product, Order, Comment, Brand, Review, Article, VetReview, Groomer, Trainer, PetSitter, Animal } from './types';
 
 export const MOCK_BRANDS: Brand[] = [
     { id: 1, name: 'Royal Canin', logoUrl: 'https://i.ibb.co/LzB7sSg/royalcanin-logo.png' },
@@ -224,63 +226,81 @@ export const MOCK_VETS: Vet[] = [
 
 export const MOCK_ARTICLES: Article[] = [
     {
+        id: 10,
+        title: "Canine Parvovirus: A Deadly Threat to Dogs in Bangladesh",
+        content: "Canine Parvovirus (CPV) is a severe, highly contagious viral illness that primarily affects unvaccinated dogs and puppies. As a veterinarian in Bangladesh, I see its devastating effects firsthand. Key symptoms include severe vomiting, bloody diarrhea, lethargy, and loss of appetite. Transmission occurs through direct contact with an infected dog or contaminated feces, environments, or even on people's hands and clothing. **Immediate veterinary intervention is critical for survival.** This article breaks down the signs to watch for, the science behind the virus, and underscores the single most effective prevention method: timely and complete vaccination. Protecting your puppy starts with understanding this deadly threat.",
+        imageUrl: "https://picsum.photos/seed/blog-parvo-prevention/600/400",
+        author: "Dr. Fatima Ahmed",
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        readTime: 6
+    },
+    {
+        id: 9,
+        title: "Potty Training Your Puppy or Kitten: A Step-by-Step Guide",
+        content: "Bringing a new puppy or kitten home is a joyous occasion, but successful potty training is key to a harmonious household. This guide, based on proven veterinary behavioral principles, will walk you through the essential steps. We'll cover establishing a consistent routine, recognizing your pet's 'I have to go' signals, the power of positive reinforcement with treats and praise, and common mistakes to avoid. Whether you're crate training a puppy or litter box training a kitten, these fundamental, humane techniques will set you and your new companion up for success.",
+        imageUrl: "https://picsum.photos/seed/blog-potty-guide/600/400",
+        author: "Dr. Nazia Islam",
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        readTime: 7
+    },
+    {
         id: 4,
         title: "A Guide to Cat Care in Bangladesh: Health, Diet, and Happiness",
-        excerpt: "Everything a new cat owner in Bangladesh needs to know, from choosing the right food in our climate to essential grooming and health check-ups.",
+        content: "Owning a cat in Bangladesh comes with its unique set of joys and challenges. This guide provides essential tips for local cat owners.\n\n**Diet:** Given the hot and humid climate, ensure your cat has constant access to fresh, clean water. Opt for high-quality wet food to supplement their hydration. Look for foods rich in taurine, an essential amino acid for feline health. Avoid feeding them cooked bones, onions, or chocolate, which are toxic.\n\n**Health:** Regular vet check-ups are crucial. Common issues in our region include fleas, ticks, and heatstroke. Keep your cat indoors during the hottest parts of the day. A clean litter box is non-negotiable for preventing urinary tract issues.",
         imageUrl: "https://picsum.photos/seed/blog4/600/400",
         author: "Dr. Nazia Islam",
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 8
     },
     {
         id: 5,
         title: "Essential Vaccination Schedule for Dogs in Bangladesh",
-        excerpt: "Protect your canine companion from common diseases. Here's a complete vaccination timeline every dog owner in Bangladesh should follow.",
+        content: "Vaccinations are the most effective way to protect your dog from life-threatening diseases prevalent in Bangladesh. Here is a general timeline, but always consult your vet for a personalized schedule.\n\n**Core Vaccines:**\n- **6-8 weeks:** Distemper, Parvovirus (DHLPPi).\n- **10-12 weeks:** Second DHLPPi booster.\n- **14-16 weeks:** Third DHLPPi booster and first Rabies vaccine.\n\n**Annual Boosters:** All core vaccines, including Rabies, require annual boosters to maintain immunity. Protecting your dog is a lifelong commitment.",
         imageUrl: "https://picsum.photos/seed/blog5/600/400",
         author: "Dr. Kabir Hossain",
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 6
     },
     {
         id: 6,
         title: "What is FIP? A Guide for Cat Owners in Bangladesh",
-        excerpt: "Feline Infectious Peritonitis (FIP) is a serious concern. Learn about the symptoms, diagnosis, and current state of treatment to be an informed cat parent.",
+        content: "Feline Infectious Peritonitis (FIP) is a viral disease caused by a feline coronavirus. While most strains of feline coronavirus are harmless, in some cats, the virus can mutate and cause FIP, which is progressive and often fatal.\n\n**Symptoms:** Symptoms can be vague and include lethargy, weight loss, and fever. The 'wet' form is characterized by fluid accumulation in the abdomen or chest, while the 'dry' form involves inflammatory lesions in organs. Diagnosis is complex and often requires a combination of tests. While historically considered a death sentence, new antiviral treatments are showing promise, but they can be expensive and hard to access in Bangladesh. Prevention through good hygiene and reducing stress in multi-cat households is key.",
         imageUrl: "https://picsum.photos/seed/blog6/600/400",
         author: "PetBhai Team",
-        date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+        date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 7
     },
     {
         id: 7,
         title: "Rabies Prevention: Protecting Your Pet and Your Family",
-        excerpt: "Rabies is a critical public health issue. Understand the importance of the rabies vaccine for your pets and what to do in case of a bite.",
+        content: "Rabies is a deadly viral disease that is 100% preventable through vaccination. In Bangladesh, where stray dogs are common, it is a significant public health concern. The virus is transmitted through the saliva of infected animals, usually via a bite.\n\n**For Your Pet:** The rabies vaccine is a legal and ethical requirement for all dog and cat owners. It protects not only your pet but also creates a barrier to prevent the disease from spreading to humans.\n\n**For Your Family:** Never approach an unknown or wild animal. Teach children to do the same. If bitten, immediately wash the wound with soap and water for 15 minutes and seek medical attention from a doctor right away to receive post-exposure prophylaxis (PEP).",
         imageUrl: "https://picsum.photos/seed/blog7/600/400",
         author: "Dr. Fatima Ahmed",
-        date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+        date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 5
     },
     {
         id: 8,
         title: "The Importance of Spaying and Neutering Your Pet",
-        excerpt: "Discover the health and behavioral benefits of spaying or neutering your cat or dog. It's a responsible choice for a happier, healthier pet and community.",
+        content: "Spaying (for females) and neutering (for males) are surgical procedures that prevent pets from reproducing. This single decision has numerous benefits for your pet and the community.\n\n**Health Benefits:** It significantly reduces the risk of certain cancers, like mammary and testicular cancer. It also eliminates the risk of uterine infections (pyometra) in females.\n\n**Behavioral Benefits:** Neutered males are less likely to roam, mark territory, or display aggression. Spayed females won't go into heat, avoiding yowling and messy cycles.\n\n**Community Impact:** Most importantly, it helps control the overpopulation of stray animals, reducing the number of homeless pets suffering on the streets. It is the most responsible choice a pet owner can make.",
         imageUrl: "https://picsum.photos/seed/blog8/600/400",
         author: "PetBhai Team",
-        date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 6
     },
     {
         id: 1,
         title: "The Ultimate Guide to Choosing the Right Food for Your Pet",
-        excerpt: "Nutrition is the cornerstone of your pet's health. Learn how to decipher labels and select the best diet for your furry friend's age, breed, and lifestyle.",
+        content: "Nutrition is the foundation of your pet's health. With so many options available, choosing the right food can feel overwhelming. Here's what to look for.\n\n**Read the Label:** The first ingredient should always be a named meat source (e.g., 'Chicken', not 'Meat By-product'). Avoid foods with artificial colors, flavors, and preservatives. \n\n**Age-Specific Formulas:** Puppies and kittens have different nutritional needs than adult or senior pets. Always choose a food that is appropriate for your pet's life stage. \n\n**Breed & Size:** Large breed dogs have different requirements than small breeds to support their joint health. Some brands offer breed-specific formulas tailored to their unique needs. When in doubt, always consult your veterinarian.",
         imageUrl: "https://picsum.photos/seed/blog1/600/400",
         author: "Dr. Nazia Islam",
-        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 7
     },
     {
         id: 2,
         title: "5 Essential Grooming Tips for a Healthy Coat",
-        excerpt: "Regular grooming is more than just about looking good. Discover five simple tips to keep your pet's coat healthy, shiny, and free from mats and tangles.",
+        content: "Grooming is about more than just good looks; it's vital for your pet's health.\n\n1. **Brush Regularly:** Brushing removes loose fur, prevents matting, and distributes natural oils, keeping the coat shiny. The type of brush depends on your pet's coat length.\n2. **Nail Trims:** Overlong nails are uncomfortable and can cause joint problems. Trim them every 3-4 weeks.\n3. **Ear Cleaning:** Check ears weekly for wax buildup or odor, which can signal infection. Clean with a vet-approved solution.\n4. **Bathing:** Bathe your pet only when necessary, using a pet-specific shampoo to avoid drying out their skin.\n5. **Dental Care:** Brush your pet's teeth daily to prevent plaque and dental disease.",
         imageUrl: "https://picsum.photos/seed/blog2/600/400",
         author: "Aisha Rahman",
         date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
@@ -289,7 +309,7 @@ export const MOCK_ARTICLES: Article[] = [
     {
         id: 3,
         title: "Interactive Toys: Keeping Your Pet Mentally Stimulated",
-        excerpt: "Boredom can lead to behavioral issues. Find out how interactive toys can provide essential mental stimulation for a happier, more well-behaved companion.",
+        content: "A bored pet is often a destructive pet. Mental stimulation is just as important as physical exercise. Interactive toys are a fantastic way to engage your pet's brain.\n\n**Food Puzzles:** These toys require your pet to solve a problem to get a treat. They slow down eating and provide a mental workout.\n\n**LickiMats:** Spreading a pet-safe treat on a LickiMat can be a calming activity for anxious pets.\n\n**Feather Wands & Laser Pointers (for cats):** These toys mimic prey and engage a cat's natural hunting instincts. Always end a laser pointer session with a physical treat to avoid frustration.",
         imageUrl: "https://picsum.photos/seed/blog3/600/400",
         author: "PetBhai Team",
         date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),

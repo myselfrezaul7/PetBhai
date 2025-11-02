@@ -11,31 +11,25 @@ const HomePage: React.FC = () => {
   return (
     <div className="w-full animate-fade-in">
       {/* Hero Section */}
-      <section 
-        className="relative bg-cover bg-center text-white min-h-[70vh] flex items-center" 
-        style={{ backgroundImage: "url('https://picsum.photos/seed/hero/1200/800')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/30"></div>
-        <div className="relative container mx-auto px-6 z-10">
-          <div className="max-w-xl">
-            <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-2xl">A Loving Home For Every Animal</h1>
-            <p className="mt-4 text-lg md:text-xl max-w-lg drop-shadow-lg">
-              Your trusted partner in animal welfare. Adopt, find expert services, and shop premium essentials to give them the life they deserve.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row justify-start items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Link
-                to="/adopt"
-                className="inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
-              >
-                Find a Friend
-              </Link>
-               <Link
-                to="/shop"
-                className="inline-block bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-white hover:text-slate-800 transition-all transform hover:scale-105 duration-300 shadow-lg"
-              >
-                Shop Supplies
-              </Link>
-            </div>
+      <section className="container mx-auto px-6 pt-20 pb-12">
+        <div className="glass-card text-center p-10 md:p-16">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 dark:text-white drop-shadow-lg">A Loving Home For Every Animal</h1>
+          <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-700 dark:text-slate-200 drop-shadow-md">
+            Your trusted partner in animal welfare. Adopt, find expert services, and shop premium essentials to give them the life they deserve.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <Link
+              to="/adopt"
+              className="inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
+            >
+              Find a Friend
+            </Link>
+             <Link
+              to="/shop"
+              className="inline-block bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
+            >
+              Shop Supplies
+            </Link>
           </div>
         </div>
       </section>

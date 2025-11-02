@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -21,6 +21,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
+const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'));
 const VetDetailPage = lazy(() => import('./pages/VetDetailPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const PlusMembershipPage = lazy(() => import('./pages/PlusMembershipPage'));
@@ -40,6 +41,32 @@ const AppLoader: React.FC = () => (
 
 
 function App() {
+  useEffect(() => {
+    // This function handles the service worker registration.
+    const registerServiceWorker = () => {
+      if ('serviceWorker' in navigator) {
+        const swUrl = `${window.location.origin}/service-worker.js`;
+        navigator.serviceWorker.register(swUrl)
+          .then(registration => {
+            // SW registration successful
+          })
+          .catch(error => {
+            console.error('SW registration failed:', error);
+          });
+      }
+    };
+
+    // The 'load' event is the most reliable point to register a service worker.
+    // It ensures the page is fully loaded and won't be competing for resources.
+    window.addEventListener('load', registerServiceWorker);
+
+    // Cleanup the event listener when the component unmounts.
+    return () => {
+      window.removeEventListener('load', registerServiceWorker);
+    };
+  }, []); // Empty dependency array ensures this runs only once.
+
+
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -63,6 +90,7 @@ function App() {
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/blog" element={<BlogPage />} />
+                    <Route path="/blog/:id" element={<ArticleDetailPage />} />
                     <Route path="/plus-membership" element={<PlusMembershipPage />} />
                     <Route path="/adopt" element={<AdoptPage />} />
                     <Route path="/adopt/:id" element={<AnimalDetailPage />} />
