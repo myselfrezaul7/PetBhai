@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import { getVetAssistantResponse } from '../services/geminiService';
-import { PawIcon, SendIcon, CloseIcon } from '../components/icons';
+import { PawIcon, SendIcon, CloseIcon, TrashIcon } from '../components/icons';
 
 const CHAT_HISTORY_STORAGE_KEY = 'petbhai_ai_chat_history';
 const WARNING_DISMISSED_KEY = 'petbhai_ai_warning_dismissed';
@@ -207,8 +207,9 @@ const AIAssistantPage: React.FC = () => {
         <div className="p-4 bg-black/5 dark:bg-black/10 border-t border-white/20 dark:border-slate-700/50">
            {chatHistory.length > 0 && (
              <div className="text-center mb-2">
-                <button onClick={handleClearChat} className="text-sm text-slate-500 dark:text-slate-400 hover:text-red-600 hover:underline">
-                  Clear Chat
+                <button onClick={handleClearChat} className="inline-flex items-center space-x-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors px-3 py-1 rounded-md hover:bg-red-500/10">
+                  <TrashIcon className="w-4 h-4" />
+                  <span>Clear Chat</span>
                 </button>
              </div>
            )}
