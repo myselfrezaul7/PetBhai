@@ -3,15 +3,12 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
-import AdoptPage from './pages/AdoptPage';
-import ReportPage from './pages/ReportPage';
 import AIAssistantPage from './pages/AIAssistantPage';
-import AnimalDetailPage from './pages/AnimalDetailPage';
 import CommunityPage from './pages/CommunityPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import { AuthProvider } from './contexts/AuthContext';
-import OnlineVetPage from './pages/OnlineVetPage';
+import ConsultVetPage from './pages/ConsultVetPage';
 import ShopPage from './pages/ShopPage';
 import MessengerPlugin from './components/MessengerPlugin';
 import { CartProvider } from './contexts/CartContext';
@@ -20,6 +17,10 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import ScrollToTop from './components/ScrollToTop';
+import CookieConsentBanner from './components/CookieConsentBanner';
+import ProductDetailPage from './pages/ProductDetailPage';
+import BlogPage from './pages/BlogPage';
+import VetDetailPage from './pages/VetDetailPage';
 
 function App() {
   return (
@@ -32,23 +33,24 @@ function App() {
               <main className="flex-grow">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/adopt" element={<AdoptPage />} />
-                  <Route path="/adopt/:id" element={<AnimalDetailPage />} />
                   <Route path="/community" element={<CommunityPage />} />
-                  <Route path="/report" element={<ReportPage />} />
-                  <Route path="/online-vet" element={<OnlineVetPage />} />
+                  <Route path="/consult-a-vet" element={<ConsultVetPage />} />
+                  <Route path="/consult-a-vet/:id" element={<VetDetailPage />} />
                   <Route path="/ai-assistant" element={<AIAssistantPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignUpPage />} />
                   <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/product/:id" element={<ProductDetailPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/blog" element={<BlogPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </main>
               <MessengerPlugin />
               <ScrollToTop />
               <Footer />
+              <CookieConsentBanner />
             </div>
           </HashRouter>
         </CartProvider>

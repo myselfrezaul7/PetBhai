@@ -4,7 +4,7 @@ import { MenuIcon, CloseIcon, SearchIcon, UserIcon } from './icons';
 import Logo from './Logo';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
-import { MOCK_ANIMALS, MOCK_PRODUCTS } from '../constants';
+import { MOCK_PRODUCTS } from '../constants';
 import SearchResults, { type SearchResultsData } from './SearchResults';
 
 interface PageResult {
@@ -15,11 +15,10 @@ interface PageResult {
 const ALL_PAGES: PageResult[] = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    { name: 'Online Vet', path: '/online-vet' },
-    { name: 'Adopt a Pet', path: '/adopt' },
+    { name: 'Consult a Vet', path: '/consult-a-vet' },
     { name: 'Community Hub', path: '/community' },
-    { name: 'Report a Rescue', path: '/report' },
     { name: 'AI Vet Assistant', path: '/ai-assistant' },
+    { name: 'Blog', path: '/blog' },
 ];
 
 const Header: React.FC = () => {
@@ -33,12 +32,13 @@ const Header: React.FC = () => {
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResultsData>({ pets: [], products: [], pages: [] });
+  const [searchResults, setSearchResults] = useState<SearchResultsData>({ products: [], pages: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchAnnouncement, setSearchAnnouncement] = useState('');
   
-  const activeLinkClass = 'text-orange-600 font-semibold';
-  const inactiveLinkClass = 'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500';
+  const activeLinkClass = 'text-orange-500 dark:text-orange-400 font-semibold';
+  const inactiveLinkClass = 'text-slate-700 dark:text-slate-200 hover:text-orange-600 dark:hover:text-orange-500';
   
   const handleLogout = () => {
     logout();
@@ -66,35 +66,40 @@ const Header: React.FC = () => {
   // Debounced search effect
   useEffect(() => {
     if (searchQuery.trim().length < 2) {
-        setSearchResults({ pets: [], products: [], pages: [] });
+        setSearchResults({ products: [], pages: [] });
         setIsSearching(false);
+        setSearchAnnouncement('');
         return;
     }
 
     setIsSearching(true);
+    setSearchAnnouncement('Searching...');
 
     const handler = setTimeout(() => {
         const lowerCaseQuery = searchQuery.toLowerCase();
-        
-        const filteredPets = MOCK_ANIMALS.filter(animal => 
-            animal.name.toLowerCase().includes(lowerCaseQuery) ||
-            animal.breed.toLowerCase().includes(lowerCaseQuery)
-        ).slice(0, 3);
 
         const filteredProducts = MOCK_PRODUCTS.filter(product =>
             product.name.toLowerCase().includes(lowerCaseQuery) ||
             product.category.toLowerCase().includes(lowerCaseQuery)
-        ).slice(0, 3);
+        ).slice(0, 4);
         
         const filteredPages = ALL_PAGES.filter(page =>
             page.name.toLowerCase().includes(lowerCaseQuery)
         ).slice(0, 3);
+        
+        const totalResults = filteredProducts.length + filteredPages.length;
 
         setSearchResults({
-            pets: filteredPets,
             products: filteredProducts,
             pages: filteredPages,
         });
+
+        if (totalResults > 0) {
+            setSearchAnnouncement(`${totalResults} results found.`);
+        } else {
+            setSearchAnnouncement(`No results found for "${searchQuery}"`);
+        }
+
         setIsSearching(false);
     }, 300);
 
@@ -138,82 +143,94 @@ const Header: React.FC = () => {
     </NavLink>
   );
 
+  const DesktopNavLink: React.FC<{ to: string, children: React.ReactNode }> = ({ to, children }) => (
+    <li><NavLink to={to} className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>{children}</NavLink></li>
+  );
+
   return (
     <>
-      <header className="bg-white/80 dark:bg-slate-900/80 shadow-sm sticky top-0 z-20 backdrop-blur-lg">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <header className="bg-white/30 dark:bg-slate-900/30 shadow-md sticky top-0 z-20 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/30">
+        <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
           <NavLink to="/" className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <Logo className="w-10 h-10 text-orange-500" />
-            <span>PetBhai</span>
+            <span className="hidden sm:inline">PetBhai</span>
           </NavLink>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <ul className="flex items-center space-x-8 text-base font-medium">
-              <li><NavLink to="/" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>Home</NavLink></li>
-              <li><NavLink to="/shop" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>Shop</NavLink></li>
-              <li><NavLink to="/online-vet" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>Online Vet</NavLink></li>
-              <li><NavLink to="/adopt" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>Adopt</NavLink></li>
-              <li><NavLink to="/community" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>Community</NavLink></li>
-              <li><NavLink to="/report" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>Report Rescue</NavLink></li>
-              <li><NavLink to="/ai-assistant" className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>AI Assistant</NavLink></li>
+          <div className="hidden lg:flex items-center space-x-6">
+            <ul className="flex items-center space-x-6 text-[15px] font-medium">
+                <DesktopNavLink to="/">Home</DesktopNavLink>
+                <DesktopNavLink to="/shop">Shop</DesktopNavLink>
+                <DesktopNavLink to="/blog">Blog</DesktopNavLink>
+                <DesktopNavLink to="/community">Community</DesktopNavLink>
+                <DesktopNavLink to="/consult-a-vet">Consult a Vet</DesktopNavLink>
             </ul>
-             {/* Search Bar */}
-            <div className="relative" ref={searchRef}>
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-              </span>
-              <input
-                type="text"
-                placeholder="Search for pets, products..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                className="w-64 py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-700 transition-all"
-                aria-label="Search"
-                autoComplete="off"
-              />
-              {isSearchActive && searchQuery && (
-                <SearchResults 
-                    query={searchQuery}
-                    results={searchResults}
-                    loading={isSearching}
-                    onClose={closeSearchResults}
-                />
-              )}
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              {isAuthenticated && currentUser ? (
-                  <div className="relative" ref={profileMenuRef}>
-                      <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="flex items-center space-x-2">
-                         {currentUser.profilePictureUrl ? (
-                            <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                <UserIcon className="w-6 h-6 text-slate-500 dark:text-slate-300" />
-                            </div>
-                          )}
-                          <span className="font-semibold text-slate-700 dark:text-slate-200">Hi, {currentUser.name.split(' ')[0]}</span>
-                      </button>
-                      {isProfileMenuOpen && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-20 py-2">
-                              <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">My Profile</Link>
-                              <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">Logout</button>
-                          </div>
-                      )}
-                  </div>
-              ) : (
-                  <>
-                      <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">Login</NavLink>
-                      <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-5 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105">Sign Up</NavLink>
-                  </>
-              )}
-            </div>
           </div>
+           {/* Search Bar & Profile */}
+           <div className="hidden lg:flex items-center space-x-4">
+                <div className="relative" ref={searchRef}>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                </span>
+                <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={handleSearchFocus}
+                    className="w-48 py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-700 transition-all"
+                    aria-label="Search"
+                    autoComplete="off"
+                    role="combobox"
+                    aria-expanded={isSearchActive && !!searchQuery}
+                    aria-haspopup="listbox"
+                    aria-autocomplete="list"
+                    aria-controls="search-results-desktop"
+                />
+                {isSearchActive && searchQuery && (
+                    <SearchResults 
+                        id="search-results-desktop"
+                        query={searchQuery}
+                        results={searchResults}
+                        loading={isSearching}
+                        onClose={closeSearchResults}
+                    />
+                )}
+                </div>
+            
+                <ThemeToggle />
+
+                {isAuthenticated && currentUser ? (
+                    <div className="relative" ref={profileMenuRef}>
+                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="flex items-center space-x-2">
+                            {currentUser.profilePictureUrl ? (
+                                <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
+                            ) : (
+                                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                    <UserIcon className="w-6 h-6 text-slate-500 dark:text-slate-300" />
+                                </div>
+                            )}
+                        </button>
+                        {isProfileMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-20 py-2 border border-slate-200 dark:border-slate-700">
+                                <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+                                    <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">Hi, {currentUser.name.split(' ')[0]}</p>
+                                </div>
+                                <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">My Profile</Link>
+                                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">Logout</button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <>
+                        <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">Login</NavLink>
+                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105">Sign Up</NavLink>
+                    </>
+                )}
+            </div>
 
           {/* Mobile Menu Button & Search Toggle */}
-          <div className={`md:hidden flex items-center ${isSearchOpen ? 'flex-grow' : ''}`}>
+          <div className={`lg:hidden flex items-center ${isSearchOpen ? 'flex-grow' : ''}`}>
              {isSearchOpen ? (
                 <div className="w-full flex items-center" ref={searchRef}>
                     <div className="relative flex-grow">
@@ -222,17 +239,23 @@ const Header: React.FC = () => {
                         </span>
                         <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Search products..."
                             value={searchQuery}
                             onChange={handleSearchChange}
                             onFocus={handleSearchFocus}
-                            className="w-full py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="w-full py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
                             aria-label="Search"
                             autoFocus
                             autoComplete="off"
+                            role="combobox"
+                            aria-expanded={isSearchActive && !!searchQuery}
+                            aria-haspopup="listbox"
+                            aria-autocomplete="list"
+                            aria-controls="search-results-mobile"
                         />
                          {isSearchActive && searchQuery && (
                             <SearchResults 
+                                id="search-results-mobile"
                                 query={searchQuery}
                                 results={searchResults}
                                 loading={isSearching}
@@ -240,16 +263,16 @@ const Header: React.FC = () => {
                             />
                         )}
                     </div>
-                    <button onClick={handleCloseMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 ml-2 p-1">
+                    <button onClick={handleCloseMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 ml-2 p-1" aria-label="Close search">
                         <CloseIcon className="w-8 h-8" />
                     </button>
                 </div>
             ) : (
                 <div className="flex items-center space-x-4">
-                    <button onClick={handleOpenMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">
+                    <button onClick={handleOpenMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Open search">
                       <SearchIcon className="w-7 h-7" />
                     </button>
-                    <button onClick={() => setIsMenuOpen(true)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">
+                    <button onClick={() => setIsMenuOpen(true)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Open menu">
                       <MenuIcon className="w-8 h-8" />
                     </button>
                 </div>
@@ -259,15 +282,15 @@ const Header: React.FC = () => {
       </header>
       
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-white dark:bg-slate-900 z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden flex flex-col`}>
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center flex-shrink-0">
+      <div className={`fixed inset-0 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-lg z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden flex flex-col`}>
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-700">
            <NavLink to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white">
             <Logo className="w-10 h-10 text-orange-500" />
             <span>PetBhai</span>
           </NavLink>
           <div className="flex items-center space-x-2">
             <ThemeToggle />
-            <button onClick={() => setIsMenuOpen(false)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">
+            <button onClick={() => setIsMenuOpen(false)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Close menu">
               <CloseIcon className="w-8 h-8" />
             </button>
           </div>
@@ -276,10 +299,9 @@ const Header: React.FC = () => {
             <nav className="flex flex-col space-y-6">
                 <MobileNavLink to="/">Home</MobileNavLink>
                 <MobileNavLink to="/shop">Shop</MobileNavLink>
-                <MobileNavLink to="/online-vet">Online Vet</MobileNavLink>
-                <MobileNavLink to="/adopt">Adopt</MobileNavLink>
+                <MobileNavLink to="/blog">Blog</MobileNavLink>
                 <MobileNavLink to="/community">Community</MobileNavLink>
-                <MobileNavLink to="/report">Report Rescue</MobileNavLink>
+                <MobileNavLink to="/consult-a-vet">Consult a Vet</MobileNavLink>
                 <MobileNavLink to="/ai-assistant">AI Assistant</MobileNavLink>
             </nav>
             <div className="mt-12 w-full px-8">
@@ -306,6 +328,9 @@ const Header: React.FC = () => {
               )}
             </div>
         </div>
+      </div>
+      <div role="status" className="sr-only" aria-live="polite">
+        {searchAnnouncement}
       </div>
     </>
   );

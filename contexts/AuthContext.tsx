@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import type { User } from '../types';
+import type { User, Order } from '../types';
 import { MOCK_USERS } from '../constants';
 
 // For demonstration purposes, we'll use localStorage to simulate a user database.
@@ -42,6 +42,12 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<User>;
   socialLogin: (socialUser: { firstName: string; lastName: string; email: string }) => Promise<User>;
   updateProfile: (updatedData: { name?: string; profilePictureUrl?: string; }) => Promise<User>;
+  addToWishlist: (productId: number) => void;
+  removeFromWishlist: (productId: number) => void;
+  addOrderToHistory: (order: Order) => void;
+  // FIX: Added missing methods for favoriting pets.
+  favoritePet: (animalId: number) => void;
+  unfavoritePet: (animalId: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,6 +66,12 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         console.error("Error writing current user to localStorage", error);
     }
   }, [currentUser]);
+
+  const updateUserInStorage = (user: User) => {
+    const users = getInitialUsers();
+    const updatedUsers = users.map(u => u.id === user.id ? user : u);
+    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+  }
 
   const login = async (email: string, password: string): Promise<User> => {
     const users = getInitialUsers();
@@ -86,7 +98,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         name, 
         email, 
         password,
-        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200` // Default avatar
+        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`, // Default avatar
+        wishlist: [],
+        orderHistory: [],
+        // FIX: Initialize favorites array for new users.
+        favorites: [],
     };
     const updatedUsers = [...users, newUser];
     window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
@@ -109,8 +125,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         id: Date.now(), 
         name: `${socialUser.firstName} ${socialUser.lastName}`, 
         email: socialUser.email,
-        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`, // Default avatar
-        // No password for social login, so the password property will be undefined
+        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`,
+        wishlist: [],
+        orderHistory: [],
+        // FIX: Initialize favorites array for new users.
+        favorites: [],
       };
       const updatedUsers = [...users, newUser];
       window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
@@ -125,25 +144,47 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         throw new Error("No user is currently logged in.");
     }
     
-    const users = getInitialUsers();
-    let userToUpdate: User | undefined;
-    const updatedUsers = users.map(u => {
-        if (u.id === currentUser.id) {
-            userToUpdate = { ...u, ...updatedData };
-            return userToUpdate;
-        }
-        return u;
-    });
-
-    if (!userToUpdate) {
-        throw new Error("Could not find the current user in the database.");
-    }
-
-    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-    setCurrentUser(userToUpdate);
-    return userToUpdate;
+    const updatedUser = { ...currentUser, ...updatedData };
+    setCurrentUser(updatedUser);
+    updateUserInStorage(updatedUser);
+    return updatedUser;
   };
 
+  const addToWishlist = (productId: number) => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, wishlist: [...currentUser.wishlist, productId] };
+    setCurrentUser(updatedUser);
+    updateUserInStorage(updatedUser);
+  }
+  
+  const removeFromWishlist = (productId: number) => {
+      if (!currentUser) return;
+      const updatedUser = { ...currentUser, wishlist: currentUser.wishlist.filter(id => id !== productId) };
+      setCurrentUser(updatedUser);
+      updateUserInStorage(updatedUser);
+  }
+
+  const addOrderToHistory = (order: Order) => {
+    if(!currentUser) return;
+    const updatedUser = { ...currentUser, orderHistory: [order, ...currentUser.orderHistory] };
+    setCurrentUser(updatedUser);
+    updateUserInStorage(updatedUser);
+  }
+
+  // FIX: Implemented favorite and unfavorite pet functions.
+  const favoritePet = (animalId: number) => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, favorites: [...currentUser.favorites, animalId] };
+    setCurrentUser(updatedUser);
+    updateUserInStorage(updatedUser);
+  };
+
+  const unfavoritePet = (animalId: number) => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, favorites: currentUser.favorites.filter(id => id !== animalId) };
+    setCurrentUser(updatedUser);
+    updateUserInStorage(updatedUser);
+  };
 
   const value = {
     currentUser,
@@ -153,6 +194,12 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     signup,
     socialLogin,
     updateProfile,
+    addToWishlist,
+    removeFromWishlist,
+    addOrderToHistory,
+    // FIX: Exposed favorite and unfavorite pet functions through the context.
+    favoritePet,
+    unfavoritePet,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

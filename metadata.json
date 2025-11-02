@@ -1,7 +1,5 @@
 {
   "name": "PetBhai",
   "description": "A web application for the PetBhai animal welfare organization, featuring pet adoption, a community hub, an online shop, and an AI-powered vet assistant.",
-  "requestFramePermissions": [
-    "geolocation"
-  ]
+  "requestFramePermissions": []
 }

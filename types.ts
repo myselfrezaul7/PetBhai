@@ -1,11 +1,25 @@
-export interface Animal {
+export interface Review {
+  id: number;
+  author: string;
+  rating: number; // 1-5 stars
+  comment: string;
+  date: string; // ISO string
+}
+
+export interface Brand {
   id: number;
   name: string;
-  breed: string;
-  age: string;
-  gender: 'Male' | 'Female';
-  description: string;
+  logoUrl: string;
+}
+
+export interface Article {
+  id: number;
+  title: string;
+  excerpt: string;
   imageUrl: string;
+  author: string;
+  date: string; // ISO string
+  readTime: number; // in minutes
 }
 
 export interface ChatMessage {
@@ -13,12 +27,75 @@ export interface ChatMessage {
     text: string;
 }
 
+export interface Order {
+  orderId: string;
+  date: string; // ISO string
+  total: number;
+  items: CartItem[];
+}
+
+export type AnimalStatus = 'Available' | 'Pending' | 'Adopted';
+export type AnimalAge = 'Puppy/Kitten' | 'Young' | 'Adult' | 'Senior';
+export type AnimalGender = 'Male' | 'Female';
+export type AnimalSize = 'Small' | 'Medium' | 'Large';
+
+export interface Animal {
+  id: number;
+  name: string;
+  breed: string;
+  age: AnimalAge;
+  gender: AnimalGender;
+  size: AnimalSize;
+  status: AnimalStatus;
+  description: string;
+  imageUrl: string;
+}
+
+export interface DonationTier {
+    id: number;
+    amount: number;
+    title: string;
+    description: string;
+}
+
+export interface SuccessStory {
+    id: number;
+    animalName: string;
+    adoptionDate: string; // ISO String
+    story: string;
+    animalImageUrl: string;
+}
+
 export interface User {
   id: number;
   name: string;
   email: string;
-  password?: string; // Only for registration, not stored in session
+  password?: string;
   profilePictureUrl?: string;
+  wishlist: number[]; // Array of product IDs
+  orderHistory: Order[];
+  favorites: number[]; // Array of animal IDs
+}
+
+export interface CommentReply {
+  id: number;
+  author: {
+    id: number;
+    name: string;
+    profilePictureUrl?: string;
+  };
+  text: string;
+}
+
+export interface Comment {
+  id: number;
+  author: {
+    id: number;
+    name: string;
+    profilePictureUrl?: string;
+  };
+  text: string;
+  replies: CommentReply[];
 }
 
 export interface Post {
@@ -32,15 +109,39 @@ export interface Post {
   imageUrl?: string;
   timestamp: string; // ISO string
   likes: number;
-  comments: { id: number, authorName: string; text: string; }[];
+  comments: Comment[];
+}
+
+export type VetAvailability = 'Available Now' | 'Available Today' | 'Offline';
+export type ServiceType = 'online' | 'in-clinic';
+
+export interface VetService {
+    name: string;
+    price: number;
+    type: ServiceType;
+}
+
+export interface VetReview {
+    id: number;
+    author: string;
+    rating: number;
+    comment: string;
+    date: string; // ISO string
 }
 
 export interface Vet {
   id: number;
   name: string;
   specialization: string;
+  clinicName: string;
+  address: string;
+  phone: string;
   imageUrl: string;
-  isOnline: boolean;
+  availability: VetAvailability;
+  bio: string;
+  qualifications: string[];
+  services: VetService[];
+  reviews: VetReview[];
 }
 
 export interface Product {
@@ -51,6 +152,9 @@ export interface Product {
   imageUrl: string;
   description: string;
   weight: string;
+  brandId: number;
+  rating: number;
+  reviews: Review[];
 }
 
 export interface CartItem extends Product {

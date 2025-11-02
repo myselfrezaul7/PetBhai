@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Animal } from '../types';
+import { CloseIcon } from './icons';
 
 interface AdoptionFormProps {
   animal: Animal;
@@ -18,42 +19,42 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4 transition-opacity duration-300" onClick={onClose}>
-      <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="p-8">
           <div className="flex justify-between items-start mb-4">
             <div>
                 <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Adoption Application</h2>
-                <p className="text-slate-600 dark:text-slate-300 text-lg mt-1">You are applying to adopt: <span className="font-bold text-slate-800 dark:text-white">{animal.name}</span></p>
+                <p className="text-slate-700 dark:text-slate-200 text-lg mt-1">You are applying to adopt: <span className="font-bold text-slate-800 dark:text-white">{animal.name}</span></p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-4xl font-light">&times;</button>
+            <button onClick={onClose} className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><CloseIcon className="w-7 h-7" /></button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Personal Info */}
-            <fieldset className="border-t border-slate-200 dark:border-slate-700 pt-5">
+            <fieldset className="border-t border-slate-300/50 dark:border-slate-600/50 pt-5">
                 <legend className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-3">Your Information</legend>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="fullName" className="block text-sm font-medium text-slate-600 dark:text-slate-300">Full Name</label>
-                        <input type="text" id="fullName" required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200" />
+                        <input type="text" id="fullName" required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50" />
                     </div>
                     <div>
                         <label htmlFor="phone" className="block text-sm font-medium text-slate-600 dark:text-slate-300">Phone Number (Bangladesh)</label>
-                        <input type="tel" id="phone" pattern="(\+8801|01)[3-9]\d{8}" placeholder="+8801..." required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200" />
+                        <input type="tel" id="phone" pattern="(\+8801|01)[3-9]\d{8}" placeholder="+8801..." required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50" />
                     </div>
                 </div>
                  <div className="mt-4">
                     <label htmlFor="email" className="block text-sm font-medium text-slate-600 dark:text-slate-300">Email Address</label>
-                    <input type="email" id="email" required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200" />
+                    <input type="email" id="email" required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50" />
                 </div>
                  <div className="mt-4">
                     <label htmlFor="address" className="block text-sm font-medium text-slate-600 dark:text-slate-300">Full Address (in Bangladesh)</label>
-                    <textarea id="address" rows={3} required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200"></textarea>
+                    <textarea id="address" rows={3} required className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"></textarea>
                 </div>
             </fieldset>
 
             {/* Living Situation */}
-            <fieldset className="border-t border-slate-200 dark:border-slate-700 pt-5">
+            <fieldset className="border-t border-slate-300/50 dark:border-slate-600/50 pt-5">
                 <legend className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-3">Living Situation</legend>
                  <div>
                     <label className="block text-sm font-medium text-slate-600 dark:text-slate-300">Type of Residence</label>
@@ -74,15 +75,15 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
             </fieldset>
             
             {/* Pet Experience */}
-            <fieldset className="border-t border-slate-200 dark:border-slate-700 pt-5">
+            <fieldset className="border-t border-slate-300/50 dark:border-slate-600/50 pt-5">
                 <legend className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-3">Pet Experience</legend>
                  <div>
                     <label htmlFor="experience" className="block text-sm font-medium text-slate-600 dark:text-slate-300">Please describe your experience with pets.</label>
-                    <textarea id="experience" rows={4} required placeholder="Have you owned pets before? What kind? For how long?" className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200"></textarea>
+                    <textarea id="experience" rows={4} required placeholder="Have you owned pets before? What kind? For how long?" className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"></textarea>
                 </div>
             </fieldset>
 
-            <div className="pt-5 border-t border-slate-200 dark:border-slate-700">
+            <div className="pt-5 border-t border-slate-300/50 dark:border-slate-600/50">
               <div className="flex justify-end space-x-3">
                 <button type="button" onClick={onClose} className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold py-2 px-6 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-500">
                   Cancel

@@ -71,15 +71,15 @@ const ReportPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 flex-grow flex items-center justify-center animate-fade-in">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-800 p-8 md:p-12 rounded-2xl shadow-xl">
+      <div className="w-full max-w-2xl glass-card p-8 md:p-12">
         <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-4">Report an Animal for Rescue</h1>
-        <p className="text-lg text-center text-slate-600 dark:text-slate-300 mb-10">
+        <p className="text-lg text-center text-slate-700 dark:text-slate-200 mb-10">
           See an animal that needs help? Fill out the form below, and our rescue team will be alerted.
         </p>
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="animal-type" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Type of Animal</label>
-            <select id="animal-type" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200">
+            <select id="animal-type" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 dark:text-slate-200">
               <option>Dog</option>
               <option>Cat</option>
               <option>Bird</option>
@@ -89,7 +89,7 @@ const ReportPage: React.FC = () => {
 
           <div>
             <label htmlFor="condition" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Description of Condition</label>
-            <textarea id="condition" rows={4} required placeholder="e.g., Injured leg, looks lost and scared, etc." className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200"></textarea>
+            <textarea id="condition" rows={4} required placeholder="e.g., Injured leg, looks lost and scared, etc." className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 dark:text-slate-200"></textarea>
           </div>
           
           <div>
@@ -99,7 +99,7 @@ const ReportPage: React.FC = () => {
                 <label htmlFor="file-upload" className="cursor-pointer bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                     Choose File
                 </label>
-                <div className="text-sm text-slate-600 dark:text-slate-400">
+                <div className="text-sm text-slate-600 dark:text-slate-300">
                     {file && <p>{file.name}</p>}
                     {!file && <p>No file selected.</p>}
                 </div>
@@ -118,7 +118,7 @@ const ReportPage: React.FC = () => {
                 onChange={(e) => setLocation(e.target.value)}
                 required 
                 placeholder="e.g., Near City Park, 123 Main St"
-                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-200"
+                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 dark:text-slate-200"
               />
               <button 
                 type="button"
@@ -130,7 +130,7 @@ const ReportPage: React.FC = () => {
                 {isLocating ? 'Locating...' : 'Use My Location'}
               </button>
             </div>
-            {status && <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{status}</p>}
+            {status && <p role="status" className="text-sm text-gray-500 dark:text-gray-400 mt-2">{status}</p>}
           </div>
 
           <div>

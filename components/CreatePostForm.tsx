@@ -49,7 +49,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg mb-8">
+    <div className="glass-card p-6 mb-8">
       <form onSubmit={handleSubmit}>
         <div className="flex items-start space-x-4">
           <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -63,7 +63,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={`What's on your mind, ${currentUser?.name.split(' ')[0]}?`}
-            className="w-full p-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none"
+            className="w-full p-3 border border-slate-300/50 dark:border-slate-600/50 bg-white/50 dark:bg-slate-700/50 dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none"
             rows={3}
           ></textarea>
         </div>

@@ -4,9 +4,9 @@ import CreatePostForm from '../components/CreatePostForm';
 import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
 import { MOCK_POSTS } from '../constants';
-import type { Post } from '../types';
-import { GoogleIcon, AppleIcon, FacebookIcon } from '../components/icons';
-import { signInWithGoogle, signInWithApple, signInWithFacebook } from '../services/authService';
+import type { Post, Comment, CommentReply } from '../types';
+import { GoogleIcon } from '../components/icons';
+import { signInWithGoogle } from '../services/authService';
 
 const POSTS_STORAGE_KEY = 'petbhai_posts';
 
@@ -27,9 +27,9 @@ const getInitialPosts = (): Post[] => {
 };
 
 const CommunityPage: React.FC = () => {
-  const { isAuthenticated, socialLogin } = useAuth();
+  const { isAuthenticated, socialLogin, currentUser } = useAuth();
   const [posts, setPosts] = useState<Post[]>(getInitialPosts);
-  const [isLoading, setIsLoading] = useState<'google' | 'apple' | 'facebook' | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -42,25 +42,56 @@ const CommunityPage: React.FC = () => {
   const handleAddPost = (newPost: Post) => {
     setPosts(prevPosts => [newPost, ...prevPosts]);
   };
+  
+  const handleUpdatePost = (postId: number, newContent: string) => {
+    setPosts(posts.map(p => p.id === postId ? { ...p, content: newContent } : p));
+  };
+  
+  const handleDeletePost = (postId: number) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+        setPosts(posts.filter(p => p.id !== postId));
+    }
+  };
 
-  const handleSocialLogin = async (provider: 'google' | 'apple' | 'facebook') => {
-      setIsLoading(provider);
+  const handleAddComment = (postId: number, commentText: string) => {
+    if (!currentUser) return;
+    const newComment: Comment = {
+      id: Date.now(),
+      author: { id: currentUser.id, name: currentUser.name, profilePictureUrl: currentUser.profilePictureUrl },
+      text: commentText,
+      replies: []
+    };
+    setPosts(posts.map(p => p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p));
+  };
+
+  const handleAddReply = (postId: number, commentId: number, replyText: string) => {
+     if (!currentUser) return;
+    const newReply: CommentReply = {
+      id: Date.now(),
+      author: { id: currentUser.id, name: currentUser.name, profilePictureUrl: currentUser.profilePictureUrl },
+      text: replyText
+    };
+    setPosts(posts.map(p => 
+        p.id === postId ? {
+            ...p,
+            comments: p.comments.map(c => 
+                c.id === commentId ? { ...c, replies: [...c.replies, newReply] } : c
+            )
+        } : p
+    ));
+  };
+
+
+  const handleSocialLogin = async () => {
+      setIsLoading(true);
       try {
-          let socialUser;
-          if (provider === 'google') {
-            socialUser = await signInWithGoogle();
-          } else if (provider === 'apple') {
-            socialUser = await signInWithApple();
-          } else {
-            socialUser = await signInWithFacebook();
-          }
+          const socialUser = await signInWithGoogle();
           await socialLogin(socialUser);
-          // The user is now logged in, and the component will re-render
       } catch (error) {
-          console.error(`${provider} Sign-In failed`, error);
-          alert(`Failed to sign in with ${provider}. Please try again.`);
+          console.error(`Google Sign-In failed`, error);
+          alert(`Failed to sign in with Google. Please try again.`);
       } finally {
-          setIsLoading(null);
+          setIsLoading(false);
       }
   };
 
@@ -68,37 +99,29 @@ const CommunityPage: React.FC = () => {
     <div className="container mx-auto px-6 py-12 max-w-3xl animate-fade-in">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-slate-800 dark:text-white">Community Hub</h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 mt-2">
-          Share stories, ask questions, and connect with fellow animal lovers.
+        <p className="text-lg text-slate-700 dark:text-slate-200 mt-2">
+          Share pet care tips, product reviews, and connect with fellow pet lovers.
         </p>
       </div>
 
       {isAuthenticated ? (
         <CreatePostForm onAddPost={handleAddPost} />
       ) : (
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg mb-8 text-center">
+        <div className="glass-card p-8 mb-8 text-center">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Join the Conversation!</h2>
-          <p className="text-slate-600 dark:text-slate-300 mb-6">Sign in to share your stories and connect with our community.</p>
+          <p className="text-slate-700 dark:text-slate-200 mb-6">Sign in to share your stories and connect with our community.</p>
 
           <div className="space-y-4 max-w-sm mx-auto">
-              <button onClick={() => handleSocialLogin('google')} disabled={!!isLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+              <button onClick={handleSocialLogin} disabled={isLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
                   <GoogleIcon className="w-6 h-6" />
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">{isLoading === 'google' ? 'Signing in...' : 'Sign in with Google'}</span>
-              </button>
-              <button onClick={() => handleSocialLogin('apple')} disabled={!!isLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-900 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                  <AppleIcon className="w-6 h-6" />
-                  <span className="font-semibold">{isLoading === 'apple' ? 'Signing in...' : 'Sign in with Apple'}</span>
-              </button>
-              <button onClick={() => handleSocialLogin('facebook')} disabled={!!isLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-[#1877F2] bg-[#1877F2] text-white rounded-lg hover:bg-[#166fe5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                  <FacebookIcon className="w-6 h-6" />
-                  <span className="font-semibold">{isLoading === 'facebook' ? 'Signing in...' : 'Sign in with Facebook'}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">{isLoading ? 'Signing in...' : 'Sign in with Google'}</span>
               </button>
           </div>
           
           <div className="flex items-center my-6">
-              <div className="flex-grow border-t border-slate-200 dark:border-slate-600"></div>
+              <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
               <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-400 font-semibold text-sm">OR</span>
-              <div className="flex-grow border-t border-slate-200 dark:border-slate-600"></div>
+              <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
           </div>
 
           <p className="text-slate-600 dark:text-slate-300">
@@ -109,7 +132,14 @@ const CommunityPage: React.FC = () => {
 
       <div className="space-y-8">
         {posts.map(post => (
-          <PostCard key={post.id} post={post} />
+          <PostCard 
+            key={post.id} 
+            post={post} 
+            onUpdatePost={handleUpdatePost}
+            onDeletePost={handleDeletePost}
+            onAddComment={handleAddComment}
+            onAddReply={handleAddReply}
+          />
         ))}
       </div>
     </div>

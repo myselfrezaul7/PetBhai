@@ -14,29 +14,11 @@ const simulateApiCall = <T>(data: T, delay = 1500): Promise<T> => {
     return new Promise(resolve => setTimeout(() => resolve(data), delay));
 }
 
-export const signInWithApple = (): Promise<MockUser> => {
-    console.log("Simulating Apple Sign-In...");
-    return simulateApiCall({
-        firstName: 'Jannatul',
-        lastName: 'Ferdous',
-        email: 'jannatul.apple@example.com'
-    });
-};
-
 export const signInWithGoogle = (): Promise<MockUser> => {
     console.log("Simulating Google Sign-In...");
     return simulateApiCall({
         firstName: 'Israt',
         lastName: 'Jahan',
         email: 'israt.google@example.com'
-    });
-};
-
-export const signInWithFacebook = (): Promise<MockUser> => {
-    console.log("Simulating Facebook Sign-In...");
-    return simulateApiCall({
-        firstName: 'Farhan',
-        lastName: 'Ahmed',
-        email: 'farhan.facebook@example.com'
     });
 };
