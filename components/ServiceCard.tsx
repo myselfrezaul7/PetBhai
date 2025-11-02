@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import type { Groomer, Trainer, PetSitter } from '../types';
 
 interface ServiceCardProps {
@@ -17,7 +18,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ professional }) => {
   }
 
   return (
-    <div className="glass-card flex flex-col text-center items-center p-6 group transition-transform transform hover:-translate-y-2">
+    <Link to={`/services/professional/${professional.id}`} className="glass-card flex flex-col text-center items-center p-6 group transition-transform transform hover:-translate-y-2">
       <div className="relative">
         <img className="w-32 h-32 rounded-full object-cover ring-4 ring-orange-500/20" src={professional.imageUrl} alt={professional.name} loading="lazy" />
       </div>
@@ -40,7 +41,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ professional }) => {
             View Details
           </span>
       </div>
-    </div>
+    </Link>
   );
 };
 

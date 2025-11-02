@@ -18,22 +18,22 @@ const HomePage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/30"></div>
         <div className="relative container mx-auto px-6 z-10">
           <div className="max-w-xl">
-            <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-2xl">Quality Care For Your Best Friend</h1>
+            <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-2xl">A Loving Home For Every Animal</h1>
             <p className="mt-4 text-lg md:text-xl max-w-lg drop-shadow-lg">
-              Discover a curated selection of premium food, toys, and supplies. Everything your pet needs, delivered right to your door.
+              Your trusted partner in animal welfare. Adopt, find expert services, and shop premium supplies to give them the life they deserve.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-start items-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link
-                to="/shop"
+                to="/adopt"
                 className="inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
               >
-                Shop Now
+                Find a Friend
               </Link>
                <Link
-                to="/blog"
+                to="/shop"
                 className="inline-block bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-white hover:text-slate-800 transition-all transform hover:scale-105 duration-300 shadow-lg"
               >
-                Read Our Blog
+                Shop Supplies
               </Link>
             </div>
           </div>

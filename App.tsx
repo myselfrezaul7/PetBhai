@@ -29,6 +29,7 @@ const AnimalDetailPage = lazy(() => import('./pages/AnimalDetailPage'));
 const ReportPage = lazy(() => import('./pages/ReportPage'));
 const VolunteerPage = lazy(() => import('./pages/VolunteerPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
+const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage'));
 
 
 const AppLoader: React.FC = () => (
@@ -52,6 +53,7 @@ function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
                     <Route path="/vet/:id" element={<VetDetailPage />} />
                     <Route path="/ai-assistant" element={<AIAssistantPage />} />
                     <Route path="/login" element={<LoginPage />} />
