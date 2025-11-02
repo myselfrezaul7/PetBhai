@@ -16,9 +16,9 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   };
 
   return (
-    <Link to={`/consult-a-vet/${vet.id}`} className="glass-card flex flex-col text-center items-center p-6 group transition-transform transform hover:-translate-y-2">
+    <Link to={`/vet/${vet.id}`} className="glass-card flex flex-col text-center items-center p-6 group transition-transform transform hover:-translate-y-2">
       <div className="relative">
-        <img className="w-32 h-32 rounded-full object-cover ring-4 ring-orange-500/20" src={vet.imageUrl} alt={`Dr. ${vet.name}`} />
+        <img className="w-32 h-32 rounded-full object-cover ring-4 ring-orange-500/20" src={vet.imageUrl} alt={`Dr. ${vet.name}`} loading="lazy" />
         <span className={`absolute bottom-0 right-0 block h-6 w-max px-2 py-0.5 border-2 border-white dark:border-slate-800 rounded-full text-xs font-bold ${availabilityStyles[vet.availability]}`}>
             {vet.availability}
         </span>
@@ -54,4 +54,4 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   );
 };
 
-export default VetCard;
+export default React.memo(VetCard);

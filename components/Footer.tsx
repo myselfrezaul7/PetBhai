@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { MailIcon, FacebookIcon, InstagramIcon, YouTubeIcon } from './icons';
 import Logo from './Logo';
 
@@ -6,10 +7,10 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-lg border-t border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 pt-12 mt-auto">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
           
           {/* Column 1: Logo and Tagline */}
-          <div className="flex flex-col items-center md:items-start">
+          <div className="flex flex-col items-center md:items-start col-span-2 md:col-span-1">
             <div className="flex items-center space-x-3 mb-2">
                 <Logo className="w-10 h-10 text-orange-500" />
                 <span className="text-2xl font-bold text-slate-800 dark:text-white">PetBhai</span>
@@ -17,7 +18,18 @@ const Footer: React.FC = () => {
             <p className="text-slate-600 dark:text-slate-300">Your Pet's Favorite Store.</p>
           </div>
           
-          {/* Column 2: Contact */}
+          {/* Column 2: Get Involved */}
+          <div>
+            <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">Get Involved</h3>
+            <ul className="space-y-2 text-slate-600 dark:text-slate-300">
+                <li><Link to="/adopt" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Adopt a Pet</Link></li>
+                <li><Link to="/volunteer" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Volunteer</Link></li>
+                <li><Link to="/report" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">Report an Animal</Link></li>
+                <li><Link to="/faq" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">FAQ</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 3: Contact */}
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">Contact Us</h3>
             <a href="mailto:petbhaibd@gmail.com" className="flex items-center justify-center md:justify-start space-x-2 text-slate-700 dark:text-slate-200 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
@@ -26,13 +38,13 @@ const Footer: React.FC = () => {
             </a>
           </div>
 
-          {/* Column 3: Social Media */}
+          {/* Column 4: Social Media */}
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">Follow Us</h3>
             <div className="flex items-center justify-center md:justify-start space-x-5">
-              <a href="#" aria-label="Facebook" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><FacebookIcon className="w-7 h-7" /></a>
-              <a href="#" aria-label="Instagram" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><InstagramIcon className="w-7 h-7" /></a>
-              <a href="#" aria-label="YouTube" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><YouTubeIcon className="w-7 h-7" /></a>
+              <a href="https://facebook.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><FacebookIcon className="w-7 h-7" /></a>
+              <a href="https://instagram.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><InstagramIcon className="w-7 h-7" /></a>
+              <a href="https://youtube.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><YouTubeIcon className="w-7 h-7" /></a>
             </div>
           </div>
 

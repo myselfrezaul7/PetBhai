@@ -15,8 +15,8 @@ const VetDetailPage: React.FC = () => {
         <div className="glass-card p-12">
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Veterinarian not found!</h1>
             <p className="text-slate-700 dark:text-slate-200 mt-4">The vet you are looking for might not be in our network or the link is incorrect.</p>
-            <Link to="/consult-a-vet" className="mt-8 inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-colors">
-                Back to Vet Directory
+            <Link to="/services" className="mt-8 inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-colors">
+                Back to Services Page
             </Link>
         </div>
       </div>

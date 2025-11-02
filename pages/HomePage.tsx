@@ -47,32 +47,31 @@ const HomePage: React.FC = () => {
           <p className="max-w-3xl mx-auto text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-12">
             Loved by pets and their parents. Check out our top-rated products.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {bestSellers.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
       </section>
-
-      {/* Vet Consultation CTA */}
+      
+      {/* Vet Consultation CTA -> Services CTA */}
       <section className="bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm py-20">
         <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div className="md:w-1/2">
-                    <img src="https://picsum.photos/seed/vet-cta/600/400" alt="Veterinarian with a pet" className="rounded-2xl shadow-lg" />
+                    <img src="https://picsum.photos/seed/services-cta/600/400" alt="Professional Pet Services" className="rounded-2xl shadow-lg" loading="lazy" />
                 </div>
                 <div className="md:w-1/2 text-center md:text-left">
-                    <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Need a Vet?</h2>
+                    <h2 className="text-4xl font-bold text-slate-800 dark:text-white">All The Care In One Place</h2>
                     <p className="text-lg text-slate-700 dark:text-slate-300 mt-4">
-                        Get expert advice from trusted veterinarians without leaving your home. Book an online consultation today for peace of mind.
+                        From expert veterinarians to trusted groomers and trainers, find and book all the professional services your pet deserves.
                     </p>
                     <Link
-                      to="/consult-a-vet"
+                      to="/services"
                       className="mt-8 inline-flex items-center space-x-3 bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
                     >
-                      <VideoCameraIcon className="w-6 h-6" />
-                      <span>Book a Consultation</span>
+                      <span>Explore All Services</span>
                     </Link>
                 </div>
             </div>
@@ -100,7 +99,7 @@ const HomePage: React.FC = () => {
           <p className="max-w-3xl mx-auto text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-12">
             The latest and greatest products, fresh in our store.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {newArrivals.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -111,6 +110,24 @@ const HomePage: React.FC = () => {
           >
             Explore the Full Shop
           </Link>
+        </div>
+      </section>
+
+      {/* PetBhai+ CTA */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="glass-card text-center p-10 md:p-16">
+            <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white drop-shadow-lg">Upgrade to PetBhai+</h2>
+            <p className="max-w-3xl mx-auto text-lg mt-4 text-slate-700 dark:text-slate-200 drop-shadow-md">
+              Unlock exclusive benefits like free delivery, member-only discounts, and free vet consultations. Give your pet the best with our premium membership.
+            </p>
+            <Link
+              to="/plus-membership"
+              className="mt-8 inline-block bg-orange-500 text-white font-bold py-3 px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl"
+            >
+              Learn More & Join
+            </Link>
+          </div>
         </div>
       </section>
     </div>

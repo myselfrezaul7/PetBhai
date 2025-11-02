@@ -1,33 +1,88 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import { getVetAssistantResponse } from '../services/geminiService';
-import { PawIcon, SendIcon } from '../components/icons';
+import { PawIcon, SendIcon, CloseIcon } from '../components/icons';
 
 const CHAT_HISTORY_STORAGE_KEY = 'petbhai_ai_chat_history';
+const WARNING_DISMISSED_KEY = 'petbhai_ai_warning_dismissed';
+
+// A simple component to parse and render basic Markdown from the AI
+const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
+  const lines = text.split('\n');
+  const elements = [];
+  let inList = false;
+  let currentList: React.ReactNode[] = [];
+
+  const formatBold = (textLine: string) => {
+    return textLine.split(/\*\*(.*?)\*\*/g).map((part, i) =>
+      i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+    );
+  };
+
+  const pushList = (key: number) => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`ul-${key}`} className="list-disc pl-5 space-y-1 mt-2">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+    }
+    inList = false;
+  };
+
+  lines.forEach((line, index) => {
+    if (line.trim().startsWith('* ')) {
+      const listItemText = line.trim().substring(2);
+      currentList.push(<li key={index}>{formatBold(listItemText)}</li>);
+      inList = true;
+    } else {
+      if (inList) {
+        pushList(index);
+      }
+      if (line.trim() !== '') {
+        elements.push(<p key={index} className="mt-2 first:mt-0">{formatBold(line)}</p>);
+      }
+    }
+  });
+
+  if (inList) {
+    pushList(lines.length);
+  }
+
+  return <>{elements}</>;
+};
+
 
 const getInitialChatHistory = (): ChatMessage[] => {
   try {
     const storedHistory = window.localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
     if (storedHistory) {
       const parsed = JSON.parse(storedHistory);
-      // Basic validation to ensure it's an array
       if (Array.isArray(parsed)) {
           return parsed;
       }
     }
   } catch (error) {
     console.error("Error reading chat history from localStorage", error);
-    // If parsing fails, remove the corrupted item to prevent future errors
     window.localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
   }
-  return []; // Return empty array if nothing is stored or if there's an error
+  return []; 
 };
 
 const AIAssistantPage: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>(getInitialChatHistory);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isWarningVisible, setIsWarningVisible] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const isDismissed = sessionStorage.getItem(WARNING_DISMISSED_KEY);
+    if (!isDismissed) {
+      setIsWarningVisible(true);
+    }
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -44,6 +99,11 @@ const AIAssistantPage: React.FC = () => {
         console.error("Error saving chat history to localStorage", error);
     }
   }, [chatHistory]);
+
+  const handleDismissWarning = () => {
+    sessionStorage.setItem(WARNING_DISMISSED_KEY, 'true');
+    setIsWarningVisible(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,16 +127,37 @@ const AIAssistantPage: React.FC = () => {
   };
 
   const handleClearChat = () => {
-      setChatHistory([]);
+      if (window.confirm("Are you sure you want to clear the entire chat history? This action cannot be undone.")) {
+        setChatHistory([]);
+      }
   };
 
   return (
-    // The container height is calculated to fill the viewport minus the header's height (approx. 72px).
     <div className="flex flex-col h-[calc(100vh-72px)] container mx-auto p-4 max-w-3xl animate-fade-in">
       <div className="text-center mb-6 pt-4">
-        <h1 className="text-4xl font-bold text-slate-800 dark:text-white">AI Vet Assistant</h1>
-        <p className="text-lg text-slate-700 dark:text-slate-200">Ask general questions about pet health and care.</p>
+        <h1 className="text-4xl font-bold text-slate-800 dark:text-white">AI Vet</h1>
+        <p className="text-lg text-slate-700 dark:text-slate-200">
+            Ask general questions about pet health and care.
+        </p>
       </div>
+
+      {isWarningVisible && (
+        <div className="animate-fade-in glass-card p-4 mb-4 flex items-start space-x-4 bg-orange-100/50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-500/30">
+          <div className="flex-shrink-0 text-orange-500 mt-1">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.636-1.21 2.852-1.21 3.488 0l6.233 11.916c.638 1.213-.466 2.735-1.744 2.735H3.768c-1.278 0-2.382-1.522-1.744-2.735L8.257 3.099zM10 12a1 1 0 110-2 1 1 0 010 2zm0-5a1 1 0 011 1v2a1 1 0 11-2 0V8a1 1 0 011-1z" clipRule="evenodd" /></svg>
+          </div>
+          <div className="flex-grow">
+            <h3 className="font-bold text-orange-800 dark:text-orange-200">For First-Aid & Info Only</h3>
+            <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
+              This is an AI assistant, NOT a real veterinarian. The advice provided is for general guidance and emergency first-aid purposes only. For any health concerns, you <strong>must</strong> consult a licensed, in-person veterinarian.
+            </p>
+          </div>
+          <button onClick={handleDismissWarning} className="p-1 rounded-full text-orange-600 dark:text-orange-300 hover:bg-orange-200/50 dark:hover:bg-orange-800/50" aria-label="Dismiss warning">
+            <CloseIcon className="w-6 h-6" />
+          </button>
+        </div>
+      )}
+      
       <div className="glass-card flex-grow flex flex-col overflow-hidden">
         <div className="flex-grow p-6 overflow-y-auto">
           <div className="space-y-6" aria-live="polite">
@@ -85,7 +166,7 @@ const AIAssistantPage: React.FC = () => {
                   <PawIcon className="w-6 h-6" />
               </div>
               <div className="bg-slate-100/70 dark:bg-slate-700/70 p-4 rounded-xl rounded-tl-none max-w-lg">
-                <p className="text-slate-800 dark:text-slate-200">Hello! I'm PetBhai's AI Assistant. How can I help you with your pet today?</p>
+                <p className="text-slate-800 dark:text-slate-200">Hello! I'm PetBhai's AI Vet. How can I help you with your pet today?</p>
               </div>
             </div>
 
@@ -96,12 +177,12 @@ const AIAssistantPage: React.FC = () => {
                     <PawIcon className="w-6 h-6" />
                   </div>
                 )}
-                <div className={`p-4 rounded-xl max-w-lg whitespace-pre-wrap ${
+                <div className={`p-4 rounded-xl max-w-lg ${
                   message.sender === 'user' 
                   ? 'bg-orange-500 text-white rounded-br-none' 
                   : 'bg-slate-100/70 dark:bg-slate-700/70 text-slate-800 dark:text-slate-200 rounded-tl-none'
                 }`}>
-                  <p>{message.text}</p>
+                   {message.sender === 'ai' ? <FormattedMessage text={message.text} /> : <p>{message.text}</p>}
                 </div>
               </div>
             ))}

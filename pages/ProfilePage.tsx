@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { UserIcon } from '../components/icons';
 import { MOCK_PRODUCTS } from '../constants';
+import type { Order } from '../types';
+
+const REORDER_THRESHOLD_DAYS = 15;
 
 const ProfilePage: React.FC = () => {
   const { currentUser, updateProfile, isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
   
   const [name, setName] = useState(currentUser?.name || '');
@@ -16,12 +21,11 @@ const ProfilePage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   
-  const [activeTab, setActiveTab] = useState<'profile' | 'wishlist' | 'orders'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'wishlist' | 'orders' | 'reorder'>('profile');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // If user is not authenticated, redirect to login page
     if (!isAuthenticated) {
       navigate('/login');
     }
@@ -30,6 +34,13 @@ const ProfilePage: React.FC = () => {
   const wishlistedProducts = useMemo(() => {
     if (!currentUser) return [];
     return MOCK_PRODUCTS.filter(product => currentUser.wishlist.includes(product.id));
+  }, [currentUser]);
+
+  const reorderSuggestions = useMemo(() => {
+    if (!currentUser) return [];
+    const thresholdDate = new Date();
+    thresholdDate.setDate(thresholdDate.getDate() - REORDER_THRESHOLD_DAYS);
+    return currentUser.orderHistory.filter(order => new Date(order.date) < thresholdDate);
   }, [currentUser]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,10 +84,21 @@ const ProfilePage: React.FC = () => {
       setTimeout(() => setSuccessMessage(''), 3000);
 
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'An unknown error occurred.');
+      const message = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setErrorMessage(message);
+      setTimeout(() => setErrorMessage(''), 5000); // Clear error after 5 seconds
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleReorder = (order: Order) => {
+    order.items.forEach(item => {
+        for (let i = 0; i < item.quantity; i++) {
+            addToCart(item);
+        }
+    });
+    alert('Items from your past order have been added to your cart!');
   };
 
   if (!currentUser) {
@@ -86,14 +108,15 @@ const ProfilePage: React.FC = () => {
   const TabButton: React.FC<{ tabId: typeof activeTab, children: React.ReactNode}> = ({ tabId, children }) => (
     <button 
         onClick={() => setActiveTab(tabId)}
-        className={`px-4 py-2 font-semibold rounded-t-lg transition-colors ${activeTab === tabId ? 'bg-white/30 dark:bg-slate-800/30 border-b-2 border-orange-500 text-orange-600 dark:text-orange-400' : 'text-slate-600 dark:text-slate-300'}`}
+        className={`px-4 py-2 font-semibold rounded-t-lg transition-colors text-sm sm:text-base ${activeTab === tabId ? 'bg-white/30 dark:bg-slate-800/30 border-b-2 border-orange-500 text-orange-600 dark:text-orange-400' : 'text-slate-600 dark:text-slate-300'}`}
     >{children}</button>
   );
 
   return (
     <div className="container mx-auto px-6 py-12 animate-fade-in">
         <div className="max-w-4xl mx-auto">
-            <div className="flex items-center space-x-6 glass-card p-6 mb-8">
+            <div className="glass-card p-6 mb-8">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-4 sm:space-y-0 sm:space-x-6">
                  <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-orange-200 dark:ring-orange-500/30">
                     {currentUser.profilePictureUrl ? (
                         <img src={currentUser.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
@@ -101,16 +124,29 @@ const ProfilePage: React.FC = () => {
                         <UserIcon className="w-16 h-16 text-slate-600 dark:text-slate-300" />
                     )}
                 </div>
-                <div>
+                <div className="flex-grow">
                     <h1 className="text-3xl font-bold text-slate-800 dark:text-white">{currentUser.name}</h1>
                     <p className="text-slate-600 dark:text-slate-300">{currentUser.email}</p>
                 </div>
+                {currentUser.isPlusMember ? (
+                     <div className="bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-lg px-4 py-2 text-center">
+                        <p className="font-bold text-lg">PLUS Member</p>
+                        <p className="text-xs">Enjoying exclusive benefits!</p>
+                    </div>
+                ) : (
+                    <Link to="/plus-membership" className="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg px-4 py-2 text-center hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+                        <p className="font-bold text-lg">Join PetBhai+</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-400">Unlock Benefits</p>
+                    </Link>
+                )}
+              </div>
             </div>
 
-            <div className="border-b border-slate-300/50 dark:border-slate-600/50 mb-6">
+            <div className="border-b border-slate-300/50 dark:border-slate-600/50 mb-6 flex flex-wrap">
                 <TabButton tabId="profile">Edit Profile</TabButton>
-                <TabButton tabId="wishlist">My Wishlist ({wishlistedProducts.length})</TabButton>
-                <TabButton tabId="orders">Order History ({currentUser.orderHistory.length})</TabButton>
+                <TabButton tabId="wishlist">Wishlist ({wishlistedProducts.length})</TabButton>
+                <TabButton tabId="orders">Orders ({currentUser.orderHistory.length})</TabButton>
+                <TabButton tabId="reorder">Reorder</TabButton>
             </div>
             
             <div className="glass-card p-8 md:p-10">
@@ -195,6 +231,33 @@ const ProfilePage: React.FC = () => {
                             </div>
                         ) : (
                              <p className="text-slate-600 dark:text-slate-300">You haven't made any purchases yet. <Link to="/shop" className="text-orange-600 hover:underline">Visit the shop!</Link></p>
+                        )}
+                    </div>
+                )}
+                {activeTab === 'reorder' && (
+                    <div>
+                        <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Smart Reorder Suggestions</h2>
+                        {reorderSuggestions.length > 0 ? (
+                            <div className="space-y-4">
+                                {reorderSuggestions.map(order => (
+                                     <div key={order.orderId} className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">From your order on {new Date(order.date).toLocaleDateString()}:</p>
+                                        <ul className="text-sm space-y-1 mb-4">
+                                            {order.items.map(item => (
+                                                <li key={item.id} className="flex items-center text-slate-600 dark:text-slate-300">
+                                                    <img src={item.imageUrl} alt={item.name} className="w-8 h-8 rounded-sm object-cover mr-2" />
+                                                    <span>{item.name} (x{item.quantity})</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <button onClick={() => handleReorder(order)} className="w-full sm:w-auto bg-orange-500 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-orange-600 transition-colors">
+                                            Add to Cart
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                             <p className="text-slate-600 dark:text-slate-300">No reorder suggestions right now. We'll suggest items here when it's time to restock!</p>
                         )}
                     </div>
                 )}

@@ -10,7 +10,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link to={`/product/${product.id}`} className="glass-card overflow-hidden flex flex-col group transition-transform transform hover:-translate-y-2">
       <div className="relative">
-        <img src={product.imageUrl} alt={product.name} className="w-full h-56 object-cover" />
+        <img src={product.imageUrl} alt={product.name} className="w-full h-56 object-cover" loading="lazy" />
         <div className="absolute top-3 right-3 bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full opacity-90">
           {product.category}
         </div>
@@ -40,4 +40,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   );
 };
 
-export default ProductCard;
+export default React.memo(ProductCard);

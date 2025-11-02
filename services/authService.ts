@@ -1,8 +1,12 @@
 // services/authService.ts
 
-// This is a mock service to simulate authentication.
-// In a real application, you would use a library like Firebase Auth,
-// NextAuth, or your own backend to handle this.
+// This is a mock service to simulate third-party authentication.
+// In a real-world application, this file would contain the logic for
+// interacting with an authentication provider like Firebase Authentication,
+// Auth0, or a custom OAuth flow. The functions would make actual network
+// requests and handle redirects or pop-ups for the sign-in process.
+// The `simulateApiCall` helper is used here to mimic the asynchronous
+// nature of these operations.
 
 interface MockUser {
     firstName: string;

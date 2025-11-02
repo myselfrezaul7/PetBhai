@@ -8,7 +8,7 @@ import type { Order } from '../types';
 
 const CheckoutPage: React.FC = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
-  const { isAuthenticated, addOrderToHistory } = useAuth();
+  const { isAuthenticated, currentUser, socialLogin, addOrderToHistory } = useAuth();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -28,6 +28,17 @@ const CheckoutPage: React.FC = () => {
       navigate('/shop');
     }
   }, [cartItems, navigate]);
+  
+  // Pre-fill form if user is logged in
+  useEffect(() => {
+    if (currentUser) {
+        setFormData(prev => ({
+            ...prev,
+            name: currentUser.name || prev.name,
+            email: currentUser.email || prev.email,
+        }));
+    }
+  }, [currentUser]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -55,12 +66,8 @@ const CheckoutPage: React.FC = () => {
   const handleSocialLogin = async () => {
     setIsSocialLoading(true);
     try {
-        let user = await signInWithGoogle();
-        setFormData(prev => ({
-            ...prev,
-            name: `${user.firstName} ${user.lastName}`,
-            email: user.email,
-        }));
+        const socialUser = await signInWithGoogle();
+        await socialLogin(socialUser);
     } catch (error) {
         console.error(`Google Sign-In failed`, error);
         alert(`Failed to sign in with Google. Please try again.`);
@@ -77,20 +84,24 @@ const CheckoutPage: React.FC = () => {
         
         {/* Customer Form */}
         <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Guest Checkout</h2>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{isAuthenticated ? 'Confirm Shipping Details' : 'Guest Checkout'}</h2>
             <p className="text-slate-600 dark:text-slate-300 mb-6">We'll use this information for delivery.</p>
              
-             <div className="space-y-3 mb-6">
-                <button onClick={handleSocialLogin} disabled={isSocialLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                    <GoogleIcon className="w-6 h-6" />
-                    <span className="font-semibold text-slate-700 dark:text-slate-200">{isSocialLoading ? 'Continuing...' : 'Continue with Google'}</span>
-                </button>
-            </div>
-            <div className="flex items-center my-6">
-                <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
-                <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-400 font-semibold">OR</span>
-                <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
-            </div>
+            {!isAuthenticated && (
+              <>
+                <div className="space-y-3 mb-6">
+                    <button onClick={handleSocialLogin} disabled={isSocialLoading} className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                        <GoogleIcon className="w-6 h-6" />
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">{isSocialLoading ? 'Continuing...' : 'Continue with Google'}</span>
+                    </button>
+                </div>
+                <div className="flex items-center my-6">
+                    <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
+                    <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-400 font-semibold">OR</span>
+                    <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
+                </div>
+              </>
+            )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Contact & Shipping</h2>
@@ -147,12 +158,12 @@ const CheckoutPage: React.FC = () => {
                         <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === 'cod'} onChange={e => setPaymentMethod(e.target.value)} className="h-5 w-5 text-orange-600 focus:ring-orange-500" />
                         <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">Cash on Delivery</span>
                     </label>
-                    <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-orange-500 ring-2 ring-orange-500' : 'border-slate-300 dark:border-slate-600'}`}>
-                        <input type="radio" name="paymentMethod" value="card" checked={paymentMethod === 'card'} onChange={e => setPaymentMethod(e.target.value)} className="h-5 w-5 text-orange-600 focus:ring-orange-500" />
+                    <label className={`flex items-center p-4 border rounded-lg cursor-not-allowed transition-all opacity-50 ${paymentMethod === 'card' ? 'border-orange-500 ring-2 ring-orange-500' : 'border-slate-300 dark:border-slate-600'}`}>
+                        <input type="radio" name="paymentMethod" value="card" disabled checked={paymentMethod === 'card'} onChange={e => setPaymentMethod(e.target.value)} className="h-5 w-5 text-orange-600 focus:ring-orange-500" />
                         <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">Card <span className="text-sm text-slate-500">(Unavailable)</span></span>
                     </label>
-                     <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'mobile' ? 'border-orange-500 ring-2 ring-orange-500' : 'border-slate-300 dark:border-slate-600'}`}>
-                        <input type="radio" name="paymentMethod" value="mobile" checked={paymentMethod === 'mobile'} onChange={e => setPaymentMethod(e.target.value)} className="h-5 w-5 text-orange-600 focus:ring-orange-500" />
+                     <label className={`flex items-center p-4 border rounded-lg cursor-not-allowed transition-all opacity-50 ${paymentMethod === 'mobile' ? 'border-orange-500 ring-2 ring-orange-500' : 'border-slate-300 dark:border-slate-600'}`}>
+                        <input type="radio" name="paymentMethod" value="mobile" disabled checked={paymentMethod === 'mobile'} onChange={e => setPaymentMethod(e.target.value)} className="h-5 w-5 text-orange-600 focus:ring-orange-500" />
                         <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">Mobile Banking <span className="text-sm text-slate-500">(Unavailable)</span></span>
                     </label>
                </div>

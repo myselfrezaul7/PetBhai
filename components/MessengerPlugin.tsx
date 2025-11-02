@@ -1,27 +1,8 @@
 import React, { useEffect } from 'react';
 
-// FIX: Add global type declarations for Facebook SDK properties and custom attributes.
-// This informs TypeScript about properties on the `window` object and custom HTML attributes
-// that are dynamically added by the Facebook SDK, resolving compile-time errors.
-declare global {
-  // Extend the Window interface to include properties added by the Facebook SDK.
-  interface Window {
-    fbAsyncInit: () => void;
-    FB: {
-      init: (params: { xfbml: boolean; version: string }) => void;
-    };
-  }
-
-  // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.
-  namespace React {
-    interface HTMLAttributes<T> {
-      page_id?: string;
-      attribution?: string;
-      logged_in_greeting?: string;
-      logged_out_greeting?: string;
-    }
-  }
-}
+// The global type declarations for this component have been moved to `types.ts`
+// to ensure they are applied globally across the project. This resolves potential
+// TypeScript errors related to the custom HTML attributes used by the Facebook SDK.
 
 const MessengerPlugin: React.FC = () => {
   useEffect(() => {

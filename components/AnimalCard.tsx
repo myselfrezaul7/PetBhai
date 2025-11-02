@@ -39,7 +39,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
     <div className="glass-card overflow-hidden flex flex-col group">
       <div className="relative">
         <Link to={`/adopt/${animal.id}`} className="block">
-            <img src={animal.imageUrl} alt={animal.name} className="w-full h-56 object-cover" />
+            <img src={animal.imageUrl} alt={animal.name} className="w-full h-56 object-cover" loading="lazy" />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                 <p className="text-white text-lg font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300 tracking-wider">Learn More</p>
             </div>
@@ -73,4 +73,4 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   );
 };
 
-export default AnimalCard;
+export default React.memo(AnimalCard);

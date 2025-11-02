@@ -1,4 +1,4 @@
-import type { User, Post, Vet, Product, Order, Comment, Brand, Review, Article, Animal, DonationTier, SuccessStory, VetReview } from './types';
+import type { User, Post, Vet, Product, Order, Comment, Brand, Review, Article, Animal, VetReview, Groomer, Trainer, PetSitter } from './types';
 
 export const MOCK_BRANDS: Brand[] = [
     { id: 1, name: 'Royal Canin', logoUrl: 'https://i.ibb.co/LzB7sSg/royalcanin-logo.png' },
@@ -118,15 +118,23 @@ const MOCK_ORDERS: Order[] = [
         date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
         total: 2300,
         items: [
-            { id: 1, name: 'Me-O Adult Cat Food Tuna', category: 'Cat Food', price: 1850, imageUrl: 'https://picsum.photos/seed/catfood1/400/300', description: '', weight: '7kg', brandId: 4, rating: 4.8, reviews: [], quantity: 1 },
-            { id: 7, name: 'Interactive Feather Wand for Cats', category: 'Cat Supplies', price: 450, imageUrl: 'https://picsum.photos/seed/cattoy1/400/300', description: '', weight: '50g', brandId: 4, rating: 4.4, reviews: [], quantity: 1 }
+            { ...MOCK_PRODUCTS[0], quantity: 1 },
+            { ...MOCK_PRODUCTS[4], quantity: 1 }
+        ]
+    },
+    {
+        orderId: 'PB-1679886400',
+        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        total: 1500,
+        items: [
+            { ...MOCK_PRODUCTS[2], quantity: 1 },
         ]
     }
 ];
 
 export const MOCK_USERS: User[] = [
-    { id: 1, name: "Aisha Rahman", email: "aisha@example.com", password: "password123", profilePictureUrl: "https://picsum.photos/seed/aisha/200", wishlist: [2, 4], orderHistory: MOCK_ORDERS, favorites: [1, 3] },
-    { id: 2, name: "Jamal Khan", email: "jamal@example.com", password: "password123", profilePictureUrl: "https://picsum.photos/seed/jamal/200", wishlist: [], orderHistory: [], favorites: [] },
+    { id: 1, name: "Aisha Rahman", email: "aisha@example.com", password: "password123", profilePictureUrl: "https://picsum.photos/seed/aisha/200", wishlist: [2, 4], orderHistory: MOCK_ORDERS, favorites: [1, 3], isPlusMember: true },
+    { id: 2, name: "Jamal Khan", email: "jamal@example.com", password: "password123", profilePictureUrl: "https://picsum.photos/seed/jamal/200", wishlist: [], orderHistory: [], favorites: [], isPlusMember: false },
 ];
 
 const MOCK_COMMENTS: Comment[] = [
@@ -296,16 +304,19 @@ export const MOCK_ANIMALS: Animal[] = [
     { id: 4, name: 'Bella', breed: 'Siamese', age: 'Senior', gender: 'Female', size: 'Medium', status: 'Adopted', description: 'Bella is a calm and affectionate senior cat looking for a quiet home to spend her golden years.', imageUrl: 'https://picsum.photos/seed/cat2/400/300' },
 ];
 
-export const MOCK_DONATION_TIERS: DonationTier[] = [
-    { id: 1, amount: 500, title: 'Feed a Friend', description: 'Provides a week of nutritious food for one rescued animal.' },
-    { id: 2, amount: 1500, title: 'Vaccinate & Protect', description: 'Covers the cost of essential vaccinations for a new rescue.' },
-    { id: 3, amount: 3000, title: 'Shelter & Comfort', description: 'Helps us provide safe shelter and cozy bedding for an animal for a month.' },
-    { id: 4, amount: 5000, title: 'Sponsor a Rescue', description: 'Covers the full initial care for a newly rescued animal, including vet checks.' },
+export const MOCK_GROOMERS: Groomer[] = [
+    { id: 101, category: 'Groomer', name: 'Posh Paws Grooming', imageUrl: 'https://picsum.photos/seed/groomer1/200/200', bio: 'Certified Master Groomer with a gentle touch. We offer a calm, cage-free environment to make your pet\'s spa day a treat.', location: 'Gulshan', rating: 4.9, specialties: ['Long-haired Breeds', 'Creative Grooming', 'Cat Grooming'], services: [{ name: 'Full Groom', price: 2500, description: 'Bath, haircut, nail trim, ear cleaning.' }, { name: 'Bath & Brush', price: 1500, description: 'For in-between grooming sessions.' }] },
+    { id: 102, category: 'Groomer', name: 'The Dapper Dog', imageUrl: 'https://picsum.photos/seed/groomer2/200/200', bio: 'Specializing in all dog breeds, from Chihuahuas to Great Danes. We focus on a positive and stress-free experience.', location: 'Dhanmondi', rating: 4.8, specialties: ['Breed Standard Cuts', 'De-shedding Treatments'], services: [{ name: 'Puppy\'s First Groom', price: 1200, description: 'A gentle introduction to grooming.' }, { name: 'Medicated Bath', price: 1800, description: 'For skin issues and allergies.' }] },
 ];
 
-export const MOCK_SUCCESS_STORIES: SuccessStory[] = [
-    { id: 1, animalName: 'Buddy', adoptionDate: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(), story: 'Buddy was found scared and alone, but quickly warmed up to our volunteers. He found his forever home with the Smith family and now spends his days chasing squirrels in their backyard.', animalImageUrl: 'https://picsum.photos/seed/success1/600/400' },
-    { id: 2, animalName: 'Cleo', adoptionDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), story: 'Cleo, a shy senior cat, was overlooked for months. But the perfect person came along who saw her gentle spirit. Now she has a warm lap to sleep on and all the love she deserves.', animalImageUrl: 'https://picsum.photos/seed/success2/600/400' },
+export const MOCK_TRAINERS: Trainer[] = [
+    { id: 201, category: 'Trainer', name: 'GoodBoy Dog Training', imageUrl: 'https://picsum.photos/seed/trainer1/200/200', bio: 'Certified professional dog trainer focused on building a strong, positive bond between you and your dog.', location: 'Banani', rating: 5.0, certifications: ['CPDT-KA'], methods: 'Positive Reinforcement', services: [{ name: 'Puppy Socialization Class', price: 5000, description: '5-week group course.' }, { name: 'Private Obedience Training', price: 2000, description: 'Per one-hour session.' }] },
+    { id: 202, category: 'Trainer', name: 'Pawsitive Steps', imageUrl: 'https://picsum.photos/seed/trainer2/200/200', bio: 'Behavioral consultant specializing in leash reactivity and separation anxiety. Let\'s build your dog\'s confidence!', location: 'Uttara', rating: 4.9, certifications: ['KPA-CTP'], methods: 'Clicker Training, Positive Reinforcement', services: [{ name: 'Behavioral Consultation', price: 2500, description: 'Initial 90-minute assessment.' }, { name: 'Leash Manners Workshop', price: 'Varies', description: 'Group and private sessions available.' }] },
+];
+
+export const MOCK_PET_SITTERS: PetSitter[] = [
+    { id: 301, category: 'Pet Sitter', name: 'Home Comforts Pet Sitting', imageUrl: 'https://picsum.photos/seed/sitter1/200/200', bio: 'Experienced and reliable pet sitter offering in-your-home care so your pets can stay in their familiar environment.', location: 'Mirpur', rating: 4.9, servicesOffered: ['House Sitting', 'Drop-in Visits'], petTypes: ['Dogs', 'Cats'], services: [{ name: 'Overnight House Sitting', price: 2000, description: 'Per night, includes walks and feeding.' }, { name: '30-Min Drop-in Visit', price: 500, description: 'For feeding, potty breaks, and playtime.' }] },
+    { id: 302, category: 'Pet Sitter', name: 'The Pet Palace BD', imageUrl: 'https://picsum.photos/seed/sitter2/200/200', bio: 'Your pet\'s home away from home! We offer premium boarding with spacious play areas and 24/7 supervision.', location: 'Bashundhara R/A', rating: 4.8, servicesOffered: ['Boarding'], petTypes: ['Dogs', 'Cats', 'Small Animals'], services: [{ name: 'Dog Boarding (Small Breed)', price: 1000, description: 'Per night.' }, { name: 'Cat Boarding (Luxury Suite)', price: 1200, description: 'Per night.' }] },
 ];
 
 export const BANGLADESH_DISTRICTS: string[] = [

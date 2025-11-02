@@ -45,9 +45,9 @@ interface AuthContextType {
   addToWishlist: (productId: number) => void;
   removeFromWishlist: (productId: number) => void;
   addOrderToHistory: (order: Order) => void;
-  // FIX: Added missing methods for favoriting pets.
   favoritePet: (animalId: number) => void;
   unfavoritePet: (animalId: number) => void;
+  subscribeToPlus: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,8 +101,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`, // Default avatar
         wishlist: [],
         orderHistory: [],
-        // FIX: Initialize favorites array for new users.
         favorites: [],
+        isPlusMember: false,
     };
     const updatedUsers = [...users, newUser];
     window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
@@ -128,8 +128,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`,
         wishlist: [],
         orderHistory: [],
-        // FIX: Initialize favorites array for new users.
         favorites: [],
+        isPlusMember: false,
       };
       const updatedUsers = [...users, newUser];
       window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
@@ -171,7 +171,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     updateUserInStorage(updatedUser);
   }
 
-  // FIX: Implemented favorite and unfavorite pet functions.
   const favoritePet = (animalId: number) => {
     if (!currentUser) return;
     const updatedUser = { ...currentUser, favorites: [...currentUser.favorites, animalId] };
@@ -185,6 +184,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setCurrentUser(updatedUser);
     updateUserInStorage(updatedUser);
   };
+  
+  const subscribeToPlus = () => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, isPlusMember: true };
+    setCurrentUser(updatedUser);
+    updateUserInStorage(updatedUser);
+  };
+
 
   const value = {
     currentUser,
@@ -197,9 +204,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     addToWishlist,
     removeFromWishlist,
     addOrderToHistory,
-    // FIX: Exposed favorite and unfavorite pet functions through the context.
     favoritePet,
     unfavoritePet,
+    subscribeToPlus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

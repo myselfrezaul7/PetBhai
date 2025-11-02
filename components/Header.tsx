@@ -15,10 +15,11 @@ interface PageResult {
 const ALL_PAGES: PageResult[] = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    { name: 'Consult a Vet', path: '/consult-a-vet' },
+    { name: 'Services', path: '/services' },
     { name: 'Community Hub', path: '/community' },
-    { name: 'AI Vet Assistant', path: '/ai-assistant' },
+    { name: 'AI Vet', path: '/ai-assistant' },
     { name: 'Blog', path: '/blog' },
+    { name: 'PetBhai+', path: '/plus-membership' },
 ];
 
 const Header: React.FC = () => {
@@ -108,6 +109,20 @@ const Header: React.FC = () => {
     };
   }, [searchQuery]);
 
+  // Lock body scroll when mobile menu is open for better UX
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    // Cleanup function to reset scroll on component unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
+
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -133,27 +148,27 @@ const Header: React.FC = () => {
   };
 
 
-  const MobileNavLink: React.FC<{ to: string, children: React.ReactNode }> = ({ to, children }) => (
+  const MobileNavLink: React.FC<{ to: string, children: React.ReactNode, className?: string }> = ({ to, children, className }) => (
     <NavLink 
         to={to} 
         onClick={() => setIsMenuOpen(false)}
-        className={({ isActive }) => `block py-3 text-2xl text-center ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium'}`}
+        className={({ isActive }) => `block py-3 text-2xl text-center ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium'} ${className}`}
     >
         {children}
     </NavLink>
   );
 
-  const DesktopNavLink: React.FC<{ to: string, children: React.ReactNode }> = ({ to, children }) => (
-    <li><NavLink to={to} className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>{children}</NavLink></li>
+  const DesktopNavLink: React.FC<{ to: string, children: React.ReactNode, className?: string }> = ({ to, children, className }) => (
+    <li><NavLink to={to} className={({ isActive }) => `${(isActive ? activeLinkClass : inactiveLinkClass)} ${className}`}>{children}</NavLink></li>
   );
 
   return (
     <>
       <header className="bg-white/30 dark:bg-slate-900/30 shadow-md sticky top-0 z-20 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/30">
         <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <NavLink to="/" className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
+          <NavLink to="/" className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <Logo className="w-10 h-10 text-orange-500" />
-            <span className="hidden sm:inline">PetBhai</span>
+            <span className="sm:inline">PetBhai</span>
           </NavLink>
 
           {/* Desktop Menu */}
@@ -161,9 +176,11 @@ const Header: React.FC = () => {
             <ul className="flex items-center space-x-6 text-[15px] font-medium">
                 <DesktopNavLink to="/">Home</DesktopNavLink>
                 <DesktopNavLink to="/shop">Shop</DesktopNavLink>
-                <DesktopNavLink to="/blog">Blog</DesktopNavLink>
                 <DesktopNavLink to="/community">Community</DesktopNavLink>
-                <DesktopNavLink to="/consult-a-vet">Consult a Vet</DesktopNavLink>
+                <DesktopNavLink to="/services">Services</DesktopNavLink>
+                <DesktopNavLink to="/ai-assistant">AI Vet</DesktopNavLink>
+                <DesktopNavLink to="/blog">Blog</DesktopNavLink>
+                <DesktopNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 font-bold">PetBhai+</DesktopNavLink>
             </ul>
           </div>
            {/* Search Bar & Profile */}
@@ -202,13 +219,18 @@ const Header: React.FC = () => {
 
                 {isAuthenticated && currentUser ? (
                     <div className="relative" ref={profileMenuRef}>
-                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="flex items-center space-x-2">
+                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="relative flex items-center space-x-2">
                             {currentUser.profilePictureUrl ? (
                                 <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
                             ) : (
                                 <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                                     <UserIcon className="w-6 h-6 text-slate-500 dark:text-slate-300" />
                                 </div>
+                            )}
+                            {currentUser.isPlusMember && (
+                               <span className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-800">
+                                +
+                               </span>
                             )}
                         </button>
                         {isProfileMenuOpen && (
@@ -299,21 +321,27 @@ const Header: React.FC = () => {
             <nav className="flex flex-col space-y-6">
                 <MobileNavLink to="/">Home</MobileNavLink>
                 <MobileNavLink to="/shop">Shop</MobileNavLink>
-                <MobileNavLink to="/blog">Blog</MobileNavLink>
                 <MobileNavLink to="/community">Community</MobileNavLink>
-                <MobileNavLink to="/consult-a-vet">Consult a Vet</MobileNavLink>
-                <MobileNavLink to="/ai-assistant">AI Assistant</MobileNavLink>
+                <MobileNavLink to="/services">Services</MobileNavLink>
+                <MobileNavLink to="/ai-assistant">AI Vet</MobileNavLink>
+                <MobileNavLink to="/blog">Blog</MobileNavLink>
+                <MobileNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 !font-bold">PetBhai+</MobileNavLink>
             </nav>
             <div className="mt-12 w-full px-8">
               {isAuthenticated && currentUser ? (
                   <div className="text-center">
-                       <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex flex-col items-center space-y-2 mb-6">
+                       <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="relative flex flex-col items-center space-y-2 mb-6">
                            {currentUser.profilePictureUrl ? (
                                 <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-20 h-20 rounded-full object-cover" />
                            ) : (
                                 <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                                     <UserIcon className="w-12 h-12 text-slate-500 dark:text-slate-300" />
                                 </div>
+                           )}
+                           {currentUser.isPlusMember && (
+                                <span className="absolute top-14 right-[calc(50%-55px)] bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold ring-2 ring-white dark:ring-slate-800">
+                                +
+                               </span>
                            )}
                            <p className="font-semibold text-slate-700 dark:text-slate-200 text-xl">Hi, {currentUser.name.split(' ')[0]}</p>
                            <p className="text-sm text-orange-600">View Profile</p>

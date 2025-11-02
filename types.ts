@@ -1,3 +1,5 @@
+import type React from 'react';
+
 export interface Review {
   id: number;
   author: string;
@@ -51,21 +53,6 @@ export interface Animal {
   imageUrl: string;
 }
 
-export interface DonationTier {
-    id: number;
-    amount: number;
-    title: string;
-    description: string;
-}
-
-export interface SuccessStory {
-    id: number;
-    animalName: string;
-    adoptionDate: string; // ISO String
-    story: string;
-    animalImageUrl: string;
-}
-
 export interface User {
   id: number;
   name: string;
@@ -75,6 +62,7 @@ export interface User {
   wishlist: number[]; // Array of product IDs
   orderHistory: Order[];
   favorites: number[]; // Array of animal IDs
+  isPlusMember?: boolean;
 }
 
 export interface CommentReply {
@@ -159,4 +147,60 @@ export interface Product {
 
 export interface CartItem extends Product {
   quantity: number;
+}
+
+// Types for Expanded Services
+export interface Service {
+    name: string;
+    price: number | 'Varies';
+    description: string;
+}
+
+export type ProfessionalCategory = 'Groomer' | 'Trainer' | 'Pet Sitter';
+
+export interface BaseProfessional {
+    id: number;
+    category: ProfessionalCategory;
+    name: string;
+    imageUrl: string;
+    bio: string;
+    location: string; // District
+    services: Service[];
+    rating: number;
+}
+
+export interface Groomer extends BaseProfessional {
+    category: 'Groomer';
+    specialties: string[];
+}
+export interface Trainer extends BaseProfessional {
+    category: 'Trainer';
+    certifications: string[];
+    methods: string;
+}
+
+export interface PetSitter extends BaseProfessional {
+    category: 'Pet Sitter';
+    servicesOffered: ('Boarding' | 'House Sitting' | 'Drop-in Visits')[];
+    petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
+}
+
+declare global {
+  // Extend the Window interface to include properties added by the Facebook SDK.
+  interface Window {
+    fbAsyncInit: () => void;
+    FB: {
+      init: (params: { xfbml: boolean; version: string }) => void;
+    };
+  }
+
+  // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.
+  namespace React {
+    interface HTMLAttributes<T> {
+      page_id?: string;
+      attribution?: string;
+      logged_in_greeting?: string;
+      logged_out_greeting?: string;
+    }
+  }
 }

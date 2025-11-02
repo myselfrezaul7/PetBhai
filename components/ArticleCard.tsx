@@ -10,7 +10,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   return (
     <Link to="#" className="glass-card overflow-hidden flex flex-col group">
       <div className="relative">
-        <img src={article.imageUrl} alt={article.title} className="w-full h-56 object-cover" />
+        <img src={article.imageUrl} alt={article.title} className="w-full h-56 object-cover" loading="lazy" />
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
       </div>
       <div className="p-6 flex flex-col flex-grow">
@@ -24,4 +24,4 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   );
 };
 
-export default ArticleCard;
+export default React.memo(ArticleCard);
