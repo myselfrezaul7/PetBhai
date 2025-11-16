@@ -10,6 +10,10 @@ import ScrollToTop from './components/ScrollToTop';
 import { ProductProvider } from './contexts/ProductContext';
 import CookieConsentBanner, { CookieConsentProvider, useCookieConsent } from './components/CookieConsentBanner';
 import { ArticleProvider } from './contexts/ArticleContext';
+import { ToastProvider } from './contexts/ToastContext';
+import ToastContainer from './components/ToastContainer';
+import { ConfirmationProvider } from './contexts/ConfirmationContext';
+import ConfirmationModal from './components/ConfirmationModal';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -103,6 +107,8 @@ const AppContent: React.FC = () => {
       {consent === 'all' && <MessengerPlugin />}
       <ScrollToTop />
       <Footer />
+      <ToastContainer />
+      <ConfirmationModal />
       <CookieConsentBanner />
     </div>
   );
@@ -112,20 +118,24 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <ThemeProvider>
-      <ArticleProvider>
-        <ProductProvider>
-          <AuthProvider>
-            <CartProvider>
-              <CookieConsentProvider>
-                <HashRouter>
-                  <ScrollToTop />
-                  <AppContent />
-                </HashRouter>
-              </CookieConsentProvider>
-            </CartProvider>
-          </AuthProvider>
-        </ProductProvider>
-      </ArticleProvider>
+      <ConfirmationProvider>
+        <ToastProvider>
+          <ArticleProvider>
+            <ProductProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <CookieConsentProvider>
+                    <HashRouter>
+                      <ScrollToTop />
+                      <AppContent />
+                    </HashRouter>
+                  </CookieConsentProvider>
+                </CartProvider>
+              </AuthProvider>
+            </ProductProvider>
+          </ArticleProvider>
+        </ToastProvider>
+      </ConfirmationProvider>
     </ThemeProvider>
   );
 }

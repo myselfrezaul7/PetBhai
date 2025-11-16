@@ -4,12 +4,14 @@ import { MOCK_ANIMALS } from '../constants';
 import AdoptionForm from '../components/AdoptionForm';
 import { HeartIcon } from '../components/icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 const AnimalDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const animal = MOCK_ANIMALS.find(a => a.id === Number(id));
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { isAuthenticated, currentUser, favoritePet, unfavoritePet } = useAuth();
+  const toast = useToast();
 
   const isFavorited = useMemo(() => {
     return currentUser?.favorites.includes(animal?.id ?? -1) ?? false;
@@ -17,7 +19,7 @@ const AnimalDetailPage: React.FC = () => {
   
   const handleFavoriteClick = () => {
     if (!isAuthenticated || !animal) {
-        alert("Please log in to favorite pets.");
+        toast.info("Please log in to favorite pets.");
         return;
     }
     if (isFavorited) {

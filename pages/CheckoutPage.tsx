@@ -5,11 +5,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { GoogleIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import type { Order } from '../types';
+import { useToast } from '../contexts/ToastContext';
 
 const CheckoutPage: React.FC = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { isAuthenticated, currentUser, socialLogin, addOrderToHistory } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -58,7 +60,7 @@ const CheckoutPage: React.FC = () => {
         addOrderToHistory(newOrder);
     }
     
-    alert('Thank you for your order! Your items will be delivered soon. We will contact you for confirmation.');
+    toast.success('Thank you for your order! It has been placed successfully.');
     clearCart();
     navigate('/');
   };
@@ -69,8 +71,9 @@ const CheckoutPage: React.FC = () => {
         const socialUser = await signInWithGoogle();
         await socialLogin(socialUser);
     } catch (error) {
+        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
         console.error(`Google Sign-In failed`, error);
-        alert(`Failed to sign in with Google. Please try again.`);
+        toast.error(`Failed to sign in with Google: ${message}`);
     } finally {
         setIsSocialLoading(false);
     }

@@ -7,6 +7,8 @@ import { MOCK_POSTS } from '../constants';
 import type { Post, Comment, CommentReply } from '../types';
 import { GoogleIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
+import { useToast } from '../contexts/ToastContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 
 const POSTS_STORAGE_KEY = 'petbhai_posts';
 
@@ -30,6 +32,8 @@ const CommunityPage: React.FC = () => {
   const { isAuthenticated, socialLogin, currentUser } = useAuth();
   const [posts, setPosts] = useState<Post[]>(getInitialPosts);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const toast = useToast();
+  const { confirm } = useConfirmation();
 
   useEffect(() => {
     try {
@@ -47,9 +51,14 @@ const CommunityPage: React.FC = () => {
     setPosts(posts.map(p => p.id === postId ? { ...p, content: newContent } : p));
   };
   
-  const handleDeletePost = (postId: number) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
+  const handleDeletePost = async (postId: number) => {
+    const shouldDelete = await confirm({
+        title: 'Delete Post?',
+        message: 'Are you sure you want to delete this post? This action cannot be undone.',
+    });
+    if (shouldDelete) {
         setPosts(posts.filter(p => p.id !== postId));
+        toast.success("Post deleted successfully.");
     }
   };
 
@@ -88,8 +97,9 @@ const CommunityPage: React.FC = () => {
           const socialUser = await signInWithGoogle();
           await socialLogin(socialUser);
       } catch (error) {
+          const message = error instanceof Error ? error.message : "An unknown error occurred.";
           console.error(`Google Sign-In failed`, error);
-          alert(`Failed to sign in with Google. Please try again.`);
+          toast.error(`Failed to sign in with Google: ${message}`);
       } finally {
           setIsLoading(false);
       }

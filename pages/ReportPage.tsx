@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { MapPinIcon } from '../components/icons';
+import { useToast } from '../contexts/ToastContext';
 
 const ReportPage: React.FC = () => {
   const [location, setLocation] = useState('');
@@ -9,6 +10,7 @@ const ReportPage: React.FC = () => {
   const [fileError, setFileError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const toast = useToast();
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
@@ -53,11 +55,7 @@ const ReportPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    let alertMessage = 'Thank you! Your rescue report has been submitted. Our team will look into it shortly.';
-    if(file) {
-        alertMessage += `\nFile "${file.name}" was included.`
-    }
-    alert(alertMessage);
+    toast.success('Thank you! Your rescue report has been submitted.');
     // Reset form state
     setLocation('');
     setStatus('');

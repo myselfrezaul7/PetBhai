@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import { getVetAssistantResponse } from '../services/geminiService';
 import { PawIcon, SendIcon, CloseIcon, TrashIcon } from '../components/icons';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 
 const CHAT_HISTORY_STORAGE_KEY = 'petbhai_ai_chat_history';
 const WARNING_DISMISSED_KEY = 'petbhai_ai_warning_dismissed';
@@ -76,6 +77,7 @@ const AIAssistantPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const { confirm } = useConfirmation();
 
   useEffect(() => {
     const isDismissed = sessionStorage.getItem(WARNING_DISMISSED_KEY);
@@ -126,8 +128,12 @@ const AIAssistantPage: React.FC = () => {
     }
   };
 
-  const handleClearChat = () => {
-      if (window.confirm("Are you sure you want to clear the entire chat history? This action cannot be undone.")) {
+  const handleClearChat = async () => {
+      const shouldClear = await confirm({
+          title: 'Clear Chat History?',
+          message: 'Are you sure you want to clear the entire chat history? This action cannot be undone.',
+      });
+      if (shouldClear) {
         setChatHistory([]);
       }
   };

@@ -8,10 +8,8 @@ const BlogPage: React.FC = () => {
     // Sort all articles by date, newest first
     const sortedArticles = [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Take the first 5 as featured/popular
-    const popularArticles = sortedArticles.slice(0, 5);
-    const otherArticles = sortedArticles.slice(5);
-
+    const latestArticle = sortedArticles[0];
+    const otherArticles = sortedArticles.slice(1);
 
     return (
         <div className="container mx-auto px-6 py-16 animate-fade-in">
@@ -22,28 +20,16 @@ const BlogPage: React.FC = () => {
                 </p>
             </div>
             
-            {/* Popular Topics Section */}
-            {popularArticles.length > 0 && (
-                <div className="mb-16">
-                    <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">সাম্প্রতিক পোস্ট</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 max-w-6xl mx-auto">
-                        {popularArticles.map(article => (
-                            <ArticleCard key={article.id} article={article} />
-                        ))}
-                    </div>
-                </div>
-            )}
-
-
-            {/* All Articles Section */}
-            {otherArticles.length > 0 && (
-                 <div>
-                    <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b-2 border-orange-500/50 pb-4 max-w-md mx-auto">পুরানো আর্টিকেল</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 max-w-6xl mx-auto">
-                        {otherArticles.map(article => (
-                            <ArticleCard key={article.id} article={article} />
-                        ))}
-                    </div>
+            {/* Articles Section */}
+            {sortedArticles.length > 0 && (
+                <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
+                    {/* Featured Latest Article */}
+                    {latestArticle && <ArticleCard article={latestArticle} isFeatured={true} />}
+                    
+                    {/* Other Articles */}
+                    {otherArticles.map(article => (
+                        <ArticleCard key={article.id} article={article} />
+                    ))}
                 </div>
             )}
         </div>

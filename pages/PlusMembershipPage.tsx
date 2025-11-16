@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 
 const PlusMembershipPage: React.FC = () => {
   const { currentUser, subscribeToPlus, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+  const { confirm } = useConfirmation();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
@@ -16,9 +20,14 @@ const PlusMembershipPage: React.FC = () => {
     const planName = selectedPlan === 'monthly' ? 'Monthly' : 'Yearly';
     const planPrice = selectedPlan === 'monthly' ? '৳499/month' : '৳4999/year';
     
-    if (window.confirm(`Are you sure you want to subscribe to the ${planName} plan for ${planPrice}?`)) {
+    const shouldSubscribe = await confirm({
+        title: 'Confirm Subscription',
+        message: `Are you sure you want to subscribe to the ${planName} plan for ${planPrice}?`,
+    });
+
+    if (shouldSubscribe) {
         subscribeToPlus();
-        alert(`Congratulations! You have successfully subscribed to the ${planName} plan.`);
+        toast.success(`Congratulations! You are now a PetBhai+ member.`);
     }
   };
 

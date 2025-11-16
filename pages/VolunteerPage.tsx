@@ -1,10 +1,12 @@
 import React from 'react';
+import { useToast } from '../contexts/ToastContext';
 
 const VolunteerPage: React.FC = () => {
+    const toast = useToast();
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        alert('Thank you for your interest in volunteering! Your application has been submitted, and we will get in touch with you soon.');
+        toast.success('Thank you for your interest! Your application has been submitted.');
         (e.target as HTMLFormElement).reset();
     };
 

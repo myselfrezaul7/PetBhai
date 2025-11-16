@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Animal } from '../types';
 import { HeartIcon } from './icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface AnimalCardProps {
   animal: Animal;
@@ -10,6 +11,7 @@ interface AnimalCardProps {
 
 const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   const { isAuthenticated, currentUser, favoritePet, unfavoritePet } = useAuth();
+  const toast = useToast();
 
   const isFavorited = useMemo(() => {
     return currentUser?.favorites.includes(animal.id) ?? false;
@@ -19,7 +21,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
     e.preventDefault(); // Prevent navigating to detail page
     e.stopPropagation();
     if (!isAuthenticated) {
-        alert("Please log in to favorite pets.");
+        toast.info("Please log in to favorite pets.");
         return;
     }
     if (isFavorited) {

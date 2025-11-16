@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Animal } from '../types';
 import { CloseIcon } from './icons';
+import { useToast } from '../contexts/ToastContext';
 
 interface AdoptionFormProps {
   animal: Animal;
@@ -9,16 +10,17 @@ interface AdoptionFormProps {
 }
 
 const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) => {
+  const toast = useToast();
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Thank you for your interest in adopting ${animal.name}! Your application has been submitted.`);
+    toast.success(`Thank you for your interest in adopting ${animal.name}! Your application has been submitted.`);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4 transition-opacity duration-300" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 transition-opacity duration-300" onClick={onClose}>
       <div className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="p-8">
           <div className="flex justify-between items-start mb-4">

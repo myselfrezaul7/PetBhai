@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { UserIcon } from '../components/icons';
 import type { Order } from '../types';
 import { useProducts } from '../contexts/ProductContext';
+import { useToast } from '../contexts/ToastContext';
 
 const REORDER_THRESHOLD_DAYS = 15;
 
@@ -13,6 +14,7 @@ const ProfilePage: React.FC = () => {
   const { addToCart } = useCart();
   const { products } = useProducts();
   const navigate = useNavigate();
+  const toast = useToast();
   
   const [name, setName] = useState(currentUser?.name || '');
   const [profilePicture, setProfilePicture] = useState<string | null>(currentUser?.profilePictureUrl || null);
@@ -99,7 +101,7 @@ const ProfilePage: React.FC = () => {
             addToCart(item);
         }
     });
-    alert('Items from your past order have been added to your cart!');
+    toast.success('Items from your past order have been added to your cart!');
   };
 
   if (!currentUser) {
