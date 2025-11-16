@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MOCK_PRODUCTS, MOCK_BRANDS } from '../constants';
+import { MOCK_BRANDS } from '../constants';
 import ProductCard from '../components/ProductCard';
 import { VideoCameraIcon } from '../components/icons';
+import { useProducts } from '../contexts/ProductContext';
 
 const HomePage: React.FC = () => {
-  const bestSellers = [...MOCK_PRODUCTS].sort((a, b) => b.rating - a.rating).slice(0, 4);
-  const newArrivals = [...MOCK_PRODUCTS].sort((a, b) => b.id - a.id).slice(0, 4);
+  const { products } = useProducts();
+  const bestSellers = [...products].sort((a, b) => b.rating - a.rating).slice(0, 4);
+  const newArrivals = [...products].sort((a, b) => b.id - a.id).slice(0, 4);
 
   return (
     <div className="w-full animate-fade-in">

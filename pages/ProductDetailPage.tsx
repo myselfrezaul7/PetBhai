@@ -1,21 +1,19 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { MOCK_PRODUCTS, MOCK_BRANDS } from '../constants';
+import { MOCK_BRANDS } from '../constants';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { HeartIcon, ShoppingCartIcon, UserIcon } from '../components/icons';
 import ProductCard from '../components/ProductCard';
 import type { Review } from '../types';
+import { useProducts } from '../contexts/ProductContext';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { products, addProductReview } = useProducts();
   
-  // Find the initial product from the mock data
-  const initialProduct = useMemo(() => MOCK_PRODUCTS.find(p => p.id === Number(id)), [id]);
-  
-  // Use local state to manage product data, allowing for dynamic updates to reviews and ratings
-  const [product, setProduct] = useState(initialProduct);
+  const product = useMemo(() => products.find(p => p.id === Number(id)), [id, products]);
 
   const { addToCart } = useCart();
   const { isAuthenticated, currentUser, addToWishlist, removeFromWishlist } = useAuth();
@@ -27,15 +25,6 @@ const ProductDetailPage: React.FC = () => {
   const [newComment, setNewComment] = useState('');
   const [reviewError, setReviewError] = useState('');
 
-
-  // Effect to reset the component state if the user navigates to a different product page
-  useEffect(() => {
-    setProduct(MOCK_PRODUCTS.find(p => p.id === Number(id)));
-    setNewRating(0);
-    setNewComment('');
-    setReviewError('');
-  }, [id]);
-
   const brand = useMemo(() => {
     return MOCK_BRANDS.find(b => b.id === product?.brandId);
   }, [product]);
@@ -46,8 +35,8 @@ const ProductDetailPage: React.FC = () => {
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
-    return MOCK_PRODUCTS.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-  }, [product]);
+    return products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+  }, [product, products]);
 
   if (!product) {
     return (
@@ -104,14 +93,7 @@ const ProductDetailPage: React.FC = () => {
       date: new Date().toISOString(),
     };
     
-    const updatedReviews = [newReview, ...product.reviews];
-    const newAverageRating = updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length;
-    
-    setProduct({
-        ...product,
-        reviews: updatedReviews,
-        rating: newAverageRating,
-    });
+    addProductReview(product.id, newReview);
     
     // Reset form
     setNewRating(0);

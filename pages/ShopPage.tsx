@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import CartSidebar from '../components/CartSidebar';
-import { MOCK_PRODUCTS, MOCK_BRANDS } from '../constants';
+import { MOCK_BRANDS } from '../constants';
 import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon, SearchIcon } from '../components/icons';
 import type { Product } from '../types';
+import { useProducts } from '../contexts/ProductContext';
 
 type CategoryFilter = 'All' | 'Dog Food' | 'Cat Food' | 'Dog Supplies' | 'Cat Supplies' | 'Grooming';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating-desc';
@@ -18,9 +19,10 @@ const ShopPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { cartCount } = useCart();
+  const { products: allProducts } = useProducts();
 
   const sortedAndFilteredProducts = useMemo(() => {
-    let products: Product[] = [...MOCK_PRODUCTS];
+    let products: Product[] = [...allProducts];
 
     // 1. Filter by search query
     if (searchQuery.trim() !== '') {
@@ -61,7 +63,7 @@ const ShopPage: React.FC = () => {
     }
 
     return products;
-  }, [activeCategory, activeBrand, sortOption, searchQuery]);
+  }, [activeCategory, activeBrand, sortOption, searchQuery, allProducts]);
 
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = ({ filter }) => (
     <button

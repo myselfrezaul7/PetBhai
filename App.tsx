@@ -7,7 +7,9 @@ import MessengerPlugin from './components/MessengerPlugin';
 import { CartProvider } from './contexts/CartContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ScrollToTop from './components/ScrollToTop';
-import CookieConsentBanner from './components/CookieConsentBanner';
+import { ProductProvider } from './contexts/ProductContext';
+import CookieConsentBanner, { CookieConsentProvider, useCookieConsent } from './components/CookieConsentBanner';
+import { ArticleProvider } from './contexts/ArticleContext';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -39,8 +41,9 @@ const AppLoader: React.FC = () => (
   </div>
 );
 
+const AppContent: React.FC = () => {
+  const { consent } = useCookieConsent();
 
-function App() {
   useEffect(() => {
     // This function handles the service worker registration.
     const registerServiceWorker = () => {
@@ -68,47 +71,61 @@ function App() {
 
 
   return (
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:text-slate-200">
+      <Header />
+      <main className="flex-grow">
+        <Suspense fallback={<AppLoader />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/community" element={<CommunityPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
+            <Route path="/vet/:id" element={<VetDetailPage />} />
+            <Route path="/ai-assistant" element={<AIAssistantPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:id" element={<ArticleDetailPage />} />
+            <Route path="/plus-membership" element={<PlusMembershipPage />} />
+            <Route path="/adopt" element={<AdoptPage />} />
+            <Route path="/adopt/:id" element={<AnimalDetailPage />} />
+            <Route path="/report" element={<ReportPage />} />
+            <Route path="/volunteer" element={<VolunteerPage />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </main>
+      {consent === 'all' && <MessengerPlugin />}
+      <ScrollToTop />
+      <Footer />
+      <CookieConsentBanner />
+    </div>
+  );
+}
+
+
+function App() {
+  return (
     <ThemeProvider>
-      <AuthProvider>
-        <CartProvider>
-          <HashRouter>
-            <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:text-slate-200">
-              <Header />
-              <main className="flex-grow">
-                <Suspense fallback={<AppLoader />}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/community" element={<CommunityPage />} />
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
-                    <Route path="/vet/:id" element={<VetDetailPage />} />
-                    <Route path="/ai-assistant" element={<AIAssistantPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignUpPage />} />
-                    <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/product/:id" element={<ProductDetailPage />} />
-                    <Route path="/checkout" element={<CheckoutPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/blog/:id" element={<ArticleDetailPage />} />
-                    <Route path="/plus-membership" element={<PlusMembershipPage />} />
-                    <Route path="/adopt" element={<AdoptPage />} />
-                    <Route path="/adopt/:id" element={<AnimalDetailPage />} />
-                    <Route path="/report" element={<ReportPage />} />
-                    <Route path="/volunteer" element={<VolunteerPage />} />
-                    <Route path="/faq" element={<FAQPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </Suspense>
-              </main>
-              <MessengerPlugin />
-              <ScrollToTop />
-              <Footer />
-              <CookieConsentBanner />
-            </div>
-          </HashRouter>
-        </CartProvider>
-      </AuthProvider>
+      <ArticleProvider>
+        <ProductProvider>
+          <AuthProvider>
+            <CartProvider>
+              <CookieConsentProvider>
+                <HashRouter>
+                  <ScrollToTop />
+                  <AppContent />
+                </HashRouter>
+              </CookieConsentProvider>
+            </CartProvider>
+          </AuthProvider>
+        </ProductProvider>
+      </ArticleProvider>
     </ThemeProvider>
   );
 }

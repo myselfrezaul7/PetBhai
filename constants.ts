@@ -227,93 +227,162 @@ export const MOCK_VETS: Vet[] = [
 export const MOCK_ARTICLES: Article[] = [
     {
         id: 10,
-        title: "Canine Parvovirus: A Deadly Threat to Dogs in Bangladesh",
-        content: "Canine Parvovirus (CPV) is a severe, highly contagious viral illness that primarily affects unvaccinated dogs and puppies. As a veterinarian in Bangladesh, I see its devastating effects firsthand. Key symptoms include severe vomiting, bloody diarrhea, lethargy, and loss of appetite. Transmission occurs through direct contact with an infected dog or contaminated feces, environments, or even on people's hands and clothing. **Immediate veterinary intervention is critical for survival.** This article breaks down the signs to watch for, the science behind the virus, and underscores the single most effective prevention method: timely and complete vaccination. Protecting your puppy starts with understanding this deadly threat.",
-        imageUrl: "https://picsum.photos/seed/blog-parvo-prevention/600/400",
-        author: "Dr. Fatima Ahmed",
+        title: "কুকুরের পারভোভাইরাস: বাংলাদেশের কুকুরদের জন্য এক মারাত্মক হুমকি",
+        content: `কুকুরের পারভোভাইরাস (CPV) একটি অত্যন্ত গুরুতর এবং সংক্রামক ভাইরাল রোগ যা মূলত টিকা না দেওয়া কুকুর এবং কুকুরছানাদের প্রভাবিত করে। বাংলাদেশের একজন পশুচিকিৎসক হিসেবে, আমি এর ভয়াবহ প্রভাব নিজের চোখে দেখেছি। এই রোগের প্রধান লক্ষণগুলির মধ্যে রয়েছে شدید বমি, রক্তযুক্ত ডায়রিয়া, অলসতা এবং ক্ষুধামন্দা।
+
+**কিভাবে ছড়ায়?**
+এই ভাইরাসটি সংক্রমিত কুকুরের সংস্পর্শে বা তার মল, দূষিত পরিবেশ, এমনকি মানুষের হাত এবং পোশাকের মাধ্যমেও ছড়াতে পারে। এর ভাইরাস পরিবেশে অনেকদিন পর্যন্ত সক্রিয় থাকতে পারে, যা একে আরও বিপজ্জনক করে তোলে।
+
+**লক্ষণ দেখা দিলে করণীয়:**
+যদি আপনার কুকুরের মধ্যে উপরের কোনো লক্ষণ দেখা যায়, তাহলে **এক মুহূর্তও দেরি না করে দ্রুত একজন অভিজ্ঞ পশুচিকিৎসকের সাথে যোগাযোগ করুন।** পারভোভাইরাসের ক্ষেত্রে সময়মতো চিকিৎসা জীবন এবং মৃত্যুর মধ্যে পার্থক্য গড়ে দিতে পারে। সঠিক সাপোর্টিভ কেয়ার, যেমন শিরায় তরল প্রদান এবং অ্যান্টিবায়োটিক সংক্রমণের বিরুদ্ধে লড়াই করতে সাহায্য করে।
+
+**প্রতিরোধই সর্বোত্তম উপায়:**
+পারভোভাইরাস প্রতিরোধের সবচেয়ে কার্যকর উপায় হলো সময়মতো এবং সম্পূর্ণ টিকাদান। আপনার কুকুরছানাকে পশুচিকিৎসকের পরামর্শ অনুযায়ী সঠিক সময়ে টিকার সম্পূর্ণ কোর্স সম্পন্ন করানো আবশ্যক। একটি টিকা আপনার পোষা প্রাণীকে এই মারাত্মক রোগ থেকে সুরক্ষিত রাখতে পারে। আপনার পোষ্যের সুরক্ষা শুরু হয় এই মারাত্মক হুমকি সম্পর্কে সঠিক জ্ঞান অর্জনের মাধ্যমে।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article10/600/400',
+        author: "ডঃ ফাতিমা আহমেদ",
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 6
-    },
-    {
-        id: 9,
-        title: "Potty Training Your Puppy or Kitten: A Step-by-Step Guide",
-        content: "Bringing a new puppy or kitten home is a joyous occasion, but successful potty training is key to a harmonious household. This guide, based on proven veterinary behavioral principles, will walk you through the essential steps. We'll cover establishing a consistent routine, recognizing your pet's 'I have to go' signals, the power of positive reinforcement with treats and praise, and common mistakes to avoid. Whether you're crate training a puppy or litter box training a kitten, these fundamental, humane techniques will set you and your new companion up for success.",
-        imageUrl: "https://picsum.photos/seed/blog-potty-guide/600/400",
-        author: "Dr. Nazia Islam",
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 7
-    },
-    {
-        id: 4,
-        title: "A Guide to Cat Care in Bangladesh: Health, Diet, and Happiness",
-        content: "Owning a cat in Bangladesh comes with its unique set of joys and challenges. This guide provides essential tips for local cat owners.\n\n**Diet:** Given the hot and humid climate, ensure your cat has constant access to fresh, clean water. Opt for high-quality wet food to supplement their hydration. Look for foods rich in taurine, an essential amino acid for feline health. Avoid feeding them cooked bones, onions, or chocolate, which are toxic.\n\n**Health:** Regular vet check-ups are crucial. Common issues in our region include fleas, ticks, and heatstroke. Keep your cat indoors during the hottest parts of the day. A clean litter box is non-negotiable for preventing urinary tract issues.",
-        imageUrl: "https://picsum.photos/seed/blog4/600/400",
-        author: "Dr. Nazia Islam",
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 8
     },
     {
+        id: 9,
+        title: "কুকুরছানা বা বিড়ালছানাকে পটি ট্রেনিং করানোর সহজ উপায়",
+        content: `একটি নতুন কুকুরছানা বা বিড়ালছানা ঘরে আনা নিঃসন্দেহে আনন্দের, কিন্তু একটি শান্তিপূর্ণ সংসারের জন্য সঠিক পটি ট্রেনিং অপরিহার্য। পশুচিকিৎসকদের আচরণগত নীতির উপর ভিত্তি করে তৈরি এই নির্দেশিকা আপনাকে প্রয়োজনীয় পদক্ষেপগুলি সম্পর্কে জানাবে।
+
+**ধাপ ১: একটি নির্দিষ্ট রুটিন তৈরি করুন:**
+প্রতিদিন একই সময়ে, বিশেষ করে ঘুম থেকে ওঠার পর, খাওয়ার পর এবং খেলার পর আপনার পোষ্যকে নির্দিষ্ট স্থানে (লিটার বক্স বা বাইরে) নিয়ে যান। ধারাবাহিকতা তাদের দ্রুত শিখতে সাহায্য করে।
+
+**ধাপ ২: সংকেত চিনতে শিখুন:**
+আপনার পোষ্য যখন ঘুরতে থাকে, মেঝের গন্ধ নিতে থাকে বা অস্থির আচরণ করে, তখন বুঝতে হবে তার 'বাইরে' যাওয়ার সময় হয়েছে। এই সংকেতগুলো চিনে দ্রুত তাকে নির্দিষ্ট স্থানে নিয়ে যান।
+
+**ধাপ ৩: ইতিবাচক মনোভাব দেখান:**
+সঠিক জায়গায় মলত্যাগ করলে তাকে প্রচুর প্রশংসা করুন এবং ছোট পুরস্কার (ট্রিট) দিন। এটি তাদের ভালো আচরণ মনে রাখতে উৎসাহিত করবে। মনে রাখবেন, বকাঝকা বা শাস্তি দিলে হিতে বিপরীত হতে পারে। ধৈর্য এবং ইতিবাচক মনোভাবই সাফল্যের চাবিকাঠি।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article9/600/400',
+        author: "ডঃ নাজিয়া ইসলাম",
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        readTime: 9
+    },
+    {
+        id: 4,
+        title: "বাংলাদেশে বিড়ালের যত্ন: স্বাস্থ্য, খাদ্য এবং 행복",
+        content: `বাংলাদেশে একটি বিড়াল পোষা তার নিজস্ব আনন্দ এবং চ্যালেঞ্জ নিয়ে আসে। এখানকার মালিকদের জন্য কিছু প্রয়োজনীয় টিপস নিচে দেওয়া হলো।
+
+**খাদ্য:** গরম এবং আর্দ্র আবহাওয়ার কারণে, আপনার বিড়ালের জন্য সর্বদা তাজা এবং পরিষ্কার জলের ব্যবস্থা রাখুন। তাদের হাইড্রেশন বাড়ানোর জন্য শুকনো খাবারের পাশাপাশি ভেজা খাবারও দিন। বিড়ালের স্বাস্থ্যের জন্য অপরিহার্য অ্যামিনো অ্যাসিড 'টরিণ' সমৃদ্ধ খাবার বেছে নিন। রান্না করা হাড়, পেঁয়াজ বা চকোলেট খাওয়ানো থেকে বিরত থাকুন, কারণ এগুলো তাদের জন্য বিষাক্ত।
+
+**স্বাস্থ্য:** নিয়মিত পশুচিকিৎসকের কাছে চেকআপ অত্যন্ত গুরুত্বপূর্ণ। আমাদের অঞ্চলে সাধারণ সমস্যাগুলির মধ্যে রয়েছে মাছি, এঁটেল পোকা এবং হিটস্ট্রোক। দিনের সবচেয়ে গরম সময়ে আপনার বিড়ালকে ঘরের ভিতরে রাখুন। মূত্রনালীর সমস্যা প্রতিরোধের জন্য একটি পরিষ্কার লিটার বক্স অপরিহার্য।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article4/600/400',
+        author: "ডঃ নাজিয়া ইসলাম",
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        readTime: 10
+    },
+    {
         id: 5,
-        title: "Essential Vaccination Schedule for Dogs in Bangladesh",
-        content: "Vaccinations are the most effective way to protect your dog from life-threatening diseases prevalent in Bangladesh. Here is a general timeline, but always consult your vet for a personalized schedule.\n\n**Core Vaccines:**\n- **6-8 weeks:** Distemper, Parvovirus (DHLPPi).\n- **10-12 weeks:** Second DHLPPi booster.\n- **14-16 weeks:** Third DHLPPi booster and first Rabies vaccine.\n\n**Annual Boosters:** All core vaccines, including Rabies, require annual boosters to maintain immunity. Protecting your dog is a lifelong commitment.",
-        imageUrl: "https://picsum.photos/seed/blog5/600/400",
-        author: "Dr. Kabir Hossain",
+        title: "বাংলাদেশে কুকুরের জন্য প্রয়োজনীয় টিকার সময়সূচী",
+        content: `বাংলাদেশে প্রচলিত জীবনঘাতী রোগ থেকে আপনার কুকুরকে রক্ষা করার সবচেয়ে কার্যকর উপায় হলো টিকা। এখানে একটি সাধারণ সময়সূচী দেওয়া হলো, তবে ব্যক্তিগত সময়সূচীর জন্য সর্বদা আপনার পশুচিকিৎসকের সাথে পরামর্শ করুন।
+
+**মূল টিকা:**
+*   **৬-৮ সপ্তাহ:** ডিসটেম্পার, পারভোভাইরাস (DHLPPi)।
+*   **১০-১২ সপ্তাহ:** দ্বিতীয় DHLPPi বুস্টার।
+*   **১৪-১৬ সপ্তাহ:** তৃতীয় DHLPPi বুস্টার এবং প্রথম জলাতঙ্ক (Rabies) টিকা।
+
+**বার্ষিক বুস্টার:** জলাতঙ্ক সহ সমস্ত মূল টিকার রোগ প্রতিরোধ ক্ষমতা বজায় রাখার জন্য বার্ষিক বুস্টার প্রয়োজন। আপনার কুকুরকে রক্ষা করা একটি আজীবনের অঙ্গীকার। সঠিক সময়ে টিকা না দিলে মারাত্মক রোগের ঝুঁকি বেড়ে যায়, তাই এই বিষয়ে অবহেলা করবেন না।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article5/600/400',
+        author: "ডঃ কবির হোসেন",
         date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 6
+        readTime: 8
     },
     {
         id: 6,
-        title: "What is FIP? A Guide for Cat Owners in Bangladesh",
-        content: "Feline Infectious Peritonitis (FIP) is a viral disease caused by a feline coronavirus. While most strains of feline coronavirus are harmless, in some cats, the virus can mutate and cause FIP, which is progressive and often fatal.\n\n**Symptoms:** Symptoms can be vague and include lethargy, weight loss, and fever. The 'wet' form is characterized by fluid accumulation in the abdomen or chest, while the 'dry' form involves inflammatory lesions in organs. Diagnosis is complex and often requires a combination of tests. While historically considered a death sentence, new antiviral treatments are showing promise, but they can be expensive and hard to access in Bangladesh. Prevention through good hygiene and reducing stress in multi-cat households is key.",
-        imageUrl: "https://picsum.photos/seed/blog6/600/400",
-        author: "PetBhai Team",
+        title: "FIP কী? বাংলাদেশের বিড়াল মালিকদের জন্য একটি নির্দেশিকা",
+        content: `ফেলাইন ইনফেকশাস পেরিটোনাইটিস (FIP) হলো একটি ভাইরাল রোগ যা ফেলাইন করোনাভাইরাস দ্বারা সৃষ্ট। যদিও বেশিরভাগ ফেলাইন করোনাভাইরাস নিরীহ, কিছু বিড়ালের ক্ষেত্রে ভাইরাসটি পরিবর্তিত হয়ে FIP সৃষ্টি করতে পারে, যা সাধারণত মারাত্মক হয়।
+
+**লক্ষণ:** এর লক্ষণগুলি অস্পষ্ট হতে পারে এবং এর মধ্যে অলসতা, ওজন হ্রাস এবং জ্বর অন্তর্ভুক্ত। 'ওয়েট' ফর্মে পেট বা বুকে তরল জমা হয়, আর 'ড্রাই' ফর্মে বিভিন্ন অঙ্গে প্রদাহ দেখা যায়। রোগ নির্ণয় বেশ জটিল এবং একাধিক পরীক্ষার প্রয়োজন হয়। যদিও ঐতিহাসিকভাবে এটিকে смертный приговор হিসেবে বিবেচনা করা হতো, নতুন অ্যান্টিভাইরাল চিকিৎসা আশা জাগাচ্ছে, তবে বাংলাদেশে এগুলি ব্যয়বহুল এবং সহজলভ্য নয়। একাধিক বিড়াল আছে এমন বাড়িতে ভালো স্বাস্থ্যবিধি এবং মানসিক চাপ কমানোই প্রতিরোধের মূল চাবিকাঠি।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article6/600/400',
+        author: "পেটভাই টিম",
         date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 7
+        readTime: 9
     },
     {
         id: 7,
-        title: "Rabies Prevention: Protecting Your Pet and Your Family",
-        content: "Rabies is a deadly viral disease that is 100% preventable through vaccination. In Bangladesh, where stray dogs are common, it is a significant public health concern. The virus is transmitted through the saliva of infected animals, usually via a bite.\n\n**For Your Pet:** The rabies vaccine is a legal and ethical requirement for all dog and cat owners. It protects not only your pet but also creates a barrier to prevent the disease from spreading to humans.\n\n**For Your Family:** Never approach an unknown or wild animal. Teach children to do the same. If bitten, immediately wash the wound with soap and water for 15 minutes and seek medical attention from a doctor right away to receive post-exposure prophylaxis (PEP).",
-        imageUrl: "https://picsum.photos/seed/blog7/600/400",
-        author: "Dr. Fatima Ahmed",
+        title: "জলাতঙ্ক প্রতিরোধ: আপনার পোষ্য এবং পরিবারকে সুরক্ষিত রাখুন",
+        content: `জলাতঙ্ক একটি মারাত্মক ভাইরাল রোগ যা টিকার মাধ্যমে ১০০% প্রতিরোধযোগ্য। বাংলাদেশে, যেখানে পথকুকুর সাধারণ, এটি একটি বড় জনস্বাস্থ্য উদ্বেগ। ভাইরাসটি সংক্রমিত প্রাণীর লালার মাধ্যমে, সাধারণত কামড়ের মাধ্যমে ছড়ায়।
+
+**আপনার পোষ্যের জন্য:** সমস্ত কুকুর এবং বিড়াল মালিকদের জন্য জলাতঙ্ক টিকা একটি আইনি এবং নৈতিক প্রয়োজনীয়তা। এটি কেবল আপনার পোষ্যকে রক্ষা করে না, বরং মানুষের মধ্যে রোগ ছড়ানো প্রতিরোধে একটি বাধা তৈরি করে।
+
+**আপনার পরিবারের জন্য:** কখনও অজানা বা বন্য প্রাণীর কাছে যাবেন না। শিশুদেরও একই শিক্ষা দিন। কামড়ালে, ক্ষতস্থানটি অবিলম্বে ১৫ মিনিট ধরে সাবান ও জল দিয়ে ধুয়ে ফেলুন এবং পোস্ট-এক্সপোজার প্রোফিল্যাক্সিস (PEP) পেতে সঙ্গে সঙ্গে ডাক্তারের কাছে যান।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article7/600/400',
+        author: "ডঃ ফাতিমা আহমেদ",
         date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 5
-    },
-    {
-        id: 8,
-        title: "The Importance of Spaying and Neutering Your Pet",
-        content: "Spaying (for females) and neutering (for males) are surgical procedures that prevent pets from reproducing. This single decision has numerous benefits for your pet and the community.\n\n**Health Benefits:** It significantly reduces the risk of certain cancers, like mammary and testicular cancer. It also eliminates the risk of uterine infections (pyometra) in females.\n\n**Behavioral Benefits:** Neutered males are less likely to roam, mark territory, or display aggression. Spayed females won't go into heat, avoiding yowling and messy cycles.\n\n**Community Impact:** Most importantly, it helps control the overpopulation of stray animals, reducing the number of homeless pets suffering on the streets. It is the most responsible choice a pet owner can make.",
-        imageUrl: "https://picsum.photos/seed/blog8/600/400",
-        author: "PetBhai Team",
-        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 6
-    },
-    {
-        id: 1,
-        title: "The Ultimate Guide to Choosing the Right Food for Your Pet",
-        content: "Nutrition is the foundation of your pet's health. With so many options available, choosing the right food can feel overwhelming. Here's what to look for.\n\n**Read the Label:** The first ingredient should always be a named meat source (e.g., 'Chicken', not 'Meat By-product'). Avoid foods with artificial colors, flavors, and preservatives. \n\n**Age-Specific Formulas:** Puppies and kittens have different nutritional needs than adult or senior pets. Always choose a food that is appropriate for your pet's life stage. \n\n**Breed & Size:** Large breed dogs have different requirements than small breeds to support their joint health. Some brands offer breed-specific formulas tailored to their unique needs. When in doubt, always consult your veterinarian.",
-        imageUrl: "https://picsum.photos/seed/blog1/600/400",
-        author: "Dr. Nazia Islam",
-        date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
         readTime: 7
     },
     {
+        id: 8,
+        title: "আপনার পোষ্যকে স্পে বা নিউটার করার গুরুত্ব",
+        content: `স্পেয়িং (স্ত্রী প্রাণীর জন্য) এবং নিউটারিং (পুরুষ প্রাণীর জন্য) হলো অস্ত্রোপচার পদ্ধতি যা পোষ্যদের প্রজনন থেকে বিরত রাখে। এই একটি সিদ্ধান্তের অনেক সুবিধা রয়েছে।
+
+**স্বাস্থ্যগত সুবিধা:** এটি স্তন এবং অণ্ডকোষের ক্যান্সারের মতো নির্দিষ্ট ক্যান্সারের ঝুঁকি উল্লেখযোগ্যভাবে হ্রাস করে। এটি স্ত্রী প্রাণীদের জরায়ুর সংক্রমণ (পায়োমেট্রা) এর ঝুঁকিও দূর করে।
+
+**আচরণগত সুবিধা:** নিউটার করা পুরুষরা কম ঘুরে বেড়ায়, এলাকা চিহ্নিত করে না বা আগ্রাসন দেখায় না। স্পে করা স্ত্রীরা হিটে আসে না, যা চিৎকার এবং নোংরা চক্র এড়াতে সাহায্য করে।
+
+**সামাজিক প্রভাব:** সবচেয়ে গুরুত্বপূর্ণ হলো, এটি পথপ্রাণীর অতিরিক্ত জনসংখ্যা নিয়ন্ত্রণে সহায়তা করে, যার ফলে রাস্তায় কষ্ট পাওয়া গৃহহীন পোষ্যের সংখ্যা হ্রাস পায়। এটি একজন পোষ্য মালিকের সবচেয়ে দায়িত্বশীল পছন্দ।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article8/600/400',
+        author: "পেটভাই টিম",
+        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        readTime: 8
+    },
+    {
+        id: 1,
+        title: "আপনার পোষ্যের জন্য সঠিক খাবার বেছে নেওয়ার চূড়ান্ত নির্দেশিকা",
+        content: `পুষ্টি আপনার পোষ্যের স্বাস্থ্যের ভিত্তি। বাজারে এত বিকল্পের মধ্যে সঠিক খাবার বেছে নেওয়া কঠিন মনে হতে পারে। এখানে কিছু বিষয় লক্ষ্য রাখা প্রয়োজন।
+
+**লেবেল পড়ুন:** প্রথম উপাদানটি সর্বদা একটি নির্দিষ্ট মাংসের উৎস হওয়া উচিত (যেমন, 'চিকেন', 'মিট বাই-প্রোডাক্ট' নয়)। কৃত্রিম রঙ, স্বাদ এবং প্রিজারভেটিভযুক্ত খাবার এড়িয়ে চলুন।
+
+**বয়স-নির্দিষ্ট ফর্মুলা:** কুকুরছানা এবং বিড়ালছানাদের পুষ্টির চাহিদা প্রাপ্তবয়স্ক বা বয়স্ক পোষ্যদের থেকে ভিন্ন। সর্বদা আপনার পোষ্যের বয়সের জন্য উপযুক্ত খাবার বেছে নিন।
+
+**জাত ও আকার:** বড় জাতের কুকুরের জয়েন্টের স্বাস্থ্য সহায়তার জন্য ছোট জাতের থেকে ভিন্ন প্রয়োজনীয়তা রয়েছে। কিছু ব্র্যান্ড তাদের অনন্য প্রয়োজনের জন্য জাত-নির্দিষ্ট ফর্মুলা সরবরাহ করে। সন্দেহের ক্ষেত্রে, সর্বদা আপনার পশুচিকিৎসকের সাথে পরামর্শ করুন।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article1/600/400',
+        author: "ডঃ নাজিয়া ইসলাম",
+        date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+        readTime: 9
+    },
+    {
         id: 2,
-        title: "5 Essential Grooming Tips for a Healthy Coat",
-        content: "Grooming is about more than just good looks; it's vital for your pet's health.\n\n1. **Brush Regularly:** Brushing removes loose fur, prevents matting, and distributes natural oils, keeping the coat shiny. The type of brush depends on your pet's coat length.\n2. **Nail Trims:** Overlong nails are uncomfortable and can cause joint problems. Trim them every 3-4 weeks.\n3. **Ear Cleaning:** Check ears weekly for wax buildup or odor, which can signal infection. Clean with a vet-approved solution.\n4. **Bathing:** Bathe your pet only when necessary, using a pet-specific shampoo to avoid drying out their skin.\n5. **Dental Care:** Brush your pet's teeth daily to prevent plaque and dental disease.",
-        imageUrl: "https://picsum.photos/seed/blog2/600/400",
-        author: "Aisha Rahman",
+        title: "একটি স্বাস্থ্যকর কোটের জন্য ৫টি প্রয়োজনীয় গ্রুমিং টিপস",
+        content: `গ্রুমিং কেবল দেখতে সুন্দর লাগার জন্য নয়; এটি আপনার পোষ্যের স্বাস্থ্যের জন্য অত্যাবশ্যক।
+
+১. **নিয়মিত ব্রাশ করুন:** ব্রাশ করা আলগা পশম দূর করে, জট বাঁধা প্রতিরোধ করে এবং প্রাকৃতিক তেল বিতরণ করে, যা কোটকে চকচকে রাখে। ব্রাশের ধরন আপনার পোষ্যের কোটের দৈর্ঘ্যের উপর নির্ভর করে।
+২. **নখ ছাঁটা:** অতিরিক্ত লম্বা নখ অস্বস্তিকর এবং জয়েন্টের সমস্যা সৃষ্টি করতে পারে। প্রতি ৩-৪ সপ্তাহে তাদের নখ ছাঁটুন।
+৩. **কান পরিষ্কার করা:** কানে ময়লা জমা বা গন্ধ সংক্রমণের লক্ষণ হতে পারে। প্রতি সপ্তাহে কান পরীক্ষা করুন এবং পশুচিকিৎসক-অনুমোদিত সলিউশন দিয়ে পরিষ্কার করুন।
+৪. **স্নান করানো:** আপনার পোষ্যকে শুধুমাত্র প্রয়োজনে স্নান করান, এবং ত্বক শুকিয়ে যাওয়া এড়াতে পোষ্য-নির্দিষ্ট শ্যাম্পু ব্যবহার করুন।
+৫. **দাঁতের যত্ন:** প্লাক এবং দাঁতের রোগ প্রতিরোধের জন্য প্রতিদিন আপনার পোষ্যের দাঁত ব্রাশ করুন।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article2/600/400',
+        author: "আয়েশা রহমান",
         date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 5
+        readTime: 7
     },
     {
         id: 3,
-        title: "Interactive Toys: Keeping Your Pet Mentally Stimulated",
-        content: "A bored pet is often a destructive pet. Mental stimulation is just as important as physical exercise. Interactive toys are a fantastic way to engage your pet's brain.\n\n**Food Puzzles:** These toys require your pet to solve a problem to get a treat. They slow down eating and provide a mental workout.\n\n**LickiMats:** Spreading a pet-safe treat on a LickiMat can be a calming activity for anxious pets.\n\n**Feather Wands & Laser Pointers (for cats):** These toys mimic prey and engage a cat's natural hunting instincts. Always end a laser pointer session with a physical treat to avoid frustration.",
-        imageUrl: "https://picsum.photos/seed/blog3/600/400",
-        author: "PetBhai Team",
+        title: "ইন্টারেক্টিভ খেলনা: আপনার পোষ্যকে মানসিকভাবে উদ্দীপিত রাখা",
+        content: `একটি উদাস পোষ্য প্রায়শই ধ্বংসাত্মক হয়ে ওঠে। শারীরিক ব্যায়ামের মতোই মানসিক উদ্দীপনাও গুরুত্বপূর্ণ। ইন্টারেক্টিভ খেলনা আপনার পোষ্যের মস্তিষ্ককে সক্রিয় রাখার একটি চমৎকার উপায়।
+
+**ফুড পাজল:** এই খেলনাগুলিতে আপনার পোষ্যকে একটি ট্রিট পেতে একটি সমস্যা সমাধান করতে হয়। এটি তাদের খাওয়া ধীর করে এবং মানসিক ব্যায়াম প্রদান করে।
+
+**লিকিম্যাট:** একটি লিকিম্যাটে পোষ্য-নিরাপদ ট্রিট ছড়িয়ে দেওয়া উদ্বিগ্ন পোষ্যদের জন্য একটি শান্তিদায়ক কার্যকলাপ হতে পারে।
+
+**ফেদার ওয়ান্ড এবং লেজার পয়েন্টার (বিড়ালের জন্য):** এই খেলনাগুলি শিকারের অনুকরণ করে এবং বিড়ালের প্রাকৃতিক শিকারের প্রবৃত্তি জাগিয়ে তোলে। হতাশা এড়াতে লেজার পয়েন্টার সেশনের শেষে সর্বদা একটি শারীরিক ট্রিট দিন।`,
+        // FIX: Added missing imageUrl property
+        imageUrl: 'https://picsum.photos/seed/article3/600/400',
+        author: "পেটভাই টিম",
         date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 6
+        readTime: 8
     }
 ];
 

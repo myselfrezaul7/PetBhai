@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useEffect } from 'react';
 import type { Product, CartItem } from '../types';
 
 type CartState = {
@@ -11,9 +11,24 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; payload: { id: number } }
   | { type: 'CLEAR_CART' };
 
-const initialState: CartState = {
-  items: [],
+const CART_STORAGE_KEY = 'petbhai_cart_items';
+
+const getInitialState = (): CartState => {
+  try {
+    const storedItems = window.localStorage.getItem(CART_STORAGE_KEY);
+    if (storedItems) {
+      const parsed = JSON.parse(storedItems);
+      if (Array.isArray(parsed)) {
+        return { items: parsed };
+      }
+    }
+  } catch (error) {
+    console.error("Error reading cart from localStorage", error);
+    window.localStorage.removeItem(CART_STORAGE_KEY); // Clear corrupted data
+  }
+  return { items: [] };
 };
+
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
@@ -67,7 +82,15 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(cartReducer, getInitialState());
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
+    } catch (error) {
+      console.error("Error saving cart to localStorage", error);
+    }
+  }, [state.items]);
 
   const contextValue = useMemo(() => {
     const cartCount = state.items.reduce((sum, item) => sum + item.quantity, 0);

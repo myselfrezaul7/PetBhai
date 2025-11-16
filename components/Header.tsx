@@ -4,8 +4,8 @@ import { MenuIcon, CloseIcon, SearchIcon, UserIcon } from './icons';
 import Logo from './Logo';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
-import { MOCK_PRODUCTS } from '../constants';
 import SearchResults, { type SearchResultsData } from './SearchResults';
+import { useProducts } from '../contexts/ProductContext';
 
 interface PageResult {
   name: string;
@@ -24,6 +24,7 @@ const ALL_PAGES: PageResult[] = [
 
 const Header: React.FC = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
+  const { products } = useProducts();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -79,7 +80,7 @@ const Header: React.FC = () => {
     const handler = setTimeout(() => {
         const lowerCaseQuery = searchQuery.toLowerCase();
 
-        const filteredProducts = MOCK_PRODUCTS.filter(product =>
+        const filteredProducts = products.filter(product =>
             product.name.toLowerCase().includes(lowerCaseQuery) ||
             product.category.toLowerCase().includes(lowerCaseQuery)
         ).slice(0, 4);
@@ -107,7 +108,7 @@ const Header: React.FC = () => {
     return () => {
         clearTimeout(handler);
     };
-  }, [searchQuery]);
+  }, [searchQuery, products]);
 
   // Lock body scroll when mobile menu is open for better UX
   useEffect(() => {

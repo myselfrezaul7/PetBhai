@@ -3,14 +3,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { UserIcon } from '../components/icons';
-import { MOCK_PRODUCTS } from '../constants';
 import type { Order } from '../types';
+import { useProducts } from '../contexts/ProductContext';
 
 const REORDER_THRESHOLD_DAYS = 15;
 
 const ProfilePage: React.FC = () => {
   const { currentUser, updateProfile, isAuthenticated } = useAuth();
   const { addToCart } = useCart();
+  const { products } = useProducts();
   const navigate = useNavigate();
   
   const [name, setName] = useState(currentUser?.name || '');
@@ -33,8 +34,8 @@ const ProfilePage: React.FC = () => {
 
   const wishlistedProducts = useMemo(() => {
     if (!currentUser) return [];
-    return MOCK_PRODUCTS.filter(product => currentUser.wishlist.includes(product.id));
-  }, [currentUser]);
+    return products.filter(product => currentUser.wishlist.includes(product.id));
+  }, [currentUser, products]);
 
   const reorderSuggestions = useMemo(() => {
     if (!currentUser) return [];

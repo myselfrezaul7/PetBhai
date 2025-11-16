@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 
 // Create a singleton instance of the AI client to avoid re-creating it on every call.
 let aiInstance: GoogleGenAI | null = null;
@@ -35,5 +35,35 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
   } catch (error) {
     console.error("Error generating content from Gemini:", error);
     return "I'm sorry, but I'm having trouble connecting to my knowledge base right now. Please try again later.";
+  }
+};
+
+export const generateImageFromPrompt = async (prompt: string): Promise<string> => {
+  const ai = getAiInstance();
+  if (!ai) {
+    throw new Error("AI client is not available due to a configuration issue.");
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [{ text: prompt }],
+      },
+      config: {
+        responseModalities: [Modality.IMAGE],
+      },
+    });
+    
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        const base64ImageBytes: string = part.inlineData.data;
+        return `data:image/png;base64,${base64ImageBytes}`;
+      }
+    }
+    throw new Error("No image data found in the AI response.");
+  } catch (error) {
+    console.error("Error generating image from Gemini:", error);
+    throw new Error("Failed to generate the image. Please try again later.");
   }
 };
