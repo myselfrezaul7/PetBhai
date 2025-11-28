@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import SearchResults, { type SearchResultsData } from './SearchResults';
 import { useProducts } from '../contexts/ProductContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PageResult {
   name: string;
@@ -25,6 +26,7 @@ const ALL_PAGES: PageResult[] = [
 const Header: React.FC = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
   const { products } = useProducts();
+  const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -175,13 +177,13 @@ const Header: React.FC = () => {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-6">
             <ul className="flex items-center space-x-6 text-[15px] font-medium">
-                <DesktopNavLink to="/">Home</DesktopNavLink>
-                <DesktopNavLink to="/shop">Shop</DesktopNavLink>
-                <DesktopNavLink to="/community">Community</DesktopNavLink>
-                <DesktopNavLink to="/services">Services</DesktopNavLink>
-                <DesktopNavLink to="/ai-assistant">AI Vet</DesktopNavLink>
-                <DesktopNavLink to="/blog">Blog</DesktopNavLink>
-                <DesktopNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 font-bold">PetBhai+</DesktopNavLink>
+                <DesktopNavLink to="/">{t('nav_home')}</DesktopNavLink>
+                <DesktopNavLink to="/shop">{t('nav_shop')}</DesktopNavLink>
+                <DesktopNavLink to="/community">{t('nav_community')}</DesktopNavLink>
+                <DesktopNavLink to="/services">{t('nav_services')}</DesktopNavLink>
+                <DesktopNavLink to="/ai-assistant">{t('nav_ai_vet')}</DesktopNavLink>
+                <DesktopNavLink to="/blog">{t('nav_blog')}</DesktopNavLink>
+                <DesktopNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 font-bold">{t('nav_plus')}</DesktopNavLink>
             </ul>
           </div>
            {/* Search Bar & Profile */}
@@ -192,7 +194,7 @@ const Header: React.FC = () => {
                 </span>
                 <input
                     type="text"
-                    placeholder="Search products..."
+                    placeholder={t('search_placeholder')}
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onFocus={handleSearchFocus}
@@ -216,7 +218,15 @@ const Header: React.FC = () => {
                 )}
                 </div>
             
-                <ThemeToggle />
+                <div className="flex items-center space-x-2">
+                    <button 
+                        onClick={toggleLanguage} 
+                        className="px-2 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-orange-500 hover:text-white transition-colors"
+                    >
+                        {language === 'en' ? 'BN' : 'EN'}
+                    </button>
+                    <ThemeToggle />
+                </div>
 
                 {isAuthenticated && currentUser ? (
                     <div className="relative" ref={profileMenuRef}>
@@ -239,15 +249,15 @@ const Header: React.FC = () => {
                                 <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
                                     <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">Hi, {currentUser.name.split(' ')[0]}</p>
                                 </div>
-                                <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">My Profile</Link>
-                                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">Logout</button>
+                                <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">{t('nav_profile')}</Link>
+                                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">{t('nav_logout')}</button>
                             </div>
                         )}
                     </div>
                 ) : (
                     <>
-                        <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">Login</NavLink>
-                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105">Sign Up</NavLink>
+                        <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">{t('nav_login')}</NavLink>
+                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105">{t('nav_signup')}</NavLink>
                     </>
                 )}
             </div>
@@ -262,7 +272,7 @@ const Header: React.FC = () => {
                         </span>
                         <input
                             type="text"
-                            placeholder="Search products..."
+                            placeholder={t('search_placeholder')}
                             value={searchQuery}
                             onChange={handleSearchChange}
                             onFocus={handleSearchFocus}
@@ -312,6 +322,12 @@ const Header: React.FC = () => {
             <span>PetBhai</span>
           </NavLink>
           <div className="flex items-center space-x-2">
+            <button 
+                onClick={toggleLanguage} 
+                className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+            >
+                {language === 'en' ? 'BN' : 'EN'}
+            </button>
             <ThemeToggle />
             <button onClick={() => setIsMenuOpen(false)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Close menu">
               <CloseIcon className="w-8 h-8" />
@@ -320,13 +336,13 @@ const Header: React.FC = () => {
         </div>
         <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8">
             <nav className="flex flex-col space-y-6">
-                <MobileNavLink to="/">Home</MobileNavLink>
-                <MobileNavLink to="/shop">Shop</MobileNavLink>
-                <MobileNavLink to="/community">Community</MobileNavLink>
-                <MobileNavLink to="/services">Services</MobileNavLink>
-                <MobileNavLink to="/ai-assistant">AI Vet</MobileNavLink>
-                <MobileNavLink to="/blog">Blog</MobileNavLink>
-                <MobileNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 !font-bold">PetBhai+</MobileNavLink>
+                <MobileNavLink to="/">{t('nav_home')}</MobileNavLink>
+                <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
+                <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
+                <MobileNavLink to="/services">{t('nav_services')}</MobileNavLink>
+                <MobileNavLink to="/ai-assistant">{t('nav_ai_vet')}</MobileNavLink>
+                <MobileNavLink to="/blog">{t('nav_blog')}</MobileNavLink>
+                <MobileNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 !font-bold">{t('nav_plus')}</MobileNavLink>
             </nav>
             <div className="mt-12 w-full px-8">
               {isAuthenticated && currentUser ? (
@@ -345,14 +361,14 @@ const Header: React.FC = () => {
                                </span>
                            )}
                            <p className="font-semibold text-slate-700 dark:text-slate-200 text-xl">Hi, {currentUser.name.split(' ')[0]}</p>
-                           <p className="text-sm text-orange-600">View Profile</p>
+                           <p className="text-sm text-orange-600">{t('nav_profile')}</p>
                        </Link>
-                      <button onClick={handleLogout} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600">Logout</button>
+                      <button onClick={handleLogout} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600">{t('nav_logout')}</button>
                   </div>
               ) : (
                   <div className="flex flex-col space-y-4">
-                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-lg text-lg hover:bg-slate-100 dark:hover:bg-slate-800">Login</NavLink>
-                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-orange-600">Sign Up</NavLink>
+                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-lg text-lg hover:bg-slate-100 dark:hover:bg-slate-800">{t('nav_login')}</NavLink>
+                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-orange-600">{t('nav_signup')}</NavLink>
                   </div>
               )}
             </div>

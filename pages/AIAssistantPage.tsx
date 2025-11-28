@@ -14,10 +14,19 @@ const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
   let inList = false;
   let currentList: React.ReactNode[] = [];
 
-  const formatBold = (textLine: string) => {
-    return textLine.split(/\*\*(.*?)\*\*/g).map((part, i) =>
-      i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-    );
+  const formatText = (textLine: string) => {
+    // Regex to match bold (**text**) and links ([text](url))
+    const parts = textLine.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
+    
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      } else if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
+        const [label, url] = part.slice(1, -1).split('](');
+        return <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-orange-600 dark:text-orange-400 underline hover:text-orange-800">{label}</a>;
+      }
+      return part;
+    });
   };
 
   const pushList = (key: number) => {
@@ -35,14 +44,14 @@ const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
   lines.forEach((line, index) => {
     if (line.trim().startsWith('* ')) {
       const listItemText = line.trim().substring(2);
-      currentList.push(<li key={index}>{formatBold(listItemText)}</li>);
+      currentList.push(<li key={index}>{formatText(listItemText)}</li>);
       inList = true;
     } else {
       if (inList) {
         pushList(index);
       }
       if (line.trim() !== '') {
-        elements.push(<p key={index} className="mt-2 first:mt-0">{formatBold(line)}</p>);
+        elements.push(<p key={index} className="mt-2 first:mt-0">{formatText(line)}</p>);
       }
     }
   });
@@ -202,7 +211,7 @@ const AIAssistantPage: React.FC = () => {
                     <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
                     <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse [animation-delay:0.2s]"></div>
                     <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse [animation-delay:0.4s]"></div>
-                    <span>Thinking...</span>
+                    <span>Thinking & Searching...</span>
                   </div>
                 </div>
               </div>

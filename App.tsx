@@ -14,6 +14,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import ToastContainer from './components/ToastContainer';
 import { ConfirmationProvider } from './contexts/ConfirmationContext';
 import ConfirmationModal from './components/ConfirmationModal';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -118,24 +119,26 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <ThemeProvider>
-      <ConfirmationProvider>
-        <ToastProvider>
-          <ArticleProvider>
-            <ProductProvider>
-              <AuthProvider>
-                <CartProvider>
-                  <CookieConsentProvider>
-                    <HashRouter>
-                      <ScrollToTop />
-                      <AppContent />
-                    </HashRouter>
-                  </CookieConsentProvider>
-                </CartProvider>
-              </AuthProvider>
-            </ProductProvider>
-          </ArticleProvider>
-        </ToastProvider>
-      </ConfirmationProvider>
+      <LanguageProvider>
+        <ConfirmationProvider>
+          <ToastProvider>
+            <ArticleProvider>
+              <ProductProvider>
+                <AuthProvider>
+                  <CartProvider>
+                    <CookieConsentProvider>
+                      <HashRouter>
+                        <ScrollToTop />
+                        <AppContent />
+                      </HashRouter>
+                    </CookieConsentProvider>
+                  </CartProvider>
+                </AuthProvider>
+              </ProductProvider>
+            </ArticleProvider>
+          </ToastProvider>
+        </ConfirmationProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
