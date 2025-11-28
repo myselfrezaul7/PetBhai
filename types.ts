@@ -143,6 +143,7 @@ export interface Product {
   brandId: number;
   rating: number;
   reviews: Review[];
+  searchTags?: string[];
 }
 
 export interface CartItem extends Product {

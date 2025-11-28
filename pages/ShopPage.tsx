@@ -27,10 +27,12 @@ const ShopPage: React.FC = () => {
     // 1. Filter by search query
     if (searchQuery.trim() !== '') {
         const lowerCaseQuery = searchQuery.toLowerCase();
-        products = products.filter(p => 
-            p.name.toLowerCase().includes(lowerCaseQuery) ||
-            p.category.toLowerCase().includes(lowerCaseQuery)
-        );
+        products = products.filter(p => {
+             const nameMatch = p.name.toLowerCase().includes(lowerCaseQuery);
+             const categoryMatch = p.category.toLowerCase().includes(lowerCaseQuery);
+             const tagMatch = p.searchTags?.some(tag => tag.toLowerCase().includes(lowerCaseQuery));
+             return nameMatch || categoryMatch || tagMatch;
+        });
     }
 
     // 2. Filter by category

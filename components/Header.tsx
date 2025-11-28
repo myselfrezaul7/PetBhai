@@ -11,16 +11,17 @@ import { useLanguage } from '../contexts/LanguageContext';
 interface PageResult {
   name: string;
   path: string;
+  keywords: string[];
 }
 
 const ALL_PAGES: PageResult[] = [
-    { name: 'Home', path: '/' },
-    { name: 'Shop', path: '/shop' },
-    { name: 'Services', path: '/services' },
-    { name: 'Community Hub', path: '/community' },
-    { name: 'AI Vet', path: '/ai-assistant' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'PetBhai+', path: '/plus-membership' },
+    { name: 'Home', path: '/', keywords: ['home', 'bari', 'বাড়ি', 'নীড়', 'hom'] },
+    { name: 'Shop', path: '/shop', keywords: ['shop', 'store', 'market', 'kenakata', 'dokan', 'দোকান', 'কেনাকাটা'] },
+    { name: 'Services', path: '/services', keywords: ['services', 'vet', 'doctor', 'grooming', 'seba', 'সেবা', 'ডাক্তার'] },
+    { name: 'Community Hub', path: '/community', keywords: ['community', 'social', 'forum', 'group', 'kormoshala', 'কমিউনিটি', 'আড্ডা'] },
+    { name: 'AI Vet', path: '/ai-assistant', keywords: ['ai', 'vet', 'assistant', 'chat', 'bot', 'krimtim', 'buddhimotta', 'এআই', 'চ্যাট'] },
+    { name: 'Blog', path: '/blog', keywords: ['blog', 'news', 'tips', 'articles', 'lekha', 'ব্লগ', 'লেখা'] },
+    { name: 'PetBhai+', path: '/plus-membership', keywords: ['plus', 'premium', 'membership', 'vip', 'member', 'সদস্য'] },
 ];
 
 const Header: React.FC = () => {
@@ -82,13 +83,17 @@ const Header: React.FC = () => {
     const handler = setTimeout(() => {
         const lowerCaseQuery = searchQuery.toLowerCase();
 
-        const filteredProducts = products.filter(product =>
-            product.name.toLowerCase().includes(lowerCaseQuery) ||
-            product.category.toLowerCase().includes(lowerCaseQuery)
-        ).slice(0, 4);
+        const filteredProducts = products.filter(product => {
+            const query = lowerCaseQuery;
+            const nameMatch = product.name.toLowerCase().includes(query);
+            const categoryMatch = product.category.toLowerCase().includes(query);
+            const tagMatch = product.searchTags?.some(tag => tag.toLowerCase().includes(query));
+            return nameMatch || categoryMatch || tagMatch;
+        }).slice(0, 4);
         
         const filteredPages = ALL_PAGES.filter(page =>
-            page.name.toLowerCase().includes(lowerCaseQuery)
+            page.name.toLowerCase().includes(lowerCaseQuery) ||
+            page.keywords.some(k => k.toLowerCase().includes(lowerCaseQuery))
         ).slice(0, 3);
         
         const totalResults = filteredProducts.length + filteredPages.length;

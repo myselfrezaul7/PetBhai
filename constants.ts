@@ -26,6 +26,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 4,
     rating: 4.8,
     reviews: MOCK_REVIEWS,
+    searchTags: ['বিড়াল', 'খাবার', 'ক্যাট ফুড', 'cat food', 'biral', 'khabar', 'meo', 'tuna'],
   },
   {
     id: 2,
@@ -38,6 +39,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 3,
     rating: 4.5,
     reviews: [ { id: 3, author: "Fahim C.", rating: 5, comment: "My puppy is growing so fast and healthy with this food.", date: new Date().toISOString() } ],
+    searchTags: ['কুকুর', 'খাবার', 'পাপি', 'ডগ ফুড', 'dog food', 'kukur', 'khabar', 'puppy', 'drools'],
   },
   {
     id: 4,
@@ -50,6 +52,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 2,
     rating: 4.7,
     reviews: [],
+    searchTags: ['কুকুর', 'খাবার', 'পেডিগ্রি', 'dog food', 'kukur', 'khabar', 'adult', 'chicken', 'pedigree'],
   },
   {
     id: 6,
@@ -62,6 +65,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 1,
     rating: 4.9,
     reviews: [ { id: 4, author: "Sadia A.", rating: 5, comment: "The only food my Persian will eat. Her coat has never looked better!", date: new Date().toISOString() } ],
+    searchTags: ['বিড়াল', 'খাবার', 'রয়াল ক্যানিন', 'পার্সিয়ান', 'cat food', 'biral', 'khabar', 'royal canin', 'persian'],
   },
   {
     id: 7,
@@ -74,6 +78,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 4,
     rating: 4.4,
     reviews: [],
+    searchTags: ['খেলনা', 'বিড়াল', 'খেলনা', 'toy', 'cat toy', 'khelna', 'biral'],
   },
   {
     id: 8,
@@ -86,6 +91,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 3,
     rating: 4.6,
     reviews: [],
+    searchTags: ['খেলনা', 'হাড়', 'কুকুর', 'toy', 'bone', 'chew', 'kukur', 'khelna'],
   },
   {
     id: 9,
@@ -98,6 +104,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 2,
     rating: 4.7,
     reviews: [],
+    searchTags: ['শ্যাম্পু', 'গোসল', 'পরিষ্কার', 'shampoo', 'grooming', 'gosol', 'porishkar'],
   },
    {
     id: 11,
@@ -110,6 +117,7 @@ export const MOCK_PRODUCTS: Product[] = [
     brandId: 3,
     rating: 4.9,
     reviews: [],
+    searchTags: ['বেল্ট', 'রশি', 'লিচ', 'belt', 'leash', 'roshi', 'walk'],
   },
 ];
 
