@@ -6,7 +6,7 @@ import Logo from './Logo';
 const Footer: React.FC = () => {
   return (
     <footer className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-lg border-t border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 pt-12 mt-auto">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
           
           {/* Column 1: Logo and Tagline */}

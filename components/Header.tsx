@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { MenuIcon, CloseIcon, SearchIcon, UserIcon } from './icons';
 import Logo from './Logo';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,6 +29,7 @@ const Header: React.FC = () => {
   const { products } = useProducts();
   const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -42,8 +43,8 @@ const Header: React.FC = () => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchAnnouncement, setSearchAnnouncement] = useState('');
   
-  const activeLinkClass = 'text-orange-500 dark:text-orange-400 font-semibold';
-  const inactiveLinkClass = 'text-slate-700 dark:text-slate-200 hover:text-orange-600 dark:hover:text-orange-500';
+  const activeLinkClass = 'text-orange-500 dark:text-orange-400 font-bold';
+  const inactiveLinkClass = 'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 font-medium transition-colors';
   
   const handleLogout = () => {
     logout();
@@ -117,14 +118,13 @@ const Header: React.FC = () => {
     };
   }, [searchQuery, products]);
 
-  // Lock body scroll when mobile menu is open for better UX
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-    // Cleanup function to reset scroll on component unmount
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -155,12 +155,20 @@ const Header: React.FC = () => {
       closeSearchResults();
   };
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    setIsMenuOpen(false);
+    if (location.pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
 
   const MobileNavLink: React.FC<{ to: string, children: React.ReactNode, className?: string }> = ({ to, children, className }) => (
     <NavLink 
         to={to} 
         onClick={() => setIsMenuOpen(false)}
-        className={({ isActive }) => `block py-3 text-2xl text-center ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium'} ${className}`}
+        className={({ isActive }) => `block py-3 text-2xl text-center transition-colors ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium hover:text-orange-500'} ${className}`}
     >
         {children}
     </NavLink>
@@ -172,61 +180,61 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-white/30 dark:bg-slate-900/30 shadow-md sticky top-0 z-20 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/30">
-        <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <NavLink to="/" className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
+      <header className="bg-white/60 dark:bg-slate-900/60 shadow-lg sticky top-0 z-30 backdrop-blur-md border-b border-white/20 dark:border-slate-700/50 transition-colors duration-300">
+        <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
+          <NavLink to="/" onClick={handleLogoClick} className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-transform duration-300 hover:scale-105 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <Logo className="w-10 h-10 text-orange-500" />
-            <span className="sm:inline">PetBhai</span>
+            <span className="sm:inline tracking-tight">PetBhai</span>
           </NavLink>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-6">
-            <ul className="flex items-center space-x-6 text-[15px] font-medium">
+          <div className="hidden lg:flex items-center space-x-8">
+            <ul className="flex items-center space-x-8 text-[15px]">
                 <DesktopNavLink to="/">{t('nav_home')}</DesktopNavLink>
                 <DesktopNavLink to="/shop">{t('nav_shop')}</DesktopNavLink>
                 <DesktopNavLink to="/community">{t('nav_community')}</DesktopNavLink>
                 <DesktopNavLink to="/services">{t('nav_services')}</DesktopNavLink>
                 <DesktopNavLink to="/ai-assistant">{t('nav_ai_vet')}</DesktopNavLink>
                 <DesktopNavLink to="/blog">{t('nav_blog')}</DesktopNavLink>
-                <DesktopNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 font-bold">{t('nav_plus')}</DesktopNavLink>
+                <DesktopNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 font-bold hover:text-yellow-700 dark:hover:text-yellow-300">{t('nav_plus')}</DesktopNavLink>
             </ul>
           </div>
            {/* Search Bar & Profile */}
-           <div className="hidden lg:flex items-center space-x-4">
-                <div className="relative" ref={searchRef}>
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                </span>
-                <input
-                    type="text"
-                    placeholder={t('search_placeholder')}
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={handleSearchFocus}
-                    className="w-48 py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-700 transition-all"
-                    aria-label="Search"
-                    autoComplete="off"
-                    role="combobox"
-                    aria-expanded={isSearchActive && !!searchQuery}
-                    aria-haspopup="listbox"
-                    aria-autocomplete="list"
-                    aria-controls="search-results-desktop"
-                />
-                {isSearchActive && searchQuery && (
-                    <SearchResults 
-                        id="search-results-desktop"
-                        query={searchQuery}
-                        results={searchResults}
-                        loading={isSearching}
-                        onClose={closeSearchResults}
+           <div className="hidden lg:flex items-center space-x-5">
+                <div className="relative group" ref={searchRef}>
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500 group-focus-within:text-orange-500 transition-colors" />
+                    </span>
+                    <input
+                        type="text"
+                        placeholder={t('search_placeholder')}
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        onFocus={handleSearchFocus}
+                        className="w-48 focus:w-64 transition-all duration-300 ease-in-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
+                        aria-label="Search"
+                        autoComplete="off"
+                        role="combobox"
+                        aria-expanded={isSearchActive && !!searchQuery}
+                        aria-haspopup="listbox"
+                        aria-autocomplete="list"
+                        aria-controls="search-results-desktop"
                     />
-                )}
+                    {isSearchActive && searchQuery && (
+                        <SearchResults 
+                            id="search-results-desktop"
+                            query={searchQuery}
+                            results={searchResults}
+                            loading={isSearching}
+                            onClose={closeSearchResults}
+                        />
+                    )}
                 </div>
             
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                     <button 
                         onClick={toggleLanguage} 
-                        className="px-2 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-orange-500 hover:text-white transition-colors"
+                        className="px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200"
                     >
                         {language === 'en' ? 'BN' : 'EN'}
                     </button>
@@ -235,35 +243,38 @@ const Header: React.FC = () => {
 
                 {isAuthenticated && currentUser ? (
                     <div className="relative" ref={profileMenuRef}>
-                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="relative flex items-center space-x-2">
-                            {currentUser.profilePictureUrl ? (
-                                <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
-                            ) : (
-                                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                    <UserIcon className="w-6 h-6 text-slate-500 dark:text-slate-300" />
-                                </div>
-                            )}
+                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="relative flex items-center space-x-2 focus:outline-none">
+                            <div className="ring-2 ring-transparent hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
+                                {currentUser.profilePictureUrl ? (
+                                    <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                        <UserIcon className="w-6 h-6 text-slate-500 dark:text-slate-300" />
+                                    </div>
+                                )}
+                            </div>
                             {currentUser.isPlusMember && (
-                               <span className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-800">
+                               <span className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-800 shadow-sm">
                                 +
                                </span>
                             )}
                         </button>
                         {isProfileMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-20 py-2 border border-slate-200 dark:border-slate-700">
-                                <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
-                                    <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">Hi, {currentUser.name.split(' ')[0]}</p>
+                            <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-20 py-2 border border-slate-200 dark:border-slate-700 transform origin-top-right animate-scale-in">
+                                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 mb-2">
+                                    <p className="font-bold text-slate-800 dark:text-white">Hi, {currentUser.name.split(' ')[0]}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{currentUser.email}</p>
                                 </div>
-                                <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">{t('nav_profile')}</Link>
-                                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">{t('nav_logout')}</button>
+                                <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">{t('nav_profile')}</Link>
+                                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors">{t('nav_logout')}</button>
                             </div>
                         )}
                     </div>
                 ) : (
-                    <>
-                        <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500">{t('nav_login')}</NavLink>
-                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105">{t('nav_signup')}</NavLink>
-                    </>
+                    <div className="flex items-center space-x-4">
+                        <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors">{t('nav_login')}</NavLink>
+                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-5 rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-md hover:shadow-lg">{t('nav_signup')}</NavLink>
+                    </div>
                 )}
             </div>
 
@@ -281,7 +292,7 @@ const Header: React.FC = () => {
                             value={searchQuery}
                             onChange={handleSearchChange}
                             onFocus={handleSearchFocus}
-                            className="w-full py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="w-full py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
                             aria-label="Search"
                             autoFocus
                             autoComplete="off"
@@ -307,10 +318,10 @@ const Header: React.FC = () => {
                 </div>
             ) : (
                 <div className="flex items-center space-x-4">
-                    <button onClick={handleOpenMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Open search">
+                    <button onClick={handleOpenMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors" aria-label="Open search">
                       <SearchIcon className="w-7 h-7" />
                     </button>
-                    <button onClick={() => setIsMenuOpen(true)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Open menu">
+                    <button onClick={() => setIsMenuOpen(true)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors" aria-label="Open menu">
                       <MenuIcon className="w-8 h-8" />
                     </button>
                 </div>
@@ -320,16 +331,16 @@ const Header: React.FC = () => {
       </header>
       
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-lg z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden flex flex-col`}>
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-700">
-           <NavLink to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white">
+      <div className={`fixed inset-0 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden flex flex-col`}>
+        <div className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-800">
+           <NavLink to="/" onClick={handleLogoClick} className="flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white">
             <Logo className="w-10 h-10 text-orange-500" />
             <span>PetBhai</span>
           </NavLink>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
             <button 
                 onClick={toggleLanguage} 
-                className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
             >
                 {language === 'en' ? 'BN' : 'EN'}
             </button>
@@ -340,7 +351,7 @@ const Header: React.FC = () => {
           </div>
         </div>
         <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8">
-            <nav className="flex flex-col space-y-6">
+            <nav className="flex flex-col space-y-6 w-full px-10">
                 <MobileNavLink to="/">{t('nav_home')}</MobileNavLink>
                 <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
                 <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
@@ -352,28 +363,30 @@ const Header: React.FC = () => {
             <div className="mt-12 w-full px-8">
               {isAuthenticated && currentUser ? (
                   <div className="text-center">
-                       <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="relative flex flex-col items-center space-y-2 mb-6">
-                           {currentUser.profilePictureUrl ? (
-                                <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-20 h-20 rounded-full object-cover" />
-                           ) : (
-                                <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                    <UserIcon className="w-12 h-12 text-slate-500 dark:text-slate-300" />
-                                </div>
-                           )}
+                       <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="relative flex flex-col items-center space-y-2 mb-6 group">
+                           <div className="ring-4 ring-transparent group-hover:ring-orange-500 rounded-full p-1 transition-all">
+                                {currentUser.profilePictureUrl ? (
+                                        <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-20 h-20 rounded-full object-cover" />
+                                ) : (
+                                        <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                            <UserIcon className="w-12 h-12 text-slate-500 dark:text-slate-300" />
+                                        </div>
+                                )}
+                           </div>
                            {currentUser.isPlusMember && (
                                 <span className="absolute top-14 right-[calc(50%-55px)] bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold ring-2 ring-white dark:ring-slate-800">
                                 +
                                </span>
                            )}
-                           <p className="font-semibold text-slate-700 dark:text-slate-200 text-xl">Hi, {currentUser.name.split(' ')[0]}</p>
-                           <p className="text-sm text-orange-600">{t('nav_profile')}</p>
+                           <p className="font-bold text-slate-800 dark:text-white text-2xl">Hi, {currentUser.name.split(' ')[0]}</p>
+                           <p className="text-sm font-semibold text-orange-600">{t('nav_profile')}</p>
                        </Link>
-                      <button onClick={handleLogout} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600">{t('nav_logout')}</button>
+                      <button onClick={handleLogout} className="w-full bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-lg hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-white dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors">{t('nav_logout')}</button>
                   </div>
               ) : (
                   <div className="flex flex-col space-y-4">
-                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-lg text-lg hover:bg-slate-100 dark:hover:bg-slate-800">{t('nav_login')}</NavLink>
-                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-lg text-lg hover:bg-orange-600">{t('nav_signup')}</NavLink>
+                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-xl text-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">{t('nav_login')}</NavLink>
+                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-xl text-lg hover:bg-orange-600 transition-colors shadow-lg">{t('nav_signup')}</NavLink>
                   </div>
               )}
             </div>

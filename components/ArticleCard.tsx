@@ -10,32 +10,43 @@ interface ArticleCardProps {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }) => {
   return (
-    <div className={`glass-card overflow-hidden flex flex-col group ${isFeatured ? 'lg:col-span-2' : ''}`}>
+    <div className={`glass-card group overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full ${isFeatured ? 'lg:col-span-2' : ''}`}>
       <Link to={`/blog/${article.id}`} className="flex flex-col h-full">
-        <div className={`relative bg-slate-200 dark:bg-slate-700 ${isFeatured ? 'h-72' : 'h-56'}`}>
+        <div className={`relative overflow-hidden bg-slate-200 dark:bg-slate-700 ${isFeatured ? 'h-64 sm:h-80' : 'h-56'}`}>
           {article.imageUrl ? (
-              <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" loading="lazy" />
+              <img 
+                src={article.imageUrl} 
+                alt={article.title} 
+                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105" 
+                loading="lazy" 
+              />
           ) : (
               <div className="w-full h-full flex items-center justify-center">
                   <ImageIcon className="w-16 h-16 text-slate-400 dark:text-slate-500" />
               </div>
           )}
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+          
           {isFeatured && (
-             <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+             <span className="absolute top-4 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                 Latest Post
              </span>
           )}
         </div>
-        <div className="p-4 sm:p-6 flex flex-col flex-grow">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">{article.title}</h3>
-          <p className="text-slate-700 dark:text-slate-300 mt-2 flex-grow text-sm sm:text-base line-clamp-3">{article.content.split('\n')[0]}</p>
-          <div className="text-sm text-slate-600 dark:text-slate-400 mt-4">
-              লিখেছেন: {article.author} &bull; {article.readTime} মিনিট পড়া
+        <div className="p-6 flex flex-col flex-grow relative">
+          <div className="mb-2 text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+              {article.readTime} min read
           </div>
-        </div>
-        <div className="p-3 sm:p-4 bg-black/5 dark:bg-black/10 mt-auto text-center font-bold text-orange-600 dark:text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-            Read More
+          <h3 className={`font-bold text-slate-800 dark:text-white leading-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors ${isFeatured ? 'text-2xl mb-3' : 'text-lg mb-2'}`}>
+            {article.title}
+          </h3>
+          <p className="text-slate-600 dark:text-slate-300 flex-grow text-sm leading-relaxed line-clamp-3">
+            {article.content.split('\n')[0]}
+          </p>
+          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              <span className="font-medium">{article.author}</span>
+              <span>{new Date(article.date).toLocaleDateString()}</span>
+          </div>
         </div>
       </Link>
     </div>
