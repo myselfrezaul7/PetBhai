@@ -19,14 +19,17 @@ const SYSTEM_INSTRUCTION = `You are an AI Vet for PetBhai, an animal welfare org
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   try {
     const ai = getAiInstance();
+    // Upgraded to gemini-3-pro-preview for advanced reasoning capabilities
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-pro-preview', 
       contents: [{ parts: [{ text: prompt }] }],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
+        // Enabling thinking allows the model to reason about safety and medical nuance before answering
+        thinkingConfig: { thinkingBudget: 2048 }, 
       },
     });
-    return response.text;
+    return response.text || "I'm having trouble generating a response right now.";
   } catch (error) {
     console.error("Error in getVetAssistantResponse:", error);
     if (error instanceof Error && error.message.includes("API key")) {
@@ -39,22 +42,31 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
 export const generateImageFromPrompt = async (prompt: string): Promise<string> => {
   try {
     const ai = getAiInstance();
+    // Upgraded to gemini-3-pro-image-preview for high-quality visuals
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-3-pro-image-preview',
       contents: {
         parts: [{ text: prompt }],
       },
       config: {
-        responseModalities: [Modality.IMAGE],
+        // No responseModalities needed for this model when generating images via generateContent
+        imageConfig: {
+            aspectRatio: "16:9", // Optimized for blog post headers
+            imageSize: "1K"
+        }
       },
     });
     
-    for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        const base64ImageBytes: string = part.inlineData.data;
-        return `data:image/png;base64,${base64ImageBytes}`;
-      }
+    // Iterate through parts to find the image data
+    if (response.candidates && response.candidates[0].content.parts) {
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            const base64ImageBytes: string = part.inlineData.data;
+            return `data:image/png;base64,${base64ImageBytes}`;
+          }
+        }
     }
+    
     throw new Error("No image data found in the AI response.");
   } catch (error) {
     console.error("Error generating image from Gemini:", error);

@@ -170,6 +170,14 @@ const CheckoutPage: React.FC = () => {
                         <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">Mobile Banking <span className="text-sm text-slate-500">(Unavailable)</span></span>
                     </label>
                </div>
+               <div className="mt-6 pt-4 border-t border-slate-300/50 dark:border-slate-600/50">
+                   <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3">We Accept</p>
+                   <div className="flex items-center space-x-4">
+                       <img src="https://i.ibb.co/27wH07C/bkash.png" alt="bKash" className="h-6 grayscale hover:grayscale-0 transition-all duration-300" title="bKash" />
+                       <img src="https://i.ibb.co/qjqBcf5/nagad.png" alt="Nagad" className="h-6 grayscale hover:grayscale-0 transition-all duration-300" title="Nagad" />
+                       <img src="https://i.ibb.co/p3y5M3D/bank.png" alt="Bank" className="h-6 grayscale hover:grayscale-0 transition-all duration-300" title="Bank Transfer" />
+                   </div>
+               </div>
             </div>
             <div className="pt-4">
               <button type="submit" className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-orange-600 transition-colors">
