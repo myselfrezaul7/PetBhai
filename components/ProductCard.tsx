@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
-import { ShoppingCartIcon } from './icons';
+import { ShoppingCartIcon, EyeIcon } from './icons';
 
 interface ProductCardProps {
   product: Product;
+  onQuickView?: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   const { addToCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
 
@@ -18,9 +19,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addToCart(product);
     setTimeout(() => setIsAdding(false), 800);
   };
+  
+  const handleQuickViewClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (onQuickView) {
+          onQuickView(product);
+      }
+  };
 
   return (
-    <div className="glass-card group overflow-hidden flex flex-col h-full transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+    <div className="glass-card group overflow-hidden flex flex-col h-full transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl relative">
       <Link to={`/product/${product.id}`} className="relative block overflow-hidden">
         <img 
             src={product.imageUrl} 
@@ -28,10 +36,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             className="w-full h-36 sm:h-56 object-cover transform transition-transform duration-500 group-hover:scale-110" 
             loading="lazy" 
         />
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-orange-500/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm">
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-orange-500/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm z-10">
           {product.category}
         </div>
+        
+        {/* Quick View Button - Appears on hover (desktop) or always (mobile) if prop exists */}
+        {onQuickView && (
+            <button
+                onClick={handleQuickViewClick}
+                className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 p-1.5 sm:p-2 rounded-full shadow-md opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:text-orange-500 z-10"
+                title="Quick View"
+            >
+                <EyeIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+        )}
       </Link>
+      
       <div className="p-3 sm:p-5 flex flex-col flex-grow">
         <Link to={`/product/${product.id}`} className="block group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
              <h3 className="text-sm sm:text-xl font-bold text-slate-800 dark:text-white line-clamp-2 leading-tight" title={product.name}>{product.name}</h3>

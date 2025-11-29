@@ -1,4 +1,5 @@
 import { GoogleGenAI, Modality } from "@google/genai";
+import { MOCK_PRODUCTS } from '../constants';
 
 // Create a singleton instance of the AI client to avoid re-creating it on every call.
 let aiInstance: GoogleGenAI | null = null;
@@ -14,7 +15,23 @@ function getAiInstance(): GoogleGenAI {
   return aiInstance;
 }
 
-const SYSTEM_INSTRUCTION = `You are an AI Vet for PetBhai, an animal welfare organization. Provide helpful, general first-aid and pet care advice. Your role is to give safe, preliminary guidance. You are NOT a substitute for a professional veterinarian. Do not diagnose conditions or prescribe specific medications. Crucially, if a situation seems serious, you must strongly advise the user to consult a licensed, in-person veterinarian immediately. Keep your answers concise and easy for a non-medical person to understand. Format your responses using simple Markdown. Use asterisks for bullet points (e.g., * Item 1) and double asterisks for bolding important text (e.g., **Warning**). If you use Google Search, cite your sources.`;
+// Generate a summary of the product catalog for the AI
+const productCatalog = MOCK_PRODUCTS.map(p => 
+    `- ${p.name} (${p.category}): ৳${p.price} [Rating: ${p.rating}/5]`
+).join('\n');
+
+const SYSTEM_INSTRUCTION = `You are an AI Vet for PetBhai, an animal welfare organization. Provide helpful, general first-aid and pet care advice. 
+Your role is to give safe, preliminary guidance. You are NOT a substitute for a professional veterinarian. 
+Do not diagnose conditions or prescribe specific medications. 
+Crucially, if a situation seems serious, you must strongly advise the user to consult a licensed, in-person veterinarian immediately. 
+Keep your answers concise and easy for a non-medical person to understand. Format your responses using simple Markdown.
+
+You also have access to the shop's inventory:
+${productCatalog}
+
+If a user asks for recommendations (like food, toys, or supplies), suggest specific products from this list if relevant. 
+Mention the price in Taka (৳). If the user needs something not on the list, you can suggest general types of products but clarify you don't sell them directly.
+Use asterisks for bullet points (e.g., * Item 1) and double asterisks for bolding important text (e.g., **Warning**). If you use Google Search, cite your sources.`;
 
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   try {

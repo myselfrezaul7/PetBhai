@@ -15,6 +15,7 @@ import ToastContainer from './components/ToastContainer';
 import { ConfirmationProvider } from './contexts/ConfirmationContext';
 import ConfirmationModal from './components/ConfirmationModal';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { PawIcon } from './components/icons';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -42,7 +43,9 @@ const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage
 
 const AppLoader: React.FC = () => (
   <div className="flex justify-center items-center h-[calc(100vh-144px)] w-full">
-    <div className="border-4 border-slate-200 border-t-orange-500 rounded-full w-12 h-12 animate-spin"></div>
+     <div className="text-orange-500 animate-[breathe_1.5s_ease-in-out_infinite]">
+        <PawIcon className="w-16 h-16" />
+     </div>
   </div>
 );
 

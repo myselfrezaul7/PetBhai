@@ -7,6 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon, SearchIcon } from '../components/icons';
 import type { Product } from '../types';
 import { useProducts } from '../contexts/ProductContext';
+import ProductQuickViewModal from '../components/ProductQuickViewModal';
 
 type CategoryFilter = 'All' | 'Dog Food' | 'Cat Food' | 'Dog Supplies' | 'Cat Supplies' | 'Grooming';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating-desc';
@@ -18,6 +19,10 @@ const ShopPage: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  
+  // Quick View State
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   const { cartCount } = useCart();
   const { products: allProducts } = useProducts();
 
@@ -135,7 +140,11 @@ const ShopPage: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
           {sortedAndFilteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard 
+                key={product.id} 
+                product={product} 
+                onQuickView={(p) => setSelectedProduct(p)}
+            />
           ))}
         </div>
       </div>
@@ -155,6 +164,14 @@ const ShopPage: React.FC = () => {
       </button>
 
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      
+      {/* Quick View Modal */}
+      {selectedProduct && (
+        <ProductQuickViewModal 
+            product={selectedProduct} 
+            onClose={() => setSelectedProduct(null)} 
+        />
+      )}
     </>
   );
 };
