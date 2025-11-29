@@ -180,9 +180,9 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-white/60 dark:bg-slate-900/60 shadow-lg sticky top-0 z-30 backdrop-blur-md border-b border-white/20 dark:border-slate-700/50 transition-colors duration-300">
+      <header className="bg-white/60 dark:bg-slate-900/60 shadow-lg sticky top-0 z-40 backdrop-blur-md border-b border-white/20 dark:border-slate-700/50 transition-colors duration-300">
         <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
-          <NavLink to="/" onClick={handleLogoClick} className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-transform duration-300 hover:scale-105 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
+          <NavLink to="/" onClick={handleLogoClick} className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <Logo className="w-10 h-10 text-orange-500" />
             <span className="sm:inline tracking-tight">PetBhai</span>
           </NavLink>
@@ -211,7 +211,7 @@ const Header: React.FC = () => {
                         value={searchQuery}
                         onChange={handleSearchChange}
                         onFocus={handleSearchFocus}
-                        className="w-48 focus:w-64 transition-all duration-300 ease-in-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
+                        className="w-48 focus:w-64 transition-all duration-300 ease-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
                         aria-label="Search"
                         autoComplete="off"
                         role="combobox"
@@ -221,20 +221,22 @@ const Header: React.FC = () => {
                         aria-controls="search-results-desktop"
                     />
                     {isSearchActive && searchQuery && (
-                        <SearchResults 
-                            id="search-results-desktop"
-                            query={searchQuery}
-                            results={searchResults}
-                            loading={isSearching}
-                            onClose={closeSearchResults}
-                        />
+                        <div className="animate-fade-in origin-top">
+                            <SearchResults 
+                                id="search-results-desktop"
+                                query={searchQuery}
+                                results={searchResults}
+                                loading={isSearching}
+                                onClose={closeSearchResults}
+                            />
+                        </div>
                     )}
                 </div>
             
                 <div className="flex items-center space-x-3">
                     <button 
                         onClick={toggleLanguage} 
-                        className="px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200"
+                        className="px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200 active:scale-95"
                     >
                         {language === 'en' ? 'BN' : 'EN'}
                     </button>
@@ -243,8 +245,8 @@ const Header: React.FC = () => {
 
                 {isAuthenticated && currentUser ? (
                     <div className="relative" ref={profileMenuRef}>
-                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="relative flex items-center space-x-2 focus:outline-none">
-                            <div className="ring-2 ring-transparent hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
+                        <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="relative flex items-center space-x-2 focus:outline-none group">
+                            <div className="ring-2 ring-transparent group-hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
                                 {currentUser.profilePictureUrl ? (
                                     <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
                                 ) : (
@@ -254,7 +256,7 @@ const Header: React.FC = () => {
                                 )}
                             </div>
                             {currentUser.isPlusMember && (
-                               <span className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-800 shadow-sm">
+                               <span className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-800 shadow-sm animate-scale-in">
                                 +
                                </span>
                             )}
@@ -273,7 +275,7 @@ const Header: React.FC = () => {
                 ) : (
                     <div className="flex items-center space-x-4">
                         <NavLink to="/login" className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors">{t('nav_login')}</NavLink>
-                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-5 rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-md hover:shadow-lg">{t('nav_signup')}</NavLink>
+                        <NavLink to="/signup" className="bg-orange-500 text-white font-bold py-2 px-5 rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-md hover:shadow-lg active:scale-95">{t('nav_signup')}</NavLink>
                     </div>
                 )}
             </div>
@@ -281,7 +283,7 @@ const Header: React.FC = () => {
           {/* Mobile Menu Button & Search Toggle */}
           <div className={`lg:hidden flex items-center ${isSearchOpen ? 'flex-grow' : ''}`}>
              {isSearchOpen ? (
-                <div className="w-full flex items-center" ref={searchRef}>
+                <div className="w-full flex items-center animate-fade-in" ref={searchRef}>
                     <div className="relative flex-grow">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
@@ -303,13 +305,15 @@ const Header: React.FC = () => {
                             aria-controls="search-results-mobile"
                         />
                          {isSearchActive && searchQuery && (
-                            <SearchResults 
-                                id="search-results-mobile"
-                                query={searchQuery}
-                                results={searchResults}
-                                loading={isSearching}
-                                onClose={closeSearchResults}
-                            />
+                            <div className="animate-fade-in origin-top">
+                                <SearchResults 
+                                    id="search-results-mobile"
+                                    query={searchQuery}
+                                    results={searchResults}
+                                    loading={isSearching}
+                                    onClose={closeSearchResults}
+                                />
+                            </div>
                         )}
                     </div>
                     <button onClick={handleCloseMobileSearch} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 ml-2 p-1" aria-label="Close search">
@@ -331,7 +335,7 @@ const Header: React.FC = () => {
       </header>
       
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden flex flex-col`}>
+      <div className={`fixed inset-0 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) lg:hidden flex flex-col`}>
         <div className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-800">
            <NavLink to="/" onClick={handleLogoClick} className="flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white">
             <Logo className="w-10 h-10 text-orange-500" />
@@ -340,12 +344,12 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             <button 
                 onClick={toggleLanguage} 
-                className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform"
             >
                 {language === 'en' ? 'BN' : 'EN'}
             </button>
             <ThemeToggle />
-            <button onClick={() => setIsMenuOpen(false)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500" aria-label="Close menu">
+            <button onClick={() => setIsMenuOpen(false)} className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform" aria-label="Close menu">
               <CloseIcon className="w-8 h-8" />
             </button>
           </div>
@@ -374,19 +378,19 @@ const Header: React.FC = () => {
                                 )}
                            </div>
                            {currentUser.isPlusMember && (
-                                <span className="absolute top-14 right-[calc(50%-55px)] bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold ring-2 ring-white dark:ring-slate-800">
+                                <span className="absolute top-14 right-[calc(50%-55px)] bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold ring-2 ring-white dark:ring-slate-800 animate-scale-in">
                                 +
                                </span>
                            )}
                            <p className="font-bold text-slate-800 dark:text-white text-2xl">Hi, {currentUser.name.split(' ')[0]}</p>
                            <p className="text-sm font-semibold text-orange-600">{t('nav_profile')}</p>
                        </Link>
-                      <button onClick={handleLogout} className="w-full bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-lg hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-white dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors">{t('nav_logout')}</button>
+                      <button onClick={handleLogout} className="w-full bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-lg hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-white dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors active:scale-95">{t('nav_logout')}</button>
                   </div>
               ) : (
                   <div className="flex flex-col space-y-4">
-                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-xl text-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">{t('nav_login')}</NavLink>
-                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-xl text-lg hover:bg-orange-600 transition-colors shadow-lg">{t('nav_signup')}</NavLink>
+                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-xl text-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95">{t('nav_login')}</NavLink>
+                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-xl text-lg hover:bg-orange-600 transition-colors shadow-lg active:scale-95">{t('nav_signup')}</NavLink>
                   </div>
               )}
             </div>

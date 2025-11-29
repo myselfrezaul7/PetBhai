@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useEffect, useState } from 'react';
 import type { Product, CartItem } from '../types';
 
 type CartState = {
@@ -77,12 +77,16 @@ interface CartContextType {
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, getInitialState());
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -98,14 +102,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return {
       cartItems: state.items,
-      addToCart: (product: Product) => dispatch({ type: 'ADD_ITEM', payload: product }),
+      addToCart: (product: Product) => {
+          dispatch({ type: 'ADD_ITEM', payload: product });
+          setIsCartOpen(true); // Auto open cart when adding item
+      },
       updateQuantity: (id: number, quantity: number) => dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }),
       removeFromCart: (id: number) => dispatch({ type: 'REMOVE_ITEM', payload: { id } }),
       clearCart: () => dispatch({ type: 'CLEAR_CART' }),
       cartCount,
       cartTotal,
+      isCartOpen,
+      openCart: () => setIsCartOpen(true),
+      closeCart: () => setIsCartOpen(false),
     };
-  }, [state]);
+  }, [state, isCartOpen]);
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 import { SearchIcon } from './icons';
+import { useCart } from '../contexts/CartContext';
 
 interface PageResult {
   name: string;
@@ -22,6 +23,7 @@ interface SearchResultsProps {
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ id, query, results, loading, onClose }) => {
+  const { cartItems } = useCart();
   const hasResults = results.products.length > 0 || results.pages.length > 0;
 
   return (
@@ -45,17 +47,27 @@ const SearchResults: React.FC<SearchResultsProps> = ({ id, query, results, loadi
               <div className="p-4">
                 <h3 id="products-results-heading" className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-2 px-2">Shop Products</h3>
                 <ul aria-labelledby="products-results-heading">
-                  {results.products.map(product => (
-                    <li key={`product-${product.id}`} role="option">
-                      <Link to={`/product/${product.id}`} onClick={onClose} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                        <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-md" />
-                        <div>
-                          <p className="font-semibold text-slate-800 dark:text-white">{product.name}</p>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">৳{product.price}</p>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
+                  {results.products.map(product => {
+                    const isInCart = cartItems.some(item => item.id === product.id);
+                    return (
+                      <li key={`product-${product.id}`} role="option">
+                        <Link to={`/product/${product.id}`} onClick={onClose} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                          <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-md" />
+                          <div className="flex-grow">
+                            <p className="font-semibold text-slate-800 dark:text-white">{product.name}</p>
+                            <div className="flex items-center">
+                                <p className="text-sm text-slate-600 dark:text-slate-300">৳{product.price}</p>
+                                {isInCart && (
+                                    <span className="ml-2 text-[10px] bg-green-500/10 text-green-600 dark:text-green-400 font-bold px-1.5 py-0.5 rounded-full border border-green-500/20">
+                                        In Cart
+                                    </span>
+                                )}
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}

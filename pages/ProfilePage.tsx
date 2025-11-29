@@ -6,6 +6,7 @@ import { UserIcon } from '../components/icons';
 import type { Order } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { useToast } from '../contexts/ToastContext';
+import ProductCard from '../components/ProductCard';
 
 const REORDER_THRESHOLD_DAYS = 15;
 
@@ -193,15 +194,9 @@ const ProfilePage: React.FC = () => {
                     <div>
                         <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">My Wishlist</h2>
                         {wishlistedProducts.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {wishlistedProducts.map(product => (
-                                    <Link to={`/product/${product.id}`} key={product.id} className="block border border-slate-300/50 dark:border-slate-600/50 rounded-lg overflow-hidden hover:shadow-md">
-                                        <img src={product.imageUrl} alt={product.name} className="w-full h-32 object-cover" />
-                                        <div className="p-3">
-                                            <p className="font-bold text-slate-800 dark:text-white">{product.name}</p>
-                                            <p className="text-sm text-slate-600 dark:text-slate-300">৳{product.price}</p>
-                                        </div>
-                                    </Link>
+                                    <ProductCard key={product.id} product={product} />
                                 ))}
                             </div>
                         ) : (

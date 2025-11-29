@@ -1,10 +1,10 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 import MessengerPlugin from './components/MessengerPlugin';
-import { CartProvider } from './contexts/CartContext';
+import { CartProvider, useCart } from './contexts/CartContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ScrollToTop from './components/ScrollToTop';
 import { ProductProvider } from './contexts/ProductContext';
@@ -15,7 +15,8 @@ import ToastContainer from './components/ToastContainer';
 import { ConfirmationProvider } from './contexts/ConfirmationContext';
 import ConfirmationModal from './components/ConfirmationModal';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { PawIcon } from './components/icons';
+import { PawIcon, ShoppingCartIcon } from './components/icons';
+import CartSidebar from './components/CartSidebar';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -49,6 +50,37 @@ const AppLoader: React.FC = () => (
   </div>
 );
 
+const GlobalCartElements: React.FC = () => {
+    const { isCartOpen, closeCart, openCart, cartCount } = useCart();
+    const location = useLocation();
+    
+    // The cart button should be visible if:
+    // 1. There are items in the cart (cartCount > 0)
+    // 2. OR the user is on the Shop page (location.pathname === '/shop'), allowing them to access the cart even if empty.
+    const isShopPage = location.pathname === '/shop';
+    const isVisible = cartCount > 0 || isShopPage;
+    
+    return (
+        <>
+            <button
+                onClick={openCart}
+                className={`fixed bottom-24 right-5 w-14 h-14 md:w-16 md:h-16 bg-orange-500 rounded-full text-white shadow-xl shadow-orange-500/30 z-30 flex items-center justify-center transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 ${
+                    isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-50 pointer-events-none'
+                }`}
+                aria-label={`Open shopping cart with ${cartCount} items`}
+            >
+                <ShoppingCartIcon className="w-7 h-7 md:w-8 md:h-8" />
+                {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-white dark:border-slate-800 animate-scale-in shadow-md">
+                    {cartCount}
+                </span>
+                )}
+            </button>
+            <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
+        </>
+    )
+}
+
 const AppContent: React.FC = () => {
   const { consent } = useCookieConsent();
 
@@ -68,14 +100,12 @@ const AppContent: React.FC = () => {
     };
 
     // The 'load' event is the most reliable point to register a service worker.
-    // It ensures the page is fully loaded and won't be competing for resources.
     window.addEventListener('load', registerServiceWorker);
 
-    // Cleanup the event listener when the component unmounts.
     return () => {
       window.removeEventListener('load', registerServiceWorker);
     };
-  }, []); // Empty dependency array ensures this runs only once.
+  }, []); 
 
 
   return (
@@ -108,6 +138,7 @@ const AppContent: React.FC = () => {
           </Routes>
         </Suspense>
       </main>
+      <GlobalCartElements />
       {consent === 'all' && <MessengerPlugin />}
       <ScrollToTop />
       <Footer />

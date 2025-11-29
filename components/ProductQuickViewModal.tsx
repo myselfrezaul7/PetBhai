@@ -10,10 +10,14 @@ interface ProductQuickViewModalProps {
 }
 
 const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, onClose }) => {
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const [isAdding, setIsAdding] = useState(false);
 
   if (!product) return null;
+
+  // Check if item is in cart
+  const cartItem = cartItems.find(item => item.id === product.id);
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = () => {
     setIsAdding(true);
@@ -86,7 +90,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
                         : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95'}`}
                 >
                     <ShoppingCartIcon className="w-5 h-5" />
-                    <span>{isAdding ? 'Added to Cart' : 'Add to Cart'}</span>
+                    <span>{isAdding ? 'Added to Cart' : (quantityInCart > 0 ? `Add More (${quantityInCart} in Cart)` : 'Add to Cart')}</span>
                 </button>
                 <Link 
                     to={`/product/${product.id}`}

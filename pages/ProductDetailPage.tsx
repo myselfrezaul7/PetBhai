@@ -15,7 +15,7 @@ const ProductDetailPage: React.FC = () => {
   
   const product = useMemo(() => products.find(p => p.id === Number(id)), [id, products]);
 
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const { isAuthenticated, currentUser, addToWishlist, removeFromWishlist } = useAuth();
 
   const [isAdding, setIsAdding] = useState(false);
@@ -37,6 +37,14 @@ const ProductDetailPage: React.FC = () => {
     if (!product) return [];
     return products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
   }, [product, products]);
+
+  // Check if item is in cart
+  const cartItem = useMemo(() => {
+      if (!product) return undefined;
+      return cartItems.find(item => item.id === product.id);
+  }, [cartItems, product]);
+  
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   if (!product) {
     return (
@@ -171,7 +179,7 @@ const ProductDetailPage: React.FC = () => {
                         className="w-full bg-orange-500 text-white font-bold py-4 px-6 rounded-lg text-lg hover:bg-orange-600 transition-all duration-300 flex items-center justify-center space-x-3 disabled:bg-green-500"
                     >
                         <ShoppingCartIcon className="w-6 h-6" />
-                        <span>{isAdding ? 'Added!' : 'Add to Cart'}</span>
+                        <span>{isAdding ? 'Added!' : (quantityInCart > 0 ? `Add More (${quantityInCart} in Cart)` : 'Add to Cart')}</span>
                     </button>
                     <button 
                         onClick={handleWishlistClick} 

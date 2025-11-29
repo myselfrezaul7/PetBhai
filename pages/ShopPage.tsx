@@ -1,10 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import CartSidebar from '../components/CartSidebar';
 import { MOCK_BRANDS } from '../constants';
-import { useCart } from '../contexts/CartContext';
-import { ShoppingCartIcon, SearchIcon } from '../components/icons';
+import { SearchIcon } from '../components/icons';
 import type { Product } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import ProductQuickViewModal from '../components/ProductQuickViewModal';
@@ -18,12 +16,10 @@ const ShopPage: React.FC = () => {
   const [activeBrand, setActiveBrand] = useState<string>(location.state?.brand || 'All');
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isCartOpen, setIsCartOpen] = useState(false);
   
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { cartCount } = useCart();
   const { products: allProducts } = useProducts();
 
   const sortedAndFilteredProducts = useMemo(() => {
@@ -75,9 +71,9 @@ const ShopPage: React.FC = () => {
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = ({ filter }) => (
     <button
       onClick={() => setActiveCategory(filter)}
-      className={`px-4 py-2 rounded-full font-semibold transition-colors text-sm whitespace-nowrap ${
+      className={`px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm whitespace-nowrap active:scale-95 ${
         activeCategory === filter
-          ? 'bg-orange-500 text-white shadow-md'
+          ? 'bg-orange-500 text-white shadow-lg transform scale-105'
           : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
       }`}
     >
@@ -87,30 +83,30 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 md:px-6 py-16 animate-fade-in">
+      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16 animate-fade-in">
         <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Shop For Your Buddy</h1>
         <p className="text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
           Find everything you need to keep your pet happy and healthy, from premium food to fun toys.
         </p>
         
         {/* Filters & Sorting */}
-        <div className="glass-card p-4 mb-12 space-y-6">
+        <div className="glass-card p-6 mb-12 space-y-6">
             {/* Search Bar */}
             <div className="relative max-w-lg mx-auto">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                     <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                 </span>
                 <input
                     type="text"
-                    placeholder="Search products by name or category..."
+                    placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full py-3 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md"
                     aria-label="Search products"
                 />
             </div>
 
-             <div className="flex flex-wrap items-center justify-center gap-2">
+             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
                 <CategoryFilterButton filter="All" />
                 <CategoryFilterButton filter="Dog Food" />
                 <CategoryFilterButton filter="Cat Food" />
@@ -118,27 +114,37 @@ const ShopPage: React.FC = () => {
                 <CategoryFilterButton filter="Cat Supplies" />
                 <CategoryFilterButton filter="Grooming" />
             </div>
-             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 border-t border-white/20 dark:border-slate-700/50">
+             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 border-t border-slate-200 dark:border-slate-700/50">
                 <div className="flex items-center gap-2">
                     <label htmlFor="brand-filter" className="font-semibold text-slate-700 dark:text-slate-200">Brand:</label>
-                    <select id="brand-filter" value={activeBrand} onChange={e => setActiveBrand(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500">
-                        <option value="All">All Brands</option>
-                        {MOCK_BRANDS.map(brand => <option key={brand.id} value={brand.name}>{brand.name}</option>)}
-                    </select>
+                    <div className="relative">
+                        <select id="brand-filter" value={activeBrand} onChange={e => setActiveBrand(e.target.value)} className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer">
+                            <option value="All">All Brands</option>
+                            {MOCK_BRANDS.map(brand => <option key={brand.id} value={brand.name}>{brand.name}</option>)}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700 dark:text-slate-300">
+                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
                 </div>
                  <div className="flex items-center gap-2">
                     <label htmlFor="sort-by" className="font-semibold text-slate-700 dark:text-slate-200">Sort by:</label>
-                    <select id="sort-by" value={sortOption} onChange={e => setSortOption(e.target.value as SortOption)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500">
-                        <option value="default">Default</option>
-                        <option value="price-asc">Price: Low to High</option>
-                        <option value="price-desc">Price: High to Low</option>
-                        <option value="rating-desc">Highest Rated</option>
-                    </select>
+                    <div className="relative">
+                        <select id="sort-by" value={sortOption} onChange={e => setSortOption(e.target.value as SortOption)} className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer">
+                            <option value="default">Default</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="rating-desc">Highest Rated</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700 dark:text-slate-300">
+                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
           {sortedAndFilteredProducts.map(product => (
             <ProductCard 
                 key={product.id} 
@@ -148,22 +154,6 @@ const ShopPage: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Floating Cart Button */}
-      <button
-        onClick={() => setIsCartOpen(true)}
-        className="fixed bottom-24 right-5 w-16 h-16 bg-orange-500 rounded-full text-white shadow-xl z-30 flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-orange-300"
-        aria-label={`Open shopping cart with ${cartCount} items`}
-      >
-        <ShoppingCartIcon className="w-8 h-8" />
-        {cartCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-            {cartCount}
-          </span>
-        )}
-      </button>
-
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       
       {/* Quick View Modal */}
       {selectedProduct && (

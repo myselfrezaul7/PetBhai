@@ -49,18 +49,18 @@ const AdoptPage: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-6 py-16 animate-fade-in">
-      <div className="glass-card p-8 mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Find Your New Best Friend</h1>
-        <p className="text-lg text-center text-slate-700 dark:text-slate-200 max-w-3xl mx-auto">
+    <div className="container mx-auto px-4 md:px-6 py-12 md:py-16 animate-fade-in">
+      <div className="glass-card p-6 md:p-8 mb-8 md:mb-12">
+        <h1 className="text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Find Your New Best Friend</h1>
+        <p className="text-base md:text-lg text-center text-slate-700 dark:text-slate-200 max-w-3xl mx-auto">
             These wonderful animals are waiting for a loving family to call their own. Use the filters to find the perfect match for you.
         </p>
       </div>
       
 
       {/* Filters Section */}
-      <div className="glass-card p-6 mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="glass-card p-4 md:p-6 mb-8 md:mb-16 overflow-x-auto">
+          <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 min-w-max md:min-w-0">
               {/* Species Filter */}
               <div className="flex flex-col space-y-2">
                   <label className="font-bold text-slate-700 dark:text-slate-200">Species</label>
@@ -107,7 +107,7 @@ const AdoptPage: React.FC = () => {
       </div>
 
       {filteredAnimals.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
           {filteredAnimals.map(animal => (
             <AnimalCard key={animal.id} animal={animal} />
           ))}

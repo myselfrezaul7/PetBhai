@@ -17,8 +17,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               <img 
                 src={article.imageUrl} 
                 alt={article.title} 
-                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105" 
-                loading="lazy" 
+                className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-105" 
+                loading="lazy"
+                decoding="async"
               />
           ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -28,7 +29,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
           
           {isFeatured && (
-             <span className="absolute top-4 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+             <span className="absolute top-4 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-sm">
                 Latest Post
              </span>
           )}
