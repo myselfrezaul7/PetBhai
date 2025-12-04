@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MailIcon, FacebookIcon, InstagramIcon, YouTubeIcon } from './icons';
@@ -42,9 +43,9 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">Follow Us</h3>
             <div className="flex items-center justify-center md:justify-start space-x-5">
-              <a href="https://facebook.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><FacebookIcon className="w-7 h-7" /></a>
-              <a href="https://instagram.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><InstagramIcon className="w-7 h-7" /></a>
-              <a href="https://youtube.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><YouTubeIcon className="w-7 h-7" /></a>
+              <a href="https://facebook.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><FacebookIcon className="w-7 h-7" /></a>
+              <a href="https://instagram.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><InstagramIcon className="w-7 h-7" /></a>
+              <a href="https://youtube.com/petbhai" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"><YouTubeIcon className="w-7 h-7" /></a>
             </div>
           </div>
 
