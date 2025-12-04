@@ -44,7 +44,7 @@ const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage
 
 const AppLoader: React.FC = () => (
   <div className="flex justify-center items-center h-[calc(100vh-144px)] w-full">
-     <div className="text-orange-500 animate-[breathe_1.5s_ease-in-out_infinite]">
+     <div className="text-orange-500 animate-breathe">
         <PawIcon className="w-16 h-16" />
      </div>
   </div>

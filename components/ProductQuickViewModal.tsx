@@ -38,7 +38,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center p-4 transition-opacity duration-300 animate-fade-in" onClick={onClose}>
       <div 
-        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[90vh]" 
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[90vh] animate-scale-in" 
         onClick={(e) => e.stopPropagation()}
       >
         <button 
@@ -50,11 +50,11 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
         </button>
         
         {/* Image Section - Fixed width on desktop, full height coverage */}
-        <div className="w-full md:w-1/2 h-64 md:h-auto bg-slate-100 dark:bg-slate-800 relative flex-shrink-0">
+        <div className="w-full md:w-1/2 h-64 md:h-auto bg-slate-100 dark:bg-slate-800 relative flex-shrink-0 group">
             <img 
                 src={product.imageUrl} 
                 alt={product.name} 
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute top-4 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
                 {product.category}
@@ -87,7 +87,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
                     className={`w-full py-3.5 rounded-xl font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg
                     ${isAdding 
                         ? 'bg-green-500 text-white scale-95 cursor-default' 
-                        : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95'}`}
+                        : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95 animate-pulse'}`}
                 >
                     <ShoppingCartIcon className="w-5 h-5" />
                     <span>{isAdding ? 'Added to Cart' : (quantityInCart > 0 ? `Add More (${quantityInCart} in Cart)` : 'Add to Cart')}</span>
