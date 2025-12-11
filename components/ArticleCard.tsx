@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { ImageIcon } from './icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ArticleCardProps {
   article: Article;
@@ -9,6 +10,7 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }) => {
+  const { t } = useLanguage();
   return (
     <div className={`glass-card group overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full ${isFeatured ? 'col-span-2' : ''}`}>
       <Link to={`/blog/${article.id}`} className="flex flex-col h-full">
@@ -30,13 +32,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           
           {isFeatured && (
              <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg backdrop-blur-sm">
-                Latest Post
+                {t('blog_latest_post')}
              </span>
           )}
         </div>
         <div className="p-3 sm:p-6 flex flex-col flex-grow relative">
           <div className="mb-1 sm:mb-2 text-[9px] sm:text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
-              {article.readTime} min read
+              {article.readTime} {t('blog_min_read')}
           </div>
           <h3 className={`font-bold text-slate-800 dark:text-white leading-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors break-words line-clamp-2 ${isFeatured ? 'text-lg sm:text-2xl mb-2 sm:mb-3' : 'text-xs sm:text-lg mb-1 sm:mb-2'}`}>
             {article.title}

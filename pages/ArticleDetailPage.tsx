@@ -4,10 +4,12 @@ import { useArticles } from '../contexts/ArticleContext';
 import { generateImageFromPrompt } from '../services/geminiService';
 import { ImageIcon } from '../components/icons';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ArticleDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { articles, updateArticleImage } = useArticles();
+    const { t } = useLanguage();
     
     const [isGenerating, setIsGenerating] = useState(false);
     const [generationError, setGenerationError] = useState('');
@@ -39,10 +41,10 @@ const ArticleDetailPage: React.FC = () => {
         return (
             <div className="text-center py-20 animate-fade-in container mx-auto px-4 md:px-6">
                 <div className="glass-card p-8 md:p-12">
-                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">আর্টিকেল খুঁজে পাওয়া যায়নি!</h1>
-                    <p className="text-slate-700 dark:text-slate-200 mt-4">এই আর্টিকেলটি সরানো হতে পারে অথবা লিঙ্কটি ভুল।</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">{t('article_not_found')}</h1>
+                    <p className="text-slate-700 dark:text-slate-200 mt-4">{t('article_not_found_desc')}</p>
                     <Link to="/blog" className="mt-8 inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-colors">
-                        ব্লগে ফিরে যান
+                        {t('btn_back_blog')}
                     </Link>
                 </div>
             </div>
@@ -59,11 +61,11 @@ const ArticleDetailPage: React.FC = () => {
                     <div className="mb-6 md:mb-8">
                         <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-slate-800 dark:text-white leading-tight">{article.title}</h1>
                         <div className="mt-4 text-slate-600 dark:text-slate-300 border-y border-slate-300/50 dark:border-slate-600/50 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:text-base">
-                            <span className="whitespace-nowrap">লিখেছেন: <strong>{article.author}</strong></span>
+                            <span className="whitespace-nowrap">{t('article_written_by')} <strong>{article.author}</strong></span>
                             <span className="text-slate-400">•</span>
                             <span className="whitespace-nowrap">{new Date(article.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                             <span className="text-slate-400">•</span>
-                            <span className="whitespace-nowrap">{article.readTime} মিনিট পড়া</span>
+                            <span className="whitespace-nowrap">{article.readTime} {t('blog_min_read')}</span>
                         </div>
                     </div>
 
@@ -74,14 +76,14 @@ const ArticleDetailPage: React.FC = () => {
                         ) : (
                             <div className="w-full min-h-[300px] h-full flex flex-col items-center justify-center p-6 text-center">
                                 <ImageIcon className="w-16 h-16 md:w-24 md:h-24 text-slate-400 dark:text-slate-500 mb-4" />
-                                <h3 className="text-lg md:text-xl font-bold text-slate-700 dark:text-slate-200">একটি ফিচার ফটো তৈরি করুন</h3>
-                                <p className="text-slate-600 dark:text-slate-300 mt-2 mb-4 text-sm md:text-base">এই আর্টিকেলের জন্য একটি অনন্য AI-জেনারেটেড ছবি তৈরি করতে বোতামটি ক্লিক করুন।</p>
+                                <h3 className="text-lg md:text-xl font-bold text-slate-700 dark:text-slate-200">{t('article_generate_image')}</h3>
+                                <p className="text-slate-600 dark:text-slate-300 mt-2 mb-4 text-sm md:text-base">{t('article_generate_image_desc')}</p>
                                 <button
                                     onClick={handleGenerateImage}
                                     disabled={isGenerating}
                                     className="bg-orange-500 text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-wait text-sm md:text-base"
                                 >
-                                    {isGenerating ? 'জেনারেট হচ্ছে...' : 'AI দিয়ে তৈরি করুন'}
+                                    {isGenerating ? t('btn_generating') : t('btn_generate_ai')}
                                 </button>
                                 {isGenerating && <div className="mt-4 w-full max-w-xs bg-slate-300 dark:bg-slate-600 h-1 rounded-full overflow-hidden"><div className="bg-orange-500 h-1 animate-pulse w-full"></div></div>}
                                 {generationError && <p className="text-red-500 mt-4 text-sm">{generationError}</p>}
@@ -98,7 +100,7 @@ const ArticleDetailPage: React.FC = () => {
                 {/* Sidebar */}
                 <aside className="lg:col-span-1 mt-8 lg:mt-0">
                     <div className="lg:sticky lg:top-24">
-                         <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50">সাম্প্রতিক আর্টিকেল</h2>
+                         <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50">{t('recent_articles')}</h2>
                          <div className="space-y-4 md:space-y-6">
                             {recentArticles.map(a => (
                                 <Link to={`/blog/${a.id}`} key={a.id} className="block group glass-card p-3 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-colors">

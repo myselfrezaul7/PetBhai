@@ -1,9 +1,11 @@
 import React from 'react';
 import ArticleCard from '../components/ArticleCard';
 import { useArticles } from '../contexts/ArticleContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BlogPage: React.FC = () => {
     const { articles } = useArticles();
+    const { t } = useLanguage();
 
     // Sort all articles by date, newest first
     const sortedArticles = [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -14,9 +16,9 @@ const BlogPage: React.FC = () => {
     return (
         <div className="container mx-auto px-3 md:px-6 py-12 md:py-16 animate-fade-in">
              <div className="text-center mb-10 md:mb-12 max-w-3xl mx-auto">
-                <h1 className="text-3xl md:text-5xl font-bold text-slate-800 dark:text-white">পেটভাই ব্লগ</h1>
+                <h1 className="text-3xl md:text-5xl font-bold text-slate-800 dark:text-white">{t('blog_page_title')}</h1>
                 <p className="text-base md:text-lg text-slate-700 dark:text-slate-200 mt-3 md:mt-4">
-                    বিশেষজ্ঞদের কাছ থেকে পোষা প্রাণীর যত্ন, পুষ্টি, প্রশিক্ষণ এবং নতুন পণ্যের খবর জানুন।
+                    {t('blog_page_subtitle')}
                 </p>
             </div>
             
