@@ -37,9 +37,9 @@ const ArticleDetailPage: React.FC = () => {
 
     if (!article) {
         return (
-            <div className="text-center py-20 animate-fade-in container mx-auto px-6">
-                <div className="glass-card p-12">
-                    <h1 className="text-3xl font-bold text-slate-800 dark:text-white">আর্টিকেল খুঁজে পাওয়া যায়নি!</h1>
+            <div className="text-center py-20 animate-fade-in container mx-auto px-4 md:px-6">
+                <div className="glass-card p-8 md:p-12">
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">আর্টিকেল খুঁজে পাওয়া যায়নি!</h1>
                     <p className="text-slate-700 dark:text-slate-200 mt-4">এই আর্টিকেলটি সরানো হতে পারে অথবা লিঙ্কটি ভুল।</p>
                     <Link to="/blog" className="mt-8 inline-block bg-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-orange-600 transition-colors">
                         ব্লগে ফিরে যান
@@ -50,60 +50,64 @@ const ArticleDetailPage: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-6 py-12 animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-12">
+        <div className="container mx-auto px-4 md:px-6 py-8 md:py-12 animate-fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
                 
                 {/* Main Article Content */}
                 <div className="lg:col-span-2">
                     {/* Article Header */}
-                    <div className="mb-8">
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white">{article.title}</h1>
-                        <div className="mt-4 text-slate-600 dark:text-slate-300 border-y border-slate-300/50 dark:border-slate-600/50 py-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-                            <span>লিখেছেন: <strong>{article.author}</strong></span>
-                            <span className="hidden sm:inline">&bull;</span>
-                            <span>{new Date(article.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            <span className="hidden sm:inline">&bull;</span>
-                            <span>{article.readTime} মিনিট পড়া</span>
+                    <div className="mb-6 md:mb-8">
+                        <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-slate-800 dark:text-white leading-tight">{article.title}</h1>
+                        <div className="mt-4 text-slate-600 dark:text-slate-300 border-y border-slate-300/50 dark:border-slate-600/50 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:text-base">
+                            <span className="whitespace-nowrap">লিখেছেন: <strong>{article.author}</strong></span>
+                            <span className="text-slate-400">•</span>
+                            <span className="whitespace-nowrap">{new Date(article.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                            <span className="text-slate-400">•</span>
+                            <span className="whitespace-nowrap">{article.readTime} মিনিট পড়া</span>
                         </div>
                     </div>
 
                     {/* Article Image or Generator */}
-                    <div className="w-full h-auto max-h-[500px] rounded-2xl shadow-lg mb-8 overflow-hidden">
+                    <div className="w-full h-auto max-h-[500px] rounded-2xl shadow-lg mb-8 overflow-hidden bg-slate-200 dark:bg-slate-700">
                         {article.imageUrl ? (
                             <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" />
                         ) : (
-                            <div className="w-full min-h-[400px] h-full bg-slate-200 dark:bg-slate-700 flex flex-col items-center justify-center p-8 text-center">
-                                <ImageIcon className="w-24 h-24 text-slate-400 dark:text-slate-500 mb-4" />
-                                <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200">একটি ফিচার ফটো তৈরি করুন</h3>
-                                <p className="text-slate-600 dark:text-slate-300 mt-2 mb-4">এই আর্টিকেলের জন্য একটি অনন্য AI-জেনারেটেড ছবি তৈরি করতে বোতামটি ক্লিক করুন।</p>
+                            <div className="w-full min-h-[300px] h-full flex flex-col items-center justify-center p-6 text-center">
+                                <ImageIcon className="w-16 h-16 md:w-24 md:h-24 text-slate-400 dark:text-slate-500 mb-4" />
+                                <h3 className="text-lg md:text-xl font-bold text-slate-700 dark:text-slate-200">একটি ফিচার ফটো তৈরি করুন</h3>
+                                <p className="text-slate-600 dark:text-slate-300 mt-2 mb-4 text-sm md:text-base">এই আর্টিকেলের জন্য একটি অনন্য AI-জেনারেটেড ছবি তৈরি করতে বোতামটি ক্লিক করুন।</p>
                                 <button
                                     onClick={handleGenerateImage}
                                     disabled={isGenerating}
-                                    className="bg-orange-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-wait"
+                                    className="bg-orange-500 text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-wait text-sm md:text-base"
                                 >
                                     {isGenerating ? 'জেনারেট হচ্ছে...' : 'AI দিয়ে তৈরি করুন'}
                                 </button>
-                                {isGenerating && <div className="mt-4 w-full bg-slate-300 dark:bg-slate-600 h-1 rounded-full overflow-hidden"><div className="bg-orange-500 h-1 animate-pulse w-full"></div></div>}
-                                {generationError && <p className="text-red-500 mt-4">{generationError}</p>}
+                                {isGenerating && <div className="mt-4 w-full max-w-xs bg-slate-300 dark:bg-slate-600 h-1 rounded-full overflow-hidden"><div className="bg-orange-500 h-1 animate-pulse w-full"></div></div>}
+                                {generationError && <p className="text-red-500 mt-4 text-sm">{generationError}</p>}
                             </div>
                         )}
                     </div>
                     
                     {/* Article Body */}
-                    <MarkdownRenderer content={article.content} />
+                    <div className="glass-card p-4 md:p-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                        <MarkdownRenderer content={article.content} />
+                    </div>
                 </div>
                 
                 {/* Sidebar */}
-                <aside className="lg:col-span-1 mt-12 lg:mt-0">
+                <aside className="lg:col-span-1 mt-8 lg:mt-0">
                     <div className="lg:sticky lg:top-24">
-                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 pb-3 border-b-2 border-orange-500/50">সাম্প্রতিক আর্টিকেল</h2>
-                         <div className="space-y-6">
+                         <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50">সাম্প্রতিক আর্টিকেল</h2>
+                         <div className="space-y-4 md:space-y-6">
                             {recentArticles.map(a => (
-                                <Link to={`/blog/${a.id}`} key={a.id} className="block group">
-                                    <div className="flex items-start space-x-4">
-                                        <img src={a.imageUrl} alt={a.title} className="w-24 h-24 object-cover rounded-lg flex-shrink-0" />
-                                        <div>
-                                            <h3 className="font-bold text-slate-800 dark:text-white group-hover:text-orange-600 transition-colors line-clamp-2">{a.title}</h3>
+                                <Link to={`/blog/${a.id}`} key={a.id} className="block group glass-card p-3 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-colors">
+                                    <div className="flex items-start space-x-3">
+                                        <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700">
+                                            <img src={a.imageUrl} alt={a.title} className="w-full h-full object-cover transition-transform group-hover:scale-110" loading="lazy" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h3 className="font-bold text-slate-800 dark:text-white group-hover:text-orange-600 transition-colors line-clamp-2 text-sm md:text-base">{a.title}</h3>
                                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{new Date(a.date).toLocaleDateString('en-GB', { month: 'long', day: 'numeric' })}</p>
                                         </div>
                                     </div>

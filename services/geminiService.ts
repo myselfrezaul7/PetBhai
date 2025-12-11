@@ -10,7 +10,12 @@ function getAiInstance(): GoogleGenAI {
       console.error("API_KEY environment variable is not set.");
       throw new Error("AI service is not configured. Missing API key.");
     }
-    aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    try {
+        aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    } catch (e) {
+        console.error("Failed to initialize GoogleGenAI", e);
+        throw new Error("Failed to initialize AI service.");
+    }
   }
   return aiInstance;
 }
@@ -114,6 +119,43 @@ export const generateImageFromPrompt = async (prompt: string): Promise<string> =
     }
     throw new Error("Failed to generate the image. Please try again later.");
   }
+};
+
+export const generateVlogThumbnail = async (title: string, subject: string, mood: string): Promise<string> => {
+    try {
+        const ai = getAiInstance();
+        // Using 'nano banana' (gemini-2.5-flash-image) as requested for fast, creative thumbnails
+        const prompt = `Create a high-quality, eye-catching YouTube vlog thumbnail. 
+        Title context: "${title}". 
+        Subject: ${subject}. 
+        Mood/Style: ${mood}. 
+        The image should be 16:9, vibrant, high contrast, and look like a professional vlog thumbnail.`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [{ text: prompt }],
+            },
+            config: {
+                imageConfig: {
+                    aspectRatio: "16:9",
+                }
+            }
+        });
+
+        if (response.candidates && response.candidates[0].content.parts) {
+            for (const part of response.candidates[0].content.parts) {
+                if (part.inlineData) {
+                    const base64ImageBytes: string = part.inlineData.data;
+                    return `data:image/png;base64,${base64ImageBytes}`;
+                }
+            }
+        }
+        throw new Error("No image data found.");
+    } catch (error) {
+        console.error("Error generating thumbnail:", error);
+        throw error;
+    }
 };
 
 export const analyzeRescueImage = async (imageFile: File): Promise<{ type: string, condition: string }> => {

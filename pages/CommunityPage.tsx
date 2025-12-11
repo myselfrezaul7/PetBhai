@@ -5,7 +5,7 @@ import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
 import { MOCK_POSTS } from '../constants';
 import type { Post, Comment, CommentReply } from '../types';
-import { GoogleIcon } from '../components/icons';
+import { GoogleIcon, VideoCameraIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
@@ -112,6 +112,22 @@ const CommunityPage: React.FC = () => {
         <p className="text-lg text-slate-700 dark:text-slate-200 mt-2">
           Share pet care tips, product reviews, and connect with fellow pet lovers.
         </p>
+      </div>
+
+      {/* Creator Tools CTA */}
+      <div className="glass-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-slate-100 to-orange-50 dark:from-slate-800 dark:to-slate-900 border border-orange-200 dark:border-orange-900/30">
+          <div className="text-center sm:text-left">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center justify-center sm:justify-start gap-2">
+                  <VideoCameraIcon className="w-6 h-6 text-orange-500" />
+                  Creator Tools
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mt-1 text-sm">
+                  Starting a pet vlog? Create custom thumbnails instantly.
+              </p>
+          </div>
+          <Link to="/thumbnail-generator" className="whitespace-nowrap px-6 py-2.5 bg-orange-500 text-white font-bold rounded-full hover:bg-orange-600 transition-colors shadow-md">
+              Create Thumbnail
+          </Link>
       </div>
 
       {isAuthenticated ? (

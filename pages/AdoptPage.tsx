@@ -49,7 +49,7 @@ const AdoptPage: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-12 md:py-16 animate-fade-in">
+    <div className="container mx-auto px-3 md:px-6 py-12 md:py-16 animate-fade-in">
       <div className="glass-card p-6 md:p-8 mb-8 md:mb-12">
         <h1 className="text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Find Your New Best Friend</h1>
         <p className="text-base md:text-lg text-center text-slate-700 dark:text-slate-200 max-w-3xl mx-auto">

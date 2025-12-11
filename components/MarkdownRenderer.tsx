@@ -47,13 +47,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         // This is a regular paragraph or a heading.
         if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
            elements.push(
-            <h2 key={index} className="text-2xl font-bold mt-8 mb-4">
+            <h2 key={index} className="text-xl md:text-2xl font-bold mt-6 md:mt-8 mb-3 md:mb-4">
               {formatLine(trimmedLine.substring(2, trimmedLine.length - 2))}
             </h2>
           );
         } else {
           elements.push(
-            <p key={index} className="mb-4 text-lg leading-relaxed">
+            <p key={index} className="mb-4 text-base md:text-lg leading-relaxed break-words">
               {formatLine(trimmedLine)}
             </p>
           );
@@ -67,7 +67,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     pushList();
   }
 
-  return <div className="prose prose-lg lg:prose-xl max-w-none text-slate-800 dark:text-slate-200 prose-strong:font-bold prose-headings:text-slate-800 dark:prose-headings:text-slate-100">{elements}</div>;
+  // Use prose-base on mobile, prose-lg on desktop to prevent text from being too large on small screens
+  return <div className="prose prose-base md:prose-lg lg:prose-xl max-w-none text-slate-800 dark:text-slate-200 prose-strong:font-bold prose-headings:text-slate-800 dark:prose-headings:text-slate-100 break-words">{elements}</div>;
 };
 
 export default MarkdownRenderer;

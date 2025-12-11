@@ -38,7 +38,7 @@ const ServicesPage: React.FC = () => {
     );
 
     return (
-        <div className="container mx-auto px-4 md:px-6 py-16 animate-fade-in">
+        <div className="container mx-auto px-3 md:px-6 py-16 animate-fade-in">
             <div className="text-center mb-12">
                 <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">Professional Pet Services</h1>
                 <p className="text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto mt-4">

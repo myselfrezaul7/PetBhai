@@ -1,14 +1,77 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useToast } from '../contexts/ToastContext';
 
 const VolunteerPage: React.FC = () => {
     const toast = useToast();
     
+    // State for form fields
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        availability: 'Weekdays',
+        address: '',
+        experience: '',
+        interests: [] as string[]
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { id, value } = e.target;
+        setFormData(prev => ({ ...prev, [id]: value }));
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value, checked } = e.target;
+        setFormData(prev => {
+            if (checked) {
+                return { ...prev, interests: [...prev.interests, value] };
+            } else {
+                return { ...prev, interests: prev.interests.filter(item => item !== value) };
+            }
+        });
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        toast.success('Thank you for your interest! Your application has been submitted.');
-        (e.target as HTMLFormElement).reset();
+        
+        // Construct Email Body
+        const subject = encodeURIComponent(`New Volunteer Application: ${formData.fullName}`);
+        const body = encodeURIComponent(
+`Name: ${formData.fullName}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Address: ${formData.address}
+Availability: ${formData.availability}
+
+Areas of Interest:
+${formData.interests.length > 0 ? formData.interests.join(', ') : 'None selected'}
+
+Experience:
+${formData.experience}
+`
+        );
+
+        // Open Mail Client
+        window.location.href = `mailto:petbhaibd@gmail.com?subject=${subject}&body=${body}`;
+
+        toast.success('Opening your email client to send the application...');
+        
+        // Reset form
+        setFormData({
+            fullName: '',
+            email: '',
+            phone: '',
+            availability: 'Weekdays',
+            address: '',
+            experience: '',
+            interests: []
+        });
     };
+
+    const interestOptions = [
+        "Shelter Care", "Adoption Events", "Rescue Transport",
+        "Fundraising", "Photography", "Spot Treatment"
+    ];
 
     return (
         <div className="container mx-auto px-4 py-12 flex-grow flex items-center justify-center animate-fade-in">
@@ -24,19 +87,46 @@ const VolunteerPage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label htmlFor="fullName" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Name <span className="text-red-500">*</span></label>
-                                <input type="text" id="fullName" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" />
+                                <input 
+                                    type="text" 
+                                    id="fullName" 
+                                    value={formData.fullName}
+                                    onChange={handleInputChange}
+                                    required 
+                                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" 
+                                />
                             </div>
                             <div>
                                 <label htmlFor="email" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Email Address <span className="text-red-500">*</span></label>
-                                <input type="email" id="email" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" />
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    required 
+                                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" 
+                                />
                             </div>
                              <div>
                                 <label htmlFor="phone" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Phone Number <span className="text-red-500">*</span></label>
-                                <input type="tel" id="phone" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" />
+                                <input 
+                                    type="tel" 
+                                    id="phone" 
+                                    value={formData.phone}
+                                    onChange={handleInputChange}
+                                    required 
+                                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50" 
+                                />
                             </div>
                              <div>
                                 <label htmlFor="availability" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Availability <span className="text-red-500">*</span></label>
-                                <select id="availability" required className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50">
+                                <select 
+                                    id="availability" 
+                                    value={formData.availability}
+                                    onChange={handleInputChange}
+                                    required 
+                                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                                >
                                     <option>Weekdays</option>
                                     <option>Weekends</option>
                                     <option>Flexible</option>
@@ -46,29 +136,50 @@ const VolunteerPage: React.FC = () => {
 
                         <div>
                             <label htmlFor="address" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Address <span className="text-red-500">*</span></label>
-                            <textarea id="address" rows={3} required placeholder="Your full address for coordination purposes" className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"></textarea>
+                            <textarea 
+                                id="address" 
+                                rows={3} 
+                                value={formData.address}
+                                onChange={handleInputChange}
+                                required 
+                                placeholder="Your full address for coordination purposes" 
+                                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                            ></textarea>
                         </div>
 
                         <div>
                             <label className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Areas of Interest (Select all that apply)</label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Shelter Care</span></label>
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Adoption Events</span></label>
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Rescue Transport</span></label>
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Fundraising</span></label>
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Photography</span></label>
-                                <label className="flex items-center space-x-2"><input type="checkbox" className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" /> <span>Spot Treatment</span></label>
+                                {interestOptions.map(interest => (
+                                    <label key={interest} className="flex items-center space-x-2">
+                                        <input 
+                                            type="checkbox" 
+                                            value={interest}
+                                            checked={formData.interests.includes(interest)}
+                                            onChange={handleCheckboxChange}
+                                            className="h-4 w-4 rounded text-orange-500 focus:ring-orange-500" 
+                                        /> 
+                                        <span>{interest}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
                         <div>
                             <label htmlFor="experience" className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">Relevant Experience</label>
-                            <textarea id="experience" rows={4} placeholder="Tell us about any previous experience with animals or volunteering." className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"></textarea>
+                            <textarea 
+                                id="experience" 
+                                rows={4} 
+                                value={formData.experience}
+                                onChange={handleInputChange}
+                                placeholder="Tell us about any previous experience with animals or volunteering." 
+                                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                            ></textarea>
                         </div>
                         
                         <div>
                             <button type="submit" className="w-full bg-orange-500 text-white font-bold py-4 px-4 rounded-lg text-lg hover:bg-orange-600 transition-colors transform hover:scale-105">
-                                Submit Application
+                                Send Application via Email
                             </button>
                         </div>
                     </form>

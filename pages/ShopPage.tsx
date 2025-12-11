@@ -83,9 +83,9 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16 animate-fade-in">
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Shop For Your Buddy</h1>
-        <p className="text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
+      <div className="container mx-auto px-3 md:px-6 py-12 md:py-16 animate-fade-in">
+        <h1 className="text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">Shop For Your Buddy</h1>
+        <p className="text-base md:text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
           Find everything you need to keep your pet happy and healthy, from premium food to fun toys.
         </p>
         
@@ -144,7 +144,8 @@ const ShopPage: React.FC = () => {
             </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+        {/* 2 columns on mobile, 3 on md, 4 on xl. Gap 3 for mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
           {sortedAndFilteredProducts.map(product => (
             <ProductCard 
                 key={product.id} 

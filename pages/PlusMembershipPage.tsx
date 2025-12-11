@@ -2,33 +2,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { useConfirmation } from '../contexts/ConfirmationContext';
 
 const PlusMembershipPage: React.FC = () => {
-  const { currentUser, subscribeToPlus, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
-  const { confirm } = useConfirmation();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-
-    const planName = selectedPlan === 'monthly' ? 'Monthly' : 'Yearly';
-    const planPrice = selectedPlan === 'monthly' ? '৳499/month' : '৳4999/year';
-    
-    const shouldSubscribe = await confirm({
-        title: 'Confirm Subscription',
-        message: `Are you sure you want to subscribe to the ${planName} plan for ${planPrice}?`,
-    });
-
-    if (shouldSubscribe) {
-        subscribeToPlus();
-        toast.success(`Congratulations! You are now a PetBhai+ member.`);
-    }
+    toast.success("You've been added to the priority waitlist! We'll notify you when membership launches.");
   };
 
   const benefits = [
@@ -38,6 +24,15 @@ const PlusMembershipPage: React.FC = () => {
     { icon: '⭐', title: 'Early Access', description: 'Be the first to know about and purchase new products before anyone else.' },
     { icon: '🎁', title: 'Surprise Perks', description: 'Receive special gifts, bonus loyalty points, and more surprises throughout the year.' },
   ];
+
+  const ComingSoonBadge = () => (
+    <div className="my-6 relative group cursor-default mx-auto w-max">
+        <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+        <div className="relative px-6 py-2 bg-white dark:bg-slate-800 ring-1 ring-gray-900/5 rounded-lg leading-none flex items-center justify-center">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-600 font-extrabold text-xl animate-pulse">Coming Soon</span>
+        </div>
+    </div>
+  );
 
   return (
     <div className="animate-fade-in">
@@ -84,7 +79,7 @@ const PlusMembershipPage: React.FC = () => {
                             }`}
                         >
                             <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200">Monthly</h3>
-                            <p className="text-4xl font-extrabold text-slate-800 dark:text-white my-2">৳499</p>
+                            <ComingSoonBadge />
                             <p className="text-slate-500 dark:text-slate-400">per month</p>
                         </button>
                         
@@ -99,7 +94,7 @@ const PlusMembershipPage: React.FC = () => {
                         >
                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">BEST VALUE</div>
                             <h3 className="text-xl font-semibold text-orange-600 dark:text-orange-400">Yearly</h3>
-                            <p className="text-4xl font-extrabold text-slate-800 dark:text-white my-2">৳4999</p>
+                            <ComingSoonBadge />
                             <p className="text-slate-500 dark:text-slate-400">per year (save 16%)</p>
                         </button>
                      </div>
@@ -107,8 +102,8 @@ const PlusMembershipPage: React.FC = () => {
                         {currentUser?.isPlusMember ? (
                             <p className="text-lg font-bold text-green-600">You are already a PetBhai+ member!</p>
                         ) : (
-                            <button onClick={handleSubscribe} className="w-full max-w-md bg-orange-500 text-white font-bold py-4 px-8 rounded-lg text-xl hover:bg-orange-600 transition-all transform hover:scale-105">
-                                Subscribe Now & Save
+                            <button onClick={handleSubscribe} className="w-full max-w-md bg-slate-800 dark:bg-white text-white dark:text-slate-900 font-bold py-4 px-8 rounded-lg text-xl hover:bg-slate-700 dark:hover:bg-slate-200 transition-all transform hover:scale-105 shadow-xl">
+                                Join Waitlist
                             </button>
                         )}
                      </div>

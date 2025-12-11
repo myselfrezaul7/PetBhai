@@ -15,7 +15,7 @@ import ToastContainer from './components/ToastContainer';
 import { ConfirmationProvider } from './contexts/ConfirmationContext';
 import ConfirmationModal from './components/ConfirmationModal';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { PawIcon, ShoppingCartIcon } from './components/icons';
+import { PawIcon, ShoppingCartIcon, HeartIcon } from './components/icons';
 import CartSidebar from './components/CartSidebar';
 
 // Lazy load all page components
@@ -40,13 +40,16 @@ const ReportPage = lazy(() => import('./pages/ReportPage'));
 const VolunteerPage = lazy(() => import('./pages/VolunteerPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage'));
+const ThumbnailGeneratorPage = lazy(() => import('./pages/ThumbnailGeneratorPage'));
 
 
-const AppLoader: React.FC = () => (
-  <div className="flex justify-center items-center h-[calc(100vh-144px)] w-full">
-     <div className="text-orange-500 animate-breathe">
-        <PawIcon className="w-16 h-16" />
+const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
+  <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
+     <div className="relative w-20 h-20 animate-heartbeat">
+        <HeartIcon className="w-full h-full text-orange-500" />
+        <PawIcon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-white dark:text-slate-900" />
      </div>
+     <p className="mt-4 text-orange-500 font-semibold animate-pulse tracking-wide">{message || 'Loading...'}</p>
   </div>
 );
 
@@ -112,7 +115,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:text-slate-200">
       <Header />
       <main className="flex-grow">
-        <Suspense fallback={<AppLoader />}>
+        <Suspense fallback={<PawHeartLoader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/community" element={<CommunityPage />} />
@@ -120,6 +123,7 @@ const AppContent: React.FC = () => {
             <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
             <Route path="/vet/:id" element={<VetDetailPage />} />
             <Route path="/ai-assistant" element={<AIAssistantPage />} />
+            <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/shop" element={<ShopPage />} />
