@@ -1,0 +1,23 @@
+{
+  "short_name": "PetBhai",
+  "name": "PetBhai - Animal Welfare & Pet Supplies",
+  "description": "Your trusted partner in animal welfare, offering pet adoption, services, and premium supplies in Bangladesh.",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f97316",
+  "background_color": "#f8fafc"
+}
