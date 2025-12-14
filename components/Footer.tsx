@@ -13,9 +13,9 @@ const Footer: React.FC = () => {
           <div className="flex flex-col items-center md:items-start col-span-2 md:col-span-1">
             <div className="flex items-center space-x-3 mb-2">
                 <Logo className="w-10 h-10 text-orange-500" />
-                <span className="text-2xl font-bold text-slate-800 dark:text-white">PetBhai</span>
+                <span className="text-2xl font-bold text-slate-800 dark:text-white uppercase">PetBhai</span>
             </div>
-            <p className="text-slate-600 dark:text-slate-300">Your Pet's Favorite Store.</p>
+            <p className="text-slate-600 dark:text-slate-300">Your Pet's Favorite Partner.</p>
           </div>
           
           {/* Column 2: Get Involved */}
@@ -68,20 +68,4 @@ const Footer: React.FC = () => {
                 rel="noopener noreferrer" 
                 aria-label="YouTube" 
                 title="YouTube" 
-                className="transform transition-all duration-300 hover:scale-125 hover:-translate-y-2 hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.5)] active:scale-95"
-              >
-                <YouTubeIcon className="w-8 h-8 text-[#FF0000]" />
-              </a>
-            </div>
-          </div>
-
-        </div>
-        <div className="border-t border-slate-300 dark:border-slate-700/50 mt-10 pt-6 text-center text-slate-600 dark:text-slate-300 text-sm">
-            <p>&copy; {new Date().getFullYear()} PetBhai. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-  );
-};
-
-export default Footer;
+                className="transform transition-all duration-300 hover:scale-125 hover:-translate-y-2 hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.5)] active

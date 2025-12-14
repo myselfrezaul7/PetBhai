@@ -4,14 +4,28 @@ import { MOCK_PRODUCTS } from '../constants';
 // Create a singleton instance of the AI client to avoid re-creating it on every call.
 let aiInstance: GoogleGenAI | null = null;
 
+// Safe environment variable access for various build environments (Vite, standard, etc.)
+const getApiKey = () => {
+  // Check standard process.env (bundlers often polyfill this)
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    return process.env.API_KEY;
+  }
+  // Check Vite specific env
+  if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_KEY) {
+    return (import.meta as any).env.VITE_API_KEY;
+  }
+  return null;
+};
+
 function getAiInstance(): GoogleGenAI {
   if (!aiInstance) {
-    if (!process.env.API_KEY) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
       console.error("API_KEY environment variable is not set.");
       throw new Error("AI service is not configured. Missing API key.");
     }
     try {
-        aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        aiInstance = new GoogleGenAI({ apiKey: apiKey });
     } catch (e) {
         console.error("Failed to initialize GoogleGenAI", e);
         throw new Error("Failed to initialize AI service.");
