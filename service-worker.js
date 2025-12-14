@@ -1,16 +1,11 @@
-const CACHE_NAME = 'petbhai-cache-v1';
-// This list of files will be cached when the service worker is installed.
+const CACHE_NAME = 'petbhai-cache-v2'; // Incremented version
 const urlsToCache = [
   '/',
   '/index.html',
-  // Since the JS and CSS are bundled or inlined, caching the main HTML and root URL is key.
-  // The fetch event handler will cache other assets as they are requested.
-  // We can't know the exact bundled JS file names, so we'll rely on runtime caching.
+  '/manifest.json'
 ];
 
-// Install a service worker
 self.addEventListener('install', event => {
-  // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -18,61 +13,72 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
-// Cache and return requests
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        // IMPORTANT: Clone the request. A request is a stream and
-        // can only be consumed once. Since we are consuming this
-        // once by cache and once by the browser for fetch, we need
-        // to clone the response.
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          response => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
-  );
-});
-
-// Update a service worker
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
+    Promise.all([
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }),
+        self.clients.claim()
+    ])
+  );
+});
+
+self.addEventListener('fetch', event => {
+  // Navigation requests: Network first, fall back to cache (index.html)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match('/index.html');
         })
-      );
-    })
+    );
+    return;
+  }
+
+  // API or Data requests: Network only (or specific strategy if needed)
+  if (event.request.url.includes('/api/')) {
+      event.respondWith(fetch(event.request));
+      return;
+  }
+
+  // Static Assets (JS, CSS, Images): Stale-While-Revalidate
+  // This strategy serves content from cache immediately, then updates the cache in the background.
+  event.respondWith(
+    caches.match(event.request)
+      .then(cachedResponse => {
+        const fetchPromise = fetch(event.request).then(
+           networkResponse => {
+             // Check if we received a valid response
+             if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+                return networkResponse;
+             }
+             
+             const responseToCache = networkResponse.clone();
+             caches.open(CACHE_NAME).then(cache => {
+                // Ensure we don't cache unsupported schemes (like chrome-extension://)
+                if (event.request.url.startsWith('http')) {
+                    cache.put(event.request, responseToCache);
+                }
+             });
+             return networkResponse;
+           }
+        ).catch(err => {
+            // Network failed, do nothing (we likely returned cachedResponse)
+            console.log('Network fetch failed for', event.request.url);
+        });
+
+        return cachedResponse || fetchPromise;
+      })
   );
 });

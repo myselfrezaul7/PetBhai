@@ -362,42 +362,22 @@ const Header: React.FC = () => {
                 <MobileNavLink to="/services">{t('nav_services')}</MobileNavLink>
                 <MobileNavLink to="/ai-assistant">{t('nav_ai_vet')}</MobileNavLink>
                 <MobileNavLink to="/blog">{t('nav_blog')}</MobileNavLink>
-                <MobileNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 !font-bold">{t('nav_plus')}</MobileNavLink>
+                <MobileNavLink to="/plus-membership" className="text-yellow-600 dark:text-yellow-400 font-bold">{t('nav_plus')}</MobileNavLink>
             </nav>
-            <div className="mt-12 w-full px-8">
-              {isAuthenticated && currentUser ? (
-                  <div className="text-center">
-                       <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="relative flex flex-col items-center space-y-2 mb-6 group">
-                           <div className="ring-4 ring-transparent group-hover:ring-orange-500 rounded-full p-1 transition-all">
-                                {currentUser.profilePictureUrl ? (
-                                        <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-20 h-20 rounded-full object-cover" />
-                                ) : (
-                                        <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                            <UserIcon className="w-12 h-12 text-slate-500 dark:text-slate-300" />
-                                        </div>
-                                )}
-                           </div>
-                           {currentUser.isPlusMember && (
-                                <span className="absolute top-14 right-[calc(50%-55px)] bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold ring-2 ring-white dark:ring-slate-800 animate-scale-in">
-                                +
-                               </span>
-                           )}
-                           <p className="font-bold text-slate-800 dark:text-white text-2xl">Hi, {currentUser.name.split(' ')[0]}</p>
-                           <p className="text-sm font-semibold text-orange-600">{t('nav_profile')}</p>
-                       </Link>
-                      <button onClick={handleLogout} className="w-full bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-lg hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-white dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors active:scale-95">{t('nav_logout')}</button>
-                  </div>
-              ) : (
-                  <div className="flex flex-col space-y-4">
-                      <NavLink to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center font-bold text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-600 py-3 px-5 rounded-xl text-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95">{t('nav_login')}</NavLink>
-                      <NavLink to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-orange-500 text-white font-bold py-3 px-5 rounded-xl text-lg hover:bg-orange-600 transition-colors shadow-lg active:scale-95">{t('nav_signup')}</NavLink>
-                  </div>
-              )}
+            <div className="mt-10 flex flex-col space-y-4 w-full px-10">
+                {isAuthenticated && currentUser ? (
+                    <>
+                        <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg">{t('nav_profile')}</Link>
+                        <button onClick={handleLogout} className="w-full text-center py-3 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-lg">{t('nav_logout')}</button>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg">{t('nav_login')}</Link>
+                        <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 rounded-full bg-orange-500 text-white font-bold text-lg shadow-lg">{t('nav_signup')}</Link>
+                    </>
+                )}
             </div>
         </div>
-      </div>
-      <div role="status" className="sr-only" aria-live="polite">
-        {searchAnnouncement}
       </div>
     </>
   );

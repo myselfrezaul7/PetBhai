@@ -88,27 +88,23 @@ const AppContent: React.FC = () => {
   const { consent } = useCookieConsent();
 
   useEffect(() => {
-    // This function handles the service worker registration.
-    const registerServiceWorker = () => {
+    // Robust Service Worker Registration
+    const registerServiceWorker = async () => {
       if ('serviceWorker' in navigator) {
-        const swUrl = `${window.location.origin}/service-worker.js`;
-        navigator.serviceWorker.register(swUrl)
-          .then(registration => {
-            // SW registration successful
-          })
-          .catch(error => {
-            console.error('SW registration failed:', error);
-          });
+        try {
+          // In a React app, components mount after the basic DOM is ready.
+          // We can register immediately without waiting for 'load' event, 
+          // which avoids the "document in invalid state" error if the event has already passed.
+          const registration = await navigator.serviceWorker.register('./service-worker.js');
+          console.log('SW registered with scope:', registration.scope);
+        } catch (error) {
+          console.error('SW registration failed:', error);
+        }
       }
     };
 
-    // The 'load' event is the most reliable point to register a service worker.
-    window.addEventListener('load', registerServiceWorker);
-
-    return () => {
-      window.removeEventListener('load', registerServiceWorker);
-    };
-  }, []); 
+    registerServiceWorker();
+  }, []);
 
 
   return (

@@ -68,4 +68,20 @@ const Footer: React.FC = () => {
                 rel="noopener noreferrer" 
                 aria-label="YouTube" 
                 title="YouTube" 
-                className="transform transition-all duration-300 hover:scale-125 hover:-translate-y-2 hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.5)] active
+                className="transform transition-all duration-300 hover:scale-125 hover:-translate-y-2 hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.5)] active:scale-95"
+              >
+                <YouTubeIcon className="w-8 h-8 text-[#FF0000]" />
+              </a>
+            </div>
+          </div>
+
+        </div>
+        <div className="border-t border-slate-300 dark:border-slate-700/50 mt-10 pt-6 text-center text-slate-600 dark:text-slate-300 text-sm">
+            <p>&copy; {new Date().getFullYear()} PetBhai. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
