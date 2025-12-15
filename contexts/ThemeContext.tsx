@@ -24,34 +24,33 @@ const getInitialTheme = (): Theme => {
   return 'light';
 };
 
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-    const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const rawSetTheme = (rawTheme: Theme) => {
+    const root = window.document.documentElement;
+    const isDark = rawTheme === 'dark';
 
-    const rawSetTheme = (rawTheme: Theme) => {
-        const root = window.document.documentElement;
-        const isDark = rawTheme === 'dark';
+    root.classList.remove(isDark ? 'light' : 'dark');
+    root.classList.add(rawTheme);
 
-        root.classList.remove(isDark ? 'light' : 'dark');
-        root.classList.add(rawTheme);
+    localStorage.setItem('theme', rawTheme);
+  };
 
-        localStorage.setItem('theme', rawTheme);
-    };
+  useEffect(() => {
+    rawSetTheme(theme);
+  }, [theme]);
 
-    useEffect(() => {
-        rawSetTheme(theme);
-    }, [theme]);
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
 
-    const toggleTheme = () => {
-        setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-    };
+  const value = {
+    theme,
+    toggleTheme,
+  };
 
-    const value = {
-        theme,
-        toggleTheme,
-    };
-
-    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => {

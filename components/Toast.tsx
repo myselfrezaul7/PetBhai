@@ -30,7 +30,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
       onDismiss(toast.id);
     }, 300); // Wait for exit animation
   };
-  
+
   const toastEnterClass = 'animate-[toast-in_0.5s_ease-in-out_forwards]';
   const toastExitClass = 'animate-[toast-out_0.3s_ease-in-out_forwards]';
 
@@ -43,7 +43,11 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
       <div className="flex-grow text-sm font-semibold text-slate-700 dark:text-slate-200">
         {toast.message}
       </div>
-      <button onClick={handleDismiss} className="p-1 rounded-full text-slate-400 dark:text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-700/50" aria-label="Dismiss">
+      <button
+        onClick={handleDismiss}
+        className="p-1 rounded-full text-slate-400 dark:text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
+        aria-label="Dismiss"
+      >
         <CloseIcon className="w-4 h-4" />
       </button>
     </div>

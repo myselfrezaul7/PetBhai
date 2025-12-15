@@ -30,10 +30,10 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
 
     const newPost: Post = {
       id: Date.now(),
-      author: { 
-        id: currentUser.id, 
+      author: {
+        id: currentUser.id,
         name: currentUser.name,
-        profilePictureUrl: currentUser.profilePictureUrl 
+        profilePictureUrl: currentUser.profilePictureUrl,
       },
       content,
       imageUrl: image || undefined,
@@ -45,7 +45,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
     onAddPost(newPost);
     setContent('');
     setImage(null);
-    if(fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -54,9 +54,13 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
         <div className="flex items-start space-x-4">
           <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {currentUser?.profilePictureUrl ? (
-                <img src={currentUser.profilePictureUrl} alt={currentUser.name} className="w-full h-full object-cover" />
+              <img
+                src={currentUser.profilePictureUrl}
+                alt={currentUser.name}
+                className="w-full h-full object-cover"
+              />
             ) : (
-                <UserIcon className="w-7 h-7 text-slate-600 dark:text-slate-300" />
+              <UserIcon className="w-7 h-7 text-slate-600 dark:text-slate-300" />
             )}
           </div>
           <textarea
@@ -68,20 +72,39 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
           ></textarea>
         </div>
         {image && (
-            <div className="mt-4 pl-4 sm:pl-16 relative">
-                <img src={image} alt="Preview" className="max-h-60 w-full rounded-lg object-cover" />
-                <button onClick={() => setImage(null)} className="absolute top-2 right-2 bg-black/50 text-white rounded-full h-7 w-7 flex items-center justify-center font-bold text-lg hover:bg-black/80">&times;</button>
-            </div>
+          <div className="mt-4 pl-4 sm:pl-16 relative">
+            <img src={image} alt="Preview" className="max-h-60 w-full rounded-lg object-cover" />
+            <button
+              onClick={() => setImage(null)}
+              className="absolute top-2 right-2 bg-black/50 text-white rounded-full h-7 w-7 flex items-center justify-center font-bold text-lg hover:bg-black/80"
+            >
+              &times;
+            </button>
+          </div>
         )}
         <div className="flex justify-between items-center mt-4 pl-4 sm:pl-16">
-            <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center space-x-2 text-orange-600 hover:text-orange-800 dark:hover:text-orange-400 font-semibold">
-                <ImageIcon className="w-6 h-6" />
-                <span>Add Photo</span>
-            </button>
-            <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} className="hidden" />
-            <button type="submit" disabled={!content.trim()} className="bg-orange-500 text-white font-bold py-2 px-8 rounded-full hover:bg-orange-600 transition-colors disabled:bg-orange-300">
-                Post
-            </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center space-x-2 text-orange-600 hover:text-orange-800 dark:hover:text-orange-400 font-semibold"
+          >
+            <ImageIcon className="w-6 h-6" />
+            <span>Add Photo</span>
+          </button>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+          />
+          <button
+            type="submit"
+            disabled={!content.trim()}
+            className="bg-orange-500 text-white font-bold py-2 px-8 rounded-full hover:bg-orange-600 transition-colors disabled:bg-orange-300"
+          >
+            Post
+          </button>
         </div>
       </form>
     </div>

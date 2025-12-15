@@ -31,17 +31,13 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
       window.localStorage.setItem(COOKIE_CONSENT_KEY, newConsent);
       setConsentState(newConsent);
     } catch (error) {
-      console.error("Could not save cookie consent to localStorage", error);
+      console.error('Could not save cookie consent to localStorage', error);
     }
   }, []);
 
   const value = { consent, setConsent };
 
-  return (
-    <CookieConsentContext.Provider value={value}>
-      {children}
-    </CookieConsentContext.Provider>
-  );
+  return <CookieConsentContext.Provider value={value}>{children}</CookieConsentContext.Provider>;
 };
 
 export const useCookieConsent = () => {
@@ -66,7 +62,7 @@ const CookieConsentBanner: React.FC = () => {
       }, 1500);
       return () => clearTimeout(timer);
     } else {
-        setIsVisible(false);
+      setIsVisible(false);
     }
   }, [consent]);
 
@@ -74,7 +70,7 @@ const CookieConsentBanner: React.FC = () => {
     setConsent(newConsent);
     setIsVisible(false);
   };
-  
+
   const handleLearnMoreClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsModalOpen(true);
@@ -93,9 +89,16 @@ const CookieConsentBanner: React.FC = () => {
       >
         <div className="container mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-700 dark:text-slate-200 text-center md:text-left">
-            We use cookies to improve your experience. "Necessary only" uses cookies essential for the site to function. "Accept all" enables additional cookies for analytics and third-party features like live chat.
-            {' '}
-            <button onClick={handleLearnMoreClick} className="font-semibold text-orange-600 hover:underline">Learn More</button>.
+            We use cookies to improve your experience. "Necessary only" uses cookies essential for
+            the site to function. "Accept all" enables additional cookies for analytics and
+            third-party features like live chat.{' '}
+            <button
+              onClick={handleLearnMoreClick}
+              className="font-semibold text-orange-600 hover:underline"
+            >
+              Learn More
+            </button>
+            .
           </p>
           <div className="flex items-center space-x-3 flex-shrink-0">
             <button

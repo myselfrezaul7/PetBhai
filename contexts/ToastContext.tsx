@@ -21,20 +21,16 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const addToast = useCallback((message: string, type: ToastType) => {
     const id = Date.now();
-    setToasts(prevToasts => [...prevToasts, { id, message, type }]);
+    setToasts((prevToasts) => [...prevToasts, { id, message, type }]);
   }, []);
 
   const removeToast = useCallback((id: number) => {
-    setToasts(prevToasts => prevToasts.filter(toast => toast.id !== id));
+    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
   }, []);
 
   const value = { toasts, addToast, removeToast };
 
-  return (
-    <ToastContext.Provider value={value}>
-      {children}
-    </ToastContext.Provider>
-  );
+  return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
 };
 
 export const useToast = () => {
@@ -42,7 +38,7 @@ export const useToast = () => {
   if (context === undefined) {
     throw new Error('useToast must be used within a ToastProvider');
   }
-  
+
   // Expose simplified methods for convenience
   return {
     ...context,

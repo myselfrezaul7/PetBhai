@@ -9,7 +9,19 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint --max-warnings=0 --no-warn-ignored",
+    "lint:all": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0 --no-warn-ignored",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
+    "check:html": "html-validate 'public/**/*.html'",
+    "ci": "npm run lint && npm run check:html && npm run build",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,js,jsx,css,html,md}": [
+      "npm run format",
+      "npm run lint --"
+    ]
   },
   "dependencies": {
     "@google/genai": "latest",
@@ -19,9 +31,18 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^8.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "gh-pages": "^6.3.0",
+    "html-validate": "^10.5.0",
     "lighthouse": "^13.0.1",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

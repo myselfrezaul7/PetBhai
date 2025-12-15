@@ -34,21 +34,20 @@ export const ConfirmationProvider: React.FC<{ children: ReactNode }> = ({ childr
     });
   }, []);
 
-  const resolveConfirmation = useCallback((value: boolean) => {
-    if (resolveFunction) {
-      resolveFunction(value);
-      setConfirmationState({ isOpen: false, title: '', message: '' });
-      setResolveFunction(null);
-    }
-  }, [resolveFunction]);
+  const resolveConfirmation = useCallback(
+    (value: boolean) => {
+      if (resolveFunction) {
+        resolveFunction(value);
+        setConfirmationState({ isOpen: false, title: '', message: '' });
+        setResolveFunction(null);
+      }
+    },
+    [resolveFunction]
+  );
 
   const value = { confirm, confirmationState, resolveConfirmation };
 
-  return (
-    <ConfirmationContext.Provider value={value}>
-      {children}
-    </ConfirmationContext.Provider>
-  );
+  return <ConfirmationContext.Provider value={value}>{children}</ConfirmationContext.Provider>;
 };
 
 export const useConfirmation = () => {

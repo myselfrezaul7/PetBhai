@@ -1,7 +1,5 @@
 {
   "name": "PetBhai",
   "description": "PetBhai - Your trusted partner in animal welfare, offering pet adoption, services, and premium supplies.",
-  "requestFramePermissions": [
-    "geolocation"
-  ]
+  "requestFramePermissions": ["geolocation"]
 }

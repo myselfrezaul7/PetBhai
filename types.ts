@@ -25,8 +25,8 @@ export interface Article {
 }
 
 export interface ChatMessage {
-    sender: 'user' | 'ai';
-    text: string;
+  sender: 'user' | 'ai';
+  text: string;
 }
 
 export interface Order {
@@ -90,7 +90,7 @@ export interface Post {
   id: number;
   author: {
     id: number;
-    name:string;
+    name: string;
     profilePictureUrl?: string;
   };
   content: string;
@@ -104,17 +104,17 @@ export type VetAvailability = 'Available Now' | 'Available Today' | 'Offline';
 export type ServiceType = 'online' | 'in-clinic';
 
 export interface VetService {
-    name: string;
-    price: number;
-    type: ServiceType;
+  name: string;
+  price: number;
+  type: ServiceType;
 }
 
 export interface VetReview {
-    id: number;
-    author: string;
-    rating: number;
-    comment: string;
-    date: string; // ISO string
+  id: number;
+  author: string;
+  rating: number;
+  comment: string;
+  date: string; // ISO string
 }
 
 export interface Vet {
@@ -152,38 +152,38 @@ export interface CartItem extends Product {
 
 // Types for Expanded Services
 export interface Service {
-    name: string;
-    price: number | 'Varies';
-    description: string;
+  name: string;
+  price: number | 'Varies';
+  description: string;
 }
 
 export type ProfessionalCategory = 'Groomer' | 'Trainer' | 'Pet Sitter';
 
 export interface BaseProfessional {
-    id: number;
-    category: ProfessionalCategory;
-    name: string;
-    imageUrl: string;
-    bio: string;
-    location: string; // District
-    services: Service[];
-    rating: number;
+  id: number;
+  category: ProfessionalCategory;
+  name: string;
+  imageUrl: string;
+  bio: string;
+  location: string; // District
+  services: Service[];
+  rating: number;
 }
 
 export interface Groomer extends BaseProfessional {
-    category: 'Groomer';
-    specialties: string[];
+  category: 'Groomer';
+  specialties: string[];
 }
 export interface Trainer extends BaseProfessional {
-    category: 'Trainer';
-    certifications: string[];
-    methods: string;
+  category: 'Trainer';
+  certifications: string[];
+  methods: string;
 }
 
 export interface PetSitter extends BaseProfessional {
-    category: 'Pet Sitter';
-    servicesOffered: ('Boarding' | 'House Sitting' | 'Drop-in Visits')[];
-    petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
+  category: 'Pet Sitter';
+  servicesOffered: ('Boarding' | 'House Sitting' | 'Drop-in Visits')[];
+  petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
 }
 
 declare global {

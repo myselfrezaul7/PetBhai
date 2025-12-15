@@ -14,7 +14,7 @@ const getInitialProducts = (): Product[] => {
       }
     }
   } catch (error) {
-    console.error("Error reading products from localStorage", error);
+    console.error('Error reading products from localStorage', error);
   }
   // If nothing in storage or error, initialize with mock data and save it.
   window.localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(MOCK_PRODUCTS));
@@ -35,16 +35,17 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       window.localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
     } catch (error) {
-      console.error("Error saving products to localStorage", error);
+      console.error('Error saving products to localStorage', error);
     }
   }, [products]);
 
   const addProductReview = (productId: number, review: Review) => {
-    setProducts(prevProducts => {
-      return prevProducts.map(product => {
+    setProducts((prevProducts) => {
+      return prevProducts.map((product) => {
         if (product.id === productId) {
           const updatedReviews = [review, ...product.reviews];
-          const newAverageRating = updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length;
+          const newAverageRating =
+            updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length;
           return {
             ...product,
             reviews: updatedReviews,

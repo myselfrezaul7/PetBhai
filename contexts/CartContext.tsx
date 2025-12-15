@@ -23,21 +23,20 @@ const getInitialState = (): CartState => {
       }
     }
   } catch (error) {
-    console.error("Error reading cart from localStorage", error);
+    console.error('Error reading cart from localStorage', error);
     window.localStorage.removeItem(CART_STORAGE_KEY); // Clear corrupted data
   }
   return { items: [] };
 };
 
-
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const itemExists = state.items.find(item => item.id === action.payload.id);
+      const itemExists = state.items.find((item) => item.id === action.payload.id);
       if (itemExists) {
         return {
           ...state,
-          items: state.items.map(item =>
+          items: state.items.map((item) =>
             item.id === action.payload.id ? { ...item, quantity: item.quantity + 1 } : item
           ),
         };
@@ -50,15 +49,17 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'UPDATE_QUANTITY': {
       return {
         ...state,
-        items: state.items.map(item =>
+        items: state.items
+          .map((item) =>
             item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item
-        ).filter(item => item.quantity > 0), // Remove if quantity is 0
+          )
+          .filter((item) => item.quantity > 0), // Remove if quantity is 0
       };
     }
     case 'REMOVE_ITEM': {
       return {
         ...state,
-        items: state.items.filter(item => item.id !== action.payload.id),
+        items: state.items.filter((item) => item.id !== action.payload.id),
       };
     }
     case 'CLEAR_CART': {
@@ -92,7 +93,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
     } catch (error) {
-      console.error("Error saving cart to localStorage", error);
+      console.error('Error saving cart to localStorage', error);
     }
   }, [state.items]);
 
@@ -103,10 +104,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return {
       cartItems: state.items,
       addToCart: (product: Product) => {
-          dispatch({ type: 'ADD_ITEM', payload: product });
-          setIsCartOpen(true); // Auto open cart when adding item
+        dispatch({ type: 'ADD_ITEM', payload: product });
+        setIsCartOpen(true); // Auto open cart when adding item
       },
-      updateQuantity: (id: number, quantity: number) => dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }),
+      updateQuantity: (id: number, quantity: number) =>
+        dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }),
       removeFromCart: (id: number) => dispatch({ type: 'REMOVE_ITEM', payload: { id } }),
       clearCart: () => dispatch({ type: 'CLEAR_CART' }),
       cartCount,

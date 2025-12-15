@@ -12,15 +12,15 @@ const getInitialArticles = (): Article[] => {
       if (Array.isArray(parsed) && parsed.length > 0) {
         // This check detects if the user has the old English content in their cache.
         // If so, it will be cleared to load the new Bengali content.
-        if (parsed[0].title.includes("Canine Parvovirus")) {
-            localStorage.removeItem(ARTICLES_STORAGE_KEY);
-            throw new Error("Old English content detected, resetting to new Bangla content.");
+        if (parsed[0].title.includes('Canine Parvovirus')) {
+          localStorage.removeItem(ARTICLES_STORAGE_KEY);
+          throw new Error('Old English content detected, resetting to new Bangla content.');
         }
         return parsed;
       }
     }
   } catch (error) {
-    console.error("Error reading articles from localStorage, resetting to default.", error);
+    console.error('Error reading articles from localStorage, resetting to default.', error);
   }
   // If nothing in storage or an error occurs, initialize with mock data and save it.
   window.localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(MOCK_ARTICLES));
@@ -41,15 +41,13 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       window.localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(articles));
     } catch (error) {
-      console.error("Error saving articles to localStorage", error);
+      console.error('Error saving articles to localStorage', error);
     }
   }, [articles]);
 
   const updateArticleImage = (articleId: number, imageUrl: string) => {
-    setArticles(prevArticles => 
-      prevArticles.map(article =>
-        article.id === articleId ? { ...article, imageUrl } : article
-      )
+    setArticles((prevArticles) =>
+      prevArticles.map((article) => (article.id === articleId ? { ...article, imageUrl } : article))
     );
   };
 

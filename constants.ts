@@ -1,17 +1,42 @@
-
-
-import type { User, Post, Vet, Product, Order, Comment, Brand, Review, Article, VetReview, Groomer, Trainer, PetSitter, Animal } from './types';
+import type {
+  User,
+  Post,
+  Vet,
+  Product,
+  Order,
+  Comment,
+  Brand,
+  Review,
+  Article,
+  VetReview,
+  Groomer,
+  Trainer,
+  PetSitter,
+  Animal,
+} from './types';
 
 export const MOCK_BRANDS: Brand[] = [
-    { id: 1, name: 'Royal Canin', logoUrl: 'https://i.ibb.co/LzB7sSg/royalcanin-logo.png' },
-    { id: 2, name: 'Pedigree', logoUrl: 'https://i.ibb.co/M2xN0d4/pedigree-logo.png' },
-    { id: 3, name: 'Drools', logoUrl: 'https://i.ibb.co/3k5g2xH/drools-logo.png' },
-    { id: 4, name: 'Me-O', logoUrl: 'https://i.ibb.co/Y0M4yC4/meo-logo.png' },
+  { id: 1, name: 'Royal Canin', logoUrl: 'https://i.ibb.co/LzB7sSg/royalcanin-logo.png' },
+  { id: 2, name: 'Pedigree', logoUrl: 'https://i.ibb.co/M2xN0d4/pedigree-logo.png' },
+  { id: 3, name: 'Drools', logoUrl: 'https://i.ibb.co/3k5g2xH/drools-logo.png' },
+  { id: 4, name: 'Me-O', logoUrl: 'https://i.ibb.co/Y0M4yC4/meo-logo.png' },
 ];
 
 const MOCK_REVIEWS: Review[] = [
-    { id: 1, author: "Aisha R.", rating: 5, comment: "My cat absolutely loves this. The tuna flavor is her favorite!", date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-    { id: 2, author: "Jamal K.", rating: 4, comment: "Good quality food, my cat's coat has become much shinier.", date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+  {
+    id: 1,
+    author: 'Aisha R.',
+    rating: 5,
+    comment: 'My cat absolutely loves this. The tuna flavor is her favorite!',
+    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 2,
+    author: 'Jamal K.',
+    rating: 4,
+    comment: "Good quality food, my cat's coat has become much shinier.",
+    date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
 ];
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -21,7 +46,8 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Cat Food',
     price: 1850,
     imageUrl: 'https://picsum.photos/seed/catfood1/400/300',
-    description: 'A delicious and nutritious tuna-flavored dry food for adult cats of all breeds. Enriched with vitamins and minerals for a healthy life.',
+    description:
+      'A delicious and nutritious tuna-flavored dry food for adult cats of all breeds. Enriched with vitamins and minerals for a healthy life.',
     weight: '7kg',
     brandId: 4,
     rating: 4.8,
@@ -34,12 +60,31 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Food',
     price: 380,
     imageUrl: 'https://picsum.photos/seed/dogfood1/400/300',
-    description: 'Specially formulated for puppies to support their growth and development with essential nutrients, prebiotics and probiotics.',
+    description:
+      'Specially formulated for puppies to support their growth and development with essential nutrients, prebiotics and probiotics.',
     weight: '3kg',
     brandId: 3,
     rating: 4.5,
-    reviews: [ { id: 3, author: "Fahim C.", rating: 5, comment: "My puppy is growing so fast and healthy with this food.", date: new Date().toISOString() } ],
-    searchTags: ['কুকুর', 'খাবার', 'পাপি', 'ডগ ফুড', 'dog food', 'kukur', 'khabar', 'puppy', 'drools'],
+    reviews: [
+      {
+        id: 3,
+        author: 'Fahim C.',
+        rating: 5,
+        comment: 'My puppy is growing so fast and healthy with this food.',
+        date: new Date().toISOString(),
+      },
+    ],
+    searchTags: [
+      'কুকুর',
+      'খাবার',
+      'পাপি',
+      'ডগ ফুড',
+      'dog food',
+      'kukur',
+      'khabar',
+      'puppy',
+      'drools',
+    ],
   },
   {
     id: 4,
@@ -47,12 +92,23 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Food',
     price: 1500,
     imageUrl: 'https://picsum.photos/seed/dogfood2/400/300',
-    description: 'A complete and balanced meal for your adult dog, packed with chicken and vegetable goodness for a healthy immune system.',
+    description:
+      'A complete and balanced meal for your adult dog, packed with chicken and vegetable goodness for a healthy immune system.',
     weight: '10kg',
     brandId: 2,
     rating: 4.7,
     reviews: [],
-    searchTags: ['কুকুর', 'খাবার', 'পেডিগ্রি', 'dog food', 'kukur', 'khabar', 'adult', 'chicken', 'pedigree'],
+    searchTags: [
+      'কুকুর',
+      'খাবার',
+      'পেডিগ্রি',
+      'dog food',
+      'kukur',
+      'khabar',
+      'adult',
+      'chicken',
+      'pedigree',
+    ],
   },
   {
     id: 6,
@@ -60,12 +116,31 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Cat Food',
     price: 2200,
     imageUrl: 'https://picsum.photos/seed/catfood3/400/300',
-    description: 'Tailor-made nutrition for Persian cats to maintain their long, beautiful coats and digestive health. Almond-shaped kibble for easy grasping.',
+    description:
+      'Tailor-made nutrition for Persian cats to maintain their long, beautiful coats and digestive health. Almond-shaped kibble for easy grasping.',
     weight: '2kg',
     brandId: 1,
     rating: 4.9,
-    reviews: [ { id: 4, author: "Sadia A.", rating: 5, comment: "The only food my Persian will eat. Her coat has never looked better!", date: new Date().toISOString() } ],
-    searchTags: ['বিড়াল', 'খাবার', 'রয়াল ক্যানিন', 'পার্সিয়ান', 'cat food', 'biral', 'khabar', 'royal canin', 'persian'],
+    reviews: [
+      {
+        id: 4,
+        author: 'Sadia A.',
+        rating: 5,
+        comment: 'The only food my Persian will eat. Her coat has never looked better!',
+        date: new Date().toISOString(),
+      },
+    ],
+    searchTags: [
+      'বিড়াল',
+      'খাবার',
+      'রয়াল ক্যানিন',
+      'পার্সিয়ান',
+      'cat food',
+      'biral',
+      'khabar',
+      'royal canin',
+      'persian',
+    ],
   },
   {
     id: 7,
@@ -73,7 +148,8 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Cat Supplies',
     price: 450,
     imageUrl: 'https://picsum.photos/seed/cattoy1/400/300',
-    description: 'Engage your cat in hours of fun with this interactive feather wand. Great for exercise and bonding.',
+    description:
+      'Engage your cat in hours of fun with this interactive feather wand. Great for exercise and bonding.',
     weight: '50g',
     brandId: 4,
     rating: 4.4,
@@ -86,7 +162,8 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Supplies',
     price: 600,
     imageUrl: 'https://picsum.photos/seed/dogtoy1/400/300',
-    description: 'A tough, durable chew toy designed to withstand even the most enthusiastic chewers. Promotes dental health.',
+    description:
+      'A tough, durable chew toy designed to withstand even the most enthusiastic chewers. Promotes dental health.',
     weight: '200g',
     brandId: 3,
     rating: 4.6,
@@ -99,20 +176,22 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Grooming',
     price: 750,
     imageUrl: 'https://picsum.photos/seed/shampoo1/400/300',
-    description: 'A gentle, all-natural herbal shampoo that cleans, soothes, and moisturizes your pet\'s skin and coat.',
+    description:
+      "A gentle, all-natural herbal shampoo that cleans, soothes, and moisturizes your pet's skin and coat.",
     weight: '500ml',
     brandId: 2,
     rating: 4.7,
     reviews: [],
     searchTags: ['শ্যাম্পু', 'গোসল', 'পরিষ্কার', 'shampoo', 'grooming', 'gosol', 'porishkar'],
   },
-   {
+  {
     id: 11,
     name: 'Heavy-Duty Nylon Dog Leash',
     category: 'Dog Supplies',
     price: 850,
     imageUrl: 'https://picsum.photos/seed/dogleash1/400/300',
-    description: 'A strong and reliable 6-foot nylon leash, perfect for daily walks and training sessions.',
+    description:
+      'A strong and reliable 6-foot nylon leash, perfect for daily walks and training sessions.',
     weight: '150g',
     brandId: 3,
     rating: 4.9,
@@ -121,194 +200,243 @@ export const MOCK_PRODUCTS: Product[] = [
   },
 ];
 
-
 const MOCK_ORDERS: Order[] = [
-    {
-        orderId: 'PB-1678886400',
-        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        total: 2300,
-        items: [
-            { ...MOCK_PRODUCTS[0], quantity: 1 },
-            { ...MOCK_PRODUCTS[4], quantity: 1 }
-        ]
-    },
-    {
-        orderId: 'PB-1679886400',
-        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        total: 1500,
-        items: [
-            { ...MOCK_PRODUCTS[2], quantity: 1 },
-        ]
-    }
+  {
+    orderId: 'PB-1678886400',
+    date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    total: 2300,
+    items: [
+      { ...MOCK_PRODUCTS[0], quantity: 1 },
+      { ...MOCK_PRODUCTS[4], quantity: 1 },
+    ],
+  },
+  {
+    orderId: 'PB-1679886400',
+    date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    total: 1500,
+    items: [{ ...MOCK_PRODUCTS[2], quantity: 1 }],
+  },
 ];
 
 export const MOCK_USERS: User[] = [
-    { id: 1, name: "Aisha Rahman", email: "aisha@example.com", password: "password123", profilePictureUrl: "https://picsum.photos/seed/aisha/200", wishlist: [2, 4], orderHistory: MOCK_ORDERS, favorites: [1, 3], isPlusMember: true },
-    { id: 2, name: "Jamal Khan", email: "jamal@example.com", password: "password123", profilePictureUrl: "https://picsum.photos/seed/jamal/200", wishlist: [], orderHistory: [], favorites: [], isPlusMember: false },
+  {
+    id: 1,
+    name: 'Aisha Rahman',
+    email: 'aisha@example.com',
+    password: 'password123',
+    profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
+    wishlist: [2, 4],
+    orderHistory: MOCK_ORDERS,
+    favorites: [1, 3],
+    isPlusMember: true,
+  },
+  {
+    id: 2,
+    name: 'Jamal Khan',
+    email: 'jamal@example.com',
+    password: 'password123',
+    profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
+    wishlist: [],
+    orderHistory: [],
+    favorites: [],
+    isPlusMember: false,
+  },
 ];
 
 const MOCK_COMMENTS: Comment[] = [
-    { 
-        id: 1, 
-        author: { id: 2, name: "Jamal Khan", profilePictureUrl: "https://picsum.photos/seed/jamal/200" }, 
-        text: "Great advice! I was wondering about this for my cat.",
-        replies: [
-            { id: 101, author: { id: 1, name: "Aisha Rahman", profilePictureUrl: "https://picsum.photos/seed/aisha/200" }, text: "Same here, thanks for sharing!" }
-        ]
-    }
+  {
+    id: 1,
+    author: {
+      id: 2,
+      name: 'Jamal Khan',
+      profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
+    },
+    text: 'Great advice! I was wondering about this for my cat.',
+    replies: [
+      {
+        id: 101,
+        author: {
+          id: 1,
+          name: 'Aisha Rahman',
+          profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
+        },
+        text: 'Same here, thanks for sharing!',
+      },
+    ],
+  },
 ];
 
-
 export const MOCK_POSTS: Post[] = [
-    {
-        id: 1,
-        author: { id: 1, name: "Aisha Rahman", profilePictureUrl: "https://picsum.photos/seed/aisha/200" },
-        content: "Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand?",
-        imageUrl: "https://picsum.photos/seed/post1/600/400",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-        likes: 15,
-        comments: MOCK_COMMENTS,
+  {
+    id: 1,
+    author: {
+      id: 1,
+      name: 'Aisha Rahman',
+      profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
     },
+    content:
+      'Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand?',
+    imageUrl: 'https://picsum.photos/seed/post1/600/400',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    likes: 15,
+    comments: MOCK_COMMENTS,
+  },
 ];
 
 const MOCK_VET_REVIEWS: VetReview[] = [
-    {id: 1, author: 'Aisha R.', rating: 5, comment: 'Dr. Ahmed was so gentle with my cat and very knowledgeable. Highly recommend!', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()},
-    {id: 2, author: 'Jamal K.', rating: 5, comment: 'Excellent online consultation. Dr. Islam gave me clear advice for my senior cat\'s diet.', date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()},
+  {
+    id: 1,
+    author: 'Aisha R.',
+    rating: 5,
+    comment: 'Dr. Ahmed was so gentle with my cat and very knowledgeable. Highly recommend!',
+    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 2,
+    author: 'Jamal K.',
+    rating: 5,
+    comment:
+      "Excellent online consultation. Dr. Islam gave me clear advice for my senior cat's diet.",
+    date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
 ];
 
 export const MOCK_VETS: Vet[] = [
-    {
-        id: 1,
-        name: 'Dr. Fatima Ahmed',
-        specialization: 'General Pet Health',
-        clinicName: 'Paws & Claws Clinic',
-        address: 'House 15, Road 7, Block G, Banani, Dhaka',
-        phone: '+8801712-345678',
-        imageUrl: 'https://picsum.photos/seed/vet1/200/200',
-        availability: 'Available Today',
-        bio: 'Dr. Fatima Ahmed is a compassionate veterinarian with over 10 years of experience in small animal medicine. She graduated from the Bangladesh Agricultural University and has a special interest in dermatology and internal medicine.',
-        qualifications: ['DVM, BAU', 'Member of BSAVA'],
-        services: [
-            { name: 'General Consultation', price: 800, type: 'in-clinic' },
-            { name: 'Online Consultation', price: 600, type: 'online' },
-            { name: 'Annual Vaccination', price: 1500, type: 'in-clinic' },
-        ],
-        reviews: MOCK_VET_REVIEWS,
-    },
-    {
-        id: 2,
-        name: 'Dr. Kabir Hossain',
-        specialization: 'Canine Specialist',
-        clinicName: 'Dhaka Pet Hospital',
-        address: '21/A, Dhanmondi Road 2, Dhaka',
-        phone: '+8801812-345679',
-        imageUrl: 'https://picsum.photos/seed/vet2/200/200',
-        availability: 'Offline',
-        bio: 'Dr. Kabir Hossain is a leading canine specialist in Dhaka, with a focus on orthopedic surgery and behavioral therapy. His state-of-the-art facility provides top-notch care for dogs of all breeds and sizes.',
-        qualifications: ['DVM, Chittagong Veterinary and Animal Sciences University', 'Advanced Certification in Canine Surgery'],
-        services: [
-            { name: 'Specialist Consultation', price: 1200, type: 'in-clinic' },
-            { name: 'Orthopedic Surgery', price: 25000, type: 'in-clinic' },
-        ],
-        reviews: [],
-    },
-    {
-        id: 3,
-        name: 'Dr. Nazia Islam',
-        specialization: 'Feline Health & Nutrition',
-        clinicName: 'The Cat Care Center',
-        address: '123/B, Gulshan Avenue, Gulshan 2, Dhaka',
-        phone: '+8801912-345680',
-        imageUrl: 'https://picsum.photos/seed/vet3/200/200',
-        availability: 'Available Now',
-        bio: 'Dr. Nazia Islam is a dedicated feline practitioner who runs a cats-only clinic to ensure a stress-free environment for her patients. She is an expert in feline nutrition and preventative care.',
-        qualifications: ['DVM, SYLVET', 'Certified Feline Nutritionist'],
-        services: [
-            { name: 'Online Feline Consultation', price: 700, type: 'online' },
-            { name: 'In-Clinic Feline Check-up', price: 1000, type: 'in-clinic' },
-            { name: 'Dental Cleaning', price: 3500, type: 'in-clinic' },
-        ],
-        reviews: [MOCK_VET_REVIEWS[1]],
-    },
-    {
-        id: 4,
-        name: 'Dr. Asaduzzaman Noor',
-        specialization: 'Avian & Exotic Pets',
-        clinicName: 'Birds & Exotics Care',
-        address: 'Plot 5, Section 6, Mirpur, Dhaka',
-        phone: '+8801755-123456',
-        imageUrl: 'https://picsum.photos/seed/vet4/200/200',
-        availability: 'Available Today',
-        bio: 'Dr. Noor is one of the few specialists in Bangladesh focusing on birds and exotic pets. Whether you have a parrot, rabbit, or turtle, Dr. Noor offers expert advice on diet, habitat, and health.',
-        qualifications: ['DVM, BAU', 'Masters in Wildlife Medicine'],
-        services: [
-            { name: 'Online Bird Consultation', price: 600, type: 'online' },
-            { name: 'Exotic Pet Checkup', price: 1000, type: 'in-clinic' },
-            { name: 'Beak & Nail Trimming', price: 400, type: 'in-clinic' },
-        ],
-        reviews: [],
-    },
-    {
-        id: 5,
-        name: 'Dr. Rebeka Sultana',
-        specialization: 'Veterinary Dermatology',
-        clinicName: 'Vet Care BD',
-        address: 'Sector 4, Road 13, Uttara, Dhaka',
-        phone: '+8801611-987654',
-        imageUrl: 'https://picsum.photos/seed/vet5/200/200',
-        availability: 'Available Now',
-        bio: 'Skin issues are very common in our humid climate. Dr. Rebeka Sultana specializes in diagnosing and treating complicated skin conditions, allergies, and fungal infections in dogs and cats.',
-        qualifications: ['DVM, SAU', 'PhD in Veterinary Dermatology'],
-        services: [
-            { name: 'Online Skin Consultation', price: 800, type: 'online' },
-            { name: 'Dermatology Screening', price: 1500, type: 'in-clinic' },
-            { name: 'Allergy Testing', price: 2000, type: 'in-clinic' },
-        ],
-        reviews: [],
-    },
-    {
-        id: 6,
-        name: 'Dr. Imtiaz Ahmed',
-        specialization: 'General Medicine & Surgery',
-        clinicName: 'Chattogram Pet Hospital',
-        address: 'O.R. Nizam Road, Chittagong',
-        phone: '+8801819-556677',
-        imageUrl: 'https://picsum.photos/seed/vet6/200/200',
-        availability: 'Available Today',
-        bio: 'Based in Chittagong, Dr. Imtiaz Ahmed brings 8 years of experience in treating small animals. He is well-known for his calm demeanor and accurate diagnosis. He is now available for online consultations nationwide.',
-        qualifications: ['DVM, CVASU', 'Member of BCVA'],
-        services: [
-            { name: 'Telemedicine Session', price: 500, type: 'online' },
-            { name: 'General Health Check', price: 700, type: 'in-clinic' },
-            { name: 'Spay/Neuter Surgery', price: 4000, type: 'in-clinic' },
-        ],
-        reviews: [],
-    },
-    {
-        id: 7,
-        name: 'Dr. Nyla Khan',
-        specialization: 'Pet Nutrition & Behavior',
-        clinicName: 'Pet Life Hospital',
-        address: 'Bashundhara R/A, Dhaka',
-        phone: '+8801913-445566',
-        imageUrl: 'https://picsum.photos/seed/vet7/200/200',
-        availability: 'Available Now',
-        bio: 'Dr. Nyla Khan focuses on the holistic well-being of pets. If your pet is a picky eater, overweight, or showing behavioral issues like aggression or anxiety, Dr. Nyla can provide a customized plan online.',
-        qualifications: ['DVM, BAU', 'Certified Clinical Pet Nutritionist'],
-        services: [
-            { name: 'Diet & Nutrition Plan', price: 1000, type: 'online' },
-            { name: 'Behavioral Therapy (Online)', price: 1200, type: 'online' },
-            { name: 'Weight Management', price: 800, type: 'in-clinic' },
-        ],
-        reviews: [],
-    }
+  {
+    id: 1,
+    name: 'Dr. Fatima Ahmed',
+    specialization: 'General Pet Health',
+    clinicName: 'Paws & Claws Clinic',
+    address: 'House 15, Road 7, Block G, Banani, Dhaka',
+    phone: '+8801712-345678',
+    imageUrl: 'https://picsum.photos/seed/vet1/200/200',
+    availability: 'Available Today',
+    bio: 'Dr. Fatima Ahmed is a compassionate veterinarian with over 10 years of experience in small animal medicine. She graduated from the Bangladesh Agricultural University and has a special interest in dermatology and internal medicine.',
+    qualifications: ['DVM, BAU', 'Member of BSAVA'],
+    services: [
+      { name: 'General Consultation', price: 800, type: 'in-clinic' },
+      { name: 'Online Consultation', price: 600, type: 'online' },
+      { name: 'Annual Vaccination', price: 1500, type: 'in-clinic' },
+    ],
+    reviews: MOCK_VET_REVIEWS,
+  },
+  {
+    id: 2,
+    name: 'Dr. Kabir Hossain',
+    specialization: 'Canine Specialist',
+    clinicName: 'Dhaka Pet Hospital',
+    address: '21/A, Dhanmondi Road 2, Dhaka',
+    phone: '+8801812-345679',
+    imageUrl: 'https://picsum.photos/seed/vet2/200/200',
+    availability: 'Offline',
+    bio: 'Dr. Kabir Hossain is a leading canine specialist in Dhaka, with a focus on orthopedic surgery and behavioral therapy. His state-of-the-art facility provides top-notch care for dogs of all breeds and sizes.',
+    qualifications: [
+      'DVM, Chittagong Veterinary and Animal Sciences University',
+      'Advanced Certification in Canine Surgery',
+    ],
+    services: [
+      { name: 'Specialist Consultation', price: 1200, type: 'in-clinic' },
+      { name: 'Orthopedic Surgery', price: 25000, type: 'in-clinic' },
+    ],
+    reviews: [],
+  },
+  {
+    id: 3,
+    name: 'Dr. Nazia Islam',
+    specialization: 'Feline Health & Nutrition',
+    clinicName: 'The Cat Care Center',
+    address: '123/B, Gulshan Avenue, Gulshan 2, Dhaka',
+    phone: '+8801912-345680',
+    imageUrl: 'https://picsum.photos/seed/vet3/200/200',
+    availability: 'Available Now',
+    bio: 'Dr. Nazia Islam is a dedicated feline practitioner who runs a cats-only clinic to ensure a stress-free environment for her patients. She is an expert in feline nutrition and preventative care.',
+    qualifications: ['DVM, SYLVET', 'Certified Feline Nutritionist'],
+    services: [
+      { name: 'Online Feline Consultation', price: 700, type: 'online' },
+      { name: 'In-Clinic Feline Check-up', price: 1000, type: 'in-clinic' },
+      { name: 'Dental Cleaning', price: 3500, type: 'in-clinic' },
+    ],
+    reviews: [MOCK_VET_REVIEWS[1]],
+  },
+  {
+    id: 4,
+    name: 'Dr. Asaduzzaman Noor',
+    specialization: 'Avian & Exotic Pets',
+    clinicName: 'Birds & Exotics Care',
+    address: 'Plot 5, Section 6, Mirpur, Dhaka',
+    phone: '+8801755-123456',
+    imageUrl: 'https://picsum.photos/seed/vet4/200/200',
+    availability: 'Available Today',
+    bio: 'Dr. Noor is one of the few specialists in Bangladesh focusing on birds and exotic pets. Whether you have a parrot, rabbit, or turtle, Dr. Noor offers expert advice on diet, habitat, and health.',
+    qualifications: ['DVM, BAU', 'Masters in Wildlife Medicine'],
+    services: [
+      { name: 'Online Bird Consultation', price: 600, type: 'online' },
+      { name: 'Exotic Pet Checkup', price: 1000, type: 'in-clinic' },
+      { name: 'Beak & Nail Trimming', price: 400, type: 'in-clinic' },
+    ],
+    reviews: [],
+  },
+  {
+    id: 5,
+    name: 'Dr. Rebeka Sultana',
+    specialization: 'Veterinary Dermatology',
+    clinicName: 'Vet Care BD',
+    address: 'Sector 4, Road 13, Uttara, Dhaka',
+    phone: '+8801611-987654',
+    imageUrl: 'https://picsum.photos/seed/vet5/200/200',
+    availability: 'Available Now',
+    bio: 'Skin issues are very common in our humid climate. Dr. Rebeka Sultana specializes in diagnosing and treating complicated skin conditions, allergies, and fungal infections in dogs and cats.',
+    qualifications: ['DVM, SAU', 'PhD in Veterinary Dermatology'],
+    services: [
+      { name: 'Online Skin Consultation', price: 800, type: 'online' },
+      { name: 'Dermatology Screening', price: 1500, type: 'in-clinic' },
+      { name: 'Allergy Testing', price: 2000, type: 'in-clinic' },
+    ],
+    reviews: [],
+  },
+  {
+    id: 6,
+    name: 'Dr. Imtiaz Ahmed',
+    specialization: 'General Medicine & Surgery',
+    clinicName: 'Chattogram Pet Hospital',
+    address: 'O.R. Nizam Road, Chittagong',
+    phone: '+8801819-556677',
+    imageUrl: 'https://picsum.photos/seed/vet6/200/200',
+    availability: 'Available Today',
+    bio: 'Based in Chittagong, Dr. Imtiaz Ahmed brings 8 years of experience in treating small animals. He is well-known for his calm demeanor and accurate diagnosis. He is now available for online consultations nationwide.',
+    qualifications: ['DVM, CVASU', 'Member of BCVA'],
+    services: [
+      { name: 'Telemedicine Session', price: 500, type: 'online' },
+      { name: 'General Health Check', price: 700, type: 'in-clinic' },
+      { name: 'Spay/Neuter Surgery', price: 4000, type: 'in-clinic' },
+    ],
+    reviews: [],
+  },
+  {
+    id: 7,
+    name: 'Dr. Nyla Khan',
+    specialization: 'Pet Nutrition & Behavior',
+    clinicName: 'Pet Life Hospital',
+    address: 'Bashundhara R/A, Dhaka',
+    phone: '+8801913-445566',
+    imageUrl: 'https://picsum.photos/seed/vet7/200/200',
+    availability: 'Available Now',
+    bio: 'Dr. Nyla Khan focuses on the holistic well-being of pets. If your pet is a picky eater, overweight, or showing behavioral issues like aggression or anxiety, Dr. Nyla can provide a customized plan online.',
+    qualifications: ['DVM, BAU', 'Certified Clinical Pet Nutritionist'],
+    services: [
+      { name: 'Diet & Nutrition Plan', price: 1000, type: 'online' },
+      { name: 'Behavioral Therapy (Online)', price: 1200, type: 'online' },
+      { name: 'Weight Management', price: 800, type: 'in-clinic' },
+    ],
+    reviews: [],
+  },
 ];
 
 export const MOCK_ARTICLES: Article[] = [
-    {
-        id: 11,
-        title: "পোষা প্রাণীর এঁটেল এবং মাছি সমস্যা: প্রতিরোধের সেরা উপায়",
-        content: `এঁটেল (ticks) এবং মাছি (fleas) পোষা প্রাণীর জন্য শুধুমাত্র বিরক্তিকর নয়, বরং মারাত্মক স্বাস্থ্য ঝুঁকির কারণ হতে পারে। বাংলাদেশের উষ্ণ এবং আর্দ্র আবহাওয়া এদের বংশবৃদ্ধির জন্য অত্যন্ত সহায়ক। একজন দায়িত্বশীল মালিক হিসেবে, এই পরজীবীগুলো থেকে আপনার পোষ্যকে সুরক্ষিত রাখা আপনার অন্যতম প্রধান দায়িত্ব। এই আর্টিকেলে আমরা এঁটেল ও মাছির বিপদ এবং তা প্রতিরোধের কার্যকরী উপায় নিয়ে বিস্তারিত আলোচনা করব।
+  {
+    id: 11,
+    title: 'পোষা প্রাণীর এঁটেল এবং মাছি সমস্যা: প্রতিরোধের সেরা উপায়',
+    content: `এঁটেল (ticks) এবং মাছি (fleas) পোষা প্রাণীর জন্য শুধুমাত্র বিরক্তিকর নয়, বরং মারাত্মক স্বাস্থ্য ঝুঁকির কারণ হতে পারে। বাংলাদেশের উষ্ণ এবং আর্দ্র আবহাওয়া এদের বংশবৃদ্ধির জন্য অত্যন্ত সহায়ক। একজন দায়িত্বশীল মালিক হিসেবে, এই পরজীবীগুলো থেকে আপনার পোষ্যকে সুরক্ষিত রাখা আপনার অন্যতম প্রধান দায়িত্ব। এই আর্টিকেলে আমরা এঁটেল ও মাছির বিপদ এবং তা প্রতিরোধের কার্যকরী উপায় নিয়ে বিস্তারিত আলোচনা করব।
 
 **কেন এঁটেল এবং মাছি বিপজ্জনক?**
 এই ক্ষুদ্র পরজীবীগুলো আপনার পোষ্যের স্বাস্থ্যের উপর বড় ধরনের নেতিবাচক প্রভাব ফেলতে পারে।
@@ -325,15 +453,15 @@ export const MOCK_ARTICLES: Article[] = [
 
 **উপসংহার:**
 আপনার পোষ্যের বয়স, ওজন এবং স্বাস্থ্য অবস্থা অনুযায়ী কোন প্রতিরোধ ব্যবস্থাটি সবচেয়ে উপযুক্ত হবে, তা জানতে সর্বদা একজন অভিজ্ঞ পশুচিকিৎসকের সাথে পরামর্শ করুন। নিয়মিত প্রতিরোধমূলক ব্যবস্থা গ্রহণ করে আপনি আপনার পোষ্যকে এই বিরক্তিকর এবং বিপজ্জনক পরজীবী থেকে সুরক্ষিত রাখতে পারেন এবং তাকে একটি সুস্থ ও সুখী জীবন উপহার দিতে পারেন।`,
-        imageUrl: 'https://picsum.photos/seed/pet-flea-tick/600/400',
-        author: "ডঃ কবির হোসেন",
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 18
-    },
-    {
-        id: 12,
-        title: "বর্ষাকালে পোষা প্রাণীর যত্ন: আপনার পোষ্যকে রাখুন সুস্থ ও সুরক্ষিত",
-        content: `বর্ষাকাল সবার জন্য স্বস্তিদায়ক হলেও আমাদের পোষা বন্ধুদের জন্য কিছু স্বাস্থ্য ঝুঁকি নিয়ে আসে। এই সময়ে অতিরিক্ত আর্দ্রতা এবং জল জমার কারণে ব্যাকটেরিয়া ও ছত্রাকের সংক্রমণ বাড়ে। তাই বর্ষায় আপনার পোষ্যের জন্য প্রয়োজন বাড়তি যত্ন এবং মনোযোগ।
+    imageUrl: 'https://picsum.photos/seed/pet-flea-tick/600/400',
+    author: 'ডঃ কবির হোসেন',
+    date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 18,
+  },
+  {
+    id: 12,
+    title: 'বর্ষাকালে পোষা প্রাণীর যত্ন: আপনার পোষ্যকে রাখুন সুস্থ ও সুরক্ষিত',
+    content: `বর্ষাকাল সবার জন্য স্বস্তিদায়ক হলেও আমাদের পোষা বন্ধুদের জন্য কিছু স্বাস্থ্য ঝুঁকি নিয়ে আসে। এই সময়ে অতিরিক্ত আর্দ্রতা এবং জল জমার কারণে ব্যাকটেরিয়া ও ছত্রাকের সংক্রমণ বাড়ে। তাই বর্ষায় আপনার পোষ্যের জন্য প্রয়োজন বাড়তি যত্ন এবং মনোযোগ।
 
 **বর্ষাকালীন সাধারণ সমস্যা:**
 * **ত্বকের সংক্রমণ:** ভেজা আবহাওয়ায় কুকুর এবং বিড়ালের ত্বকে ছত্রাক এবং ব্যাকটেরিয়া জনিত সংক্রমণ (Fungal/Bacterial infection), হট স্পট (Hot Spot) এবং চুলকানি দেখা যায়। ভেজা পশম ঘণ্টার পর ঘণ্টা থাকলে এই ঝুঁকি আরও বেড়ে যায়।
@@ -350,15 +478,15 @@ export const MOCK_ARTICLES: Article[] = [
 * **বজ্রপাতের ভয়:** অনেক পোষ্য বজ্রপাতের শব্দে ভয় পায়। এই সময়ে তাদের একটি নিরাপদ ও আরামদায়ক স্থানে থাকতে দিন এবং শান্ত রাখার চেষ্টা করুন। প্রয়োজনে calming music বা white noise ব্যবহার করতে পারেন।
 
 এই ছোট ছোট পদক্ষেপগুলো অনুসরণ করলে আপনার পোষ্য বর্ষাকাল উপভোগ করতে পারবে এবং সুস্থ থাকবে। যেকোনো স্বাস্থ্য সমস্যা দেখা দিলে, যেমন ক্রমাগত চুলকানি, খাওয়া-দাওয়া বন্ধ করে দেওয়া বা ডায়রিয়া, দ্রুত পশুচিকিৎসকের শরণাপন্ন হন।`,
-        imageUrl: 'https://picsum.photos/seed/rainy-day-dog/600/400',
-        author: "পেটভাই টিম",
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 17
-    },
-    {
-        id: 13,
-        title: "বয়স্ক পোষ্যের যত্ন: আপনার সিনিয়র বন্ধুকে দিন সোনালী সময়",
-        content: `আমাদের পোষা বন্ধুরা যখন বার্ধক্যে পৌঁছায়, তখন তাদের প্রয়োজন হয় বিশেষ যত্ন এবং মনোযোগের। বয়স বাড়ার সাথে সাথে তাদের শরীর এবং আচরণে অনেক পরিবর্তন আসে। এই পরিবর্তনগুলো বুঝে সঠিক যত্ন নিলে তারা তাদের জীবনের শেষ সময়টা আরাম ও শান্তিতে কাটাতে পারে।
+    imageUrl: 'https://picsum.photos/seed/rainy-day-dog/600/400',
+    author: 'পেটভাই টিম',
+    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 17,
+  },
+  {
+    id: 13,
+    title: 'বয়স্ক পোষ্যের যত্ন: আপনার সিনিয়র বন্ধুকে দিন সোনালী সময়',
+    content: `আমাদের পোষা বন্ধুরা যখন বার্ধক্যে পৌঁছায়, তখন তাদের প্রয়োজন হয় বিশেষ যত্ন এবং মনোযোগের। বয়স বাড়ার সাথে সাথে তাদের শরীর এবং আচরণে অনেক পরিবর্তন আসে। এই পরিবর্তনগুলো বুঝে সঠিক যত্ন নিলে তারা তাদের জীবনের শেষ সময়টা আরাম ও শান্তিতে কাটাতে পারে।
 
 **বয়স্ক পোষ্যের সাধারণ পরিবর্তন:**
 * **গতি কমে যাওয়া:** আর্থ্রাইটিস এবং জয়েন্টের ব্যথার কারণে তাদের হাঁটাচলা এবং দৌড়ানোর গতি কমে যায়। সিঁড়ি ভাঙতে বা গাড়িতে উঠতে কষ্ট হতে পারে। তারা আগের মতো লাফাতে বা খেলতে আগ্রহী নাও হতে পারে।
@@ -375,15 +503,15 @@ export const MOCK_ARTICLES: Article[] = [
 * **অতিরিক্ত ভালোবাসা ও ধৈর্য:** এই সময়ে তাদের সবচেয়ে বেশি প্রয়োজন আপনার সঙ্গ, ভালোবাসা এবং ধৈর্য। তাদের শারীরিক এবং মানসিক পরিবর্তনের সাথে মানিয়ে নিন এবং তাদের প্রতি সহানুভূতিশীল হন।
 
 আপনার সিনিয়র বন্ধুর জীবনের এই পর্যায়ে সঠিক যত্ন নিশ্চিত করা আপনার দায়িত্ব। আপনার একটু বাড়তি মনোযোগ তাদের শেষ দিনগুলোকে আনন্দময়, আরামদায়ক এবং মর্যাদাপূর্ণ করে তুলতে পারে।`,
-        imageUrl: 'https://picsum.photos/seed/senior-golden-retriever/600/400',
-        author: "ডঃ ফাতিমা আহমেদ",
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 19
-    },
-    {
-        id: 14,
-        title: "পথকুকুরদের বুঝুন: ভয় নয়, সহানুভূতি প্রয়োজন",
-        content: `বাংলাদেশে পথকুকুর আমাদের নগর জীবনের একটি অবিচ্ছেদ্য অংশ। অনেকেই তাদের ভয় পান বা অবহেলার চোখে দেখেন। কিন্তু একটু সহানুভূতি এবং সঠিক জ্ঞান দিয়ে আমরা তাদের সাথে শান্তিপূর্ণভাবে সহাবস্থান করতে পারি এবং একটি প্রাণী-বান্ধব সমাজ গড়ে তুলতে পারি।
+    imageUrl: 'https://picsum.photos/seed/senior-golden-retriever/600/400',
+    author: 'ডঃ ফাতিমা আহমেদ',
+    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 19,
+  },
+  {
+    id: 14,
+    title: 'পথকুকুরদের বুঝুন: ভয় নয়, সহানুভূতি প্রয়োজন',
+    content: `বাংলাদেশে পথকুকুর আমাদের নগর জীবনের একটি অবিচ্ছেদ্য অংশ। অনেকেই তাদের ভয় পান বা অবহেলার চোখে দেখেন। কিন্তু একটু সহানুভূতি এবং সঠিক জ্ঞান দিয়ে আমরা তাদের সাথে শান্তিপূর্ণভাবে সহাবস্থান করতে পারি এবং একটি প্রাণী-বান্ধব সমাজ গড়ে তুলতে পারি।
 
 **পথকুকুরদের আচরণ বোঝা:**
 পথকুকুররা সাধারণত মানুষের সঙ্গ এড়িয়ে চলে। তারা সামাজিক প্রাণী এবং নিজেদের এলাকা (territory) রক্ষা করে। তারা তখনই আক্রমণাত্মক হতে পারে যখন তারা নিজেদের বা তাদের বাচ্চাদের বিপন্ন মনে করে, অথবা যখন তাদের এলাকায় অচেনা কেউ বা অন্য প্রাণী প্রবেশ করে। তাদের শারীরিক ভাষা বোঝা গুরুত্বপূর্ণ। লেজ নিচু করা, কান পেছনের দিকে নেওয়া বা غرغر করা তাদের ভয় বা অস্বস্তির লক্ষণ। এই সময়ে তাদের থেকে দূরত্ব বজায় রাখাই শ্রেয়। সরাসরি চোখের দিকে তাকিয়ে থাকা বা দৌড় দেওয়া তাদের ভয় পাওয়ানোর কারণ হতে পারে।
@@ -398,15 +526,15 @@ export const MOCK_ARTICLES: Article[] = [
 আপনি সরাসরি কোনো প্রাণীকে উদ্ধার করতে না পারলেও, স্থানীয় পশু কল্যাণ সংস্থাগুলোকে সাহায্য করতে পারেন। অনুদান প্রদান, স্বেচ্ছাসেবক হিসেবে কাজ করা বা তাদের কার্যক্রম সম্পর্কে সচেতনতা তৈরি করার মাধ্যমেও আপনি একটি বড় ভূমিকা পালন করতে পারেন। আপনার এলাকার কমিউনিটিকে CNVR প্রোগ্রামের গুরুত্ব সম্পর্কে বোঝাতে পারেন।
 
 পথকুকুররা আমাদের পরিবেশের অংশ। তাদের ভয় না পেয়ে, তাদের প্রতি একটু দয়া দেখালে এবং তাদের সমস্যার স্থায়ী সমাধানে সাহায্য করলে একটি সুন্দর ও মানবিক সমাজ গড়ে তোলা সম্ভব, যেখানে মানুষ এবং প্রাণী উভয়েই শান্তিতে বসবাস করতে পারবে।`,
-        imageUrl: 'https://picsum.photos/seed/bangladesh-street-dog/600/400',
-        author: "আয়েশা রহমান",
-        date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 18
-    },
-    {
-        id: 10,
-        title: "কুকুরের পারভোভাইরাস: বাংলাদেশের কুকুরদের জন্য এক মারাত্মক হুমকি",
-        content: `কুকুরের পারভোভাইরাস (Canine Parvovirus বা CPV) একটি অত্যন্ত গুরুতর এবং সংক্রামক ভাইরাল রোগ যা মূলত টিকা না দেওয়া কুকুর এবং ছয় মাসের কম বয়সী কুকুরছানাদের প্রভাবিত করে। বাংলাদেশের একজন পশুচিকিৎসক হিসেবে, আমি এর ভয়াবহ প্রভাব নিজের চোখে দেখেছি এবং বহু পোষ্যকে এর কারণে মারা যেতে দেখেছি। তাই এই রোগ সম্পর্কে সঠিক জ্ঞান থাকা প্রত্যেক কুকুর মালিকের জন্য অপরিহার্য।
+    imageUrl: 'https://picsum.photos/seed/bangladesh-street-dog/600/400',
+    author: 'আয়েশা রহমান',
+    date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 18,
+  },
+  {
+    id: 10,
+    title: 'কুকুরের পারভোভাইরাস: বাংলাদেশের কুকুরদের জন্য এক মারাত্মক হুমকি',
+    content: `কুকুরের পারভোভাইরাস (Canine Parvovirus বা CPV) একটি অত্যন্ত গুরুতর এবং সংক্রামক ভাইরাল রোগ যা মূলত টিকা না দেওয়া কুকুর এবং ছয় মাসের কম বয়সী কুকুরছানাদের প্রভাবিত করে। বাংলাদেশের একজন পশুচিকিৎসক হিসেবে, আমি এর ভয়াবহ প্রভাব নিজের চোখে দেখেছি এবং বহু পোষ্যকে এর কারণে মারা যেতে দেখেছি। তাই এই রোগ সম্পর্কে সঠিক জ্ঞান থাকা প্রত্যেক কুকুর মালিকের জন্য অপরিহার্য।
 
 **কিভাবে ছড়ায়?**
 এই ভাইরাসটি অত্যন্ত শক্তিশালী এবং পরিবেশে দীর্ঘ সময় ধরে বেঁচে থাকতে পারে, এমনকি মাস থেকে বছর পর্যন্ত। এটি সংক্রমিত কুকুরের মলের মাধ্যমে ছড়ায়। ভাইরাসটি সরাসরি সংস্পর্শে বা পরোক্ষভাবে ছড়াতে পারে। এমনকি মানুষ তার জুতা, পোশাক বা হাতের মাধ্যমেও অজান্তেই এই ভাইরাসটি এক স্থান থেকে অন্য স্থানে, যেমন পার্ক থেকে বাড়িতে, ছড়িয়ে দিতে পারে। এর মানে হলো, আপনার কুকুর যদি সরাসরি কোনো সংক্রমিত কুকুরের সংস্পর্শে না-ও আসে, তবুও সে পারভোতে আক্রান্ত হতে পারে।
@@ -424,15 +552,15 @@ export const MOCK_ARTICLES: Article[] = [
 
 **প্রতিরোধই সর্বোত্তম এবং একমাত্র উপায়:**
 পারভোভাইরাস প্রতিরোধের সবচেয়ে কার্যকর উপায় হলো সময়মতো এবং সম্পূর্ণ টিকাদান। কুকুরছানার বয়স ৬-৮ সপ্তাহ হলে প্রথম টিকা দিতে হয় এবং এরপর পশুচিকিৎসকের পরামর্শ অনুযায়ী বুস্টার ডোজগুলো (সাধারণত ৩-৪ সপ্তাহ পরপর) সম্পন্ন করতে হয়। একটি সম্পূর্ণ টিকাদান কোর্সই আপনার পোষা প্রাণীকে এই মারাত্মক রোগ থেকে প্রায় শতভাগ সুরক্ষিত রাখতে পারে। যতক্ষণ না পর্যন্ত টিকাদান কোর্স সম্পন্ন হয়, ততক্ষণ আপনার কুকুরছানাকে পার্ক বা অন্যান্য কুকুরের সংস্পর্শে আনা থেকে বিরত রাখুন।`,
-        imageUrl: 'https://picsum.photos/seed/parvovirus-dog/600/400',
-        author: "ডঃ ফাতিমা আহমেদ",
-        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 20
-    },
-    {
-        id: 9,
-        title: "কুকুরছানা বা বিড়ালছানাকে পটি ট্রেনিং করানোর সহজ এবং কার্যকরী উপায়",
-        content: `একটি নতুন কুকুরছানা বা বিড়ালছানা ঘরে আনা নিঃসন্দেহে আনন্দের, কিন্তু একটি পরিষ্কার এবং শান্তিপূর্ণ সংসারের জন্য সঠিক পটি ট্রেনিং অপরিহার্য। এই ট্রেনিংয়ের জন্য প্রয়োজন ধৈর্য, ধারাবাহিকতা এবং ইতিবাচক মনোভাব। পশুচিকিৎসকদের আচরণগত নীতির উপর ভিত্তি করে তৈরি এই বিস্তারিত নির্দেশিকা আপনাকে সফল হতে সাহায্য করবে।
+    imageUrl: 'https://picsum.photos/seed/parvovirus-dog/600/400',
+    author: 'ডঃ ফাতিমা আহমেদ',
+    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 20,
+  },
+  {
+    id: 9,
+    title: 'কুকুরছানা বা বিড়ালছানাকে পটি ট্রেনিং করানোর সহজ এবং কার্যকরী উপায়',
+    content: `একটি নতুন কুকুরছানা বা বিড়ালছানা ঘরে আনা নিঃসন্দেহে আনন্দের, কিন্তু একটি পরিষ্কার এবং শান্তিপূর্ণ সংসারের জন্য সঠিক পটি ট্রেনিং অপরিহার্য। এই ট্রেনিংয়ের জন্য প্রয়োজন ধৈর্য, ধারাবাহিকতা এবং ইতিবাচক মনোভাব। পশুচিকিৎসকদের আচরণগত নীতির উপর ভিত্তি করে তৈরি এই বিস্তারিত নির্দেশিকা আপনাকে সফল হতে সাহায্য করবে।
 
 **ধাপ ১: সঠিক স্থান নির্ধারণ এবং রুটিন তৈরি:**
 * **বিড়ালছানার জন্য:** একটি শান্ত এবং সহজে পৌঁছানো যায় এমন জায়গায় লিটার বক্স রাখুন। বিড়ালরা গোপনীয়তা পছন্দ করে। তাদের খাওয়ার জায়গা বা ঘুমানোর জায়গা থেকে দূরে রাখুন। প্রথম দিকে, তাকে বেশ কয়েকবার লিটার বক্স দেখিয়ে দিন।
@@ -452,15 +580,15 @@ export const MOCK_ARTICLES: Article[] = [
 * **সঠিকভাবে পরিষ্কার করুন:** অ্যামোনিয়া-ভিত্তিক ক্লিনার ব্যবহার করবেন না, কারণ এটি প্রস্রাবের গন্ধের মতো, যা তাদের একই জায়গায় আবার টয়লেট করতে উৎসাহিত করতে পারে। এনজাইম-ভিত্তিক ক্লিনার (Enzyme-based cleaner) ব্যবহার করুন যা গন্ধ সম্পূর্ণরূপে দূর করে।
 
 ধৈর্য ধরুন। প্রতিটি পোষ্য ভিন্ন এবং শিখতে ভিন্ন সময় নিতে পারে। আপনার ধারাবাহিক প্রচেষ্টা এবং ইতিবাচক মনোভাবই একটি সফল পটি ট্রেনিংয়ের চাবিকাঠি।`,
-        imageUrl: 'https://picsum.photos/seed/puppy-potty-training/600/400',
-        author: "ডঃ নাজিয়া ইসলাম",
-        date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 18
-    },
-    {
-        id: 4,
-        title: "বাংলাদেশে বিড়ালের যত্ন: স্বাস্থ্য, খাদ্য এবং সুখী জীবন",
-        content: `বাংলাদেশে একটি বিড়াল পোষা তার নিজস্ব আনন্দ এবং চ্যালেঞ্জ নিয়ে আসে। এখানকার উষ্ণ এবং আর্দ্র আবহাওয়ার কারণে তাদের যত্নের জন্য কিছু বিশেষ দিকে নজর রাখা প্রয়োজন। এই নির্দেশিকাটি আপনাকে আপনার বিড়াল বন্ধুর জন্য একটি স্বাস্থ্যকর এবং সুখী জীবন নিশ্চিত করতে সাহায্য করবে।
+    imageUrl: 'https://picsum.photos/seed/puppy-potty-training/600/400',
+    author: 'ডঃ নাজিয়া ইসলাম',
+    date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 18,
+  },
+  {
+    id: 4,
+    title: 'বাংলাদেশে বিড়ালের যত্ন: স্বাস্থ্য, খাদ্য এবং সুখী জীবন',
+    content: `বাংলাদেশে একটি বিড়াল পোষা তার নিজস্ব আনন্দ এবং চ্যালেঞ্জ নিয়ে আসে। এখানকার উষ্ণ এবং আর্দ্র আবহাওয়ার কারণে তাদের যত্নের জন্য কিছু বিশেষ দিকে নজর রাখা প্রয়োজন। এই নির্দেশিকাটি আপনাকে আপনার বিড়াল বন্ধুর জন্য একটি স্বাস্থ্যকর এবং সুখী জীবন নিশ্চিত করতে সাহায্য করবে।
 
 **খাদ্য এবং পানীয়:**
 * **জল:** গরমের কারণে ডিহাইড্রেশন একটি বড় সমস্যা। সর্বদা তাজা এবং পরিষ্কার জলের ব্যবস্থা রাখুন। একাধিক জলের পাত্র বাড়ির বিভিন্ন স্থানে রাখতে পারেন। বিড়ালরা প্রবহমান জল পছন্দ করে, তাই একটি ওয়াটার ফাউন্টেন তাদের জল পানে উৎসাহিত করতে পারে।
@@ -478,15 +606,15 @@ export const MOCK_ARTICLES: Article[] = [
 * **নিরাপদ পরিবেশ:** আপনার বাড়িটি বিড়ালের জন্য নিরাপদ কিনা তা নিশ্চিত করুন। বিষাক্ত গাছপালা, ছোট খেলনা বা বৈদ্যুতিক তার তাদের নাগালের বাইরে রাখুন।
 
 একজন সুখী বিড়াল মানে একজন সুখী মালিক। এই ছোট ছোট বিষয়গুলোর দিকে খেয়াল রাখলে আপনার আদরের বন্ধুটি একটি সুস্থ ও দীর্ঘ জীবন পাবে।`,
-        imageUrl: 'https://picsum.photos/seed/cat-care-bd/600/400',
-        author: "ডঃ নাজিয়া ইসলাম",
-        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 19
-    },
-    {
-        id: 5,
-        title: "বাংলাদেশে কুকুরের জন্য প্রয়োজনীয় টিকার সময়সূচী",
-        content: `বাংলাদেশে প্রচলিত জীবনঘাতী রোগ যেমন পারভোভাইরাস, ডিসটেম্পার এবং জলাতঙ্ক থেকে আপনার কুকুরকে রক্ষা করার সবচেয়ে কার্যকর এবং একমাত্র উপায় হলো সময়মতো টিকাদান। টিকা আপনার কুকুরের শরীরে এই রোগগুলোর বিরুদ্ধে অ্যান্টিবডি তৈরি করে, যা তাকে ভবিষ্যতে সুরক্ষিত রাখে। এখানে একটি সাধারণ সময়সূচী দেওয়া হলো, তবে আপনার কুকুরের স্বাস্থ্য এবং জীবনযাত্রার উপর ভিত্তি করে একটি ব্যক্তিগত সময়সূচীর জন্য সর্বদা আপনার পশুচিকিৎসকের সাথে পরামর্শ করুন।
+    imageUrl: 'https://picsum.photos/seed/cat-care-bd/600/400',
+    author: 'ডঃ নাজিয়া ইসলাম',
+    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 19,
+  },
+  {
+    id: 5,
+    title: 'বাংলাদেশে কুকুরের জন্য প্রয়োজনীয় টিকার সময়সূচী',
+    content: `বাংলাদেশে প্রচলিত জীবনঘাতী রোগ যেমন পারভোভাইরাস, ডিসটেম্পার এবং জলাতঙ্ক থেকে আপনার কুকুরকে রক্ষা করার সবচেয়ে কার্যকর এবং একমাত্র উপায় হলো সময়মতো টিকাদান। টিকা আপনার কুকুরের শরীরে এই রোগগুলোর বিরুদ্ধে অ্যান্টিবডি তৈরি করে, যা তাকে ভবিষ্যতে সুরক্ষিত রাখে। এখানে একটি সাধারণ সময়সূচী দেওয়া হলো, তবে আপনার কুকুরের স্বাস্থ্য এবং জীবনযাত্রার উপর ভিত্তি করে একটি ব্যক্তিগত সময়সূচীর জন্য সর্বদা আপনার পশুচিকিৎসকের সাথে পরামর্শ করুন।
 
 **কোর ভ্যাকসিন (Core Vaccines) কি?**
 কোর ভ্যাকসিনগুলো সেইসব টিকা যা সকল কুকুরকে, তাদের অবস্থান বা জীবনযাত্রা নির্বিশেষে, দেওয়া উচিত। এগুলো গুরুতর, বিশ্বব্যাপী বিস্তৃত এবং প্রাণঘাতী রোগ থেকে রক্ষা করে।
@@ -507,15 +635,15 @@ export const MOCK_ARTICLES: Article[] = [
 
 **উপসংহার:**
 আপনার কুকুরকে টিকা দেওয়ার মাধ্যমে আপনি শুধু তাকেই রক্ষা করছেন না, বরং জলাতঙ্কের মতো জুনোটিক (zoonotic) রোগ থেকে আপনার পরিবার এবং সমাজকেও সুরক্ষিত রাখছেন। টিকাদানে অবহেলা আপনার পোষ্যের জন্য মারাত্মক পরিণতি ডেকে আনতে পারে।`,
-        imageUrl: 'https://picsum.photos/seed/dog-vaccination/600/400',
-        author: "ডঃ কবির হোসেন",
-        date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 18
-    },
-    {
-        id: 6,
-        title: "FIP কী? বাংলাদেশের বিড়াল মালিকদের জন্য একটি বিস্তারিত নির্দেশিকা",
-        content: `ফেলাইন ইনফেকশাস পেরিটোনাইটিস (Feline Infectious Peritonitis বা FIP) হলো বিড়ালের একটি মারাত্মক এবং জটিল ভাইরাল রোগ যা ফেলাইন করোনাভাইরাস (Feline Coronavirus বা FCoV) দ্বারা সৃষ্ট। যদিও বেশিরভাগ FCoV সংক্রমণ নিরীহ এবং হালকা ডায়রিয়ার কারণ হয়, কিছু ক্ষেত্রে ভাইরাসটি পরিবর্তিত (mutate) হয়ে FIP রোগ সৃষ্টি করতে পারে, যা প্রায় সবসময়ই মারাত্মক। বাংলাদেশের বিড়াল মালিকদের মধ্যে এই রোগ নিয়ে সচেতনতা বাড়ানো অত্যন্ত জরুরি।
+    imageUrl: 'https://picsum.photos/seed/dog-vaccination/600/400',
+    author: 'ডঃ কবির হোসেন',
+    date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 18,
+  },
+  {
+    id: 6,
+    title: 'FIP কী? বাংলাদেশের বিড়াল মালিকদের জন্য একটি বিস্তারিত নির্দেশিকা',
+    content: `ফেলাইন ইনফেকশাস পেরিটোনাইটিস (Feline Infectious Peritonitis বা FIP) হলো বিড়ালের একটি মারাত্মক এবং জটিল ভাইরাল রোগ যা ফেলাইন করোনাভাইরাস (Feline Coronavirus বা FCoV) দ্বারা সৃষ্ট। যদিও বেশিরভাগ FCoV সংক্রমণ নিরীহ এবং হালকা ডায়রিয়ার কারণ হয়, কিছু ক্ষেত্রে ভাইরাসটি পরিবর্তিত (mutate) হয়ে FIP রোগ সৃষ্টি করতে পারে, যা প্রায় সবসময়ই মারাত্মক। বাংলাদেশের বিড়াল মালিকদের মধ্যে এই রোগ নিয়ে সচেতনতা বাড়ানো অত্যন্ত জরুরি।
 
 **FIP এর প্রকারভেদ:**
 FIP প্রধানত দুটি রূপে দেখা যায়, যদিও কিছু ক্ষেত্রে উভয়ের মিশ্রণও দেখা যেতে পারে:
@@ -531,15 +659,15 @@ FIP প্রধানত দুটি রূপে দেখা যায়, �
 FIP রোগ নির্ণয় করা বেশ কঠিন কারণ এর লক্ষণগুলো অন্যান্য অনেক রোগের সাথে মিলে যায়। পশুচিকিৎসকরা সাধারণত রক্ত পরীক্ষা, জমে থাকা তরল বিশ্লেষণ এবং অন্যান্য ক্লিনিকাল লক্ষণগুলোর সমন্বয়ে একটি সম্ভাব্য সিদ্ধান্তে পৌঁছান। ঐতিহাসিকভাবে FIP-কে নিশ্চিত মৃত্যু বলে গণ্য করা হতো। তবে, সম্প্রতি GS-441524-এর মতো অ্যান্টিভাইরাল ওষুধ আশার আলো দেখাচ্ছে এবং অনেক ক্ষেত্রে সফলভাবে FIP নিরাময় করতে সক্ষম হচ্ছে। যদিও, এই চিকিৎসা বাংলাদেশে এখনও ব্যয়বহুল এবং সহজলভ্য নয়।
 
 প্রতিরোধের জন্য, বিড়ালের থাকার পরিবেশ পরিষ্কার-পরিচ্ছন্ন রাখা, লিটার বক্স নিয়মিত পরিষ্কার করা, তাদের মানসিক চাপ কমানো এবং একটি স্বাস্থ্যকর জীবনযাত্রা নিশ্চিত করাই সর্বোত্তম উপায়। নতুন বিড়াল আনার আগে তাকে কোয়ারেন্টাইনে রাখাও একটি ভালো অভ্যাস।`,
-        imageUrl: 'https://picsum.photos/seed/sick-cat-vet/600/400',
-        author: "পেটভাই টিম",
-        date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 19
-    },
-    {
-        id: 7,
-        title: "জলাতঙ্ক প্রতিরোধ: আপনার পোষ্য এবং পরিবারকে সুরক্ষিত রাখার গুরুত্ব",
-        content: `জলাতঙ্ক বা Rabies একটি মারাত্মক ভাইরাল রোগ যা কেন্দ্রীয় স্নায়ুতন্ত্রকে (central nervous system) আক্রমণ করে এবং একবার লক্ষণ প্রকাশ পেলে এটি ১০০% প্রাণঘাতী। এই রোগটি টিকার মাধ্যমে সম্পূর্ণ প্রতিরোধযোগ্য। বাংলাদেশে, যেখানে পথকুকুরের সংখ্যা অনেক এবং জলাতঙ্ক একটি স্থানীয় রোগ (endemic), পোষ্য মালিকদের জন্য এর প্রতিরোধ ব্যবস্থা গ্রহণ করা শুধুমাত্র একটি পছন্দ নয়, বরং একটি অপরিহার্য দায়িত্ব।
+    imageUrl: 'https://picsum.photos/seed/sick-cat-vet/600/400',
+    author: 'পেটভাই টিম',
+    date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 19,
+  },
+  {
+    id: 7,
+    title: 'জলাতঙ্ক প্রতিরোধ: আপনার পোষ্য এবং পরিবারকে সুরক্ষিত রাখার গুরুত্ব',
+    content: `জলাতঙ্ক বা Rabies একটি মারাত্মক ভাইরাল রোগ যা কেন্দ্রীয় স্নায়ুতন্ত্রকে (central nervous system) আক্রমণ করে এবং একবার লক্ষণ প্রকাশ পেলে এটি ১০০% প্রাণঘাতী। এই রোগটি টিকার মাধ্যমে সম্পূর্ণ প্রতিরোধযোগ্য। বাংলাদেশে, যেখানে পথকুকুরের সংখ্যা অনেক এবং জলাতঙ্ক একটি স্থানীয় রোগ (endemic), পোষ্য মালিকদের জন্য এর প্রতিরোধ ব্যবস্থা গ্রহণ করা শুধুমাত্র একটি পছন্দ নয়, বরং একটি অপরিহার্য দায়িত্ব।
 
 **কীভাবে ছড়ায়?**
 ভাইরাসটি সাধারণত সংক্রমিত প্রাণীর লালার মাধ্যমে, কামড় বা আঁচড়ের মাধ্যমে ছড়ায়। ক্ষত বা শ্লেষ্মা ঝিল্লির সংস্পর্শে এলেও এটি ছড়াতে পারে। কুকুর, বিড়াল, বাদুড়, বেজি সহ যেকোনো স্তন্যপায়ী প্রাণী এই রোগে আক্রান্ত হতে পারে এবং রোগ ছড়াতে পারে।
@@ -557,15 +685,15 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     3.  **PEP কোর্স সম্পন্ন করুন:** PEP হলো জলাতঙ্কের টিকা এবং প্রয়োজনে ইমিউনোগ্লোবুলিনের একটি কোর্স যা লক্ষণ প্রকাশের আগেই ভাইরাসটিকে নিষ্ক্রিয় করে দেয়। এটি জীবন রক্ষাকারী।
 
 মনে রাখবেন, জলাতঙ্কের ক্ষেত্রে কোনো ঝুঁকি নেওয়া যাবে না। আপনার পোষ্যের একটি টিকা আপনার পুরো পরিবার এবং সমাজকে এই ভয়াবহ রোগ থেকে সুরক্ষিত রাখতে পারে।`,
-        imageUrl: 'https://picsum.photos/seed/rabies-vaccine-dog/600/400',
-        author: "ডঃ ফাতিমা আহমেদ",
-        date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 17
-    },
-    {
-        id: 8,
-        title: "আপনার পোষ্যকে স্পে বা নিউটার করার গুরুত্ব: একটি দায়িত্বশীল সিদ্ধান্ত",
-        content: `স্পেয়িং (Spaying - স্ত্রী প্রাণীর জরায়ু ও ডিম্বাশয় অপসারণ) এবং নিউটারিং (Neutering - পুরুষ প্রাণীর অণ্ডকোষ অপসারণ) হলো অস্ত্রোপচার পদ্ধতি যা পোষ্যদের প্রজনন ক্ষমতা স্থায়ীভাবে বন্ধ করে দেয়। এটি কেবল একটি জন্ম নিয়ন্ত্রণের পদ্ধতিই নয়, বরং এর অনেক স্বাস্থ্যগত, আচরণগত এবং সামাজিক সুবিধাও রয়েছে যা আপনার পোষ্যের জীবনমান উন্নত করতে পারে।
+    imageUrl: 'https://picsum.photos/seed/rabies-vaccine-dog/600/400',
+    author: 'ডঃ ফাতিমা আহমেদ',
+    date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 17,
+  },
+  {
+    id: 8,
+    title: 'আপনার পোষ্যকে স্পে বা নিউটার করার গুরুত্ব: একটি দায়িত্বশীল সিদ্ধান্ত',
+    content: `স্পেয়িং (Spaying - স্ত্রী প্রাণীর জরায়ু ও ডিম্বাশয় অপসারণ) এবং নিউটারিং (Neutering - পুরুষ প্রাণীর অণ্ডকোষ অপসারণ) হলো অস্ত্রোপচার পদ্ধতি যা পোষ্যদের প্রজনন ক্ষমতা স্থায়ীভাবে বন্ধ করে দেয়। এটি কেবল একটি জন্ম নিয়ন্ত্রণের পদ্ধতিই নয়, বরং এর অনেক স্বাস্থ্যগত, আচরণগত এবং সামাজিক সুবিধাও রয়েছে যা আপনার পোষ্যের জীবনমান উন্নত করতে পারে।
 
 **স্বাস্থ্যগত সুবিধা:**
 * **ক্যান্সার প্রতিরোধ:** স্পে করা স্ত্রী প্রাণীদের স্তন ক্যান্সার (mammary cancer) এবং জরায়ুর মারাত্মক সংক্রমণ (pyometra) হওয়ার ঝুঁকি নাটকীয়ভাবে হ্রাস পায়, বিশেষ করে যদি প্রথম 'হিট' বা ঋতুচক্রের আগে করা হয়।
@@ -579,15 +707,15 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
 
 **সামাজিক প্রভাব:**
 সবচেয়ে গুরুত্বপূর্ণ হলো, স্পে এবং নিউটারিং পথপ্রাণীর অতিরিক্ত জনসংখ্যা নিয়ন্ত্রণে একটি অপরিহার্য ভূমিকা পালন করে। বাংলাদেশে লক্ষ লক্ষ কুকুর এবং বিড়াল রাস্তায় আশ্রয়হীন জীবনযাপন করে। প্রতিটি অনাকাঙ্ক্ষিত গর্ভধারণ এই সংখ্যাকে আরও বাড়িয়ে তোলে, যার ফলে আরও বেশি প্রাণী ক্ষুধা, রোগ এবং নিষ্ঠুরতার শিকার হয়। আপনার পোষ্যকে স্পে/নিউটার করার মাধ্যমে আপনি এই বিশাল সমস্যার সমাধানে সরাসরি অবদান রাখছেন। এটি একজন পোষ্য মালিকের সবচেয়ে দায়িত্বশীল পছন্দগুলোর মধ্যে অন্যতম। আপনার পশুচিকিৎসকের সাথে কথা বলে আপনার পোষ্যের জন্য এই অস্ত্রোপচারের সঠিক সময় নির্ধারণ করুন।`,
-        imageUrl: 'https://picsum.photos/seed/vet-surgery-pet/600/400',
-        author: "পেটভাই টিম",
-        date: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 19
-    },
-    {
-        id: 1,
-        title: "আপনার পোষ্যের জন্য সঠিক খাবার বেছে নেওয়ার চূড়ান্ত নির্দেশিকা",
-        content: `পুষ্টি আপনার পোষ্যের স্বাস্থ্য, শক্তি এবং দীর্ঘায়ু জীবনের ভিত্তি। কিন্তু বাজারে এত ধরণের পোষ্যের খাবারের মধ্যে সঠিকটি বেছে নেওয়া বেশ কঠিন মনে হতে পারে। এই বিস্তারিত নির্দেশিকা আপনাকে আপনার পোষ্যের জন্য একটি স্বাস্থ্যকর এবং সঠিক সিদ্ধান্ত নিতে সাহায্য করবে।
+    imageUrl: 'https://picsum.photos/seed/vet-surgery-pet/600/400',
+    author: 'পেটভাই টিম',
+    date: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 19,
+  },
+  {
+    id: 1,
+    title: 'আপনার পোষ্যের জন্য সঠিক খাবার বেছে নেওয়ার চূড়ান্ত নির্দেশিকা',
+    content: `পুষ্টি আপনার পোষ্যের স্বাস্থ্য, শক্তি এবং দীর্ঘায়ু জীবনের ভিত্তি। কিন্তু বাজারে এত ধরণের পোষ্যের খাবারের মধ্যে সঠিকটি বেছে নেওয়া বেশ কঠিন মনে হতে পারে। এই বিস্তারিত নির্দেশিকা আপনাকে আপনার পোষ্যের জন্য একটি স্বাস্থ্যকর এবং সঠিক সিদ্ধান্ত নিতে সাহায্য করবে।
 
 **খাবারের লেবেল পড়ুন এবং বুঝুন:**
 একটি ভালো পোষ্যের খাবারের প্যাকেজিং তথ্যবহুল হয়।
@@ -607,15 +735,15 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
 
 **উপসংহার:**
 সন্দেহের ক্ষেত্রে, আপনার পোষ্যের জন্য কোন খাবারটি সবচেয়ে উপযুক্ত হবে তা জানতে সর্বদা আপনার পশুচিকিৎসকের সাথে পরামর্শ করুন। তিনিই আপনার পোষ্যের স্বাস্থ্য, ওজন এবং প্রয়োজন অনুযায়ী সেরা পরামর্শ দিতে পারবেন।`,
-        imageUrl: 'https://picsum.photos/seed/pet-food-bowls/600/400',
-        author: "ডঃ নাজিয়া ইসলাম",
-        date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 20
-    },
-    {
-        id: 2,
-        title: "একটি স্বাস্থ্যকর কোটের জন্য ৫টি প্রয়োজনীয় গ্রুমিং টিপস",
-        content: `গ্রুমিং কেবল আপনার পোষ্যকে দেখতে সুন্দর রাখার জন্য নয়; এটি তাদের শারীরিক এবং মানসিক স্বাস্থ্যের জন্য অত্যাবশ্যক। নিয়মিত গ্রুমিং ত্বক এবং কোটকে সুস্থ রাখে, পরজীবী নিয়ন্ত্রণ করে, এবং আপনার সাথে আপনার পোষ্যের বন্ধনকে আরও দৃঢ় করে তোলে।
+    imageUrl: 'https://picsum.photos/seed/pet-food-bowls/600/400',
+    author: 'ডঃ নাজিয়া ইসলাম',
+    date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 20,
+  },
+  {
+    id: 2,
+    title: 'একটি স্বাস্থ্যকর কোটের জন্য ৫টি প্রয়োজনীয় গ্রুমিং টিপস',
+    content: `গ্রুমিং কেবল আপনার পোষ্যকে দেখতে সুন্দর রাখার জন্য নয়; এটি তাদের শারীরিক এবং মানসিক স্বাস্থ্যের জন্য অত্যাবশ্যক। নিয়মিত গ্রুমিং ত্বক এবং কোটকে সুস্থ রাখে, পরজীবী নিয়ন্ত্রণ করে, এবং আপনার সাথে আপনার পোষ্যের বন্ধনকে আরও দৃঢ় করে তোলে।
 
 **১. নিয়মিত ব্রাশ করুন:**
 পোষ্যের কোটের ধরন অনুযায়ী সঠিক ব্রাশ নির্বাচন করুন। ছোট পশমের জন্য রাবার ব্রাশ এবং লম্বা পশমের জন্য স্লিকার বা পিন ব্রাশ ভালো কাজ করে। ব্রাশ করা আলগা পশম এবং ময়লা দূর করে, ত্বকের নিচে রক্ত সঞ্চালন বাড়ায় এবং শরীরের প্রাকৃতিক তেলকে সমানভাবে ছড়িয়ে দিয়ে কোটকে চকচকে রাখে। এটি বেদনাদায়ক জট বাঁধা (matting) প্রতিরোধ করে, যা পরবর্তীতে ত্বকের মারাত্মক সংক্রমণের কারণ হতে পারে।
@@ -633,15 +761,15 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
 দাঁতের রোগ পোষ্যদের মধ্যে একটি সাধারণ এবং প্রতিরোধযোগ্য সমস্যা। এটি প্রতিরোধ করার জন্য, পোষ্য-নির্দিষ্ট টুথপেস্ট এবং ব্রাশ দিয়ে নিয়মিত তাদের দাঁত ব্রাশ করার অভ্যাস গড়ে তুলুন। ছোটবেলা থেকেই এই অভ্যাস শুরু করলে ভালো হয়। ডেন্টাল চিবানো বা খেলনাও দাঁতে প্লাক জমা কমাতে সাহায্য করতে পারে।
 
 এই গ্রুমিং রুটিনটি আপনার পোষ্যকে শুধু দেখতেই সুন্দর রাখবে না, বরং তাকে সুস্থ, সুখী এবং আরামদায়ক জীবনযাপন করতেও সাহায্য করবে।`,
-        imageUrl: 'https://picsum.photos/seed/dog-grooming-brush/600/400',
-        author: "আয়েশা রহমান",
-        date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 17
-    },
-    {
-        id: 3,
-        title: "ইন্টারেক্টিভ খেলনা: আপনার পোষ্যকে মানসিকভাবে উদ্দীপিত রাখার গুরুত্ব",
-        content: `শারীরিক ব্যায়ামের মতোই মানসিক উদ্দীপনাও আপনার পোষ্যের সার্বিক সুস্থতার জন্য অপরিহার্য। একটি উদাস বা একঘেয়ে পোষ্য প্রায়শই ধ্বংসাত্মক আচরণ (যেমন, জিনিসপত্র চিবানো), অতিরিক্ত ঘেউ ঘেউ করা বা উদ্বেগের মতো আচরণগত সমস্যা প্রদর্শন করে। ইন্টারেক্টিভ খেলনা এবং এনরিচমেন্ট অ্যাক্টিভিটি আপনার পোষ্যের মস্তিষ্ককে সক্রিয় এবং ব্যস্ত রাখার একটি চমৎকার উপায়।
+    imageUrl: 'https://picsum.photos/seed/dog-grooming-brush/600/400',
+    author: 'আয়েশা রহমান',
+    date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 17,
+  },
+  {
+    id: 3,
+    title: 'ইন্টারেক্টিভ খেলনা: আপনার পোষ্যকে মানসিকভাবে উদ্দীপিত রাখার গুরুত্ব',
+    content: `শারীরিক ব্যায়ামের মতোই মানসিক উদ্দীপনাও আপনার পোষ্যের সার্বিক সুস্থতার জন্য অপরিহার্য। একটি উদাস বা একঘেয়ে পোষ্য প্রায়শই ধ্বংসাত্মক আচরণ (যেমন, জিনিসপত্র চিবানো), অতিরিক্ত ঘেউ ঘেউ করা বা উদ্বেগের মতো আচরণগত সমস্যা প্রদর্শন করে। ইন্টারেক্টিভ খেলনা এবং এনরিচমেন্ট অ্যাক্টিভিটি আপনার পোষ্যের মস্তিষ্ককে সক্রিয় এবং ব্যস্ত রাখার একটি চমৎকার উপায়।
 
 **মানসিক উদ্দীপনা কেন প্রয়োজন?**
 * **একঘেয়েমি দূর করে:** এটি তাদের প্রাকৃতিক প্রবৃত্তি যেমন শিকার করা, খোঁজা এবং সমস্যা সমাধানের আকাঙ্ক্ষা পূরণ করে। যখন তাদের মস্তিষ্ক ব্যস্ত থাকে, তখন তারা খারাপ আচরণে কম জড়িয়ে পড়ে।
@@ -657,49 +785,255 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
 * **নতুন কৌশল শেখানো:** 'shake hands' বা 'roll over' এর মতো নতুন কৌশল শেখানো তাদের মস্তিষ্ককে সক্রিয় রাখার একটি চমৎকার উপায়।
 
 আপনার পোষ্যের দৈনন্দিন রুটিনে এই ধরনের কার্যকলাপ অন্তর্ভুক্ত করা শুধুমাত্র তাদের বিনোদনই দেবে না, বরং আপনার সাথে তার বন্ধনকে আরও শক্তিশালী করবে এবং একটি সুখী, সুস্থ ও ভারসাম্যপূর্ণ জীবন নিশ্চিত করবে।`,
-        imageUrl: 'https://picsum.photos/seed/dog-puzzle-toy/600/400',
-        author: "পেটভাই টিম",
-        date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-        readTime: 18
-    }
+    imageUrl: 'https://picsum.photos/seed/dog-puzzle-toy/600/400',
+    author: 'পেটভাই টিম',
+    date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    readTime: 18,
+  },
 ];
 
 export const MOCK_ANIMALS: Animal[] = [
-    { id: 1, name: 'Milo', breed: 'Golden Retriever Mix', age: 'Young', gender: 'Male', size: 'Large', status: 'Available', description: 'Milo is a friendly and energetic boy who loves to play fetch. He gets along well with other dogs and kids.', imageUrl: 'https://picsum.photos/seed/dog1/400/300' },
-    { id: 2, name: 'Luna', breed: 'Domestic Shorthair', age: 'Puppy/Kitten', gender: 'Female', size: 'Small', status: 'Available', description: 'Luna is a curious and playful kitten. She loves cuddling and chasing after her favorite toy mouse.', imageUrl: 'https://picsum.photos/seed/cat1/400/300' },
-    { id: 3, name: 'Charlie', breed: 'Beagle', age: 'Adult', gender: 'Male', size: 'Medium', status: 'Pending', description: 'Charlie is a sweet and gentle soul. He enjoys long walks and snoozing on a comfy bed.', imageUrl: 'https://picsum.photos/seed/dog2/400/300' },
-    { id: 4, name: 'Bella', breed: 'Siamese', age: 'Senior', gender: 'Female', size: 'Medium', status: 'Adopted', description: 'Bella is a calm and affectionate senior cat looking for a quiet home to spend her golden years.', imageUrl: 'https://picsum.photos/seed/cat2/400/300' },
+  {
+    id: 1,
+    name: 'Milo',
+    breed: 'Golden Retriever Mix',
+    age: 'Young',
+    gender: 'Male',
+    size: 'Large',
+    status: 'Available',
+    description:
+      'Milo is a friendly and energetic boy who loves to play fetch. He gets along well with other dogs and kids.',
+    imageUrl: 'https://picsum.photos/seed/dog1/400/300',
+  },
+  {
+    id: 2,
+    name: 'Luna',
+    breed: 'Domestic Shorthair',
+    age: 'Puppy/Kitten',
+    gender: 'Female',
+    size: 'Small',
+    status: 'Available',
+    description:
+      'Luna is a curious and playful kitten. She loves cuddling and chasing after her favorite toy mouse.',
+    imageUrl: 'https://picsum.photos/seed/cat1/400/300',
+  },
+  {
+    id: 3,
+    name: 'Charlie',
+    breed: 'Beagle',
+    age: 'Adult',
+    gender: 'Male',
+    size: 'Medium',
+    status: 'Pending',
+    description:
+      'Charlie is a sweet and gentle soul. He enjoys long walks and snoozing on a comfy bed.',
+    imageUrl: 'https://picsum.photos/seed/dog2/400/300',
+  },
+  {
+    id: 4,
+    name: 'Bella',
+    breed: 'Siamese',
+    age: 'Senior',
+    gender: 'Female',
+    size: 'Medium',
+    status: 'Adopted',
+    description:
+      'Bella is a calm and affectionate senior cat looking for a quiet home to spend her golden years.',
+    imageUrl: 'https://picsum.photos/seed/cat2/400/300',
+  },
 ];
 
 export const MOCK_GROOMERS: Groomer[] = [
-    { id: 101, category: 'Groomer', name: 'Posh Paws Grooming', imageUrl: 'https://picsum.photos/seed/groomer1/200/200', bio: 'Certified Master Groomer with a gentle touch. We offer a calm, cage-free environment to make your pet\'s spa day a treat.', location: 'Gulshan', rating: 4.9, specialties: ['Long-haired Breeds', 'Creative Grooming', 'Cat Grooming'], services: [{ name: 'Full Groom', price: 2500, description: 'Bath, haircut, nail trim, ear cleaning.' }, { name: 'Bath & Brush', price: 1500, description: 'For in-between grooming sessions.' }] },
-    { id: 102, category: 'Groomer', name: 'The Dapper Dog', imageUrl: 'https://picsum.photos/seed/groomer2/200/200', bio: 'Specializing in all dog breeds, from Chihuahuas to Great Danes. We focus on a positive and stress-free experience.', location: 'Dhanmondi', rating: 4.8, specialties: ['Breed Standard Cuts', 'De-shedding Treatments'], services: [{ name: 'Puppy\'s First Groom', price: 1200, description: 'A gentle introduction to grooming.' }, { name: 'Medicated Bath', price: 1800, description: 'For skin issues and allergies.' }] },
+  {
+    id: 101,
+    category: 'Groomer',
+    name: 'Posh Paws Grooming',
+    imageUrl: 'https://picsum.photos/seed/groomer1/200/200',
+    bio: "Certified Master Groomer with a gentle touch. We offer a calm, cage-free environment to make your pet's spa day a treat.",
+    location: 'Gulshan',
+    rating: 4.9,
+    specialties: ['Long-haired Breeds', 'Creative Grooming', 'Cat Grooming'],
+    services: [
+      { name: 'Full Groom', price: 2500, description: 'Bath, haircut, nail trim, ear cleaning.' },
+      { name: 'Bath & Brush', price: 1500, description: 'For in-between grooming sessions.' },
+    ],
+  },
+  {
+    id: 102,
+    category: 'Groomer',
+    name: 'The Dapper Dog',
+    imageUrl: 'https://picsum.photos/seed/groomer2/200/200',
+    bio: 'Specializing in all dog breeds, from Chihuahuas to Great Danes. We focus on a positive and stress-free experience.',
+    location: 'Dhanmondi',
+    rating: 4.8,
+    specialties: ['Breed Standard Cuts', 'De-shedding Treatments'],
+    services: [
+      {
+        name: "Puppy's First Groom",
+        price: 1200,
+        description: 'A gentle introduction to grooming.',
+      },
+      { name: 'Medicated Bath', price: 1800, description: 'For skin issues and allergies.' },
+    ],
+  },
 ];
 
 export const MOCK_TRAINERS: Trainer[] = [
-    { id: 201, category: 'Trainer', name: 'GoodBoy Dog Training', imageUrl: 'https://picsum.photos/seed/trainer1/200/200', bio: 'Certified professional dog trainer focused on building a strong, positive bond between you and your dog.', location: 'Banani', rating: 5.0, certifications: ['CPDT-KA'], methods: 'Positive Reinforcement', services: [{ name: 'Puppy Socialization Class', price: 5000, description: '5-week group course.' }, { name: 'Private Obedience Training', price: 2000, description: 'Per one-hour session.' }] },
-    { id: 202, category: 'Trainer', name: 'Pawsitive Steps', imageUrl: 'https://picsum.photos/seed/trainer2/200/200', bio: 'Behavioral consultant specializing in leash reactivity and separation anxiety. Let\'s build your dog\'s confidence!', location: 'Uttara', rating: 4.9, certifications: ['KPA-CTP'], methods: 'Clicker Training, Positive Reinforcement', services: [{ name: 'Behavioral Consultation', price: 2500, description: 'Initial 90-minute assessment.' }, { name: 'Leash Manners Workshop', price: 'Varies', description: 'Group and private sessions available.' }] },
+  {
+    id: 201,
+    category: 'Trainer',
+    name: 'GoodBoy Dog Training',
+    imageUrl: 'https://picsum.photos/seed/trainer1/200/200',
+    bio: 'Certified professional dog trainer focused on building a strong, positive bond between you and your dog.',
+    location: 'Banani',
+    rating: 5.0,
+    certifications: ['CPDT-KA'],
+    methods: 'Positive Reinforcement',
+    services: [
+      { name: 'Puppy Socialization Class', price: 5000, description: '5-week group course.' },
+      { name: 'Private Obedience Training', price: 2000, description: 'Per one-hour session.' },
+    ],
+  },
+  {
+    id: 202,
+    category: 'Trainer',
+    name: 'Pawsitive Steps',
+    imageUrl: 'https://picsum.photos/seed/trainer2/200/200',
+    bio: "Behavioral consultant specializing in leash reactivity and separation anxiety. Let's build your dog's confidence!",
+    location: 'Uttara',
+    rating: 4.9,
+    certifications: ['KPA-CTP'],
+    methods: 'Clicker Training, Positive Reinforcement',
+    services: [
+      {
+        name: 'Behavioral Consultation',
+        price: 2500,
+        description: 'Initial 90-minute assessment.',
+      },
+      {
+        name: 'Leash Manners Workshop',
+        price: 'Varies',
+        description: 'Group and private sessions available.',
+      },
+    ],
+  },
 ];
 
 export const MOCK_PET_SITTERS: PetSitter[] = [
-    { id: 301, category: 'Pet Sitter', name: 'Home Comforts Pet Sitting', imageUrl: 'https://picsum.photos/seed/sitter1/200/200', bio: 'Experienced and reliable pet sitter offering in-your-home care so your pets can stay in their familiar environment.', location: 'Mirpur', rating: 4.9, servicesOffered: ['House Sitting', 'Drop-in Visits'], petTypes: ['Dogs', 'Cats'], services: [{ name: 'Overnight House Sitting', price: 2000, description: 'Per night, includes walks and feeding.' }, { name: '30-Min Drop-in Visit', price: 500, description: 'For feeding, potty breaks, and playtime.' }] },
-    { id: 302, category: 'Pet Sitter', name: 'The Pet Palace BD', imageUrl: 'https://picsum.photos/seed/sitter2/200/200', bio: 'Your pet\'s home away from home! We offer premium boarding with spacious play areas and 24/7 supervision.', location: 'Bashundhara R/A', rating: 4.8, servicesOffered: ['Boarding'], petTypes: ['Dogs', 'Cats', 'Small Animals'], services: [{ name: 'Dog Boarding (Small Breed)', price: 1000, description: 'Per night.' }, { name: 'Cat Boarding (Luxury Suite)', price: 1200, description: 'Per night.' }] },
+  {
+    id: 301,
+    category: 'Pet Sitter',
+    name: 'Home Comforts Pet Sitting',
+    imageUrl: 'https://picsum.photos/seed/sitter1/200/200',
+    bio: 'Experienced and reliable pet sitter offering in-your-home care so your pets can stay in their familiar environment.',
+    location: 'Mirpur',
+    rating: 4.9,
+    servicesOffered: ['House Sitting', 'Drop-in Visits'],
+    petTypes: ['Dogs', 'Cats'],
+    services: [
+      {
+        name: 'Overnight House Sitting',
+        price: 2000,
+        description: 'Per night, includes walks and feeding.',
+      },
+      {
+        name: '30-Min Drop-in Visit',
+        price: 500,
+        description: 'For feeding, potty breaks, and playtime.',
+      },
+    ],
+  },
+  {
+    id: 302,
+    category: 'Pet Sitter',
+    name: 'The Pet Palace BD',
+    imageUrl: 'https://picsum.photos/seed/sitter2/200/200',
+    bio: "Your pet's home away from home! We offer premium boarding with spacious play areas and 24/7 supervision.",
+    location: 'Bashundhara R/A',
+    rating: 4.8,
+    servicesOffered: ['Boarding'],
+    petTypes: ['Dogs', 'Cats', 'Small Animals'],
+    services: [
+      { name: 'Dog Boarding (Small Breed)', price: 1000, description: 'Per night.' },
+      { name: 'Cat Boarding (Luxury Suite)', price: 1200, description: 'Per night.' },
+    ],
+  },
 ];
 
 export const BANGLADESH_DISTRICTS: string[] = [
-    "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura",
-    "Brahmanbaria", "Chandpur", "Chapainawabganj", "Chattogram", "Chuadanga",
-    "Cumilla", "Cox's Bazar", "Dhaka", "Dinajpur", "Faridpur", "Feni",
-    "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore",
-    "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachhari", "Khulna", "Kishoreganj",
-    "Kurigram", "Kushtia", "Lakshmirpur", "Lalmonirhat", "Madaripur", "Magura",
-    "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh",
-    "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona",
-    "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur",
-    "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur",
-    "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
+  'Bagerhat',
+  'Bandarban',
+  'Barguna',
+  'Barishal',
+  'Bhola',
+  'Bogura',
+  'Brahmanbaria',
+  'Chandpur',
+  'Chapainawabganj',
+  'Chattogram',
+  'Chuadanga',
+  'Cumilla',
+  "Cox's Bazar",
+  'Dhaka',
+  'Dinajpur',
+  'Faridpur',
+  'Feni',
+  'Gaibandha',
+  'Gazipur',
+  'Gopalganj',
+  'Habiganj',
+  'Jamalpur',
+  'Jashore',
+  'Jhalokati',
+  'Jhenaidah',
+  'Joypurhat',
+  'Khagrachhari',
+  'Khulna',
+  'Kishoreganj',
+  'Kurigram',
+  'Kushtia',
+  'Lakshmirpur',
+  'Lalmonirhat',
+  'Madaripur',
+  'Magura',
+  'Manikganj',
+  'Meherpur',
+  'Moulvibazar',
+  'Munshiganj',
+  'Mymensingh',
+  'Naogaon',
+  'Narail',
+  'Narayanganj',
+  'Narsingdi',
+  'Natore',
+  'Netrokona',
+  'Nilphamari',
+  'Noakhali',
+  'Pabna',
+  'Panchagarh',
+  'Patuakhali',
+  'Pirojpur',
+  'Rajbari',
+  'Rajshahi',
+  'Rangamati',
+  'Rangpur',
+  'Satkhira',
+  'Shariatpur',
+  'Sherpur',
+  'Sirajganj',
+  'Sunamganj',
+  'Sylhet',
+  'Tangail',
+  'Thakurgaon',
 ];
 
 export const BANGLADESH_DIVISIONS: string[] = [
-    "Barishal", "Chattogram", "Dhaka", "Khulna", "Mymensingh", "Rajshahi", "Rangpur", "Sylhet"
+  'Barishal',
+  'Chattogram',
+  'Dhaka',
+  'Khulna',
+  'Mymensingh',
+  'Rajshahi',
+  'Rangpur',
+  'Sylhet',
 ];
