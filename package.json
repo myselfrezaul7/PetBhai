@@ -21,6 +21,7 @@
     "@types/node": "^22.10.1",
     "@vitejs/plugin-react": "^4.2.1",
     "gh-pages": "^6.3.0",
+    "lighthouse": "^13.0.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }
