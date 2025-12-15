@@ -184,7 +184,7 @@ const Header: React.FC = () => {
         <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
           <NavLink to="/" onClick={handleLogoClick} className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}>
             <Logo className="w-10 h-10 text-orange-500" />
-            <span className="sm:inline tracking-tight uppercase">PetBhai</span>
+            <span className="sm:inline tracking-tight">PetBhai</span>
           </NavLink>
 
           {/* Desktop Menu */}
