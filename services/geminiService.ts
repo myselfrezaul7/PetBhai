@@ -21,6 +21,16 @@ const getApiKey = () => {
   return null;
 };
 
+// Helper used by the UI to determine whether the AI feature can be used from the client.
+export const isAiConfigured = (): boolean => {
+  const key = getApiKey();
+  // Treat obvious build-time placeholders as not configured so we don't attempt
+  // to call the AI from the browser with an invalid key.
+  if (!key) return false;
+  if (typeof key === 'string' && key.includes('PLACEHOLDER')) return false;
+  return true;
+};
+
 function getAiInstance(): GoogleGenAI {
   if (!aiInstance) {
     const apiKey = getApiKey();
@@ -62,6 +72,21 @@ Use asterisks for bullet points (e.g., * Item 1) and double asterisks for boldin
 
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   try {
+    // If a server-side proxy is configured (recommended for production), use it.
+    const proxyUrl =
+      (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_AI_PROXY_URL) ||
+      (typeof process !== 'undefined' && process.env && process.env.AI_PROXY_URL);
+    if (proxyUrl) {
+      const resp = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      if (!resp.ok) throw new Error('AI proxy request failed');
+      const data = await resp.json();
+      return data.text || "I'm having trouble generating a response right now.";
+    }
+
     const ai = getAiInstance();
     // Upgraded to gemini-3-pro-preview for advanced reasoning capabilities
     const response = await ai.models.generateContent({

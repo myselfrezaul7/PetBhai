@@ -28,6 +28,15 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Z8Y_0SmP7T2684rss1HhLk
 
        (The app will also read `import.meta.env.VITE_API_KEY` if present.)
 
+   Important security note:
+   - Do NOT embed a production Gemini API key in the client bundle. For production you should
+     - Do NOT embed a production Gemini API key in the client bundle. Instead:
+       - Deploy a server-side proxy (see `serverless/ai-proxy/README.md`) that keeps the key
+         secret and exposes a safe endpoint for the frontend to call.
+       - Configure the frontend to use the proxy by setting `VITE_AI_PROXY_URL` to the
+         proxy endpoint (e.g., `https://example.com/api/ai`). When set, the frontend
+         will POST { prompt } to that endpoint and display the response.
+
 3. Run the app:
    `npm run dev`
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
-import { getVetAssistantResponse } from '../services/geminiService';
+import { getVetAssistantResponse, isAiConfigured } from '../services/geminiService';
 import { PawIcon, SendIcon, CloseIcon, TrashIcon } from '../components/icons';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 
@@ -100,6 +100,7 @@ const AIAssistantPage: React.FC = () => {
   const [isWarningVisible, setIsWarningVisible] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { confirm } = useConfirmation();
+  const aiAvailable = isAiConfigured();
 
   useEffect(() => {
     const isDismissed = sessionStorage.getItem(WARNING_DISMISSED_KEY);
@@ -210,6 +211,13 @@ const AIAssistantPage: React.FC = () => {
       )}
 
       <div className="glass-card flex-grow flex flex-col overflow-hidden">
+        {!aiAvailable && (
+          <div className="mb-4 p-3 rounded-md bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-100">
+            <strong>AI Assistant is unavailable for this deployment.</strong> The AI feature
+            requires a server-side configuration (GEMINI API key) or a secure proxy. Please contact
+            the site administrator or see the project README for setup instructions.
+          </div>
+        )}
         <div className="flex-grow p-6 overflow-y-auto">
           <div className="space-y-6" aria-live="polite">
             <div className="flex items-start gap-3">
@@ -285,11 +293,11 @@ const AIAssistantPage: React.FC = () => {
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Ask a question about pet care..."
               className="flex-grow p-3 border border-slate-300 dark:border-slate-600 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 dark:text-slate-200"
-              disabled={isLoading}
+              disabled={isLoading || !aiAvailable}
             />
             <button
               type="submit"
-              disabled={isLoading || !userInput.trim()}
+              disabled={!aiAvailable || isLoading || !userInput.trim()}
               className="bg-orange-500 text-white rounded-full p-3 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed transition-colors"
               aria-label="Send message"
             >

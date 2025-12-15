@@ -1,0 +1,303 @@
+﻿<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>PetBhai - Animal Welfare & Pet Supplies</title>
+
+    <!-- PWA & SEO Tags -->
+    <link rel="manifest" href="/assets/manifest-CHRRkN28.json" />
+    <meta name="theme-color" content="#f97316" />
+    <link rel="apple-touch-icon" href="./icon-192x192.png" />
+    <meta
+      name="description"
+      content="PetBhai - Your trusted partner in animal welfare, offering pet adoption, services, and premium supplies."
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://petbhai.example.com/" />
+    <meta property="og:title" content="PetBhai - Animal Welfare & Pet Supplies" />
+    <meta
+      property="og:description"
+      content="Adopt a pet, find trusted services, and shop for the best pet food, toys, and supplies."
+    />
+    <meta property="og:image" content="https://picsum.photos/seed/social/1200/630" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://petbhai.example.com/" />
+    <meta property="twitter:title" content="PetBhai - Animal Welfare & Pet Supplies" />
+    <meta
+      property="twitter:description"
+      content="Adopt a pet, find trusted services, and shop for the best pet food, toys, and supplies."
+    />
+    <meta property="twitter:image" content="https://picsum.photos/seed/social/1200/630" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            animation: {
+              'fade-in': 'fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'scale-in': 'scaleIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'toast-in': 'slideInRight 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'toast-out': 'slideOutRight 0.3s ease-in forwards',
+              breathe: 'breathe 2s ease-in-out infinite',
+              heartbeat: 'heartbeat 1.5s ease-in-out infinite',
+            },
+            fontFamily: {
+              sans: ['Poppins', 'Hind Siliguri', 'sans-serif'],
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              scaleIn: {
+                '0%': { opacity: '0', transform: 'scale(0.95)' },
+                '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              slideInRight: {
+                '0%': { transform: 'translateX(100%)', opacity: '0' },
+                '100%': { transform: 'translateX(0)', opacity: '1' },
+              },
+              slideOutRight: {
+                '0%': { transform: 'translateX(0)', opacity: '1' },
+                '100%': { transform: 'translateX(100%)', opacity: '0' },
+              },
+              breathe: {
+                '0%, 100%': { transform: 'scale(1)', opacity: '0.8' },
+                '50%': { transform: 'scale(1.1)', opacity: '1' },
+              },
+              heartbeat: {
+                '0%': { transform: 'scale(1)' },
+                '14%': { transform: 'scale(1.1)' },
+                '28%': { transform: 'scale(1)' },
+                '42%': { transform: 'scale(1.1)' },
+                '70%': { transform: 'scale(1)' },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap"
+    /></noscript>
+    <style>
+      body {
+        font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+        background-color: #f8fafc; /* lighter slate */
+        background-image: url('https://picsum.photos/seed/lightbg/1920/1080');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        transition: background-color 0.5s ease;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        word-wrap: break-word; /* Ensure words break to prevent overflow */
+      }
+      html.dark body {
+        background-color: #0f172a; /* darker slate */
+        background-image: url('https://picsum.photos/seed/darkbg/1920/1080');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+      }
+
+      /* Refined Glassmorphism - Increased opacity for better mobile readability */
+      .glass-card {
+        background-color: rgba(255, 255, 255, 0.8);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 1rem;
+        box-shadow:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+      .glass-card:hover {
+        box-shadow:
+          0 25px 50px -12px rgba(0, 0, 0, 0.25),
+          0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+      @media (min-width: 768px) {
+        .glass-card {
+          border-radius: 1.5rem;
+        }
+      }
+
+      html.dark .glass-card {
+        background-color: rgba(15, 23, 42, 0.85);
+        border-color: rgba(51, 65, 85, 0.6);
+      }
+
+      /* Slim, modern scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+        transition: background 0.3s;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      html.dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+      html.dark ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+
+      /* Paw Heart Loader (Pure CSS for initial load) */
+      .app-loader {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100%;
+        background-color: #f8fafc;
+        transition: background-color 0.3s;
+      }
+      html.dark .app-loader {
+        background-color: #0f172a;
+      }
+
+      .paw-heart-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        animation: heartbeat 1.5s ease-in-out infinite;
+      }
+
+      .paw-heart-bg {
+        width: 100%;
+        height: 100%;
+        color: #f97316; /* orange-500 */
+      }
+
+      .paw-heart-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50%;
+        height: 50%;
+        color: #f8fafc; /* light bg color */
+      }
+
+      html.dark .paw-heart-icon {
+        color: #0f172a; /* dark bg color */
+      }
+
+      .loader-text {
+        margin-top: 1rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        color: #f97316;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes heartbeat {
+        0% {
+          transform: scale(1);
+        }
+        14% {
+          transform: scale(1.1);
+        }
+        28% {
+          transform: scale(1);
+        }
+        42% {
+          transform: scale(1.1);
+        }
+        70% {
+          transform: scale(1);
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="/index.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@18.2.0",
+          "react/": "https://esm.sh/react@18.2.0/",
+          "react-dom": "https://esm.sh/react-dom@18.2.0",
+          "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+          "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?deps=react@18.2.0,react-dom@18.2.0",
+          "@google/genai": "https://esm.sh/@google/genai@0.1.1"
+        }
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-Dcgow4CU.js"></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+      <div class="app-loader">
+        <div class="paw-heart-wrapper">
+          <!-- Heart SVG Background -->
+          <svg
+            class="paw-heart-bg"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+            />
+          </svg>
+          <!-- Paw SVG Foreground -->
+          <svg
+            class="paw-heart-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M12.9,2.6c0.9-0.1,1.8,0.2,2.5,0.8c0.8,0.7,1.2,1.6,1.2,2.6c0,1.3-0.8,2.4-1.9,2.8c-0.2,0.1-0.4,0.1-0.6,0.1 c-0.8,0-1.6-0.3-2.2-0.9C11,7.4,10.6,6.4,10.6,5.4C10.6,4,11.6,2.8,12.9,2.6z M7,3.5C7.8,3.2,8.7,3.1,9.5,3.4 C10.5,3.8,11.2,4.6,11.4,5.6c0.3,1.1-0.1,2.2-0.9,2.9c-0.5,0.5-1.2,0.8-1.9,0.8c-0.1,0-0.2,0-0.3,0c-1.3-0.2-2.3-1.3-2.4-2.6 C5.8,5.4,6.2,4.2,7,3.5z M18.9,3.5c0.8-0.7,1.8-1.2,2.8-1.1c1.3,0.1,2.4,1.1,2.6,2.4c0.1,1.3-0.8,2.5-2,2.8 c-0.1,0-0.2,0-0.3,0c-0.7,0-1.4-0.3-1.9-0.8c-0.8-0.7-1.2-1.8-0.9-2.9C19.5,4.6,19.2,3.8,18.9,3.5z M3.1,3.5 c0.8-0.7,1.8-1.2,2.8-1.1c1.3,0.1,2.4,1.1,2.6,2.4c0.1,1.3-0.8,2.5-2,2.8c-0.1,0-0.2,0-0.3,0c-0.7,0-1.4-0.3-1.9-0.8 C3.4,6.2,3,5.1,3.3,4.1C3.5,4.6,3.3,3.8,3.1,3.5z M12,9c3.2,0,5.8,2.6,5.8,5.8c0,2.3-1.2,4.3-3,5.3c-1.4,0.8-3,1.2-4.6,1.2 s-3.2-0.4-4.6-1.2c-1.8-1-3-3-3-5.3C6.2,11.6,8.8,9,12,9z"
+            />
+          </svg>
+        </div>
+        <div class="loader-text">Loading PetBhai...</div>
+      </div>
+    </div>
+  </body>
+</html>
