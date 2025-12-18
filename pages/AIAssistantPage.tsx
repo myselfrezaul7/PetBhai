@@ -120,6 +120,16 @@ const AIAssistantPage: React.FC = () => {
     e.preventDefault();
     if (!userInput.trim() || isLoading) return;
 
+    // Check for API Key
+    try {
+      const hasKey = await window.aistudio?.hasSelectedApiKey();
+      if (!hasKey) {
+          await window.aistudio?.openSelectKey();
+      }
+    } catch (e) {
+      console.error("Error checking/opening key selector", e);
+    }
+
     const newUserMessage: ChatMessage = { sender: 'user', text: userInput };
     setChatHistory(prev => [...prev, newUserMessage]);
     setUserInput('');
@@ -127,6 +137,10 @@ const AIAssistantPage: React.FC = () => {
 
     try {
       const aiResponseText = await getVetAssistantResponse(userInput);
+      // Handle the case where the key expired or wasn't found during the call
+      if (aiResponseText.includes("issue with the API key")) {
+          await window.aistudio?.openSelectKey();
+      }
       const newAiMessage: ChatMessage = { sender: 'ai', text: aiResponseText };
       setChatHistory(prev => [...prev, newAiMessage]);
     } catch (error) {

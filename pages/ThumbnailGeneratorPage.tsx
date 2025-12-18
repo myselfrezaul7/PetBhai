@@ -15,15 +15,30 @@ const ThumbnailGeneratorPage: React.FC = () => {
         e.preventDefault();
         if (!title.trim()) return;
 
+        // Check for API Key
+        try {
+            const hasKey = await window.aistudio?.hasSelectedApiKey();
+            if (!hasKey) {
+                await window.aistudio?.openSelectKey();
+            }
+        } catch (e) {
+            console.error("Error checking/opening key selector", e);
+        }
+
         setIsGenerating(true);
         setGeneratedImage(null);
         try {
             const imageUrl = await generateVlogThumbnail(title, subject, mood);
             setGeneratedImage(imageUrl);
             toast.success("Thumbnail generated successfully!");
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to generate thumbnail. Please try again.");
+            if (error?.message?.includes("Requested entity was not found")) {
+                toast.error("Session expired. Please select API key again.");
+                await window.aistudio?.openSelectKey();
+            } else {
+                toast.error("Failed to generate thumbnail. Please try again.");
+            }
         } finally {
             setIsGenerating(false);
         }

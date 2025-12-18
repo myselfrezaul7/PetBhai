@@ -2,7 +2,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
@@ -12,7 +12,7 @@ interface State {
 
 // Fix: "Property 'props' does not exist on type 'ErrorBoundary'"
 // Explicitly extending React.Component and using a constructor ensures props are available in the instance.
-class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {

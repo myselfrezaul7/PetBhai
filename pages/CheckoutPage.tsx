@@ -60,7 +60,7 @@ const CheckoutPage: React.FC = () => {
         addOrderToHistory(newOrder);
     }
     
-    toast.success('Thank you for your order! It has been placed successfully.');
+    toast.success('Demo Order Placed! (This is a simulation, no payment was taken)');
     clearCart();
     navigate('/');
   };
@@ -82,7 +82,11 @@ const CheckoutPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in">
-      <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-10">Checkout</h1>
+      <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-4">Checkout</h1>
+      <p className="text-center text-orange-600 dark:text-orange-400 font-bold mb-10 bg-orange-100 dark:bg-orange-900/30 p-3 rounded-lg max-w-xl mx-auto">
+          ⚠️ Demo Mode: This is a demonstration website. No actual payments will be processed, and no items will be delivered.
+      </p>
+      
       <div className="flex flex-col-reverse lg:flex-row gap-12 max-w-5xl mx-auto">
         
         {/* Customer Form */}
@@ -181,7 +185,7 @@ const CheckoutPage: React.FC = () => {
             </div>
             <div className="pt-4">
               <button type="submit" className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-orange-600 transition-colors">
-                Place Order
+                Place Order (Demo)
               </button>
             </div>
           </form>

@@ -31,11 +31,12 @@ const ReportPage: React.FC = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setStatus('Location found!');
-        setLocation(`${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`);
+        setLocation(`Lat: ${position.coords.latitude.toFixed(5)}, Lng: ${position.coords.longitude.toFixed(5)}`);
         setIsLocating(false);
       },
-      () => {
-        setStatus('Unable to retrieve your location. Please enter it manually.');
+      (error) => {
+        console.error("Geolocation error:", error);
+        setStatus('Unable to retrieve location. Please check browser permissions.');
         setIsLocating(false);
       }
     );
@@ -68,15 +69,30 @@ const ReportPage: React.FC = () => {
           return;
       }
 
+      // Check for API Key before analyzing
+      try {
+        const hasKey = await window.aistudio?.hasSelectedApiKey();
+        if (!hasKey) {
+            await window.aistudio?.openSelectKey();
+        }
+      } catch (e) {
+        console.error("Error checking/opening key selector", e);
+      }
+
       setIsAnalyzing(true);
       try {
           const result = await analyzeRescueImage(file);
           if (result.type) setAnimalType(result.type);
           if (result.condition) setCondition(result.condition);
           toast.success('Image analyzed successfully! Details updated.');
-      } catch (error) {
+      } catch (error: any) {
           console.error(error);
-          toast.error('Failed to analyze image. Please fill details manually.');
+          if (error?.message?.includes("Requested entity was not found")) {
+             toast.error("Session expired. Please select API key again.");
+             await window.aistudio?.openSelectKey();
+          } else {
+             toast.error('Failed to analyze image. Please fill details manually.');
+          }
       } finally {
           setIsAnalyzing(false);
       }
@@ -84,7 +100,25 @@ const ReportPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Thank you! Your rescue report has been submitted.');
+    
+    // Construct Email Body for "Live" functionality via Mailto
+    const subject = encodeURIComponent(`URGENT: Rescue Report - ${animalType}`);
+    const body = encodeURIComponent(
+`RESCUE REPORT DETAILS
+
+Animal Type: ${animalType}
+Location: ${location}
+Condition: ${condition}
+
+Note to Sender: Please attach the photo/video manually to this email before sending.
+`
+    );
+
+    // Open Mail Client
+    window.location.href = `mailto:petbhaibd@gmail.com?subject=${subject}&body=${body}`;
+
+    toast.success('Opening email client... Please attach the photo and hit send!');
+    
     // Reset form state
     setLocation('');
     setStatus('');
@@ -103,7 +137,9 @@ const ReportPage: React.FC = () => {
       <div className="w-full max-w-2xl glass-card p-8 md:p-12">
         <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-4">Report a Rescue</h1>
         <p className="text-lg text-center text-slate-700 dark:text-slate-200 mb-10">
-          See an animal that needs help? Fill out the form below, and our rescue team will be alerted.
+          See an animal that needs help? Fill out the form below. 
+          <br/>
+          <span className="text-sm text-orange-600 dark:text-orange-400 font-bold">Note: Submitting will open your email client.</span>
         </p>
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -189,18 +225,18 @@ const ReportPage: React.FC = () => {
                 type="button"
                 onClick={handleGetLocation}
                 disabled={isLocating}
-                className="flex items-center justify-center bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors disabled:bg-slate-400"
+                className="flex items-center justify-center bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors disabled:bg-slate-400 min-w-fit"
               >
                 <MapPinIcon className="w-5 h-5 mr-2" />
-                {isLocating ? 'Locating...' : 'Use My Location'}
+                {isLocating ? 'Locating...' : 'My Location'}
               </button>
             </div>
-            {status && <p role="status" className="text-sm text-gray-500 dark:text-gray-400 mt-2">{status}</p>}
+            {status && <p role="status" className="text-sm text-orange-600 dark:text-orange-400 mt-2 font-medium">{status}</p>}
           </div>
 
           <div>
-            <button type="submit" className="w-full bg-orange-500 text-white font-bold py-4 px-4 rounded-lg text-lg hover:bg-orange-600 transition-colors transform hover:scale-105">
-              Submit Rescue Report
+            <button type="submit" className="w-full bg-orange-500 text-white font-bold py-4 px-4 rounded-lg text-lg hover:bg-orange-600 transition-colors transform hover:scale-105 shadow-lg">
+              Send Report
             </button>
           </div>
         </form>
