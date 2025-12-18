@@ -10,6 +10,10 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
+  // Ensure TypeScript recognizes the props property on the instance (some
+  // environments/types can produce a complaint about 'props' not existing).
+  public readonly props!: Props;
+
   public state: State = {
     hasError: false,
   };
@@ -69,7 +73,8 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    const { children } = this.props as Props;
+    return children;
   }
 }
 

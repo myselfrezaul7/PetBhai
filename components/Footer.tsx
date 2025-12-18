@@ -12,9 +12,7 @@ const Footer: React.FC = () => {
           <div className="flex flex-col items-center md:items-start col-span-2 md:col-span-1">
             <div className="flex items-center space-x-3 mb-2">
               <Logo className="w-10 h-10 text-orange-500" />
-              <span className="text-2xl font-bold text-slate-800 dark:text-white uppercase">
-                PetBhai
-              </span>
+              <span className="text-2xl font-bold text-slate-800 dark:text-white">PetBhai</span>
             </div>
             <p className="text-slate-600 dark:text-slate-300">Your Pet's Favorite Partner.</p>
           </div>

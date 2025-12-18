@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "lint": "eslint --max-warnings=0 --no-warn-ignored",
-    "lint:all": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0 --no-warn-ignored",
+    "lint:all": "eslint \"**/*.{ts,tsx,js,jsx}\" --max-warnings=0 --no-warn-ignored",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
     "check:html": "html-validate 'public/**/*.html'",
     "ci": "npm run lint && npm run check:html && npm run build",
