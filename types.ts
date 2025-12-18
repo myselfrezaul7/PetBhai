@@ -1,4 +1,3 @@
-
 import type React from 'react';
 
 export interface Review {
@@ -188,25 +187,32 @@ export interface PetSitter extends BaseProfessional {
 }
 
 declare global {
-  // Fix: Moved AIStudio interface definition inside declare global to properly merge
-  // with any ambient definitions and resolve type conflict errors.
   interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
     openSelectKey: () => Promise<void>;
   }
 
-  // Extend the Window interface to include properties added by the Facebook SDK and AI Studio.
+  // Extend the Window interface to include properties added by SDKs
   interface Window {
     fbAsyncInit: () => void;
     FB: {
       init: (params: { xfbml: boolean; version: string }) => void;
     };
-    // Fix: Added optional modifier '?' to 'aistudio' to resolve "All declarations... 
-    // must have identical modifiers" error by matching the environment's likely definition.
     aistudio?: AIStudio;
+    // Added Google Identity Services support
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          prompt: () => void;
+          renderButton: (element: HTMLElement, config: any) => void;
+          disableAutoSelect: () => void;
+          storeCredential: (credential: any) => void;
+        }
+      }
+    };
   }
 
-  // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.
   namespace React {
     interface HTMLAttributes<T> {
       page_id?: string;

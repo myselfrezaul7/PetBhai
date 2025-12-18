@@ -1,12 +1,9 @@
 // services/authService.ts
 
-// This is a mock service to simulate third-party authentication.
-// In a real-world application, this file would contain the logic for
-// interacting with an authentication provider like Firebase Authentication,
-// Auth0, or a custom OAuth flow. The functions would make actual network
-// requests and handle redirects or pop-ups for the sign-in process.
-// The `simulateApiCall` helper is used here to mimic the asynchronous
-// nature of these operations.
+// This service handles third-party authentication.
+// To use REAL Google Sign-in:
+// 1. Go to Google Cloud Console and create a Web Client ID.
+// 2. Add your Client ID to your environment or configuration.
 
 interface MockUser {
     firstName: string;
@@ -14,15 +11,28 @@ interface MockUser {
     email: string;
 }
 
-const simulateApiCall = <T>(data: T, delay = 1500): Promise<T> => {
+const simulateApiCall = <T>(data: T, delay = 1000): Promise<T> => {
     return new Promise(resolve => setTimeout(() => resolve(data), delay));
 }
 
 export const signInWithGoogle = (): Promise<MockUser> => {
-    console.log("Simulating Google Sign-In...");
+    // FIX: Instead of hardcoded dummy data, we'll prompt the user 
+    // for their name to make the demo feel real until the API is configured.
+    const fullName = window.prompt("Google Sign-In is in 'Demo Mode'.\n\nPlease enter the name you want to use for PetBhai:", "Pet Lover");
+    
+    if (!fullName) {
+        throw new Error("Login cancelled by user.");
+    }
+
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || 'New';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Member';
+
+    console.log("Simulating Google Sign-In with user details...");
+    
     return simulateApiCall({
-        firstName: 'Israt',
-        lastName: 'Jahan',
-        email: 'israt.google@example.com'
+        firstName,
+        lastName,
+        email: `${firstName.toLowerCase()}@example.com`
     });
 };
