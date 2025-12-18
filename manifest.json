@@ -4,19 +4,19 @@
   "description": "Your trusted partner in animal welfare, offering pet adoption, services, and premium supplies in Bangladesh.",
   "icons": [
     {
-      "src": "icon-192x192.png",
+      "src": "./icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "./icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#f97316",
   "background_color": "#f8fafc"

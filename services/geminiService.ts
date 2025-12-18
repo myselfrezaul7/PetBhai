@@ -1,40 +1,10 @@
-import { GoogleGenAI, Modality } from "@google/genai";
+
+import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { MOCK_PRODUCTS } from '../constants';
 
-// Create a singleton instance of the AI client to avoid re-creating it on every call.
-let aiInstance: GoogleGenAI | null = null;
+// Guidelines: Always use process.env.API_KEY directly.
+// Guidelines: Create a new GoogleGenAI instance right before making an API call.
 
-// Safe environment variable access for various build environments (Vite, standard, etc.)
-const getApiKey = () => {
-  // Check standard process.env (bundlers often polyfill this)
-  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY;
-  }
-  // Check Vite specific env
-  if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_KEY) {
-    return (import.meta as any).env.VITE_API_KEY;
-  }
-  return null;
-};
-
-function getAiInstance(): GoogleGenAI {
-  if (!aiInstance) {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      console.error("API_KEY environment variable is not set.");
-      throw new Error("AI service is not configured. Missing API key.");
-    }
-    try {
-        aiInstance = new GoogleGenAI({ apiKey: apiKey });
-    } catch (e) {
-        console.error("Failed to initialize GoogleGenAI", e);
-        throw new Error("Failed to initialize AI service.");
-    }
-  }
-  return aiInstance;
-}
-
-// Generate a summary of the product catalog for the AI
 const productCatalog = MOCK_PRODUCTS.map(p => 
     `- ${p.name} (${p.category}): ৳${p.price} [Rating: ${p.rating}/5]`
 ).join('\n');
@@ -58,29 +28,29 @@ Use asterisks for bullet points (e.g., * Item 1) and double asterisks for boldin
 
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   try {
-    const ai = getAiInstance();
-    // Upgraded to gemini-3-pro-preview for advanced reasoning capabilities
+    // Fix: Instantiate right before the call as per guidelines
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview', 
       contents: [{ parts: [{ text: prompt }] }],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        // Enabling thinking allows the model to reason about safety and medical nuance before answering
+        // Fix: Use thinkingConfig for Gemini 3 models
         thinkingConfig: { thinkingBudget: 2048 },
-        // Enable Google Search to provide grounded, up-to-date information
         tools: [{ googleSearch: {} }] 
       },
     });
 
+    // Fix: Access response.text as a property
     let text = response.text || "I'm having trouble generating a response right now.";
 
-    // Append grounding sources if available
+    // Fix: Extract URLs from groundingChunks for search results
     if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
         const chunks = response.candidates[0].groundingMetadata.groundingChunks;
         const sources = chunks
-            .map((chunk: any) => chunk.web?.uri) // Extract URIs
-            .filter((uri: string) => uri) // Filter undefined
-            .filter((value: string, index: number, self: string[]) => self.indexOf(value) === index); // Unique
+            .map((chunk: any) => chunk.web?.uri)
+            .filter((uri: string) => uri)
+            .filter((value: string, index: number, self: string[]) => self.indexOf(value) === index);
 
         if (sources.length > 0) {
             text += "\n\n**Sources:**\n" + sources.map((url: string) => `* [${new URL(url).hostname}](${url})`).join("\n");
@@ -88,10 +58,11 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
     }
 
     return text;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in getVetAssistantResponse:", error);
-    if (error instanceof Error && error.message.includes("API key")) {
-        return "I'm sorry, but the AI Assistant is currently unavailable due to a configuration issue. Please contact the site administrator.";
+    // Fix: Handle API key selection errors (Requested entity was not found)
+    if (error?.message?.includes("Requested entity was not found")) {
+        return "I'm sorry, but it seems there is an issue with the API key configuration. Please ensure you have selected a valid API key if required.";
     }
     return "I'm sorry, but I'm having trouble connecting to my knowledge base right now. Please try again later.";
   }
@@ -99,23 +70,22 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
 
 export const generateImageFromPrompt = async (prompt: string): Promise<string> => {
   try {
-    const ai = getAiInstance();
-    // Upgraded to gemini-3-pro-image-preview for high-quality visuals
+    // Fix: Instantiate right before the call
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-image-preview',
       contents: {
         parts: [{ text: prompt }],
       },
       config: {
-        // No responseModalities needed for this model when generating images via generateContent
         imageConfig: {
-            aspectRatio: "16:9", // Optimized for blog post headers
+            aspectRatio: "16:9",
             imageSize: "1K"
         }
       },
     });
     
-    // Iterate through parts to find the image data
+    // Fix: Iterate through parts to find the image part (inlineData)
     if (response.candidates && response.candidates[0].content.parts) {
         for (const part of response.candidates[0].content.parts) {
           if (part.inlineData) {
@@ -128,17 +98,13 @@ export const generateImageFromPrompt = async (prompt: string): Promise<string> =
     throw new Error("No image data found in the AI response.");
   } catch (error) {
     console.error("Error generating image from Gemini:", error);
-    if (error instanceof Error && error.message.includes("API key")) {
-        throw new Error("The image generator is unavailable due to a configuration issue.");
-    }
     throw new Error("Failed to generate the image. Please try again later.");
   }
 };
 
 export const generateVlogThumbnail = async (title: string, subject: string, mood: string): Promise<string> => {
     try {
-        const ai = getAiInstance();
-        // Using 'nano banana' (gemini-2.5-flash-image) as requested for fast, creative thumbnails
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const prompt = `Create a high-quality, eye-catching YouTube vlog thumbnail. 
         Title context: "${title}". 
         Subject: ${subject}. 
@@ -157,6 +123,7 @@ export const generateVlogThumbnail = async (title: string, subject: string, mood
             }
         });
 
+        // Fix: Properly handle multi-part content
         if (response.candidates && response.candidates[0].content.parts) {
             for (const part of response.candidates[0].content.parts) {
                 if (part.inlineData) {
@@ -174,21 +141,16 @@ export const generateVlogThumbnail = async (title: string, subject: string, mood
 
 export const analyzeRescueImage = async (imageFile: File): Promise<{ type: string, condition: string }> => {
     try {
-        const ai = getAiInstance();
-        
-        // Convert file to base64
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const base64Data = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result as string);
             reader.onerror = reject;
             reader.readAsDataURL(imageFile);
         });
-        
-        // Remove data url prefix
         const base64String = base64Data.split(',')[1];
         const mimeType = imageFile.type;
 
-        // Use gemini-3-pro-preview for multimodal analysis
         const response = await ai.models.generateContent({
             model: 'gemini-3-pro-preview', 
             contents: {
@@ -199,14 +161,14 @@ export const analyzeRescueImage = async (imageFile: File): Promise<{ type: strin
             },
             config: {
                 responseMimeType: "application/json",
-                 // Low thinking budget for faster analysis as this is a simpler task
                 thinkingConfig: { thinkingBudget: 1024 }
             }
         });
 
+        // Fix: Use response.text property
         const text = response.text;
         if (!text) throw new Error("No response from AI");
-        return JSON.parse(text);
+        return JSON.parse(text.trim());
     } catch (error) {
         console.error("Error analyzing image:", error);
         throw error;

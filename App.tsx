@@ -20,7 +20,6 @@ import CartSidebar from './components/CartSidebar';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
-const AIAssistantPage = lazy(() => import('./pages/AIAssistantPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignUpPage = lazy(() => import('./pages/SignUpPage'));
@@ -42,6 +41,10 @@ const FAQPage = lazy(() => import('./pages/FAQPage'));
 const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage'));
 const ThumbnailGeneratorPage = lazy(() => import('./pages/ThumbnailGeneratorPage'));
 
+// New lazy loads for Legal
+const PrivacyPolicy = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.PrivacyPolicy })));
+const TermsOfService = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.TermsOfService })));
+
 
 const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
@@ -57,9 +60,6 @@ const GlobalCartElements: React.FC = () => {
     const { isCartOpen, closeCart, openCart, cartCount } = useCart();
     const location = useLocation();
     
-    // The cart button should be visible if:
-    // 1. There are items in the cart (cartCount > 0)
-    // 2. OR the user is on the Shop page (location.pathname === '/shop'), allowing them to access the cart even if empty.
     const isShopPage = location.pathname === '/shop';
     const isVisible = cartCount > 0 || isShopPage;
     
@@ -88,13 +88,9 @@ const AppContent: React.FC = () => {
   const { consent } = useCookieConsent();
 
   useEffect(() => {
-    // Robust Service Worker Registration
     const registerServiceWorker = async () => {
       if ('serviceWorker' in navigator) {
         try {
-          // In a React app, components mount after the basic DOM is ready.
-          // We can register immediately without waiting for 'load' event, 
-          // which avoids the "document in invalid state" error if the event has already passed.
           const registration = await navigator.serviceWorker.register('./service-worker.js');
           console.log('SW registered with scope:', registration.scope);
         } catch (error) {
@@ -118,7 +114,6 @@ const AppContent: React.FC = () => {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
             <Route path="/vet/:id" element={<VetDetailPage />} />
-            <Route path="/ai-assistant" element={<AIAssistantPage />} />
             <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
@@ -134,6 +129,8 @@ const AppContent: React.FC = () => {
             <Route path="/report" element={<ReportPage />} />
             <Route path="/volunteer" element={<VolunteerPage />} />
             <Route path="/faq" element={<FAQPage />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

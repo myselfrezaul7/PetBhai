@@ -1,3 +1,4 @@
+
 import type React from 'react';
 
 export interface Review {
@@ -187,12 +188,22 @@ export interface PetSitter extends BaseProfessional {
 }
 
 declare global {
-  // Extend the Window interface to include properties added by the Facebook SDK.
+  // Fix: Moved AIStudio interface definition inside declare global to properly merge
+  // with any ambient definitions and resolve type conflict errors.
+  interface AIStudio {
+    hasSelectedApiKey: () => Promise<boolean>;
+    openSelectKey: () => Promise<void>;
+  }
+
+  // Extend the Window interface to include properties added by the Facebook SDK and AI Studio.
   interface Window {
     fbAsyncInit: () => void;
     FB: {
       init: (params: { xfbml: boolean; version: string }) => void;
     };
+    // Fix: Added optional modifier '?' to 'aistudio' to resolve "All declarations... 
+    // must have identical modifiers" error by matching the environment's likely definition.
+    aistudio?: AIStudio;
   }
 
   // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.

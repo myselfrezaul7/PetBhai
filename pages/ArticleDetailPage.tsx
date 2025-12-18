@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useArticles } from '../contexts/ArticleContext';
@@ -21,17 +22,39 @@ const ArticleDetailPage: React.FC = () => {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 3), [articles, id]);
 
+    // Uses the global aistudio interface defined in types.ts
     const handleGenerateImage = async () => {
         if (!article) return;
+        
+        // Guidelines: Users MUST select their own API key for high-quality image generation
+        try {
+            // Fix: Added optional chaining for window.aistudio to accommodate its optional declaration in types.ts.
+            const hasKey = await window.aistudio?.hasSelectedApiKey();
+            if (!hasKey) {
+                // Fix: Added optional chaining for openSelectKey call.
+                await window.aistudio?.openSelectKey();
+                // Guidelines: Assume the key selection was successful after triggering openSelectKey()
+            }
+        } catch (e) {
+            console.error("Error checking or opening API key selector", e);
+        }
+
         setIsGenerating(true);
         setGenerationError('');
         try {
             const prompt = `একটি প্রাণবন্ত, বাস্তবসম্মত ছবি যা "${article.title}" শিরোনামের একটি ব্লগ পোস্টের জন্য উপযুক্ত। ছবিটি একটি পশু কল্যাণ সংস্থার ব্লগের জন্য মানানসই হতে হবে।`;
             const imageUrl = await generateImageFromPrompt(prompt);
             updateArticleImage(article.id, imageUrl);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            setGenerationError(error instanceof Error ? error.message : 'An unknown error occurred.');
+            // Guidelines: Reset key selection state and prompt if "Requested entity was not found"
+            if (error?.message?.includes("Requested entity was not found")) {
+                setGenerationError("Session expired or invalid API key. Please select your API key again.");
+                // Fix: Added optional chaining for openSelectKey call.
+                await window.aistudio?.openSelectKey();
+            } else {
+                setGenerationError(error instanceof Error ? error.message : 'An unknown error occurred.');
+            }
         } finally {
             setIsGenerating(false);
         }
@@ -87,6 +110,9 @@ const ArticleDetailPage: React.FC = () => {
                                 </button>
                                 {isGenerating && <div className="mt-4 w-full max-w-xs bg-slate-300 dark:bg-slate-600 h-1 rounded-full overflow-hidden"><div className="bg-orange-500 h-1 animate-pulse w-full"></div></div>}
                                 {generationError && <p className="text-red-500 mt-4 text-sm">{generationError}</p>}
+                                <div className="mt-4 text-xs text-slate-500">
+                                    <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="underline">Billing Information</a>
+                                </div>
                             </div>
                         )}
                     </div>
