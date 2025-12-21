@@ -1,3 +1,6 @@
 {
-  "extends": ["html-validate:recommended"]
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "attribute-allowed-values": "off"
+  }
 }

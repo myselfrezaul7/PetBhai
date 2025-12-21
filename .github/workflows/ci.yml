@@ -25,9 +25,23 @@ jobs:
         run: npm run ci
 
       - name: Build
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npm run build
 
       - name: Validate produced HTML
-        run: npx html-validate dist/**/*.html || true
+        run: npm run check:html
+
+      - name: AI proxy smoke test
+        run: node scripts/ci/ai-proxy-smoke.js
+
+  secret_scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Secret scan dist
+        run: npx gitleaks detect --source=dist --no-git
+
+      - name: Secret scan repo
+        run: npx gitleaks detect --source=. --no-git

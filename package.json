@@ -13,8 +13,8 @@
     "lint": "eslint --max-warnings=0 --no-warn-ignored",
     "lint:all": "eslint \"**/*.{ts,tsx,js,jsx}\" --max-warnings=0 --no-warn-ignored",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
-    "check:html": "html-validate 'public/**/*.html'",
-    "ci": "npm run lint && npm run check:html && npm run build",
+    "check:html": "html-validate \"dist/**/*.html\" \"public/**/*.html\"",
+    "ci": "npm run lint && npm run build && npm run check:html",
     "prepare": "husky install"
   },
   "lint-staged": {
@@ -31,6 +31,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.2.1",

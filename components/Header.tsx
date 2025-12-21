@@ -32,11 +32,6 @@ const ALL_PAGES: PageResult[] = [
     keywords: ['community', 'social', 'forum', 'group', 'kormoshala', 'কমিউনিটি', 'আড্ডা'],
   },
   {
-    name: 'AI Vet',
-    path: '/ai-assistant',
-    keywords: ['ai', 'vet', 'assistant', 'chat', 'bot', 'krimtim', 'buddhimotta', 'এআই', 'চ্যাট'],
-  },
-  {
     name: 'Blog',
     path: '/blog',
     keywords: ['blog', 'news', 'tips', 'articles', 'lekha', 'ব্লগ', 'লেখা'],
@@ -59,6 +54,8 @@ const Header: React.FC = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  const desktopInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -148,6 +145,17 @@ const Header: React.FC = () => {
       clearTimeout(handler);
     };
   }, [searchQuery, products]);
+
+  // Keep the aria-expanded attribute on inputs in sync for assistive tech
+  useEffect(() => {
+    const expanded = Boolean(isSearchActive && searchQuery);
+    if (desktopInputRef.current) {
+      desktopInputRef.current.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+    if (mobileInputRef.current) {
+      mobileInputRef.current.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+  }, [isSearchActive, searchQuery]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -246,7 +254,6 @@ const Header: React.FC = () => {
               <DesktopNavLink to="/shop">{t('nav_shop')}</DesktopNavLink>
               <DesktopNavLink to="/community">{t('nav_community')}</DesktopNavLink>
               <DesktopNavLink to="/services">{t('nav_services')}</DesktopNavLink>
-              <DesktopNavLink to="/ai-assistant">{t('nav_ai_vet')}</DesktopNavLink>
               <DesktopNavLink to="/blog">{t('nav_blog')}</DesktopNavLink>
               <DesktopNavLink
                 to="/plus-membership"
@@ -263,6 +270,7 @@ const Header: React.FC = () => {
                 <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500 group-focus-within:text-orange-500 transition-colors" />
               </span>
               <input
+                ref={desktopInputRef}
                 type="text"
                 placeholder={t('search_placeholder')}
                 value={searchQuery}
@@ -272,11 +280,12 @@ const Header: React.FC = () => {
                 aria-label="Search"
                 autoComplete="off"
                 role="combobox"
-                aria-expanded={isSearchActive && !!searchQuery}
                 aria-haspopup="listbox"
                 aria-autocomplete="list"
                 aria-controls="search-results-desktop"
+                aria-expanded="false"
               />
+
               {isSearchActive && searchQuery && (
                 <div className="animate-fade-in origin-top">
                   <SearchResults
@@ -378,6 +387,7 @@ const Header: React.FC = () => {
                     <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                   </span>
                   <input
+                    ref={mobileInputRef}
                     type="text"
                     placeholder={t('search_placeholder')}
                     value={searchQuery}
@@ -388,11 +398,12 @@ const Header: React.FC = () => {
                     autoFocus
                     autoComplete="off"
                     role="combobox"
-                    aria-expanded={isSearchActive && !!searchQuery}
                     aria-haspopup="listbox"
                     aria-autocomplete="list"
                     aria-controls="search-results-mobile"
+                    aria-expanded="false"
                   />
+
                   {isSearchActive && searchQuery && (
                     <div className="animate-fade-in origin-top">
                       <SearchResults
@@ -471,7 +482,6 @@ const Header: React.FC = () => {
             <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
             <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
             <MobileNavLink to="/services">{t('nav_services')}</MobileNavLink>
-            <MobileNavLink to="/ai-assistant">{t('nav_ai_vet')}</MobileNavLink>
             <MobileNavLink to="/blog">{t('nav_blog')}</MobileNavLink>
             <MobileNavLink
               to="/plus-membership"

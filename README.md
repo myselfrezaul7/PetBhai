@@ -44,3 +44,21 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Z8Y_0SmP7T2684rss1HhLk
 
 - Create a production build: `npm run build`
 - Deploy to GitHub Pages: `npm run deploy` (project uses `gh-pages` and has a `CNAME` for `www.petbhai.com`).
+
+---
+
+## CI checks & AI proxy (added by automation)
+
+The repository is configured to run enforced CI checks on PRs/Pushes to `main`:
+
+- `npm run ci` (lint + build) is run during CI.
+- `npm run check:html` is run after `npm run build` and will fail the CI if HTML validation issues are present.
+- A **secret scan** using `gitleaks` is run on `dist/` and the repository; any findings will fail CI and require remediation.
+- A lightweight AI proxy smoke-test is executed if `VITE_AI_PROXY_URL` or `AI_PROXY_URL` secret is configured in the repository settings; it POSTs a small prompt and expects a JSON-like response.
+
+Required repository secrets for production AI workflows (configure under Settings → Secrets → Actions):
+
+- `GEMINI_API_KEY` — only for server-side deployments; do NOT inject production keys into the client.
+- `VITE_AI_PROXY_URL` — optional: the endpoint for a server-side proxy that the frontend can call to safely access AI services.
+
+If you'd like, I can also add a GitHub Action to automatically deploy the optional serverless proxy (Netlify/Vercel) and wire the `VITE_AI_PROXY_URL` for you — let me know which host you'd prefer.

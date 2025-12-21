@@ -20,8 +20,6 @@ jobs:
         run: npm ci
 
       - name: Build
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npm run build
 
       - name: Deploy to GitHub Pages
@@ -31,4 +29,4 @@ jobs:
           folder: dist
           clean: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          cname: www.petbhai.com
+          # Note: CNAME will be taken from the repository's CNAME file in the repo/gh-pages branch
