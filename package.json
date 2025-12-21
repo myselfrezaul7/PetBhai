@@ -15,8 +15,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
     "check:html": "html-validate \"dist/**/*.html\" \"public/**/*.html\"",
-    "ci": "npm run lint && npm run typecheck && npm run build && npm run check:html",
-    "prepare": "husky install"
+    "ci": "npm run lint && npm run typecheck && npm run build && npm run check:html"
   },
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx,css,html,md}": [
