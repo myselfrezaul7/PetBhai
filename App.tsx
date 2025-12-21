@@ -44,6 +44,7 @@ const VolunteerPage = lazy(() => import('./pages/VolunteerPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage'));
 const ThumbnailGeneratorPage = lazy(() => import('./pages/ThumbnailGeneratorPage'));
+const TrustPage = lazy(() => import('./pages/TrustPage'));
 
 const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
@@ -139,6 +140,7 @@ const AppContent: React.FC = () => {
             <Route path="/report" element={<ReportPage />} />
             <Route path="/volunteer" element={<VolunteerPage />} />
             <Route path="/faq" element={<FAQPage />} />
+            <Route path="/safety" element={<TrustPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

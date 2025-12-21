@@ -35,6 +35,7 @@ const translations: Translations = {
   },
   btn_adopt: { en: 'Find a Friend', bn: 'নতুন সঙ্গী খুঁজুন' },
   btn_shop: { en: 'Shop Supplies', bn: 'কেনাকাটা করুন' },
+  btn_ai_vet: { en: 'Ask AI Vet', bn: 'এআই ভেট' },
 
   section_best_sellers: { en: 'Our Best Sellers', bn: 'সবার পছন্দের শীর্ষে' },
   section_best_sellers_sub: {
@@ -93,6 +94,30 @@ const translations: Translations = {
   btn_generate_ai: { en: 'Generate with AI', bn: 'AI দিয়ে তৈরি করুন' },
   btn_generating: { en: 'Generating...', bn: 'তৈরি হচ্ছে...' },
   recent_articles: { en: 'Recent Articles', bn: 'সাম্প্রতিক লেখা' },
+
+  // Trust Page
+  trust_title: { en: 'Your Trust, Our Priority', bn: 'আপনার বিশ্বাস, আমাদের অগ্রাধিকার' },
+  trust_subtitle: {
+    en: 'At PetBhai, we are committed to creating a safe, transparent, and loving community for pets and their parents. Here is how we ensure quality and safety in everything we do.',
+    bn: 'পেটভাই-এ আমরা পোষা প্রাণী এবং তাদের অভিভাবকদের জন্য একটি নিরাপদ, স্বচ্ছ এবং ভালোবাসাপূর্ণ কমিউনিটি তৈরি করতে প্রতিশ্রুতিবদ্ধ। আমরা প্রতিটি পদক্ষেপে গুণমান এবং নিরাপত্তা নিশ্চিত করি।',
+  },
+  trust_pillar_1_title: { en: 'Vetted Products', bn: 'যাচাইকৃত পণ্য' },
+  trust_pillar_1_desc: {
+    en: 'Every product in our shop is hand-picked and reviewed for safety. We only partner with authentic brands and suppliers to ensure your pet gets the best nutrition and care.',
+    bn: 'আমাদের শপের প্রতিটি পণ্য নিরাপত্তা এবং গুণমানের জন্য যাচাই করা হয়। আপনার পোষ্যের সেরা পুষ্টি এবং যত্ন নিশ্চিত করতে আমরা শুধুমাত্র আসল ব্র্যান্ড এবং সরবরাহকারীদের সাথে কাজ করি।',
+  },
+  trust_pillar_2_title: { en: 'Verified Professionals', bn: 'নিবন্ধিত বিশেষজ্ঞ' },
+  trust_pillar_2_desc: {
+    en: 'All vets, groomers, and trainers on our platform undergo a verification process. We check their certifications and track record to ensure your pet is in safe hands.',
+    bn: 'আমাদের প্ল্যাটফর্মের সকল ভেট, গ্রুমার এবং ট্রেইনার একটি যাচাইকরণ প্রক্রিয়ার মধ্য দিয়ে যান। আপনার পোষ্য নিরাপদ হাতে আছে কিনা তা নিশ্চিত করতে আমরা তাদের সনদ এবং অভিজ্ঞতার রেকর্ড পরীক্ষা করি।',
+  },
+  trust_pillar_3_title: { en: 'Community Safety', bn: 'কমিউনিটি নিরাপত্তা' },
+  trust_pillar_3_desc: {
+    en: 'Our adoption and community forums are moderated to prevent scams and ensure animal welfare. We have a zero-tolerance policy for animal cruelty or neglect.',
+    bn: 'প্রতারণা রোধ এবং প্রাণী কল্যাণ নিশ্চিত করতে আমাদের দত্তক এবং কমিউনিটি ফোরামগুলো নিয়মিত পর্যবেক্ষণ করা হয়। প্রাণীর প্রতি নিষ্ঠুরতা বা অবহেলার ক্ষেত্রে আমাদের জিরো-টলারেন্স নীতি রয়েছে।',
+  },
+  trust_vet_title: { en: 'How We Verify Vets', bn: 'কিভাবে আমরা ভেট যাচাই করি' },
+  trust_delivery_title: { en: 'Secure Shopping & Delivery', bn: 'নিরাপদ কেনাকাটা ও ডেলিভারি' },
 };
 
 interface LanguageContextType {

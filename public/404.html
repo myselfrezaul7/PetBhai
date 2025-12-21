@@ -5,21 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>404 — PetBhai</title>
     <meta name="robots" content="noindex" />
-    <meta http-equiv="refresh" content="0; url=/" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
       // For SPA on GitHub Pages: redirect paths to hash-based routes so HashRouter can handle them.
       (function () {
         try {
-          var path = window.location.pathname + window.location.search + window.location.hash;
-          var redirect = '/#' + path;
+          var path = window.location.pathname;
+          // Remove repo name from path if present (for GitHub Pages project pages)
+          var repoName = '/PetBhai';
+          if (path.startsWith(repoName)) {
+            path = path.substring(repoName.length);
+          }
+
+          var redirect = repoName + '/#' + path + window.location.search + window.location.hash;
           window.location.replace(redirect);
         } catch (e) {
-          window.location.replace('/');
+          window.location.replace('./');
         }
       })();
     </script>
   </head>
-  <body>
-    Redirecting…
+  <body class="bg-slate-50 text-slate-800 flex flex-col items-center justify-center h-screen p-4">
+    <div class="text-center">
+      <h1 class="text-6xl font-bold text-orange-500 mb-4">404</h1>
+      <p class="text-2xl font-semibold mb-2">Page Not Found</p>
+      <p class="text-slate-600 animate-pulse">Redirecting you to the right place...</p>
+    </div>
   </body>
 </html>

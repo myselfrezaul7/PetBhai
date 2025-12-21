@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { MessageCircleIcon } from '../components/icons';
 import { MOCK_BRANDS } from '../constants';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../contexts/ProductContext';
@@ -29,18 +30,25 @@ const HomePage: React.FC = () => {
           <p className="relative z-10 mt-6 text-base md:text-2xl max-w-3xl mx-auto text-slate-600 dark:text-slate-200 font-medium">
             {t('hero_subtitle')}
           </p>
-          <div className="relative z-10 mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <div className="relative z-10 mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link
               to="/adopt"
-              className="inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30"
+              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30"
             >
               {t('btn_adopt')}
             </Link>
             <Link
               to="/shop"
-              className="inline-block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg"
+              className="w-full sm:w-auto inline-block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg"
             >
               {t('btn_shop')}
+            </Link>
+            <Link
+              to="/ai-assistant"
+              className="w-full sm:w-auto inline-flex justify-center items-center space-x-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-purple-500/30"
+            >
+              <MessageCircleIcon className="w-6 h-6" />
+              <span>{t('btn_ai_vet')}</span>
             </Link>
           </div>
         </div>
