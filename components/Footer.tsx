@@ -69,55 +69,59 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 3: Connect */}
+          {/* Column 3: Contact & Social */}
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
               Connect
             </h3>
-            <ul className="space-y-3 text-slate-600 dark:text-slate-300">
-              <li>
+            <div className="flex flex-col items-center md:items-start space-y-4">
+              <a
+                href="mailto:petbhaibd@gmail.com"
+                className="flex items-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+              >
+                <MailIcon className="w-5 h-5" />
+                <span>petbhaibd@gmail.com</span>
+              </a>
+
+              <div className="flex items-center space-x-4 mt-2">
                 <a
-                  href="https://facebook.com"
+                  href="https://facebook.com/petbhai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center md:justify-start space-x-2 hover:text-blue-600 transition-colors"
+                  className="group relative p-2 rounded-full transition-all duration-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:shadow-[0_0_15px_rgba(24,119,242,0.5)]"
+                  aria-label="Facebook"
                 >
-                  <FacebookIcon className="w-5 h-5" />
-                  <span>Facebook</span>
+                  <FacebookIcon className="w-6 h-6 text-[#1877F2]" />
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg">
+                    Facebook
+                  </span>
                 </a>
-              </li>
-              <li>
                 <a
-                  href="https://instagram.com"
+                  href="https://instagram.com/petbhai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center md:justify-start space-x-2 hover:text-pink-600 transition-colors"
+                  className="group relative p-2 rounded-full transition-all duration-300 hover:bg-pink-50 dark:hover:bg-pink-900/20 hover:shadow-[0_0_15px_rgba(228,64,95,0.5)]"
+                  aria-label="Instagram"
                 >
-                  <InstagramIcon className="w-5 h-5" />
-                  <span>Instagram</span>
+                  <InstagramIcon className="w-6 h-6 text-[#E4405F]" />
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg">
+                    Instagram
+                  </span>
                 </a>
-              </li>
-              <li>
                 <a
-                  href="https://youtube.com"
+                  href="https://youtube.com/petbhai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center md:justify-start space-x-2 hover:text-red-600 transition-colors"
+                  className="group relative p-2 rounded-full transition-all duration-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-[0_0_15px_rgba(255,0,0,0.5)]"
+                  aria-label="YouTube"
                 >
-                  <YouTubeIcon className="w-5 h-5" />
-                  <span>YouTube</span>
+                  <YouTubeIcon className="w-6 h-6 text-[#FF0000]" />
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg">
+                    YouTube
+                  </span>
                 </a>
-              </li>
-              <li>
-                <a
-                  href="mailto:contact@petbhai.com"
-                  className="flex items-center justify-center md:justify-start space-x-2 hover:text-orange-500 transition-colors"
-                >
-                  <MailIcon className="w-5 h-5" />
-                  <span>Contact Us</span>
-                </a>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
 
           {/* Column 4: Newsletter */}
