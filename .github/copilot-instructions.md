@@ -32,7 +32,7 @@
 ### 3. **Routing**
 
 - **Router**: HashRouter (github pages compatible)
-- **Routes**: Defined in [App.tsx](App.tsx#L70-L150) with lazy-loaded pages
+- **Routes**: Defined in [App.tsx](../App.tsx) with lazy-loaded pages
 - **Key routes**: `/`, `/shop`, `/blog`, `/adopt`, `/vet-services`, `/community`, `/profile`, `/checkout`
 
 ### 4. **AI Integration** (`geminiService.ts`)
@@ -126,14 +126,14 @@ npm run dev  # Runs on http://localhost:3000
 ### Adding a New Page
 
 1. Create component in `pages/` (e.g., `MyNewPage.tsx`)
-2. Add lazy import + route in [App.tsx](App.tsx#L25-L45)
-3. Add navigation link in [Header.tsx](components/Header.tsx) if needed
+2. Add lazy import + route in [App.tsx](../App.tsx)
+3. Add navigation link in [Header.tsx](../components/Header.tsx) if needed
 4. Use existing contexts for state (no new context unless global data sharing needed)
 
 ### Adding a New Context
 
 1. Create `contexts/MyNewContext.tsx` with provider component
-2. Wrap provider in [App.tsx](App.tsx#L75-L90) around `<Suspense>`
+2. Wrap provider in [App.tsx](../App.tsx) around `<Suspense>`
 3. Export hook (`useMyContext`) for consumption
 4. Use in components via `const { data } = useMyContext()`
 
@@ -159,11 +159,11 @@ npm run dev  # Runs on http://localhost:3000
 
 ## File References
 
-- **Main entry**: [App.tsx](App.tsx) - routes, context providers, layout
-- **Type definitions**: [types.ts](types.ts) - domain models
-- **Constants**: [constants.ts](constants.ts) - mock data
-- **AI service**: [services/geminiService.ts](services/geminiService.ts) - Gemini integration
-- **Build config**: [vite.config.ts](vite.config.ts)
+- **Main entry**: [App.tsx](../App.tsx) - routes, context providers, layout
+- **Type definitions**: [types.ts](../types.ts) - domain models
+- **Constants**: [constants.ts](../constants.ts) - mock data
+- **AI service**: [services/geminiService.ts](../services/geminiService.ts) - Gemini integration
+- **Build config**: [vite.config.ts](../vite.config.ts)
 - **CI config**: `.github/workflows/` (if present)
 
 ---
