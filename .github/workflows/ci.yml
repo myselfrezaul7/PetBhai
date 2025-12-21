@@ -17,18 +17,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linters
+      - name: Run full CI pipeline (lint, typecheck, build, validate)
         run: npm run ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Validate produced HTML
-        run: npm run check:html
 
       - name: AI proxy smoke test
         run: node scripts/ci/ai-proxy-smoke.js
