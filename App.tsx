@@ -7,6 +7,7 @@ import MessengerPlugin from './components/MessengerPlugin';
 import { CartProvider, useCart } from './contexts/CartContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
 import { ProductProvider } from './contexts/ProductContext';
 import CookieConsentBanner, {
   CookieConsentProvider,
@@ -23,7 +24,6 @@ import CartSidebar from './components/CartSidebar';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
-const AIAssistantPage = lazy(() => import('./pages/AIAssistantPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignUpPage = lazy(() => import('./pages/SignUpPage'));
@@ -124,7 +124,6 @@ const AppContent: React.FC = () => {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
             <Route path="/vet/:id" element={<VetDetailPage />} />
-            <Route path="/ai-assistant" element={<AIAssistantPage />} />
             <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
@@ -148,6 +147,7 @@ const AppContent: React.FC = () => {
       <GlobalCartElements />
       {consent === 'all' && <MessengerPlugin />}
       <ScrollToTop />
+      <ScrollToTopOnNavigate />
       <Footer />
       <ToastContainer />
       <ConfirmationModal />

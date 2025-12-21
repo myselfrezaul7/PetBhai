@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircleIcon } from '../components/icons';
 import { MOCK_BRANDS } from '../constants';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../contexts/ProductContext';
@@ -42,13 +41,6 @@ const HomePage: React.FC = () => {
               className="w-full sm:w-auto inline-block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg"
             >
               {t('btn_shop')}
-            </Link>
-            <Link
-              to="/ai-assistant"
-              className="w-full sm:w-auto inline-flex justify-center items-center space-x-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-purple-500/30"
-            >
-              <MessageCircleIcon className="w-6 h-6" />
-              <span>{t('btn_ai_vet')}</span>
             </Link>
           </div>
         </div>
