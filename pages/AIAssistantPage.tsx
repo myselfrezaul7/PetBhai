@@ -10,7 +10,7 @@ const WARNING_DISMISSED_KEY = 'petbhai_ai_warning_dismissed';
 // A simple component to parse and render basic Markdown from the AI
 const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
   const lines = text.split('\n');
-  const elements = [];
+  const elements: React.ReactNode[] = [];
   let inList = false;
   let currentList: React.ReactNode[] = [];
 

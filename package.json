@@ -12,9 +12,10 @@
     "deploy": "gh-pages -d dist",
     "lint": "eslint --max-warnings=0 --no-warn-ignored",
     "lint:all": "eslint \"**/*.{ts,tsx,js,jsx}\" --max-warnings=0 --no-warn-ignored",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
     "check:html": "html-validate \"dist/**/*.html\" \"public/**/*.html\"",
-    "ci": "npm run lint && npm run build && npm run check:html",
+    "ci": "npm run lint && npm run typecheck && npm run build && npm run check:html",
     "prepare": "husky install"
   },
   "lint-staged": {

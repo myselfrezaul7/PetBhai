@@ -147,9 +147,9 @@ export const generateImageFromPrompt = async (prompt: string): Promise<string> =
     });
 
     // Iterate through parts to find the image data
-    if (response.candidates && response.candidates[0].content.parts) {
+    if (response.candidates?.[0]?.content?.parts) {
       for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
+        if (part.inlineData?.data) {
           const base64ImageBytes: string = part.inlineData.data;
           return `data:image/png;base64,${base64ImageBytes}`;
         }
@@ -192,9 +192,9 @@ export const generateVlogThumbnail = async (
       },
     });
 
-    if (response.candidates && response.candidates[0].content.parts) {
+    if (response.candidates?.[0]?.content?.parts) {
       for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
+        if (part.inlineData?.data) {
           const base64ImageBytes: string = part.inlineData.data;
           return `data:image/png;base64,${base64ImageBytes}`;
         }

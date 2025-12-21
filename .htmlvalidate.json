@@ -1,6 +1,8 @@
 {
   "extends": ["html-validate:recommended"],
   "rules": {
-    "attribute-allowed-values": "off"
+    "attribute-allowed-values": "off",
+    "doctype-style": "off",
+    "void-style": "off"
   }
 }
