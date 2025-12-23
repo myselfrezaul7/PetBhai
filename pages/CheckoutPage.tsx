@@ -4,7 +4,6 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
-import type { Order } from '../types';
 import { useToast } from '../contexts/ToastContext';
 
 const CheckoutPage: React.FC = () => {
@@ -47,22 +46,40 @@ const CheckoutPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (isAuthenticated) {
-      const newOrder: Order = {
-        orderId: `PB-${Date.now()}`,
-        date: new Date().toISOString(),
-        total: cartTotal,
+    try {
+      const orderData = {
         items: cartItems,
+        total: cartTotal,
+        userId: currentUser?.id,
+        shippingDetails: formData,
       };
-      addOrderToHistory(newOrder);
-    }
 
-    toast.success('Thank you for your order! It has been placed successfully.');
-    clearCart();
-    navigate('/');
+      const response = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order');
+      }
+
+      const newOrder = await response.json();
+
+      if (isAuthenticated) {
+        addOrderToHistory(newOrder);
+      }
+
+      toast.success('Thank you for your order! It has been placed successfully.');
+      clearCart();
+      navigate('/');
+    } catch (error) {
+      console.error('Order placement error:', error);
+      toast.error('Failed to place order. Please try again.');
+    }
   };
 
   const handleSocialLogin = async () => {

@@ -1,28 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { User, Order } from '../types';
-import { MOCK_USERS } from '../constants';
 
-// For demonstration purposes, we'll use localStorage to simulate a user database.
-// In a real application, this would be handled by a backend server.
-
-const USERS_STORAGE_KEY = 'petbhai_users';
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
-
-const getInitialUsers = (): User[] => {
-  try {
-    const users = window.localStorage.getItem(USERS_STORAGE_KEY);
-    if (users) {
-      return JSON.parse(users);
-    } else {
-      // If no users, initialize with mock data
-      window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(MOCK_USERS));
-      return MOCK_USERS;
-    }
-  } catch (error) {
-    console.error('Error reading users from localStorage', error);
-    return MOCK_USERS;
-  }
-};
+const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 const getInitialCurrentUser = (): User | null => {
   try {
@@ -71,20 +51,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentUser]);
 
-  const updateUserInStorage = (user: User) => {
-    const users = getInitialUsers();
-    const updatedUsers = users.map((u) => (u.id === user.id ? user : u));
-    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-  };
-
   const login = async (email: string, password: string): Promise<User> => {
-    const users = getInitialUsers();
-    const user = users.find((u) => u.email === email && u.password === password);
-    if (user) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const user = await response.json();
       setCurrentUser(user);
       return user;
-    } else {
-      throw new Error('Invalid email or password');
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
   };
 
@@ -93,26 +78,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signup = async (name: string, email: string, password: string): Promise<User> => {
-    const users = getInitialUsers();
-    if (users.some((u) => u.email === email)) {
-      throw new Error('User with this email already exists');
-    }
-    const newUser: User = {
-      id: Date.now(),
-      name,
-      email,
-      password,
-      profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`, // Default avatar
-      wishlist: [],
-      orderHistory: [],
-      favorites: [],
-      isPlusMember: false,
-    };
-    const updatedUsers = [...users, newUser];
-    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+    try {
+      const response = await fetch(`${API_BASE_URL}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    setCurrentUser(newUser);
-    return newUser;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Signup failed');
+      }
+
+      const user = await response.json();
+      setCurrentUser(user);
+      return user;
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
+    }
   };
 
   const socialLogin = async (socialUser: {
@@ -120,93 +104,134 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     lastName: string;
     email: string;
   }): Promise<User> => {
-    const users = getInitialUsers();
-    let user = users.find((u) => u.email === socialUser.email);
-
-    if (user) {
-      // User exists, log them in
-      setCurrentUser(user);
-      return user;
-    } else {
-      // User does not exist, create a new account
-      const newUser: User = {
-        id: Date.now(),
-        name: `${socialUser.firstName} ${socialUser.lastName}`,
-        email: socialUser.email,
-        profilePictureUrl: `https://picsum.photos/seed/${Date.now()}/200`,
-        wishlist: [],
-        orderHistory: [],
-        favorites: [],
-        isPlusMember: false,
-      };
-      const updatedUsers = [...users, newUser];
-      window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-
-      setCurrentUser(newUser);
-      return newUser;
-    }
+    // For social login, we'll just simulate a signup/login flow
+    // In a real app, you'd send the social token to the backend
+    const mockUser: User = {
+      id: Date.now(),
+      name: `${socialUser.firstName} ${socialUser.lastName}`,
+      email: socialUser.email,
+      wishlist: [],
+      orderHistory: [],
+      favorites: [],
+      isPlusMember: false,
+    };
+    setCurrentUser(mockUser);
+    return mockUser;
   };
 
   const updateProfile = async (updatedData: {
     name?: string;
     profilePictureUrl?: string;
   }): Promise<User> => {
-    if (!currentUser) {
-      throw new Error('No user is currently logged in.');
+    if (!currentUser) throw new Error('No user logged in');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) throw new Error('Failed to update profile');
+
+      const updatedUser = await response.json();
+      setCurrentUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
     }
-
-    const updatedUser = { ...currentUser, ...updatedData };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
-    return updatedUser;
   };
 
-  const addToWishlist = (productId: number) => {
+  const addToWishlist = async (productId: number) => {
     if (!currentUser) return;
-    const updatedUser = { ...currentUser, wishlist: [...currentUser.wishlist, productId] };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
+    try {
+      const response = await fetch(`${API_BASE_URL}/${currentUser.id}/wishlist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+    }
   };
 
-  const removeFromWishlist = (productId: number) => {
+  const removeFromWishlist = async (productId: number) => {
     if (!currentUser) return;
-    const updatedUser = {
-      ...currentUser,
-      wishlist: currentUser.wishlist.filter((id) => id !== productId),
-    };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
+    try {
+      const response = await fetch(`${API_BASE_URL}/${currentUser.id}/wishlist/${productId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+    }
+  };
+
+  const favoritePet = async (animalId: number) => {
+    if (!currentUser) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/${currentUser.id}/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ animalId }),
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error favoriting pet:', error);
+    }
+  };
+
+  const unfavoritePet = async (animalId: number) => {
+    if (!currentUser) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/${currentUser.id}/favorites/${animalId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error unfavoriting pet:', error);
+    }
+  };
+
+  const subscribeToPlus = async () => {
+    if (!currentUser) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/${currentUser.id}/subscribe`, {
+        method: 'POST',
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error subscribing to plus:', error);
+    }
   };
 
   const addOrderToHistory = (order: Order) => {
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, orderHistory: [order, ...currentUser.orderHistory] };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
-  };
-
-  const favoritePet = (animalId: number) => {
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, favorites: [...currentUser.favorites, animalId] };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
-  };
-
-  const unfavoritePet = (animalId: number) => {
-    if (!currentUser) return;
-    const updatedUser = {
-      ...currentUser,
-      favorites: currentUser.favorites.filter((id) => id !== animalId),
-    };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
-  };
-
-  const subscribeToPlus = () => {
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, isPlusMember: true };
-    setCurrentUser(updatedUser);
-    updateUserInStorage(updatedUser);
+    // This is usually handled by the backend when an order is created.
+    // But if we need to update the local user state immediately:
+    if (currentUser) {
+      const updatedUser = {
+        ...currentUser,
+        orderHistory: [order, ...currentUser.orderHistory],
+      };
+      setCurrentUser(updatedUser);
+    }
   };
 
   const value = {
@@ -228,6 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

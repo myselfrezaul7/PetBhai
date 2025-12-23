@@ -2,10 +2,29 @@ import React from 'react';
 import ArticleCard from '../components/ArticleCard';
 import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PawIcon } from '../components/icons';
 
 const BlogPage: React.FC = () => {
-  const { articles } = useArticles();
+  const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Blog</h2>
+        <p className="text-slate-600 dark:text-slate-300">{error}</p>
+      </div>
+    );
+  }
 
   // Sort all articles by date, newest first
   const sortedArticles = [...articles].sort(
@@ -27,7 +46,7 @@ const BlogPage: React.FC = () => {
       </div>
 
       {/* Articles Section */}
-      {sortedArticles.length > 0 && (
+      {sortedArticles.length > 0 ? (
         <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-8">
           {/* Featured Latest Article */}
           {latestArticle && <ArticleCard article={latestArticle} isFeatured={true} />}
@@ -36,6 +55,10 @@ const BlogPage: React.FC = () => {
           {otherArticles.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-xl text-slate-600 dark:text-slate-400">No articles found.</p>
         </div>
       )}
     </div>

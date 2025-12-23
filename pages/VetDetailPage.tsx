@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_VETS } from '../constants';
-import { MapPinIcon, VideoCameraIcon, CloseIcon } from '../components/icons';
+import { useVets } from '../contexts/VetContext';
+import { MapPinIcon, VideoCameraIcon, PawIcon } from '../components/icons';
 import VetBookingModal from '../components/VetBookingModal';
 
 const VetDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const vet = MOCK_VETS.find((v) => v.id === Number(id));
+  const { vets, loading, error } = useVets();
+  const vet = useMemo(() => vets.find((v) => v.id === Number(id)), [id, vets]);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Vet</h2>
+        <p className="text-slate-600 dark:text-slate-300">{error}</p>
+      </div>
+    );
+  }
 
   if (!vet) {
     return (

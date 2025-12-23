@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_ANIMALS } from '../constants';
+import { useAnimals } from '../contexts/AnimalContext';
 import AdoptionForm from '../components/AdoptionForm';
-import { HeartIcon } from '../components/icons';
+import { HeartIcon, PawIcon } from '../components/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
 const AnimalDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const animal = MOCK_ANIMALS.find((a) => a.id === Number(id));
+  const { animals, loading, error } = useAnimals();
+  const animal = useMemo(() => animals.find((a) => a.id === Number(id)), [id, animals]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { isAuthenticated, currentUser, favoritePet, unfavoritePet } = useAuth();
   const toast = useToast();
@@ -28,6 +29,24 @@ const AnimalDetailPage: React.FC = () => {
       favoritePet(animal.id);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Animal</h2>
+        <p className="text-slate-600 dark:text-slate-300">{error}</p>
+      </div>
+    );
+  }
 
   if (!animal) {
     return (

@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+*.local
+.vscode
+backend/node_modules
+backend/dist
+coverage

@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { MOCK_BRANDS } from '../constants';
+import { useBrands } from '../contexts/BrandContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { HeartIcon, ShoppingCartIcon, UserIcon } from '../components/icons';
+import { HeartIcon, ShoppingCartIcon } from '../components/icons';
 import ProductCard from '../components/ProductCard';
 import type { Review } from '../types';
 import { useProducts } from '../contexts/ProductContext';
@@ -11,7 +11,8 @@ import { useProducts } from '../contexts/ProductContext';
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { products, addProductReview } = useProducts();
+  const { products, addProductReview, loading } = useProducts();
+  const { brands } = useBrands();
 
   const product = useMemo(() => products.find((p) => p.id === Number(id)), [id, products]);
 
@@ -26,8 +27,8 @@ const ProductDetailPage: React.FC = () => {
   const [reviewError, setReviewError] = useState('');
 
   const brand = useMemo(() => {
-    return MOCK_BRANDS.find((b) => b.id === product?.brandId);
-  }, [product]);
+    return brands.find((b) => b.id === product?.brandId);
+  }, [product, brands]);
 
   const isWishlisted = useMemo(() => {
     return currentUser?.wishlist.includes(product?.id ?? -1) ?? false;
@@ -47,6 +48,14 @@ const ProductDetailPage: React.FC = () => {
   }, [cartItems, product]);
 
   const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

@@ -2,44 +2,48 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Product, Review } from '../types';
 import { MOCK_PRODUCTS } from '../constants';
 
-const PRODUCTS_STORAGE_KEY = 'petbhai_products';
-
-const getInitialProducts = (): Product[] => {
-  try {
-    const storedProducts = window.localStorage.getItem(PRODUCTS_STORAGE_KEY);
-    if (storedProducts) {
-      const parsed = JSON.parse(storedProducts);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.error('Error reading products from localStorage', error);
-  }
-  // If nothing in storage or error, initialize with mock data and save it.
-  window.localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(MOCK_PRODUCTS));
-  return MOCK_PRODUCTS;
-};
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 interface ProductContextType {
   products: Product[];
+  loading: boolean;
+  error: string | null;
   addProductReview: (productId: number, review: Review) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>(getInitialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
-    } catch (error) {
-      console.error('Error saving products to localStorage', error);
-    }
-  }, [products]);
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/products`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Using offline data.');
+        // Fallback to mock data if API fails
+        setProducts(MOCK_PRODUCTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const addProductReview = (productId: number, review: Review) => {
+    // TODO: Implement API call to add review
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
@@ -59,12 +63,15 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const value = {
     products,
+    loading,
+    error,
     addProductReview,
   };
 
   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useProducts = () => {
   const context = useContext(ProductContext);
   if (context === undefined) {
