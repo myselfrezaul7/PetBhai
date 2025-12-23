@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MOCK_BRANDS } from '../constants';
+import { useBrands } from '../contexts/BrandContext';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const HomePage: React.FC = () => {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
+  const { brands } = useBrands();
   const { t } = useLanguage();
   const bestSellers = [...products].sort((a, b) => b.rating - a.rating).slice(0, 4);
   const newArrivals = [...products].sort((a, b) => b.id - a.id).slice(0, 4);
@@ -58,11 +59,17 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           {/* Mobile optimized grid: gap-3 for mobile, gap-8 for desktop */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-orange-500"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+              {bestSellers.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -115,7 +122,7 @@ const HomePage: React.FC = () => {
             {t('section_brands')}
           </h2>
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-80 hover:opacity-100 transition-opacity">
-            {MOCK_BRANDS.map((brand) => (
+            {brands.map((brand) => (
               <Link
                 key={brand.id}
                 to="/shop"

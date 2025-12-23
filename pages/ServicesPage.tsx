@@ -1,18 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import {
-  MOCK_VETS,
-  MOCK_GROOMERS,
-  MOCK_TRAINERS,
-  MOCK_PET_SITTERS,
-  BANGLADESH_DISTRICTS,
-} from '../constants';
+import { MOCK_GROOMERS, MOCK_TRAINERS, MOCK_PET_SITTERS, BANGLADESH_DISTRICTS } from '../constants';
+import { useVets } from '../contexts/VetContext';
 import VetCard from '../components/VetCard';
 import ServiceCard from '../components/ServiceCard';
 import type { Vet, Groomer, Trainer, PetSitter } from '../types';
+import { PawIcon } from '../components/icons';
 
 type ServiceTab = 'Vets' | 'Groomers' | 'Trainers' | 'Sitters';
 
 const ServicesPage: React.FC = () => {
+  const { vets, loading: vetsLoading, error: vetsError } = useVets();
   const [activeTab, setActiveTab] = useState<ServiceTab>('Vets');
   const [locationFilter, setLocationFilter] = useState<string>('All');
 
@@ -20,7 +17,7 @@ const ServicesPage: React.FC = () => {
     let list: (Vet | Groomer | Trainer | PetSitter)[] = [];
     switch (activeTab) {
       case 'Vets':
-        list = MOCK_VETS;
+        list = vets;
         break;
       case 'Groomers':
         list = MOCK_GROOMERS;
@@ -38,7 +35,7 @@ const ServicesPage: React.FC = () => {
     return list.filter((p) =>
       'address' in p ? p.address.includes(locationFilter) : p.location === locationFilter
     );
-  }, [activeTab, locationFilter]);
+  }, [activeTab, locationFilter, vets]);
 
   const TabButton: React.FC<{ label: ServiceTab }> = ({ label }) => (
     <button
@@ -99,7 +96,14 @@ const ServicesPage: React.FC = () => {
         </div>
       </div>
 
-      {professionals.length > 0 ? (
+      {activeTab === 'Vets' && vetsLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-orange-500"></div>
+          <PawIcon className="absolute w-6 h-6 text-orange-500 animate-pulse" />
+        </div>
+      ) : activeTab === 'Vets' && vetsError ? (
+        <div className="text-center py-12 text-red-500">{vetsError}</div>
+      ) : professionals.length > 0 ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
           {professionals.map((p) => {
             if ('specialization' in p) {

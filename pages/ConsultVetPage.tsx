@@ -1,24 +1,26 @@
 import React, { useState, useMemo } from 'react';
-import { MOCK_VETS } from '../constants';
+import { useVets } from '../contexts/VetContext';
 import VetCard from '../components/VetCard';
-import type { Vet, ServiceType, VetAvailability } from '../types';
+import type { ServiceType, VetAvailability } from '../types';
+import { PawIcon } from '../components/icons';
 
 type ServiceFilter = 'all' | ServiceType;
 type AvailabilityFilter = 'all' | VetAvailability;
 
 const ConsultVetPage: React.FC = () => {
+  const { vets, loading, error } = useVets();
   const [serviceFilter, setServiceFilter] = useState<ServiceFilter>('all');
   const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>('all');
 
   const filteredVets = useMemo(() => {
-    return MOCK_VETS.filter((vet) => {
+    return vets.filter((vet) => {
       const serviceMatch =
         serviceFilter === 'all' || vet.services.some((s) => s.type === serviceFilter);
       const availabilityMatch =
         availabilityFilter === 'all' || vet.availability === availabilityFilter;
       return serviceMatch && availabilityMatch;
     });
-  }, [serviceFilter, availabilityFilter]);
+  }, [serviceFilter, availabilityFilter, vets]);
 
   const FilterButton: React.FC<{
     label: string;
@@ -36,6 +38,24 @@ const ConsultVetPage: React.FC = () => {
       {label}
     </button>
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Vets</h2>
+        <p className="text-slate-600 dark:text-slate-300">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <>

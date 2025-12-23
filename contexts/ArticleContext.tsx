@@ -2,48 +2,44 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Article } from '../types';
 import { MOCK_ARTICLES } from '../constants';
 
-const ARTICLES_STORAGE_KEY = 'petbhai_articles';
-
-const getInitialArticles = (): Article[] => {
-  try {
-    const storedArticles = window.localStorage.getItem(ARTICLES_STORAGE_KEY);
-    if (storedArticles) {
-      const parsed = JSON.parse(storedArticles);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // This check detects if the user has the old English content in their cache.
-        // If so, it will be cleared to load the new Bengali content.
-        if (parsed[0].title.includes('Canine Parvovirus')) {
-          localStorage.removeItem(ARTICLES_STORAGE_KEY);
-          throw new Error('Old English content detected, resetting to new Bangla content.');
-        }
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.error('Error reading articles from localStorage, resetting to default.', error);
-  }
-  // If nothing in storage or an error occurs, initialize with mock data and save it.
-  window.localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(MOCK_ARTICLES));
-  return MOCK_ARTICLES;
-};
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 interface ArticleContextType {
   articles: Article[];
+  loading: boolean;
+  error: string | null;
   updateArticleImage: (articleId: number, imageUrl: string) => void;
 }
 
 const ArticleContext = createContext<ArticleContextType | undefined>(undefined);
 
 export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [articles, setArticles] = useState<Article[]>(getInitialArticles);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(articles));
-    } catch (error) {
-      console.error('Error saving articles to localStorage', error);
-    }
-  }, [articles]);
+    const fetchArticles = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/articles`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch articles');
+        }
+        const data = await response.json();
+        setArticles(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching articles:', err);
+        setError('Failed to load articles. Using offline data.');
+        setArticles(MOCK_ARTICLES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   const updateArticleImage = (articleId: number, imageUrl: string) => {
     setArticles((prevArticles) =>
@@ -53,12 +49,15 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const value = {
     articles,
+    loading,
+    error,
     updateArticleImage,
   };
 
   return <ArticleContext.Provider value={value}>{children}</ArticleContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useArticles = () => {
   const context = useContext(ArticleContext);
   if (context === undefined) {

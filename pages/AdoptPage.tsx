@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import AnimalCard from '../components/AnimalCard';
-import { MOCK_ANIMALS } from '../constants';
+import { useAnimals } from '../contexts/AnimalContext';
 import type { AnimalAge, AnimalStatus } from '../types';
+import { PawIcon } from '../components/icons';
 
 type AnimalTypeFilter = 'All' | 'Dog' | 'Cat';
 type GenderFilter = 'All' | 'Male' | 'Female';
@@ -9,13 +10,14 @@ type AgeFilter = 'All' | AnimalAge;
 type StatusFilter = 'All' | AnimalStatus;
 
 const AdoptPage: React.FC = () => {
+  const { animals, loading, error } = useAnimals();
   const [animalTypeFilter, setAnimalTypeFilter] = useState<AnimalTypeFilter>('All');
   const [genderFilter, setGenderFilter] = useState<GenderFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Available');
 
   const filteredAnimals = useMemo(() => {
-    return MOCK_ANIMALS.filter((animal) => {
+    return animals.filter((animal) => {
       const typeMatch =
         animalTypeFilter === 'All' ||
         (animalTypeFilter === 'Dog' &&
@@ -35,7 +37,7 @@ const AdoptPage: React.FC = () => {
 
       return typeMatch && genderMatch && ageMatch && statusMatch;
     });
-  }, [animalTypeFilter, genderFilter, ageFilter, statusFilter]);
+  }, [animalTypeFilter, genderFilter, ageFilter, statusFilter, animals]);
 
   const FilterButton: React.FC<{
     label: string;
@@ -53,6 +55,24 @@ const AdoptPage: React.FC = () => {
       {label}
     </button>
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Animals</h2>
+        <p className="text-slate-600 dark:text-slate-300">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-3 md:px-6 py-12 md:py-16 animate-fade-in">

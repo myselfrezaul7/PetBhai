@@ -14,6 +14,9 @@ import CookieConsentBanner, {
   useCookieConsent,
 } from './components/CookieConsentBanner';
 import { ArticleProvider } from './contexts/ArticleContext';
+import { VetProvider } from './contexts/VetContext';
+import { AnimalProvider } from './contexts/AnimalContext';
+import { BrandProvider } from './contexts/BrandContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ToastContainer from './components/ToastContainer';
 import { ConfirmationProvider } from './contexts/ConfirmationContext';
@@ -164,16 +167,22 @@ function App() {
           <ToastProvider>
             <ArticleProvider>
               <ProductProvider>
-                <AuthProvider>
-                  <CartProvider>
-                    <CookieConsentProvider>
-                      <HashRouter>
-                        <ScrollToTop />
-                        <AppContent />
-                      </HashRouter>
-                    </CookieConsentProvider>
-                  </CartProvider>
-                </AuthProvider>
+                <VetProvider>
+                  <AnimalProvider>
+                    <BrandProvider>
+                      <AuthProvider>
+                        <CartProvider>
+                          <CookieConsentProvider>
+                            <HashRouter>
+                              <ScrollToTop />
+                              <AppContent />
+                            </HashRouter>
+                          </CookieConsentProvider>
+                        </CartProvider>
+                      </AuthProvider>
+                    </BrandProvider>
+                  </AnimalProvider>
+                </VetProvider>
               </ProductProvider>
             </ArticleProvider>
           </ToastProvider>
