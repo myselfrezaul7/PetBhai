@@ -1,6 +1,8 @@
 // This service now delegates all AI operations to the backend API
 // to protect API keys and centralize logic.
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 export const isAiConfigured = (): boolean => {
   // In the full-stack architecture, we assume the backend is configured.
   // You could add a health check here if needed, but for now we'll assume it's ready.
@@ -9,7 +11,7 @@ export const isAiConfigured = (): boolean => {
 
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   try {
-    const response = await fetch('/api/ai/chat', {
+    const response = await fetch(`${API_URL}/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
@@ -30,7 +32,7 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
 
 export const generateImageFromPrompt = async (prompt: string): Promise<string> => {
   try {
-    const response = await fetch('/api/ai/generate-image', {
+    const response = await fetch(`${API_URL}/ai/generate-image`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
@@ -55,7 +57,7 @@ export const generateVlogThumbnail = async (
   mood: string
 ): Promise<string> => {
   try {
-    const response = await fetch('/api/ai/generate-thumbnail', {
+    const response = await fetch(`${API_URL}/ai/generate-thumbnail`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, subject, mood }),
@@ -90,7 +92,7 @@ export const analyzeRescueImage = async (
     const base64String = base64Data.split(',')[1];
     const mimeType = imageFile.type;
 
-    const response = await fetch('/api/ai/analyze-image', {
+    const response = await fetch(`${API_URL}/ai/analyze-image`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mimeType, data: base64String }),
