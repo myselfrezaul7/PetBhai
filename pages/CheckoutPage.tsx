@@ -272,21 +272,21 @@ const CheckoutPage: React.FC = () => {
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'paypal' ? 'border-blue-500 ring-2 ring-blue-500' : 'border-slate-300 dark:border-slate-600'}`}
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'rocket' ? 'border-purple-600 ring-2 ring-purple-600' : 'border-slate-300 dark:border-slate-600'}`}
                 >
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="paypal"
-                    checked={paymentMethod === 'paypal'}
+                    value="rocket"
+                    checked={paymentMethod === 'rocket'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500"
+                    className="h-5 w-5 text-purple-600 focus:ring-purple-500"
                   />
                   <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
-                    PayPal
+                    Rocket
                     <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                      alt="PayPal"
+                      src="https://i.ibb.co/6wLmMYy/rocket.png"
+                      alt="Rocket"
                       className="h-5 ml-2"
                     />
                   </span>
@@ -310,10 +310,10 @@ const CheckoutPage: React.FC = () => {
                     title="Nagad"
                   />
                   <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                    alt="PayPal"
+                    src="https://i.ibb.co/6wLmMYy/rocket.png"
+                    alt="Rocket"
                     className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
-                    title="PayPal"
+                    title="Rocket"
                   />
                   <img
                     src="https://i.ibb.co/p3y5M3D/bank.png"

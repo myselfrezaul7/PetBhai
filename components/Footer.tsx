@@ -127,27 +127,53 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 4: Newsletter */}
+          {/* Column 4: Payment Methods & Legal */}
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
-              Join the Family
+              We Accept
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-              Subscribe for pet care tips, new arrivals, and community stories.
-            </p>
-            <form className="flex flex-col space-y-2" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-800 dark:text-white"
-              />
-              <button
-                type="submit"
-                className="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors shadow-md"
-              >
-                Subscribe
-              </button>
-            </form>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-6">
+              <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                <img
+                  src="https://i.ibb.co/27wH07C/bkash.png"
+                  alt="bKash"
+                  className="h-6"
+                  title="bKash"
+                />
+              </div>
+              <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                <img
+                  src="https://i.ibb.co/qjqBcf5/nagad.png"
+                  alt="Nagad"
+                  className="h-6"
+                  title="Nagad"
+                />
+              </div>
+              <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                <img
+                  src="https://i.ibb.co/6wLmMYy/rocket.png"
+                  alt="Rocket"
+                  className="h-6"
+                  title="Rocket"
+                />
+              </div>
+              <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs font-medium text-slate-600 dark:text-slate-300">
+                💵 COD
+              </div>
+            </div>
+            <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
+              Legal
+            </h3>
+            <ul className="space-y-2 text-slate-600 dark:text-slate-300">
+              <li>
+                <Link
+                  to="/terms"
+                  className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                >
+                  Terms & Conditions
+                </Link>
+              </li>
+            </ul>
             <div className="mt-6 flex items-center justify-center md:justify-start space-x-2">
               <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-200 dark:border-green-800 flex items-center">
                 <svg

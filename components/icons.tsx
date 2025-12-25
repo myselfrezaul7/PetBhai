@@ -389,3 +389,61 @@ export const UserGroupIcon: React.FC<{ className?: string }> = ({ className }) =
     <path d="M5.082 14.254a8.287 8.287 0 00-1.308 5.135 9.687 9.687 0 01-1.764-.44l-.115-.04a.563.563 0 01-.373-.487l-.01-.121a3.75 3.75 0 013.57-4.047zM20.226 19.389a8.287 8.287 0 00-1.308-5.135 3.75 3.75 0 013.57 4.047l-.01.121a.563.563 0 01-.373.486l-.115.04c-.567.2-1.156.349-1.764.441z" />
   </svg>
 );
+
+export const TruckIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path d="M18 18.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+    <path d="M6 18.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+    <path
+      fillRule="evenodd"
+      d="M12 2a1 1 0 011 1v.5h6.5a1 1 0 011 1V14h.5a1 1 0 110 2h-.72l.043.28A3 3 0 0117.5 19h-.558a3 3 0 01-5.884 0H8.942a3 3 0 01-5.884 0H2.5a1 1 0 01-.993-1.114A1 1 0 011 17.5V5a1 1 0 011-1h9V3a1 1 0 011-1zm6.5 2.5h-6V14h8V5.5h-2v3a1 1 0 11-2 0v-3H12.5V14h-10V6h9v8H3.5v3.5h-.058a1 1 0 00-1.884.5H2.5h.942a3 3 0 015.116 0h2.884a3 3 0 015.116 0h.942a1 1 0 001.937-.412L19.5 17.5V16h1v-1.5h-2v-10z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+export const CreditCardIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 4v10h16V8H4zm2 4h4v2H6v-2zm6 0h6v2h-6v-2z" />
+  </svg>
+);
+
+export const DocumentTextIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V8.25L14.625 1.5H5.625zM7.5 15a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 017.5 15zm.75 3.75a.75.75 0 000 1.5h7.5a.75.75 0 000-1.5h-7.5zM14.25 3.75v4.5c0 .414.336.75.75.75h4.5l-5.25-5.25z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+export const ScaleIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path
+      fillRule="evenodd"
+      d="M12 2.25a.75.75 0 01.75.75v.756a49.106 49.106 0 019.152 1 .75.75 0 01-.152 1.485h-1.918l2.474 10.124a.75.75 0 01-.375.84A6.723 6.723 0 0118.75 18a6.723 6.723 0 01-3.181-.795.75.75 0 01-.375-.84l2.474-10.124H12.75v13.28a.75.75 0 11-1.5 0V6.241H6.332l2.474 10.124a.75.75 0 01-.375.84A6.723 6.723 0 015.25 18a6.723 6.723 0 01-3.181-.795.75.75 0 01-.375-.84L4.168 6.241H2.25a.75.75 0 01-.152-1.485 49.105 49.105 0 019.152-1V3a.75.75 0 01.75-.75zm4.878 13.543l1.872-7.662 1.872 7.662h-3.744zm-9.756 0L5.25 8.131l-1.872 7.662h3.744z"
+      clipRule="evenodd"
+    />
+  </svg>
+);

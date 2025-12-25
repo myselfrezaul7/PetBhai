@@ -171,6 +171,12 @@ const PlusMembershipPage: React.FC = () => {
                   title="Nagad"
                 />
                 <img
+                  src="https://i.ibb.co/6wLmMYy/rocket.png"
+                  alt="Rocket"
+                  className="h-8 grayscale hover:grayscale-0 transition-all duration-300"
+                  title="Rocket"
+                />
+                <img
                   src="https://i.ibb.co/p3y5M3D/bank.png"
                   alt="Bank"
                   className="h-8 grayscale hover:grayscale-0 transition-all duration-300"
