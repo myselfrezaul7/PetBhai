@@ -38,7 +38,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
       content,
       imageUrl: image || undefined,
       timestamp: new Date().toISOString(),
-      likes: 0,
+      likes: [],
       comments: [],
     };
 

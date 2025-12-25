@@ -74,6 +74,8 @@ export interface CommentReply {
     profilePictureUrl?: string;
   };
   text: string;
+  likes: number[];
+  timestamp: string;
 }
 
 export interface Comment {
@@ -85,6 +87,8 @@ export interface Comment {
   };
   text: string;
   replies: CommentReply[];
+  likes: number[];
+  timestamp: string;
 }
 
 export interface Post {
@@ -97,7 +101,7 @@ export interface Post {
   content: string;
   imageUrl?: string;
   timestamp: string; // ISO string
-  likes: number;
+  likes: number[];
   comments: Comment[];
 }
 

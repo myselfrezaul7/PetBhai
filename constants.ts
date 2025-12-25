@@ -252,6 +252,8 @@ const MOCK_COMMENTS: Comment[] = [
       profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
     },
     text: 'Great advice! I was wondering about this for my cat.',
+    likes: [1],
+    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     replies: [
       {
         id: 101,
@@ -261,6 +263,8 @@ const MOCK_COMMENTS: Comment[] = [
           profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
         },
         text: 'Same here, thanks for sharing!',
+        likes: [2],
+        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
       },
     ],
   },
@@ -278,8 +282,48 @@ export const MOCK_POSTS: Post[] = [
       'Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand?',
     imageUrl: 'https://picsum.photos/seed/post1/600/400',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    likes: 15,
+    likes: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     comments: MOCK_COMMENTS,
+  },
+  {
+    id: 2,
+    author: {
+      id: 2,
+      name: 'Jamal Khan',
+      profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
+    },
+    content:
+      '🐕 Pro tip for new dog owners: Consistency is key in training! Start with basic commands like "sit" and "stay" and practice daily. My German Shepherd learned these in just 2 weeks. What training tips do you have?',
+    imageUrl: 'https://picsum.photos/seed/post2/600/400',
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    likes: [1, 3, 5, 7],
+    comments: [],
+  },
+  {
+    id: 3,
+    author: {
+      id: 3,
+      name: 'Fatima Akter',
+      profilePictureUrl: 'https://picsum.photos/seed/fatima/200',
+    },
+    content:
+      'Looking for recommendations for a good vet in Dhanmondi area. My kitten needs her first vaccination. Any suggestions would be greatly appreciated! 🐱💉',
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    likes: [1, 2],
+    comments: [
+      {
+        id: 2,
+        author: {
+          id: 1,
+          name: 'Aisha Rahman',
+          profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
+        },
+        text: 'I highly recommend Dr. Kabir at Dhaka Pet Hospital! Very gentle with kittens.',
+        likes: [3],
+        timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+        replies: [],
+      },
+    ],
   },
 ];
 
