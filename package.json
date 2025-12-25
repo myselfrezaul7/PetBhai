@@ -7,6 +7,9 @@
   "scripts": {
     "predeploy": "npm run build",
     "dev": "vite",
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
+    "server": "cd backend && npm run dev",
+    "install:all": "npm install && cd backend && npm install",
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
@@ -36,6 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^9.2.1",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.10.2",
     "eslint-plugin-react": "^7.37.5",

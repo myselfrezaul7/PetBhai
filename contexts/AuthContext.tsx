@@ -2,7 +2,8 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { User, Order } from '../types';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+// Use relative path for API to leverage Vite proxy in dev and same-origin in prod
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api') + '/auth';
 
 const getInitialCurrentUser = (): User | null => {
   try {

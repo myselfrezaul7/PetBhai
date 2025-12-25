@@ -40,6 +40,24 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Z8Y_0SmP7T2684rss1HhLk
 3. Run the app:
    `npm run dev`
 
+## Full Stack Development (Frontend + Backend)
+
+To run the full application with the backend API:
+
+1.  **Install all dependencies:**
+
+    ```bash
+    npm run install:all
+    ```
+
+2.  **Start both servers:**
+    ```bash
+    npm run dev:full
+    ```
+
+    - Frontend: http://localhost:3000
+    - Backend: http://localhost:5000
+
 ## Build & Deploy
 
 - Create a production build: `npm run build`
