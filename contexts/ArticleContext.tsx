@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Article } from '../types';
 import { MOCK_ARTICLES } from '../constants';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface ArticleContextType {
   articles: Article[];
@@ -31,8 +31,9 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
       } catch (err) {
         console.error('Error fetching articles:', err);
-        setError('Failed to load articles. Using offline data.');
+        // Fallback to mock data silently
         setArticles(MOCK_ARTICLES);
+        setError(null);
       } finally {
         setLoading(false);
       }

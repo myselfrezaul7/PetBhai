@@ -10,7 +10,10 @@ interface SocialUser {
 
 export const signInWithGoogle = async (): Promise<SocialUser> => {
   // Fallback to Mock if no API key is configured
-  if (!import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === 'your_api_key') {
+  if (
+    !import.meta.env.VITE_FIREBASE_API_KEY ||
+    import.meta.env.VITE_FIREBASE_API_KEY === 'your_api_key'
+  ) {
     console.warn('Firebase API Key not found. Using Mock Google Sign-In.');
     await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate delay
     return {

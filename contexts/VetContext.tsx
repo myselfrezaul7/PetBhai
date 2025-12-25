@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Vet } from '../types';
 import { MOCK_VETS } from '../constants';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface VetContextType {
   vets: Vet[];
@@ -30,8 +30,9 @@ export const VetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setError(null);
       } catch (err) {
         console.error('Error fetching vets:', err);
-        setError('Failed to load vets. Using offline data.');
+        // Fallback to mock data silently
         setVets(MOCK_VETS);
+        setError(null);
       } finally {
         setLoading(false);
       }

@@ -32,9 +32,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Failed to load products. Using offline data.');
-        // Fallback to mock data if API fails
+        // Fallback to mock data silently
         setProducts(MOCK_PRODUCTS);
+        setError(null);
       } finally {
         setLoading(false);
       }
