@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { MOCK_BRANDS } from '../constants';
+import { useBrands } from '../contexts/BrandContext';
 import { SearchIcon } from '../components/icons';
 import type { Product } from '../types';
 import { useProducts } from '../contexts/ProductContext';
@@ -26,9 +26,11 @@ const ShopPage: React.FC = () => {
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { products: allProducts } = useProducts();
+  const { products: allProducts, loading } = useProducts();
+  const { brands } = useBrands();
 
   const sortedAndFilteredProducts = useMemo(() => {
+    if (loading) return [];
     let products: Product[] = [...allProducts];
 
     // 1. Filter by search query
@@ -49,7 +51,7 @@ const ShopPage: React.FC = () => {
 
     // 3. Filter by brand
     if (activeBrand !== 'All') {
-      const brand = MOCK_BRANDS.find((b) => b.name === activeBrand);
+      const brand = brands.find((b) => b.name === activeBrand);
       if (brand) {
         products = products.filter((p) => p.brandId === brand.id);
       }
@@ -72,7 +74,7 @@ const ShopPage: React.FC = () => {
     }
 
     return products;
-  }, [activeCategory, activeBrand, sortOption, searchQuery, allProducts]);
+  }, [activeCategory, activeBrand, sortOption, searchQuery, allProducts, brands, loading]);
 
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = ({ filter }) => (
     <button
@@ -139,7 +141,7 @@ const ShopPage: React.FC = () => {
                   className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer"
                 >
                   <option value="All">All Brands</option>
-                  {MOCK_BRANDS.map((brand) => (
+                  {brands.map((brand) => (
                     <option key={brand.id} value={brand.name}>
                       {brand.name}
                     </option>
@@ -186,16 +188,22 @@ const ShopPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 2 columns on mobile, 3 on md, 4 on xl. Gap 3 for mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
-          {sortedAndFilteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onQuickView={(p) => setSelectedProduct(p)}
-            />
-          ))}
-        </div>
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+            {sortedAndFilteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onQuickView={(p) => setSelectedProduct(p)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quick View Modal */}

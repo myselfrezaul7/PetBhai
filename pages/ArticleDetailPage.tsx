@@ -2,13 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useArticles } from '../contexts/ArticleContext';
 import { generateImageFromPrompt } from '../services/geminiService';
-import { ImageIcon } from '../components/icons';
+import { ImageIcon, PawIcon } from '../components/icons';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { articles, updateArticleImage } = useArticles();
+  const { articles, updateArticleImage, loading, error } = useArticles();
   const { t } = useLanguage();
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -40,6 +40,24 @@ const ArticleDetailPage: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Article</h2>
+        <p className="text-slate-600 dark:text-slate-300">{error}</p>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
