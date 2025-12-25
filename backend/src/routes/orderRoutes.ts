@@ -8,14 +8,39 @@ const router = Router();
 router.post('/', (req, res) => {
   const orderData = req.body;
 
-  if (!orderData || !orderData.items || orderData.items.length === 0) {
+  if (!orderData || typeof orderData !== 'object') {
     return res.status(400).json({ message: 'Invalid order data' });
   }
 
+  if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
+    return res.status(400).json({ message: 'Order must contain at least one item' });
+  }
+
+  // Validate each item has required fields
+  const invalidItems = orderData.items.some(
+    (item: any) =>
+      !item ||
+      typeof item !== 'object' ||
+      typeof item.id !== 'number' ||
+      typeof item.quantity !== 'number' ||
+      item.quantity <= 0
+  );
+
+  if (invalidItems) {
+    return res.status(400).json({ message: 'Invalid item data in order' });
+  }
+
+  // Calculate total if not provided
+  const calculatedTotal = orderData.items.reduce(
+    (sum: number, item: any) => sum + (item.price || 0) * item.quantity,
+    0
+  );
+
   const newOrder: Order = {
     ...orderData,
-    orderId: `PB-${Date.now()}`, // Generate a simple ID
+    orderId: `PB-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`, // Generate a unique ID
     date: new Date().toISOString(),
+    total: orderData.total || calculatedTotal,
   };
 
   db.orders.push(newOrder);

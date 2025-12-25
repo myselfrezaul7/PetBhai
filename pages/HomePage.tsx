@@ -16,27 +16,27 @@ const HomePage: React.FC = () => {
     <div className="w-full">
       {/* Hero Section */}
       <section
-        className="container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 animate-fade-in"
+        className="container mx-auto px-4 md:px-6 pt-6 md:pt-12 pb-8 md:pb-12 animate-fade-in"
         style={{ animationDelay: '0ms' }}
       >
-        <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl group min-h-[500px] md:min-h-0">
+        <div className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl group">
           <img
             src="/landing-hero.png"
             alt="PetBhai - Your Pet's Partner"
-            className="w-full h-full md:h-auto object-cover absolute md:static inset-0"
+            className="w-full h-auto object-cover"
           />
 
           {/* Overlay Buttons */}
-          <div className="absolute bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 px-4 z-10">
+          <div className="absolute bottom-4 sm:bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 px-4 z-10">
             <Link
               to="/adopt"
-              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30 backdrop-blur-sm bg-opacity-90 text-center"
+              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30 backdrop-blur-sm bg-opacity-90 text-center"
             >
               {t('btn_adopt')}
             </Link>
             <Link
               to="/shop"
-              className="w-full sm:w-auto inline-block bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-white dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg backdrop-blur-sm text-center"
+              className="w-full sm:w-auto inline-block bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-white dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg backdrop-blur-sm text-center"
             >
               {t('btn_shop')}
             </Link>
@@ -45,13 +45,13 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Best Sellers Section */}
-      <section className="py-12 md:py-20 animate-fade-in" style={{ animationDelay: '100ms' }}>
+      <section className="py-8 md:py-20 animate-fade-in" style={{ animationDelay: '100ms' }}>
         <div className="container mx-auto px-3 md:px-6">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">
+          <div className="text-center mb-6 md:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">
               {t('section_best_sellers')}
             </h2>
-            <p className="max-w-2xl mx-auto text-sm md:text-lg text-slate-600 dark:text-slate-400">
+            <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-lg text-slate-600 dark:text-slate-400 px-2">
               {t('section_best_sellers_sub')}
             </p>
           </div>
@@ -61,7 +61,7 @@ const HomePage: React.FC = () => {
               <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-orange-500"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
               {bestSellers.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -71,10 +71,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Vet Consultation CTA -> Services CTA */}
-      <section className="py-12 md:py-20 animate-fade-in" style={{ animationDelay: '200ms' }}>
-        <div className="container mx-auto px-4 md:px-6">
+      <section className="py-8 md:py-20 animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="glass-card p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
-            <div className="md:w-1/2 h-48 md:h-auto w-full">
+            <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full">
               <img
                 src="https://picsum.photos/seed/services-cta/800/600"
                 alt="Professional Pet Services"
@@ -82,16 +82,16 @@ const HomePage: React.FC = () => {
                 loading="lazy"
               />
             </div>
-            <div className="md:w-1/2 p-6 md:p-16 text-center md:text-left">
-              <h2 className="text-2xl md:text-5xl font-bold text-slate-800 dark:text-white leading-tight">
+            <div className="md:w-1/2 p-4 sm:p-6 md:p-16 text-center md:text-left">
+              <h2 className="text-xl sm:text-2xl md:text-5xl font-bold text-slate-800 dark:text-white leading-tight">
                 {t('section_services_title')}
               </h2>
-              <p className="text-sm md:text-lg text-slate-600 dark:text-slate-300 mt-4 md:mt-6 leading-relaxed">
+              <p className="text-xs sm:text-sm md:text-lg text-slate-600 dark:text-slate-300 mt-2 sm:mt-4 md:mt-6 leading-relaxed">
                 {t('section_services_desc')}
               </p>
               <Link
                 to="/services"
-                className="mt-6 md:mt-8 inline-flex items-center space-x-2 bg-orange-500 text-white font-bold py-2.5 px-6 md:py-3 md:px-8 rounded-full text-base md:text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
+                className="mt-4 sm:mt-6 md:mt-8 inline-flex items-center space-x-2 bg-orange-500 text-white font-bold py-2 px-5 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-full text-sm sm:text-base md:text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-lg"
               >
                 <span>{t('btn_explore_services')}</span>
                 <svg
@@ -113,12 +113,12 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Shop by Brand Section */}
-      <section className="py-10 md:py-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
+      <section className="py-8 md:py-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
         <div className="container mx-auto px-4 md:px-6 text-center">
-          <h2 className="text-lg md:text-2xl font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-8 md:mb-10">
+          <h2 className="text-sm sm:text-lg md:text-2xl font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 md:mb-10">
             {t('section_brands')}
           </h2>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-80 hover:opacity-100 transition-opacity">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-12 opacity-80 hover:opacity-100 transition-opacity">
             {brands.map((brand) => (
               <Link
                 key={brand.id}
@@ -129,7 +129,7 @@ const HomePage: React.FC = () => {
                 <img
                   src={brand.logoUrl}
                   alt={brand.name}
-                  className="h-8 md:h-14 w-auto object-contain"
+                  className="h-6 sm:h-8 md:h-14 w-auto object-contain"
                 />
               </Link>
             ))}
@@ -139,25 +139,25 @@ const HomePage: React.FC = () => {
 
       {/* New Arrivals Section */}
       <section
-        className="py-12 md:py-20 bg-white/50 dark:bg-black/20 backdrop-blur-sm animate-fade-in"
+        className="py-8 md:py-20 bg-white/50 dark:bg-black/20 backdrop-blur-sm animate-fade-in"
         style={{ animationDelay: '400ms' }}
       >
         <div className="container mx-auto px-3 md:px-6 text-center">
-          <h2 className="text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">
             {t('section_new_arrivals')}
           </h2>
-          <p className="max-w-2xl mx-auto text-sm md:text-lg text-slate-600 dark:text-slate-400 mb-8 md:mb-12">
+          <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-lg text-slate-600 dark:text-slate-400 mb-6 md:mb-12 px-2">
             {t('section_new_arrivals_sub')}
           </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
             {newArrivals.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-          <div className="mt-10 md:mt-16">
+          <div className="mt-8 md:mt-16">
             <Link
               to="/shop"
-              className="inline-block border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold py-2.5 px-8 md:py-3 md:px-10 rounded-full text-base md:text-lg hover:bg-orange-500 hover:text-white transition-all transform hover:scale-105 duration-300"
+              className="inline-block border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold py-2 px-6 sm:py-2.5 sm:px-8 md:py-3 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-orange-500 hover:text-white transition-all transform hover:scale-105 duration-300"
             >
               {t('btn_explore_shop')}
             </Link>
@@ -166,18 +166,18 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* PetBhai+ CTA */}
-      <section className="py-12 md:py-20 animate-fade-in" style={{ animationDelay: '500ms' }}>
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="glass-card text-center p-8 md:p-20 bg-gradient-to-br from-yellow-100/50 to-orange-100/50 dark:from-yellow-900/20 dark:to-orange-900/20 border-orange-200 dark:border-orange-800/30">
-            <h2 className="text-2xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4 md:mb-6">
+      <section className="py-8 md:py-20 animate-fade-in" style={{ animationDelay: '500ms' }}>
+        <div className="container mx-auto px-3 sm:px-4 md:px-6">
+          <div className="glass-card text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/50 to-orange-100/50 dark:from-yellow-900/20 dark:to-orange-900/20 border-orange-200 dark:border-orange-800/30">
+            <h2 className="text-xl sm:text-2xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-3 md:mb-6">
               {t('section_plus_title')}
             </h2>
-            <p className="max-w-3xl mx-auto text-sm md:text-xl text-slate-700 dark:text-slate-200 mb-8 md:mb-10 leading-relaxed">
+            <p className="max-w-3xl mx-auto text-xs sm:text-sm md:text-xl text-slate-700 dark:text-slate-200 mb-5 sm:mb-8 md:mb-10 leading-relaxed">
               {t('section_plus_desc')}
             </p>
             <Link
               to="/plus-membership"
-              className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-12 rounded-full text-base md:text-lg hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl"
+              className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-12 rounded-full text-sm sm:text-base md:text-lg hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl"
             >
               {t('btn_join_plus')}
             </Link>

@@ -4,6 +4,17 @@ import type { User } from '../types';
 
 const router = Router();
 
+// Email validation regex
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Sanitize string input
+const sanitizeString = (str: string): string => {
+  return str.trim().slice(0, 500); // Limit length and trim whitespace
+};
+
 // Login
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -12,7 +23,19 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  const user = db.users.find((u) => u.email === email && u.password === password);
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ message: 'Invalid input types' });
+  }
+
+  const sanitizedEmail = sanitizeString(email).toLowerCase();
+
+  if (!isValidEmail(sanitizedEmail)) {
+    return res.status(400).json({ message: 'Invalid email format' });
+  }
+
+  const user = db.users.find(
+    (u) => u.email.toLowerCase() === sanitizedEmail && u.password === password
+  );
 
   if (user) {
     // In a real app, we would return a JWT token here
@@ -33,14 +56,33 @@ router.post('/signup', (req, res) => {
     return res.status(400).json({ message: 'Name, email, and password are required' });
   }
 
-  if (db.users.some((u) => u.email === email)) {
+  if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ message: 'Invalid input types' });
+  }
+
+  const sanitizedName = sanitizeString(name);
+  const sanitizedEmail = sanitizeString(email).toLowerCase();
+
+  if (sanitizedName.length < 2) {
+    return res.status(400).json({ message: 'Name must be at least 2 characters long' });
+  }
+
+  if (!isValidEmail(sanitizedEmail)) {
+    return res.status(400).json({ message: 'Invalid email format' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+  }
+
+  if (db.users.some((u) => u.email.toLowerCase() === sanitizedEmail)) {
     return res.status(409).json({ message: 'User with this email already exists' });
   }
 
   const newUser: User = {
     id: db.users.length + 1,
-    name,
-    email,
+    name: sanitizedName,
+    email: sanitizedEmail,
     password, // In a real app, hash this password!
     wishlist: [],
     orderHistory: [],

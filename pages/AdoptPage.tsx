@@ -46,7 +46,7 @@ const AdoptPage: React.FC = () => {
   }> = ({ label, isActive, onClick }) => (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-full font-semibold transition-colors text-sm whitespace-nowrap ${
+      className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-colors text-xs sm:text-sm whitespace-nowrap ${
         isActive
           ? 'bg-orange-500 text-white shadow-md'
           : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
@@ -75,24 +75,24 @@ const AdoptPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-3 md:px-6 py-12 md:py-16 animate-fade-in">
-      <div className="glass-card p-6 md:p-8 mb-8 md:mb-12">
-        <h1 className="text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">
+    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+      <div className="glass-card p-4 sm:p-6 md:p-8 mb-6 md:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-3 md:mb-4">
           Find Your New Best Friend
         </h1>
-        <p className="text-base md:text-lg text-center text-slate-700 dark:text-slate-200 max-w-3xl mx-auto">
+        <p className="text-sm sm:text-base md:text-lg text-center text-slate-700 dark:text-slate-200 max-w-3xl mx-auto px-2">
           These wonderful animals are waiting for a loving family to call their own. Use the filters
           to find the perfect match for you.
         </p>
       </div>
 
       {/* Filters Section */}
-      <div className="glass-card p-4 md:p-6 mb-8 md:mb-16 overflow-x-auto">
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 min-w-max md:min-w-0">
+      <div className="glass-card p-3 sm:p-4 md:p-6 mb-6 md:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Species Filter */}
           <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200">Species</label>
-            <div className="flex flex-wrap items-center gap-2">
+            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Species</label>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <FilterButton
                 label="All"
                 isActive={animalTypeFilter === 'All'}
@@ -113,8 +113,8 @@ const AdoptPage: React.FC = () => {
 
           {/* Gender Filter */}
           <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200">Gender</label>
-            <div className="flex flex-wrap items-center gap-2">
+            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gender</label>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <FilterButton
                 label="Any"
                 isActive={genderFilter === 'All'}
@@ -135,8 +135,8 @@ const AdoptPage: React.FC = () => {
 
           {/* Age Filter */}
           <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200">Age</label>
-            <div className="flex flex-wrap items-center gap-2">
+            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Age</label>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <FilterButton
                 label="Any"
                 isActive={ageFilter === 'All'}
@@ -167,8 +167,8 @@ const AdoptPage: React.FC = () => {
 
           {/* Status Filter */}
           <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200">Status</label>
-            <div className="flex flex-wrap items-center gap-2">
+            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Status</label>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <FilterButton
                 label="Available"
                 isActive={statusFilter === 'Available'}
@@ -195,7 +195,7 @@ const AdoptPage: React.FC = () => {
       </div>
 
       {filteredAnimals.length > 0 ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
           {filteredAnimals.map((animal) => (
             <AnimalCard key={animal.id} animal={animal} />
           ))}

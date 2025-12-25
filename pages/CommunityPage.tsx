@@ -5,7 +5,7 @@ import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
 import { MOCK_POSTS } from '../constants';
 import type { Post, Comment, CommentReply } from '../types';
-import { GoogleIcon, VideoCameraIcon, UserGroupIcon } from '../components/icons';
+import { GoogleIcon, UserGroupIcon, HeartIcon, ChatBubbleIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
@@ -16,14 +16,28 @@ const getInitialPosts = (): Post[] => {
   try {
     const posts = window.localStorage.getItem(POSTS_STORAGE_KEY);
     if (posts) {
-      return JSON.parse(posts);
-    } else {
-      // If no posts, initialize with mock data
-      window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(MOCK_POSTS));
-      return MOCK_POSTS;
+      const parsed = JSON.parse(posts);
+      // Validate basic structure
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((p) => p && typeof p === 'object' && typeof p.id === 'number')
+      ) {
+        return parsed;
+      }
+      // Clear invalid data
+      console.warn('Invalid posts data in localStorage, resetting to mock posts');
+      window.localStorage.removeItem(POSTS_STORAGE_KEY);
     }
+    // Initialize with mock data if empty or invalid
+    window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(MOCK_POSTS));
+    return MOCK_POSTS;
   } catch (error) {
     console.error('Error reading posts from localStorage', error);
+    try {
+      window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(MOCK_POSTS));
+    } catch {
+      // localStorage might be disabled
+    }
     return MOCK_POSTS;
   }
 };
@@ -38,9 +52,11 @@ const CommunityPage: React.FC = () => {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
+      const serialized = JSON.stringify(posts);
+      window.localStorage.setItem(POSTS_STORAGE_KEY, serialized);
     } catch (error) {
       console.error('Error writing posts to localStorage', error);
+      // Don't crash the app if localStorage is full or disabled
     }
   }, [posts]);
 
@@ -270,118 +286,136 @@ const CommunityPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl animate-fade-in">
         {/* Hero Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full mb-4">
-            <UserGroupIcon className="w-8 h-8 text-orange-500" />
+        <div className="text-center mb-6 md:mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-lg">
+            <UserGroupIcon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-orange-500" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-800 dark:text-white mb-2 md:mb-3">
             Community Hub
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
-            Share pet care tips, product reviews, and connect with fellow pet lovers in Bangladesh.
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed px-2">
+            Share your pet stories, get advice from fellow pet parents, and be part of Bangladesh's
+            most caring pet community.
           </p>
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="glass-card p-4 text-center">
-            <p className="text-2xl font-bold text-orange-500">{totalPosts}</p>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Posts</p>
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8">
+          <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-500">{totalPosts}</p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
+              Posts
+            </p>
           </div>
-          <div className="glass-card p-4 text-center">
-            <p className="text-2xl font-bold text-blue-500">{totalComments}</p>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Comments</p>
+          <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-blue-500">
+              {totalComments}
+            </p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
+              Comments
+            </p>
           </div>
-          <div className="glass-card p-4 text-center">
-            <p className="text-2xl font-bold text-pink-500">{totalLikes}</p>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Likes</p>
+          <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-pink-500">{totalLikes}</p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
+              Likes
+            </p>
           </div>
         </div>
 
-        {/* Creator Tools CTA */}
-        <div className="glass-card p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-slate-100 to-orange-50 dark:from-slate-800 dark:to-slate-900 border border-orange-200 dark:border-orange-900/30">
-          <div className="text-center sm:text-left">
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center justify-center sm:justify-start gap-2">
-              <VideoCameraIcon className="w-6 h-6 text-orange-500" />
-              Creator Tools
-            </h3>
-            <p className="text-slate-600 dark:text-slate-300 mt-1 text-sm">
-              Starting a pet vlog? Create custom thumbnails instantly.
-            </p>
+        {/* Community Guidelines */}
+        <div className="glass-card p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-100 dark:border-blue-900/30">
+          <div className="flex items-start gap-2.5 sm:gap-3">
+            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">
+                Community Guidelines
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-0.5 leading-relaxed">
+                Be kind, share helpful tips, and respect fellow pet lovers. Let's make this a safe
+                space for everyone! 🐾
+              </p>
+            </div>
           </div>
-          <Link
-            to="/thumbnail-generator"
-            className="whitespace-nowrap px-6 py-2.5 bg-orange-500 text-white font-bold rounded-full hover:bg-orange-600 transition-colors shadow-md"
-          >
-            Create Thumbnail
-          </Link>
         </div>
 
         {/* Post Creation / Login Section */}
         {isAuthenticated ? (
           <CreatePostForm onAddPost={handleAddPost} />
         ) : (
-          <div className="glass-card p-8 mb-8 text-center">
+          <div className="glass-card p-8 mb-8 text-center bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-slate-800/50">
+            <div className="flex justify-center gap-2 mb-4">
+              <span className="text-3xl">🐕</span>
+              <span className="text-3xl">🐈</span>
+              <span className="text-3xl">🐾</span>
+            </div>
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
-              Join the Conversation! 🐾
+              Join the Conversation!
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">
-              Sign in to share your stories, like posts, and connect with our community.
+            <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-md mx-auto">
+              Share your pet stories, get expert advice, and connect with thousands of pet lovers
+              across Bangladesh.
             </p>
 
             <div className="space-y-4 max-w-sm mx-auto">
               <button
                 onClick={handleSocialLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center space-x-3 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <GoogleIcon className="w-6 h-6" />
                 <span className="font-semibold text-slate-700 dark:text-slate-200">
-                  {isLoading ? 'Signing in...' : 'Sign in with Google'}
+                  {isLoading ? 'Signing in...' : 'Continue with Google'}
                 </span>
               </button>
             </div>
 
             <div className="flex items-center my-6">
-              <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
-              <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-400 font-semibold text-sm">
-                OR
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-600"></div>
+              <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-sm">
+                or use email
               </span>
-              <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-600"></div>
             </div>
 
-            <p className="text-slate-600 dark:text-slate-300">
-              <Link to="/login" className="font-semibold text-orange-600 hover:underline">
-                Log in with email
-              </Link>{' '}
-              or{' '}
-              <Link to="/signup" className="font-semibold text-orange-600 hover:underline">
-                sign up
+            <div className="flex justify-center gap-4">
+              <Link
+                to="/login"
+                className="px-6 py-2.5 font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 transition-colors"
+              >
+                Log In
               </Link>
-              .
-            </p>
+              <Link
+                to="/signup"
+                className="px-6 py-2.5 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg"
+              >
+                Sign Up Free
+              </Link>
+            </div>
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex space-x-2 bg-slate-200/50 dark:bg-slate-800/50 p-1 rounded-full">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 sm:p-1.5 rounded-lg sm:rounded-xl">
             <button
               onClick={() => setActiveTab('feed')}
-              className={`px-6 py-2 rounded-full font-semibold transition-all ${
+              className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm ${
                 activeTab === 'feed'
-                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-md'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               📰 Latest
             </button>
             <button
               onClick={() => setActiveTab('popular')}
-              className={`px-6 py-2 rounded-full font-semibold transition-all ${
+              className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm ${
                 activeTab === 'popular'
-                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-md'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               🔥 Popular
@@ -394,9 +428,10 @@ const CommunityPage: React.FC = () => {
                 window.location.reload();
               }
             }}
-            className="text-xs text-slate-400 hover:text-red-500 transition-colors"
+            className="text-[10px] sm:text-xs text-slate-400 hover:text-red-500 transition-colors hidden sm:block"
+            title="Reset to default posts"
           >
-            Reset Data
+            Reset
           </button>
         </div>
 
@@ -404,8 +439,11 @@ const CommunityPage: React.FC = () => {
         <div className="space-y-6">
           {displayedPosts.length === 0 ? (
             <div className="glass-card p-12 text-center">
+              <div className="flex justify-center mb-4">
+                <ChatBubbleIcon className="w-12 h-12 text-slate-300 dark:text-slate-600" />
+              </div>
               <p className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">
-                No posts yet! 📝
+                No posts yet!
               </p>
               <p className="text-slate-500 dark:text-slate-400">
                 Be the first to share something with the community.

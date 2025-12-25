@@ -10,13 +10,31 @@ const getAllUsers = (): User[] => {
   try {
     const storedUsers = window.localStorage.getItem(USERS_STORAGE_KEY);
     if (storedUsers) {
-      return JSON.parse(storedUsers);
+      const parsed = JSON.parse(storedUsers);
+      // Validate that parsed data is an array of user-like objects
+      if (
+        Array.isArray(parsed) &&
+        parsed.every(
+          (u) =>
+            u && typeof u === 'object' && typeof u.id === 'number' && typeof u.email === 'string'
+        )
+      ) {
+        return parsed;
+      }
+      // Clear invalid data
+      console.warn('Invalid user data in localStorage, resetting to mock users');
+      window.localStorage.removeItem(USERS_STORAGE_KEY);
     }
-    // Initialize with mock users if empty
+    // Initialize with mock users if empty or invalid
     window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(MOCK_USERS));
     return MOCK_USERS;
   } catch (error) {
     console.error('Error reading users from localStorage', error);
+    try {
+      window.localStorage.removeItem(USERS_STORAGE_KEY);
+    } catch {
+      // localStorage might be disabled
+    }
     return MOCK_USERS;
   }
 };
@@ -24,9 +42,29 @@ const getAllUsers = (): User[] => {
 const getInitialCurrentUser = (): User | null => {
   try {
     const user = window.localStorage.getItem(CURRENT_USER_STORAGE_KEY);
-    return user ? JSON.parse(user) : null;
+    if (user) {
+      const parsed = JSON.parse(user);
+      // Validate basic user structure
+      if (
+        parsed &&
+        typeof parsed === 'object' &&
+        typeof parsed.id === 'number' &&
+        typeof parsed.email === 'string'
+      ) {
+        return parsed;
+      }
+      // Clear invalid data
+      console.warn('Invalid current user data in localStorage, clearing');
+      window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+    }
+    return null;
   } catch (error) {
     console.error('Error reading current user from localStorage', error);
+    try {
+      window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+    } catch {
+      // localStorage might be disabled
+    }
     return null;
   }
 };

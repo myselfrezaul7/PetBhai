@@ -18,13 +18,28 @@ const getInitialState = (): CartState => {
     const storedItems = window.localStorage.getItem(CART_STORAGE_KEY);
     if (storedItems) {
       const parsed = JSON.parse(storedItems);
-      if (Array.isArray(parsed)) {
+      if (
+        Array.isArray(parsed) &&
+        parsed.every(
+          (item) =>
+            typeof item === 'object' &&
+            item !== null &&
+            typeof item.id === 'number' &&
+            typeof item.quantity === 'number'
+        )
+      ) {
         return { items: parsed };
       }
+      // Clear invalid data structure
+      window.localStorage.removeItem(CART_STORAGE_KEY);
     }
   } catch (error) {
     console.error('Error reading cart from localStorage', error);
-    window.localStorage.removeItem(CART_STORAGE_KEY); // Clear corrupted data
+    try {
+      window.localStorage.removeItem(CART_STORAGE_KEY); // Clear corrupted data
+    } catch (e) {
+      // localStorage might be disabled
+    }
   }
   return { items: [] };
 };
@@ -91,9 +106,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
+      const serialized = JSON.stringify(state.items);
+      window.localStorage.setItem(CART_STORAGE_KEY, serialized);
     } catch (error) {
       console.error('Error saving cart to localStorage', error);
+      // localStorage might be full or disabled - don't crash the app
     }
   }, [state.items]);
 

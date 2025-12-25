@@ -79,7 +79,7 @@ const ShopPage: React.FC = () => {
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = ({ filter }) => (
     <button
       onClick={() => setActiveCategory(filter)}
-      className={`px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm whitespace-nowrap active:scale-95 ${
+      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm whitespace-nowrap active:scale-95 ${
         activeCategory === filter
           ? 'bg-orange-500 text-white shadow-lg transform scale-105'
           : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
@@ -91,33 +91,33 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-3 md:px-6 py-12 md:py-16 animate-fade-in">
-        <h1 className="text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-4">
+      <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-3 md:mb-4">
           Shop For Your Buddy
         </h1>
-        <p className="text-base md:text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
+        <p className="text-sm sm:text-base md:text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-6 md:mb-10 px-2">
           Find everything you need to keep your pet happy and healthy, from premium food to fun
           toys.
         </p>
 
         {/* Filters & Sorting */}
-        <div className="glass-card p-6 mb-12 space-y-6">
+        <div className="glass-card p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6">
           {/* Search Bar */}
           <div className="relative max-w-lg mx-auto">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-              <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
+              <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 dark:text-slate-500" />
             </span>
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md"
+              className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md"
               aria-label="Search products"
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 md:gap-3">
             <CategoryFilterButton filter="All" />
             <CategoryFilterButton filter="Dog Food" />
             <CategoryFilterButton filter="Cat Food" />
@@ -125,20 +125,20 @@ const ShopPage: React.FC = () => {
             <CategoryFilterButton filter="Cat Supplies" />
             <CategoryFilterButton filter="Grooming" />
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 border-t border-slate-200 dark:border-slate-700/50">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="brand-filter"
-                className="font-semibold text-slate-700 dark:text-slate-200"
+                className="font-semibold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap"
               >
                 Brand:
               </label>
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <select
                   id="brand-filter"
                   value={activeBrand}
                   onChange={(e) => setActiveBrand(e.target.value)}
-                  className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer"
+                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer"
                 >
                   <option value="All">All Brands</option>
                   {brands.map((brand) => (
@@ -159,15 +159,18 @@ const ShopPage: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="sort-by" className="font-semibold text-slate-700 dark:text-slate-200">
+              <label
+                htmlFor="sort-by"
+                className="font-semibold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap"
+              >
                 Sort by:
               </label>
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <select
                   id="sort-by"
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value as SortOption)}
-                  className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer"
+                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 cursor-pointer"
                 >
                   <option value="default">Default</option>
                   <option value="price-asc">Price: Low to High</option>

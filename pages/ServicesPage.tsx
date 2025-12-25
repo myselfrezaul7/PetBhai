@@ -40,7 +40,7 @@ const ServicesPage: React.FC = () => {
   const TabButton: React.FC<{ label: ServiceTab }> = ({ label }) => (
     <button
       onClick={() => setActiveTab(label)}
-      className={`px-4 py-3 font-bold text-lg rounded-t-lg transition-colors border-b-4 ${
+      className={`px-3 sm:px-4 py-2 sm:py-3 font-bold text-sm sm:text-lg rounded-t-lg transition-colors border-b-4 whitespace-nowrap ${
         activeTab === label
           ? 'border-orange-500 text-orange-600 dark:text-orange-400'
           : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
@@ -51,31 +51,31 @@ const ServicesPage: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-3 md:px-6 py-16 animate-fade-in">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">
+    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+      <div className="text-center mb-8 md:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-white">
           Professional Pet Services
         </h1>
-        <p className="text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto mt-4">
+        <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto mt-3 md:mt-4 px-2">
           Find and book trusted local professionals for every pet need.
         </p>
       </div>
 
       {/* Tabs & Filters */}
-      <div className="glass-card p-4 mb-12">
-        <div className="flex flex-col sm:flex-row items-center justify-between">
-          <div className="border-b border-slate-300/50 dark:border-slate-600/50 flex-grow w-full overflow-x-auto">
-            <nav className="flex space-x-2 whitespace-nowrap">
+      <div className="glass-card p-3 sm:p-4 mb-8 md:mb-12">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="border-b border-slate-300/50 dark:border-slate-600/50 w-full overflow-x-auto scrollbar-hide">
+            <nav className="flex space-x-1 sm:space-x-2 min-w-max pb-px">
               <TabButton label="Vets" />
               <TabButton label="Groomers" />
               <TabButton label="Trainers" />
               <TabButton label="Sitters" />
             </nav>
           </div>
-          <div className="flex items-center gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
             <label
               htmlFor="location-filter"
-              className="font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline"
+              className="font-semibold text-slate-700 dark:text-slate-200 hidden sm:inline text-sm"
             >
               Location:
             </label>
@@ -83,7 +83,7 @@ const ServicesPage: React.FC = () => {
               id="location-filter"
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              className="w-full sm:w-auto p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500"
+              className="w-full sm:w-auto p-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500"
             >
               <option value="All">All Bangladesh</option>
               {BANGLADESH_DISTRICTS.map((d) => (

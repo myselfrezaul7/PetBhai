@@ -2,32 +2,61 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
+  fallback?: ReactNode;
 }
 
 interface State {
   hasError: boolean;
   error?: Error;
+  errorInfo?: ErrorInfo;
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  // Ensure TypeScript recognizes the props property on the instance (some
-  // environments/types can produce a complaint about 'props' not existing).
-  public readonly props!: Props;
-
   public state: State = {
     hasError: false,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error in application:', error, errorInfo);
+    this.setState({ errorInfo });
+
+    // You could send error to a logging service here
+    // logErrorToService(error, errorInfo);
   }
+
+  private handleReset = () => {
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+  };
+
+  private handleClearAndReload = () => {
+    try {
+      // Only clear petbhai-related items, not all localStorage
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('petbhai_')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+    } catch (e) {
+      // localStorage might be disabled
+      console.error('Failed to clear localStorage:', e);
+    }
+    window.location.reload();
+  };
 
   public render() {
     if (this.state.hasError) {
+      // Allow custom fallback
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900 text-center px-4 font-sans">
           <div className="w-24 h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-6">
@@ -52,7 +81,18 @@ class ErrorBoundary extends Component<Props, State> {
           <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md">
             We're sorry, but an unexpected error occurred. Please try refreshing the page.
           </p>
-          <div className="flex gap-4">
+          {process.env.NODE_ENV === 'development' && this.state.error && (
+            <details className="mb-6 text-left max-w-lg w-full">
+              <summary className="cursor-pointer text-red-500 font-semibold mb-2">
+                Error Details (Development Only)
+              </summary>
+              <pre className="bg-slate-800 text-red-300 p-4 rounded-lg overflow-auto text-xs max-h-48">
+                {this.state.error.toString()}
+                {this.state.errorInfo?.componentStack}
+              </pre>
+            </details>
+          )}
+          <div className="flex gap-4 flex-wrap justify-center">
             <button
               onClick={() => window.location.reload()}
               className="bg-orange-500 text-white font-bold py-3 px-8 rounded-full hover:bg-orange-600 transition-transform active:scale-95 shadow-lg"
@@ -60,10 +100,13 @@ class ErrorBoundary extends Component<Props, State> {
               Refresh Page
             </button>
             <button
-              onClick={() => {
-                localStorage.clear();
-                window.location.reload();
-              }}
+              onClick={this.handleReset}
+              className="bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-transform active:scale-95 shadow-lg"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={this.handleClearAndReload}
               className="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-8 rounded-full hover:bg-slate-300 dark:hover:bg-slate-600 transition-transform active:scale-95"
             >
               Clear Cache & Restart
@@ -73,8 +116,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    const { children } = this.props as Props;
-    return children;
+    return this.props.children;
   }
 }
 

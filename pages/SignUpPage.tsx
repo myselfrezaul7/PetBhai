@@ -112,7 +112,7 @@ const SignUpPage: React.FC = () => {
               required
               className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
               aria-required="true"
-              aria-invalid={!!error}
+              aria-invalid={error ? 'true' : 'false'}
               aria-describedby={error ? 'auth-error' : undefined}
             />
           </div>
@@ -131,7 +131,7 @@ const SignUpPage: React.FC = () => {
               required
               className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
               aria-required="true"
-              aria-invalid={!!error}
+              aria-invalid={error ? 'true' : 'false'}
               aria-describedby={error ? 'auth-error' : undefined}
             />
           </div>
@@ -150,7 +150,7 @@ const SignUpPage: React.FC = () => {
               required
               className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
               aria-required="true"
-              aria-invalid={!!error}
+              aria-invalid={error ? 'true' : 'false'}
               aria-describedby={error ? 'auth-error' : undefined}
             />
           </div>

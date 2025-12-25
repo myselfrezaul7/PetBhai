@@ -97,6 +97,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="p-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                          aria-label={`Decrease quantity of ${item.name}`}
                         >
                           <MinusIcon className="w-4 h-4" />
                         </button>
@@ -106,6 +107,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="p-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                          aria-label={`Increase quantity of ${item.name}`}
                         >
                           <PlusIcon className="w-4 h-4" />
                         </button>

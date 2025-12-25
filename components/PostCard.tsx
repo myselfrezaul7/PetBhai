@@ -101,10 +101,10 @@ const PostCard: React.FC<PostCardProps> = ({
   return (
     <>
       <div className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl">
-        <div className="p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-md">
+        <div className="p-4 sm:p-6">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-md">
                 {post.author.profilePictureUrl ? (
                   <img
                     src={post.author.profilePictureUrl}
@@ -112,29 +112,29 @@ const PostCard: React.FC<PostCardProps> = ({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <UserIcon className="w-7 h-7 text-slate-600 dark:text-slate-300" />
+                  <UserIcon className="w-5 h-5 sm:w-7 sm:h-7 text-slate-600 dark:text-slate-300" />
                 )}
               </div>
               <div>
-                <p className="font-bold text-slate-800 dark:text-white text-lg hover:text-orange-500 cursor-pointer transition-colors">
+                <p className="font-bold text-slate-800 dark:text-white text-sm sm:text-lg hover:text-orange-500 cursor-pointer transition-colors">
                   {post.author.name}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   {timeSince(post.timestamp)} ago
                 </p>
               </div>
             </div>
             {isAuthor && (
-              <div className="flex space-x-2 text-sm">
+              <div className="flex space-x-1 sm:space-x-2 text-xs sm:text-sm">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="font-semibold text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+                  className="font-semibold text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-1.5 sm:px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => onDeletePost(post.id)}
-                  className="font-semibold text-red-500 hover:text-red-600 transition-colors px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                  className="font-semibold text-red-500 hover:text-red-600 transition-colors px-1.5 sm:px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
                   Delete
                 </button>
@@ -165,7 +165,7 @@ const PostCard: React.FC<PostCardProps> = ({
               </div>
             </div>
           ) : (
-            <p className="text-slate-700 dark:text-slate-300 text-base mb-4 whitespace-pre-wrap leading-relaxed">
+            <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base mb-3 sm:mb-4 whitespace-pre-wrap leading-relaxed">
               {post.content}
             </p>
           )}
@@ -191,42 +191,51 @@ const PostCard: React.FC<PostCardProps> = ({
         )}
 
         {/* Action Buttons */}
-        <div className="px-6 py-3 border-y border-white/20 dark:border-slate-700/50 flex justify-around">
+        <div className="px-3 sm:px-6 py-2 sm:py-3 border-y border-white/20 dark:border-slate-700/50 flex justify-around">
           <button
             onClick={() => onLikePost(post.id)}
-            className={`flex items-center space-x-2 font-semibold transition-all rounded-lg px-4 py-2 ${
+            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-base ${
               hasLikedPost
                 ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <ThumbsUpIcon
-              className={`w-5 h-5 transition-transform ${hasLikedPost ? 'scale-110' : ''}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${hasLikedPost ? 'scale-110' : ''}`}
             />
-            <span>
+            <span className="hidden xs:inline">
               {post.likes.length > 0 ? post.likes.length : ''} Like
               {post.likes.length !== 1 ? 's' : ''}
             </span>
+            <span className="xs:hidden">{post.likes.length > 0 ? post.likes.length : '0'}</span>
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
-            className={`flex items-center space-x-2 font-semibold transition-colors rounded-lg px-4 py-2 ${
+            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-base ${
               showComments
                 ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-slate-700/50'
             }`}
           >
-            <ChatBubbleIcon className="w-5 h-5" />
-            <span>
+            <ChatBubbleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden xs:inline">
               {post.comments.length > 0 ? post.comments.length : ''} Comment
               {post.comments.length !== 1 ? 's' : ''}
+            </span>
+            <span className="xs:hidden">
+              {post.comments.length > 0 ? post.comments.length : '0'}
             </span>
           </button>
           <button
             onClick={handleShare}
-            className="flex items-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-4 py-2 hover:bg-green-50/50 dark:hover:bg-slate-700/50"
+            className="flex items-center space-x-1 sm:space-x-2 text-slate-600 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -234,7 +243,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
               />
             </svg>
-            <span>Share</span>
+            <span className="hidden xs:inline">Share</span>
           </button>
         </div>
 
