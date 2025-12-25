@@ -17,6 +17,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
+console.log('Backend API initializing...');
+
 // Middleware
 app.use(
   helmet({
@@ -41,16 +43,21 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve static files from the React frontend app
-const frontendDistPath = path.join(__dirname, '../../dist');
-app.use(express.static(frontendDistPath));
+// const frontendDistPath = path.join(__dirname, '../../dist');
+// app.use(express.static(frontendDistPath));
 
 // Anything that doesn't match the above, send back index.html
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) {
-    // If it's an API route that wasn't found, return 404 JSON
-    return res.status(404).json({ message: 'API endpoint not found' });
-  }
-  res.sendFile(path.join(frontendDistPath, 'index.html'));
+// app.get('*', (req, res) => {
+//   if (req.path.startsWith('/api')) {
+//     // If it's an API route that wasn't found, return 404 JSON
+//     return res.status(404).json({ message: 'API endpoint not found' });
+//   }
+//   res.sendFile(path.join(frontendDistPath, 'index.html'));
+// });
+
+// 404 handler for API routes
+app.use((req, res) => {
+  res.status(404).json({ message: 'API endpoint not found' });
 });
 
 // Global Error Handler

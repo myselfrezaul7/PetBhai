@@ -19,24 +19,24 @@ const HomePage: React.FC = () => {
         className="container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 animate-fade-in"
         style={{ animationDelay: '0ms' }}
       >
-        <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl group">
+        <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl group min-h-[500px] md:min-h-0">
           <img
             src="/landing-hero.png"
             alt="PetBhai - Your Pet's Partner"
-            className="w-full h-auto object-cover"
+            className="w-full h-full md:h-auto object-cover absolute md:static inset-0"
           />
 
           {/* Overlay Buttons */}
-          <div className="absolute bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 px-4">
+          <div className="absolute bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 px-4 z-10">
             <Link
               to="/adopt"
-              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30 backdrop-blur-sm bg-opacity-90"
+              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30 backdrop-blur-sm bg-opacity-90 text-center"
             >
               {t('btn_adopt')}
             </Link>
             <Link
               to="/shop"
-              className="w-full sm:w-auto inline-block bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-white dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg backdrop-blur-sm"
+              className="w-full sm:w-auto inline-block bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-white dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg backdrop-blur-sm text-center"
             >
               {t('btn_shop')}
             </Link>
