@@ -1,5 +1,5 @@
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from './firebase';
+import { auth, googleProvider, isFirebaseConfigured } from './firebase';
 
 interface SocialUser {
   firstName: string;
@@ -9,12 +9,9 @@ interface SocialUser {
 }
 
 export const signInWithGoogle = async (): Promise<SocialUser> => {
-  // Fallback to Mock if no API key is configured
-  if (
-    !import.meta.env.VITE_FIREBASE_API_KEY ||
-    import.meta.env.VITE_FIREBASE_API_KEY === 'your_api_key'
-  ) {
-    console.warn('Firebase API Key not found. Using Mock Google Sign-In.');
+  // Fallback to Mock if Firebase is not configured
+  if (!isFirebaseConfigured() || !auth || !googleProvider) {
+    console.warn('Firebase not configured. Using Mock Google Sign-In.');
     await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate delay
     return {
       firstName: 'Israt',
@@ -40,11 +37,12 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
       email: user.email || '',
       photoUrl: user.photoURL || undefined,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Google Sign-In Error:', error);
-    if (error.code === 'auth/api-key-not-valid-please-pass-a-valid-api-key') {
+    const firebaseError = error as { code?: string; message?: string };
+    if (firebaseError.code === 'auth/api-key-not-valid-please-pass-a-valid-api-key') {
       throw new Error('Google Sign-In is not configured. Please set VITE_FIREBASE_API_KEY in .env');
     }
-    throw new Error(error.message || 'Failed to sign in with Google');
+    throw new Error(firebaseError.message || 'Failed to sign in with Google');
   }
 };

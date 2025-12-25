@@ -62,16 +62,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (currentUser) {
         window.localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
-        
+
         // Also update this user in the main users list
         const allUsers = getAllUsers();
-        const updatedUsers = allUsers.map(u => u.id === currentUser.id ? currentUser : u);
+        const updatedUsers = allUsers.map((u) => (u.id === currentUser.id ? currentUser : u));
         // If user not found (e.g. social login), add them
-        if (!updatedUsers.find(u => u.id === currentUser.id)) {
-            updatedUsers.push(currentUser);
+        if (!updatedUsers.find((u) => u.id === currentUser.id)) {
+          updatedUsers.push(currentUser);
         }
         window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-
       } else {
         window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
       }
@@ -82,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<User> => {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const users = getAllUsers();
     const user = users.find((u) => u.email === email && u.password === password);
@@ -101,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (name: string, email: string, password: string): Promise<User> => {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const users = getAllUsers();
     if (users.some((u) => u.email === email)) {
@@ -133,11 +132,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }): Promise<User> => {
     // Check if user already exists
     const users = getAllUsers();
-    const existingUser = users.find(u => u.email === socialUser.email);
+    const existingUser = users.find((u) => u.email === socialUser.email);
 
     if (existingUser) {
-        setCurrentUser(existingUser);
-        return existingUser;
+      setCurrentUser(existingUser);
+      return existingUser;
     }
 
     const newUser: User = {
@@ -150,7 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       favorites: [],
       isPlusMember: false,
     };
-    
+
     setCurrentUser(newUser);
     // The useEffect will handle saving to USERS_STORAGE_KEY
     return newUser;
@@ -170,10 +169,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addToWishlist = async (productId: number) => {
     if (!currentUser) return;
     if (currentUser.wishlist.includes(productId)) return;
-    
+
     const updatedUser = {
-        ...currentUser,
-        wishlist: [...currentUser.wishlist, productId]
+      ...currentUser,
+      wishlist: [...currentUser.wishlist, productId],
     };
     setCurrentUser(updatedUser);
   };
@@ -181,8 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeFromWishlist = async (productId: number) => {
     if (!currentUser) return;
     const updatedUser = {
-        ...currentUser,
-        wishlist: currentUser.wishlist.filter(id => id !== productId)
+      ...currentUser,
+      wishlist: currentUser.wishlist.filter((id) => id !== productId),
     };
     setCurrentUser(updatedUser);
   };
@@ -192,8 +191,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (currentUser.favorites.includes(animalId)) return;
 
     const updatedUser = {
-        ...currentUser,
-        favorites: [...currentUser.favorites, animalId]
+      ...currentUser,
+      favorites: [...currentUser.favorites, animalId],
     };
     setCurrentUser(updatedUser);
   };
@@ -201,8 +200,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const unfavoritePet = async (animalId: number) => {
     if (!currentUser) return;
     const updatedUser = {
-        ...currentUser,
-        favorites: currentUser.favorites.filter(id => id !== animalId)
+      ...currentUser,
+      favorites: currentUser.favorites.filter((id) => id !== animalId),
     };
     setCurrentUser(updatedUser);
   };
@@ -210,8 +209,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const subscribeToPlus = async () => {
     if (!currentUser) return;
     const updatedUser = {
-        ...currentUser,
-        isPlusMember: true
+      ...currentUser,
+      isPlusMember: true,
     };
     setCurrentUser(updatedUser);
   };
