@@ -40,9 +40,23 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
   } catch (error: unknown) {
     console.error('Google Sign-In Error:', error);
     const firebaseError = error as { code?: string; message?: string };
-    if (firebaseError.code === 'auth/api-key-not-valid-please-pass-a-valid-api-key') {
-      throw new Error('Google Sign-In is not configured. Please set VITE_FIREBASE_API_KEY in .env');
+    
+    // Provide user-friendly error messages
+    switch (firebaseError.code) {
+      case 'auth/api-key-not-valid-please-pass-a-valid-api-key':
+        throw new Error('Firebase API key is invalid. Please check configuration.');
+      case 'auth/unauthorized-domain':
+        throw new Error(`This domain is not authorized for Google Sign-In. Please add "${window.location.hostname}" to Firebase Console > Authentication > Settings > Authorized domains.`);
+      case 'auth/popup-closed-by-user':
+        throw new Error('Sign-in was cancelled.');
+      case 'auth/popup-blocked':
+        throw new Error('Sign-in popup was blocked. Please allow popups for this site.');
+      case 'auth/network-request-failed':
+        throw new Error('Network error. Please check your internet connection.');
+      case 'auth/internal-error':
+        throw new Error('Firebase internal error. Please check if API key and Auth Domain are correct.');
+      default:
+        throw new Error(firebaseError.message || `Sign-in failed (${firebaseError.code || 'unknown error'})`);
     }
-    throw new Error(firebaseError.message || 'Failed to sign in with Google');
   }
 };
