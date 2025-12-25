@@ -10,6 +10,7 @@ import animalRoutes from './routes/animalRoutes';
 import brandRoutes from './routes/brandRoutes';
 import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
+import aiRoutes from './routes/aiRoutes';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/animals', animalRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

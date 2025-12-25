@@ -1,167 +1,50 @@
-import { GoogleGenAI, Modality } from '@google/genai';
-import { MOCK_PRODUCTS } from '../constants';
+// This service now delegates all AI operations to the backend API
+// to protect API keys and centralize logic.
 
-// Create a singleton instance of the AI client to avoid re-creating it on every call.
-let aiInstance: GoogleGenAI | null = null;
-
-// Safe environment variable access for various build environments (Vite, standard, etc.)
-const getApiKey = () => {
-  // Check standard process.env (bundlers often polyfill this)
-  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY;
-  }
-  // Check Vite specific env
-  if (
-    typeof import.meta !== 'undefined' &&
-    (import.meta as any).env &&
-    (import.meta as any).env.VITE_API_KEY
-  ) {
-    return (import.meta as any).env.VITE_API_KEY;
-  }
-  return null;
-};
-
-// Helper used by the UI to determine whether the AI feature can be used from the client.
 export const isAiConfigured = (): boolean => {
-  const key = getApiKey();
-  // Treat obvious build-time placeholders as not configured so we don't attempt
-  // to call the AI from the browser with an invalid key.
-  if (!key) return false;
-  if (typeof key === 'string' && key.includes('PLACEHOLDER')) return false;
+  // In the full-stack architecture, we assume the backend is configured.
+  // You could add a health check here if needed, but for now we'll assume it's ready.
   return true;
 };
 
-function getAiInstance(): GoogleGenAI {
-  if (!aiInstance) {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      console.error('API_KEY environment variable is not set.');
-      throw new Error('AI service is not configured. Missing API key.');
-    }
-    try {
-      aiInstance = new GoogleGenAI({ apiKey: apiKey });
-    } catch (e) {
-      console.error('Failed to initialize GoogleGenAI', e);
-      throw new Error('Failed to initialize AI service.');
-    }
-  }
-  return aiInstance;
-}
-
-// Generate a summary of the product catalog for the AI
-const productCatalog = MOCK_PRODUCTS.map(
-  (p) => `- ${p.name} (${p.category}): ৳${p.price} [Rating: ${p.rating}/5]`
-).join('\n');
-
-const SYSTEM_INSTRUCTION = `You are an AI Vet for PetBhai, an animal welfare organization. Provide helpful, general first-aid and pet care advice. 
-Your role is to give safe, preliminary guidance. You are NOT a substitute for a professional veterinarian. 
-Do not diagnose conditions or prescribe specific medications. 
-Crucially, if a situation seems serious, you must strongly advise the user to consult a licensed, in-person veterinarian immediately.
-
-**Context-Aware Shop Assistant Rules:**
-You have access to the shop's inventory below. 
-If a user asks for recommendations (like food, toys, or supplies), ALWAYS check this list first.
-If you find a matching product, enthusiastically suggest it and say "We have this in our shop!".
-Mention the price in Taka (৳).
-Inventory:
-${productCatalog}
-
-If the user needs something not on this list, you can suggest general types of products but clarify you don't sell them directly.
-Keep your answers concise and easy for a non-medical person to understand. Format your responses using simple Markdown.
-Use asterisks for bullet points (e.g., * Item 1) and double asterisks for bolding important text (e.g., **Warning**). If you use Google Search, cite your sources.`;
-
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   try {
-    // If a server-side proxy is configured (recommended for production), use it.
-    const proxyUrl =
-      (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_AI_PROXY_URL) ||
-      (typeof process !== 'undefined' && process.env && process.env.AI_PROXY_URL);
-    if (proxyUrl) {
-      const resp = await fetch(proxyUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
-      if (!resp.ok) throw new Error('AI proxy request failed');
-      const data = await resp.json();
-      return data.text || "I'm having trouble generating a response right now.";
-    }
-
-    const ai = getAiInstance();
-    // Upgraded to gemini-3-pro-preview for advanced reasoning capabilities
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
-      contents: [{ parts: [{ text: prompt }] }],
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        // Enabling thinking allows the model to reason about safety and medical nuance before answering
-        thinkingConfig: { thinkingBudget: 2048 },
-        // Enable Google Search to provide grounded, up-to-date information
-        tools: [{ googleSearch: {} }],
-      },
+    const response = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
     });
 
-    let text = response.text || "I'm having trouble generating a response right now.";
-
-    // Append grounding sources if available
-    if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-      const chunks = response.candidates[0].groundingMetadata.groundingChunks;
-      const sources = chunks
-        .map((chunk: any) => chunk.web?.uri) // Extract URIs
-        .filter((uri: string) => uri) // Filter undefined
-        .filter((value: string, index: number, self: string[]) => self.indexOf(value) === index); // Unique
-
-      if (sources.length > 0) {
-        text +=
-          '\n\n**Sources:**\n' +
-          sources.map((url: string) => `* [${new URL(url).hostname}](${url})`).join('\n');
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get response from AI service');
     }
 
-    return text;
+    const data = await response.json();
+    return data.text;
   } catch (error) {
     console.error('Error in getVetAssistantResponse:', error);
-    if (error instanceof Error && error.message.includes('API key')) {
-      return "I'm sorry, but the AI Assistant is currently unavailable due to a configuration issue. Please contact the site administrator.";
-    }
     return "I'm sorry, but I'm having trouble connecting to my knowledge base right now. Please try again later.";
   }
 };
 
 export const generateImageFromPrompt = async (prompt: string): Promise<string> => {
   try {
-    const ai = getAiInstance();
-    // Upgraded to gemini-3-pro-image-preview for high-quality visuals
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
-      contents: {
-        parts: [{ text: prompt }],
-      },
-      config: {
-        // No responseModalities needed for this model when generating images via generateContent
-        imageConfig: {
-          aspectRatio: '16:9', // Optimized for blog post headers
-          imageSize: '1K',
-        },
-      },
+    const response = await fetch('/api/ai/generate-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
     });
 
-    // Iterate through parts to find the image data
-    if (response.candidates?.[0]?.content?.parts) {
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData?.data) {
-          const base64ImageBytes: string = part.inlineData.data;
-          return `data:image/png;base64,${base64ImageBytes}`;
-        }
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate image');
     }
 
-    throw new Error('No image data found in the AI response.');
+    const data = await response.json();
+    return data.imageUrl;
   } catch (error) {
-    console.error('Error generating image from Gemini:', error);
-    if (error instanceof Error && error.message.includes('API key')) {
-      throw new Error('The image generator is unavailable due to a configuration issue.');
-    }
+    console.error('Error generating image:', error);
     throw new Error('Failed to generate the image. Please try again later.');
   }
 };
@@ -172,35 +55,19 @@ export const generateVlogThumbnail = async (
   mood: string
 ): Promise<string> => {
   try {
-    const ai = getAiInstance();
-    // Using 'nano banana' (gemini-2.5-flash-image) as requested for fast, creative thumbnails
-    const prompt = `Create a high-quality, eye-catching YouTube vlog thumbnail. 
-        Title context: "${title}". 
-        Subject: ${subject}. 
-        Mood/Style: ${mood}. 
-        The image should be 16:9, vibrant, high contrast, and look like a professional vlog thumbnail.`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [{ text: prompt }],
-      },
-      config: {
-        imageConfig: {
-          aspectRatio: '16:9',
-        },
-      },
+    const response = await fetch('/api/ai/generate-thumbnail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, subject, mood }),
     });
 
-    if (response.candidates?.[0]?.content?.parts) {
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData?.data) {
-          const base64ImageBytes: string = part.inlineData.data;
-          return `data:image/png;base64,${base64ImageBytes}`;
-        }
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate thumbnail');
     }
-    throw new Error('No image data found.');
+
+    const data = await response.json();
+    return data.imageUrl;
   } catch (error) {
     console.error('Error generating thumbnail:', error);
     throw error;
@@ -211,8 +78,6 @@ export const analyzeRescueImage = async (
   imageFile: File
 ): Promise<{ type: string; condition: string }> => {
   try {
-    const ai = getAiInstance();
-
     // Convert file to base64
     const base64Data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -225,27 +90,18 @@ export const analyzeRescueImage = async (
     const base64String = base64Data.split(',')[1];
     const mimeType = imageFile.type;
 
-    // Use gemini-3-pro-preview for multimodal analysis
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
-      contents: {
-        parts: [
-          { inlineData: { mimeType, data: base64String } },
-          {
-            text: "Analyze this image of an animal. Return a JSON object with two fields: 'type' (e.g., Dog, Cat, Bird, Other) and 'condition' (a short, concise description of the animal's physical condition, injuries, or situation). JSON only.",
-          },
-        ],
-      },
-      config: {
-        responseMimeType: 'application/json',
-        // Low thinking budget for faster analysis as this is a simpler task
-        thinkingConfig: { thinkingBudget: 1024 },
-      },
+    const response = await fetch('/api/ai/analyze-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mimeType, data: base64String }),
     });
 
-    const text = response.text;
-    if (!text) throw new Error('No response from AI');
-    return JSON.parse(text);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to analyze image');
+    }
+
+    return await response.json();
   } catch (error) {
     console.error('Error analyzing image:', error);
     throw error;
