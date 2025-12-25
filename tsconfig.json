@@ -19,5 +19,7 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": ["**/*"],
+  "exclude": ["backend", "serverless", "node_modules", "dist"]
 }
