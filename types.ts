@@ -34,6 +34,7 @@ export interface Order {
   date: string; // ISO string
   total: number;
   items: CartItem[];
+  paymentMethod?: string;
 }
 
 export type AnimalStatus = 'Available' | 'Pending' | 'Adopted';

@@ -55,6 +55,7 @@ const CheckoutPage: React.FC = () => {
         total: cartTotal,
         userId: currentUser?.id,
         shippingDetails: formData,
+        paymentMethod,
       };
 
       // Use relative path for API
@@ -231,35 +232,51 @@ const CheckoutPage: React.FC = () => {
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-lg cursor-not-allowed transition-all opacity-50 ${paymentMethod === 'card' ? 'border-orange-500 ring-2 ring-orange-500' : 'border-slate-300 dark:border-slate-600'}`}
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500' : 'border-slate-300 dark:border-slate-600'}`}
                 >
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="card"
-                    disabled
-                    checked={paymentMethod === 'card'}
+                    value="bkash"
+                    checked={paymentMethod === 'bkash'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-orange-600 focus:ring-orange-500"
+                    className="h-5 w-5 text-pink-600 focus:ring-pink-500"
                   />
-                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">
-                    Card <span className="text-sm text-slate-500">(Unavailable)</span>
+                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
+                    bKash
+                    <img src="https://i.ibb.co/27wH07C/bkash.png" alt="bKash" className="h-5 ml-2" />
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-lg cursor-not-allowed transition-all opacity-50 ${paymentMethod === 'mobile' ? 'border-orange-500 ring-2 ring-orange-500' : 'border-slate-300 dark:border-slate-600'}`}
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'nagad' ? 'border-orange-600 ring-2 ring-orange-600' : 'border-slate-300 dark:border-slate-600'}`}
                 >
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="mobile"
-                    disabled
-                    checked={paymentMethod === 'mobile'}
+                    value="nagad"
+                    checked={paymentMethod === 'nagad'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-orange-600 focus:ring-orange-500"
+                    className="h-5 w-5 text-orange-600 focus:ring-orange-600"
                   />
-                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">
-                    Mobile Banking <span className="text-sm text-slate-500">(Unavailable)</span>
+                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
+                    Nagad
+                    <img src="https://i.ibb.co/qjqBcf5/nagad.png" alt="Nagad" className="h-5 ml-2" />
+                  </span>
+                </label>
+                <label
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'paypal' ? 'border-blue-500 ring-2 ring-blue-500' : 'border-slate-300 dark:border-slate-600'}`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="paypal"
+                    checked={paymentMethod === 'paypal'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
+                    PayPal
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-5 ml-2" />
                   </span>
                 </label>
               </div>
@@ -279,6 +296,12 @@ const CheckoutPage: React.FC = () => {
                     alt="Nagad"
                     className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
                     title="Nagad"
+                  />
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
+                    alt="PayPal"
+                    className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
+                    title="PayPal"
                   />
                   <img
                     src="https://i.ibb.co/p3y5M3D/bank.png"
