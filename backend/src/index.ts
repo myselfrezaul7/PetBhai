@@ -60,7 +60,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Start server only if not running in Vercel (Vercel handles starting the server logic)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+export default app;
