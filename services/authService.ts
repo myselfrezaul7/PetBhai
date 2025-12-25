@@ -9,6 +9,11 @@ interface SocialUser {
 }
 
 export const signInWithGoogle = async (): Promise<SocialUser> => {
+  console.log('signInWithGoogle called');
+  console.log('isFirebaseConfigured:', isFirebaseConfigured());
+  console.log('auth exists:', !!auth);
+  console.log('googleProvider exists:', !!googleProvider);
+
   // Fallback to Mock if Firebase is not configured
   if (!isFirebaseConfigured() || !auth || !googleProvider) {
     console.warn('Firebase not configured. Using Mock Google Sign-In.');
@@ -17,12 +22,14 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
       firstName: 'Israt',
       lastName: 'Jahan',
       email: 'israt.google@example.com',
-      photoUrl: 'https://lh3.googleusercontent.com/a/ACg8ocIq8j...=s96-c', // Mock photo
+      photoUrl: 'https://picsum.photos/seed/mockuser/200', // Better mock photo
     };
   }
 
   try {
+    console.log('Attempting Firebase signInWithPopup...');
     const result = await signInWithPopup(auth, googleProvider);
+    console.log('signInWithPopup successful');
     const user = result.user;
 
     // Extract name parts
@@ -38,15 +45,21 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
       photoUrl: user.photoURL || undefined,
     };
   } catch (error: unknown) {
-    console.error('Google Sign-In Error:', error);
+    console.error('Google Sign-In Error (full):', error);
     const firebaseError = error as { code?: string; message?: string };
-    
+    console.error('Error code:', firebaseError.code);
+    console.error('Error message:', firebaseError.message);
+
     // Provide user-friendly error messages
     switch (firebaseError.code) {
       case 'auth/api-key-not-valid-please-pass-a-valid-api-key':
-        throw new Error('Firebase API key is invalid. Please check configuration.');
+        throw new Error(
+          'Firebase API key is invalid. Please check your Vercel environment variables.'
+        );
       case 'auth/unauthorized-domain':
-        throw new Error(`This domain is not authorized for Google Sign-In. Please add "${window.location.hostname}" to Firebase Console > Authentication > Settings > Authorized domains.`);
+        throw new Error(
+          `Domain "${window.location.hostname}" is not authorized. Add it to Firebase Console > Authentication > Settings > Authorized domains.`
+        );
       case 'auth/popup-closed-by-user':
         throw new Error('Sign-in was cancelled.');
       case 'auth/popup-blocked':
@@ -54,9 +67,19 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
       case 'auth/network-request-failed':
         throw new Error('Network error. Please check your internet connection.');
       case 'auth/internal-error':
-        throw new Error('Firebase internal error. Please check if API key and Auth Domain are correct.');
+        throw new Error(
+          'Firebase internal error. Check that API key and Auth Domain are correct in Vercel.'
+        );
+      case 'auth/operation-not-allowed':
+        throw new Error(
+          'Google Sign-In is not enabled. Enable it in Firebase Console > Authentication > Sign-in method.'
+        );
+      case 'auth/invalid-api-key':
+        throw new Error('Invalid Firebase API key. Please verify VITE_FIREBASE_API_KEY in Vercel.');
       default:
-        throw new Error(firebaseError.message || `Sign-in failed (${firebaseError.code || 'unknown error'})`);
+        throw new Error(
+          `Sign-in failed: ${firebaseError.message || firebaseError.code || 'Unknown error'}`
+        );
     }
   }
 };

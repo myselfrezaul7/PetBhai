@@ -13,11 +13,20 @@ const firebaseConfig = {
 
 // Check if Firebase is properly configured
 export const isFirebaseConfigured = (): boolean => {
-  return !!(
-    firebaseConfig.apiKey &&
-    firebaseConfig.apiKey !== 'your_api_key' &&
-    firebaseConfig.authDomain
-  );
+  const hasApiKey = !!(firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your_api_key');
+  const hasAuthDomain = !!firebaseConfig.authDomain;
+
+  // Log configuration status for debugging (remove in production if desired)
+  if (!hasApiKey || !hasAuthDomain) {
+    console.log('Firebase config status:', {
+      hasApiKey,
+      hasAuthDomain,
+      apiKeyLength: firebaseConfig.apiKey?.length || 0,
+      authDomain: firebaseConfig.authDomain || 'not set',
+    });
+  }
+
+  return hasApiKey && hasAuthDomain;
 };
 
 // Initialize Firebase only if configured
@@ -27,12 +36,16 @@ let googleProvider: GoogleAuthProvider | null = null;
 
 if (isFirebaseConfigured()) {
   try {
+    console.log('Initializing Firebase with authDomain:', firebaseConfig.authDomain);
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
+    console.log('Firebase initialized successfully');
   } catch (error) {
-    console.warn('Firebase initialization failed:', error);
+    console.error('Firebase initialization failed:', error);
   }
+} else {
+  console.log('Firebase not configured - will use mock sign-in');
 }
 
 export { auth, googleProvider };

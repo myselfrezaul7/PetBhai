@@ -42,13 +42,17 @@ const SignUpPage: React.FC = () => {
 
   const handleSocialLogin = async () => {
     setIsSocialLoading(true);
+    setError('');
     try {
       const socialUser = await signInWithGoogle();
       await socialLogin(socialUser);
       navigate('/community');
     } catch (error) {
       console.error(`Google Sign-In failed`, error);
-      setError(`Failed to sign in with Google. Please try again.`);
+      // Show the detailed error message from authService
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to sign in with Google. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSocialLoading(false);
     }
