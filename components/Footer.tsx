@@ -18,6 +18,9 @@ const Footer: React.FC = () => {
             <div className="text-sm text-slate-500 dark:text-slate-400">
               &copy; {new Date().getFullYear()} PetBhai. All rights reserved.
             </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+              A concern of Kuttawaala and Catwaala animal welfare.
+            </p>
           </div>
 
           {/* Column 2: Get Involved */}
@@ -159,7 +162,7 @@ const Footer: React.FC = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-                Verified Pet Lovers
+                Verified by Pet Lovers
               </div>
             </div>
           </div>
