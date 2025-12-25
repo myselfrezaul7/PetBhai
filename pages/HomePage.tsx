@@ -16,30 +16,27 @@ const HomePage: React.FC = () => {
     <div className="w-full">
       {/* Hero Section */}
       <section
-        className="container mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-12 animate-fade-in"
+        className="container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 animate-fade-in"
         style={{ animationDelay: '0ms' }}
       >
-        <div className="glass-card text-center p-8 md:p-20 relative overflow-hidden">
-          {/* Decorative background elements */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-orange-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
+        <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl group">
+          <img
+            src="/landing-hero.png"
+            alt="PetBhai - Your Pet's Partner"
+            className="w-full h-auto object-cover"
+          />
 
-          <h1 className="relative z-10 text-4xl md:text-7xl font-extrabold text-slate-800 dark:text-white drop-shadow-sm tracking-tight leading-tight">
-            {t('hero_title')}
-          </h1>
-          <p className="relative z-10 mt-6 text-base md:text-2xl max-w-3xl mx-auto text-slate-600 dark:text-slate-200 font-medium">
-            {t('hero_subtitle')}
-          </p>
-          <div className="relative z-10 mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          {/* Overlay Buttons */}
+          <div className="absolute bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 px-4">
             <Link
               to="/adopt"
-              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30"
+              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-orange-600 transition-all transform hover:scale-105 duration-300 shadow-xl shadow-orange-500/30 backdrop-blur-sm bg-opacity-90"
             >
               {t('btn_adopt')}
             </Link>
             <Link
               to="/shop"
-              className="w-full sm:w-auto inline-block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg"
+              className="w-full sm:w-auto inline-block bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg hover:bg-white dark:hover:bg-slate-700 transition-all transform hover:scale-105 duration-300 shadow-lg backdrop-blur-sm"
             >
               {t('btn_shop')}
             </Link>
