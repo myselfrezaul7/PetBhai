@@ -2,7 +2,8 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { User, Order } from '../types';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+// Use relative path for API to leverage Vite proxy in dev and same-origin in prod
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api') + '/auth';
 
 const getInitialCurrentUser = (): User | null => {
   try {
@@ -24,6 +25,7 @@ interface AuthContextType {
     firstName: string;
     lastName: string;
     email: string;
+    photoUrl?: string;
   }) => Promise<User>;
   updateProfile: (updatedData: { name?: string; profilePictureUrl?: string }) => Promise<User>;
   addToWishlist: (productId: number) => void;
@@ -103,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     firstName: string;
     lastName: string;
     email: string;
+    photoUrl?: string;
   }): Promise<User> => {
     // For social login, we'll just simulate a signup/login flow
     // In a real app, you'd send the social token to the backend
@@ -110,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: Date.now(),
       name: `${socialUser.firstName} ${socialUser.lastName}`,
       email: socialUser.email,
+      profilePictureUrl: socialUser.photoUrl,
       wishlist: [],
       orderHistory: [],
       favorites: [],

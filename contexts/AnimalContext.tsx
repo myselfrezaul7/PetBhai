@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Animal } from '../types';
 import { MOCK_ANIMALS } from '../constants';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface AnimalContextType {
   animals: Animal[];
@@ -31,8 +31,9 @@ export const AnimalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setError(null);
       } catch (err) {
         console.error('Error fetching animals:', err);
-        setError('Failed to load animals. Using offline data.');
+        // Fallback to mock data silently so the UI doesn't break
         setAnimals(MOCK_ANIMALS);
+        setError(null);
       } finally {
         setLoading(false);
       }

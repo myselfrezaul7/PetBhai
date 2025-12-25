@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Brand } from '../types';
 import { MOCK_BRANDS } from '../constants';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface BrandContextType {
   brands: Brand[];
@@ -30,8 +30,9 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setError(null);
       } catch (err) {
         console.error('Error fetching brands:', err);
-        setError('Failed to load brands. Using offline data.');
+        // Fallback to mock data silently
         setBrands(MOCK_BRANDS);
+        setError(null);
       } finally {
         setLoading(false);
       }

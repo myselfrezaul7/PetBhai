@@ -2,7 +2,8 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Product, Review } from '../types';
 import { MOCK_PRODUCTS } from '../constants';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Use relative path for API to leverage Vite proxy in dev and same-origin in prod
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface ProductContextType {
   products: Product[];
@@ -31,9 +32,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Failed to load products. Using offline data.');
-        // Fallback to mock data if API fails
+        // Fallback to mock data silently
         setProducts(MOCK_PRODUCTS);
+        setError(null);
       } finally {
         setLoading(false);
       }
