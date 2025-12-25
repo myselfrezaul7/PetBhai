@@ -125,6 +125,17 @@ const CommunityPage: React.FC = () => {
         <p className="text-lg text-slate-700 dark:text-slate-200 mt-2">
           Share pet care tips, product reviews, and connect with fellow pet lovers.
         </p>
+        <button
+          onClick={() => {
+            if (window.confirm('Reset community data? This will clear your local posts.')) {
+              window.localStorage.removeItem('petbhai_posts');
+              window.location.reload();
+            }
+          }}
+          className="mt-2 text-xs text-slate-400 hover:text-red-500 underline"
+        >
+          Reset Data
+        </button>
       </div>
 
       {/* Creator Tools CTA */}
