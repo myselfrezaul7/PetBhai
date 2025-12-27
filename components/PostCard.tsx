@@ -13,6 +13,8 @@ interface PostCardProps {
   onLikeReply: (postId: number, commentId: number, replyId: number) => void;
   onAddComment: (postId: number, commentText: string) => void;
   onAddReply: (postId: number, commentId: number, replyText: string) => void;
+  onUpdateComment: (postId: number, commentId: number, newText: string) => void;
+  onUpdateReply: (postId: number, commentId: number, replyId: number, newText: string) => void;
   onDeleteComment: (postId: number, commentId: number) => void;
   onDeleteReply: (postId: number, commentId: number, replyId: number) => void;
 }
@@ -26,6 +28,8 @@ const PostCard: React.FC<PostCardProps> = ({
   onLikeReply,
   onAddComment,
   onAddReply,
+  onUpdateComment,
+  onUpdateReply,
   onDeleteComment,
   onDeleteReply,
 }) => {
@@ -38,6 +42,13 @@ const PostCard: React.FC<PostCardProps> = ({
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
   const [showImageModal, setShowImageModal] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editingReplyId, setEditingReplyId] = useState<{
+    commentId: number;
+    replyId: number;
+  } | null>(null);
+  const [editedCommentText, setEditedCommentText] = useState('');
+  const [editedReplyText, setEditedReplyText] = useState('');
 
   const timeSince = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
@@ -72,6 +83,42 @@ const PostCard: React.FC<PostCardProps> = ({
     onAddReply(post.id, commentId, replyText);
     setReplyText('');
     setReplyingTo(null);
+  };
+
+  const handleEditComment = (commentId: number, currentText: string) => {
+    setEditingCommentId(commentId);
+    setEditedCommentText(currentText);
+    setEditingReplyId(null);
+  };
+
+  const handleSaveComment = (commentId: number) => {
+    if (!editedCommentText.trim()) return;
+    onUpdateComment(post.id, commentId, editedCommentText);
+    setEditingCommentId(null);
+    setEditedCommentText('');
+  };
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditedCommentText('');
+  };
+
+  const handleEditReply = (commentId: number, replyId: number, currentText: string) => {
+    setEditingReplyId({ commentId, replyId });
+    setEditedReplyText(currentText);
+    setEditingCommentId(null);
+  };
+
+  const handleSaveReply = (commentId: number, replyId: number) => {
+    if (!editedReplyText.trim()) return;
+    onUpdateReply(post.id, commentId, replyId, editedReplyText);
+    setEditingReplyId(null);
+    setEditedReplyText('');
+  };
+
+  const handleCancelEditReply = () => {
+    setEditingReplyId(null);
+    setEditedReplyText('');
   };
 
   const handleShare = async () => {
@@ -148,6 +195,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 onChange={(e) => setEditedContent(e.target.value)}
                 className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 rows={3}
+                aria-label="Edit post content"
               />
               <div className="flex justify-end space-x-2 mt-3">
                 <button
@@ -252,34 +300,39 @@ const PostCard: React.FC<PostCardProps> = ({
           <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50">
             {/* Comment Input */}
             {currentUser ? (
-              <form onSubmit={handleCommentSubmit} className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
-                  {currentUser.profilePictureUrl ? (
-                    <img
-                      src={currentUser.profilePictureUrl}
-                      alt="You"
-                      className="w-full h-full object-cover"
+              <form onSubmit={handleCommentSubmit} className="mb-6">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
+                    {currentUser.profilePictureUrl ? (
+                      <img
+                        src={currentUser.profilePictureUrl}
+                        alt="You"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Write a comment..."
+                      className="w-full p-2.5 sm:p-3 text-sm sm:text-base border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <UserIcon className="w-5 h-5 text-slate-500" />
-                    </div>
-                  )}
+                    <button
+                      type="submit"
+                      disabled={!commentText.trim()}
+                      className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-4 py-2 sm:p-3 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-0"
+                    >
+                      <SendIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="sm:hidden text-sm font-medium">Send</span>
+                    </button>
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Write a comment..."
-                  className="flex-1 p-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  disabled={!commentText.trim()}
-                  className="bg-orange-500 text-white rounded-full p-3 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <SendIcon className="w-5 h-5" />
-                </button>
               </form>
             ) : (
               <p className="text-center text-slate-500 dark:text-slate-400 mb-4 py-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
@@ -316,16 +369,43 @@ const PostCard: React.FC<PostCardProps> = ({
                             </div>
                           )}
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-sm">
                             <p className="font-bold text-slate-800 dark:text-white text-sm">
                               {comment.author.name}
                             </p>
-                            <p className="text-slate-700 dark:text-slate-300 mt-1">
-                              {comment.text}
-                            </p>
+                            {editingCommentId === comment.id ? (
+                              <div className="mt-2">
+                                <textarea
+                                  value={editedCommentText}
+                                  onChange={(e) => setEditedCommentText(e.target.value)}
+                                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
+                                  rows={2}
+                                  autoFocus
+                                  aria-label="Edit comment"
+                                />
+                                <div className="flex gap-2 mt-2">
+                                  <button
+                                    onClick={() => handleSaveComment(comment.id)}
+                                    className="px-3 py-1 text-xs font-medium bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={handleCancelEditComment}
+                                    className="px-3 py-1 text-xs font-medium bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-full hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-slate-700 dark:text-slate-300 mt-1 break-words">
+                                {comment.text}
+                              </p>
+                            )}
                           </div>
-                          <div className="flex items-center space-x-4 mt-1 ml-2">
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 ml-2">
                             <button
                               onClick={() => onLikeComment(post.id, comment.id)}
                               className={`text-xs font-semibold transition-colors ${
@@ -348,13 +428,21 @@ const PostCard: React.FC<PostCardProps> = ({
                             <span className="text-xs text-slate-400">
                               {comment.timestamp ? timeSince(comment.timestamp) : ''}
                             </span>
-                            {isCommentAuthor && (
-                              <button
-                                onClick={() => onDeleteComment(post.id, comment.id)}
-                                className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors"
-                              >
-                                Delete
-                              </button>
+                            {isCommentAuthor && editingCommentId !== comment.id && (
+                              <>
+                                <button
+                                  onClick={() => handleEditComment(comment.id, comment.text)}
+                                  className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => onDeleteComment(post.id, comment.id)}
+                                  className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </>
                             )}
                           </div>
                         </div>
@@ -387,16 +475,44 @@ const PostCard: React.FC<PostCardProps> = ({
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 min-w-0">
                                   <div className="bg-slate-100 dark:bg-slate-600 p-2 rounded-xl">
                                     <p className="font-bold text-slate-800 dark:text-white text-xs">
                                       {reply.author.name}
                                     </p>
-                                    <p className="text-slate-700 dark:text-slate-300 text-sm">
-                                      {reply.text}
-                                    </p>
+                                    {editingReplyId?.commentId === comment.id &&
+                                    editingReplyId?.replyId === reply.id ? (
+                                      <div className="mt-1">
+                                        <textarea
+                                          value={editedReplyText}
+                                          onChange={(e) => setEditedReplyText(e.target.value)}
+                                          className="w-full p-2 text-xs border border-slate-200 dark:border-slate-500 bg-white dark:bg-slate-500 rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
+                                          rows={2}
+                                          autoFocus
+                                          aria-label="Edit reply"
+                                        />
+                                        <div className="flex gap-2 mt-1.5">
+                                          <button
+                                            onClick={() => handleSaveReply(comment.id, reply.id)}
+                                            className="px-2 py-1 text-xs font-medium bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
+                                          >
+                                            Save
+                                          </button>
+                                          <button
+                                            onClick={handleCancelEditReply}
+                                            className="px-2 py-1 text-xs font-medium bg-slate-200 dark:bg-slate-500 text-slate-700 dark:text-slate-200 rounded-full hover:bg-slate-300 dark:hover:bg-slate-400 transition-colors"
+                                          >
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <p className="text-slate-700 dark:text-slate-300 text-sm break-words">
+                                        {reply.text}
+                                      </p>
+                                    )}
                                   </div>
-                                  <div className="flex items-center space-x-4 mt-1 ml-2">
+                                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 ml-2">
                                     <button
                                       onClick={() => onLikeReply(post.id, comment.id, reply.id)}
                                       className={`text-xs font-semibold transition-colors ${
@@ -411,14 +527,30 @@ const PostCard: React.FC<PostCardProps> = ({
                                     <span className="text-xs text-slate-400">
                                       {reply.timestamp ? timeSince(reply.timestamp) : ''}
                                     </span>
-                                    {isReplyAuthor && (
-                                      <button
-                                        onClick={() => onDeleteReply(post.id, comment.id, reply.id)}
-                                        className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors"
-                                      >
-                                        Delete
-                                      </button>
-                                    )}
+                                    {isReplyAuthor &&
+                                      !(
+                                        editingReplyId?.commentId === comment.id &&
+                                        editingReplyId?.replyId === reply.id
+                                      ) && (
+                                        <>
+                                          <button
+                                            onClick={() =>
+                                              handleEditReply(comment.id, reply.id, reply.text)
+                                            }
+                                            className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors"
+                                          >
+                                            Edit
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              onDeleteReply(post.id, comment.id, reply.id)
+                                            }
+                                            className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors"
+                                          >
+                                            Delete
+                                          </button>
+                                        </>
+                                      )}
                                   </div>
                                 </div>
                               </div>
@@ -431,36 +563,41 @@ const PostCard: React.FC<PostCardProps> = ({
                       {replyingTo === comment.id && currentUser && (
                         <form
                           onSubmit={(e) => handleReplySubmit(e, comment.id)}
-                          className="flex items-center space-x-3 ml-12 mt-3"
+                          className="ml-8 sm:ml-12 mt-3"
                         >
-                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
-                            {currentUser.profilePictureUrl ? (
-                              <img
-                                src={currentUser.profilePictureUrl}
-                                alt="You"
-                                className="w-full h-full object-cover"
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
+                              {currentUser.profilePictureUrl ? (
+                                <img
+                                  src={currentUser.profilePictureUrl}
+                                  alt="You"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <UserIcon className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                              <input
+                                type="text"
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder={`Reply to ${comment.author.name}...`}
+                                className="w-full p-2 text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500"
+                                autoFocus
                               />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <UserIcon className="w-4 h-4 text-slate-500" />
-                              </div>
-                            )}
+                              <button
+                                type="submit"
+                                disabled={!replyText.trim()}
+                                className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-3 py-1.5 sm:p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-1.5 sm:gap-0"
+                              >
+                                <SendIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                <span className="sm:hidden text-xs font-medium">Reply</span>
+                              </button>
+                            </div>
                           </div>
-                          <input
-                            type="text"
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            placeholder={`Reply to ${comment.author.name}...`}
-                            className="flex-1 p-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full text-sm focus:ring-2 focus:ring-orange-500"
-                            autoFocus
-                          />
-                          <button
-                            type="submit"
-                            disabled={!replyText.trim()}
-                            className="bg-orange-500 text-white rounded-full p-2 hover:bg-orange-600 transition-colors disabled:opacity-50"
-                          >
-                            <SendIcon className="w-4 h-4" />
-                          </button>
                         </form>
                       )}
                     </div>
@@ -481,6 +618,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <button
             className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors"
             onClick={() => setShowImageModal(false)}
+            aria-label="Close image modal"
           >
             <CloseIcon className="w-8 h-8" />
           </button>

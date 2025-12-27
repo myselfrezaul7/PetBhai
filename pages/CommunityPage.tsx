@@ -258,6 +258,50 @@ const CommunityPage: React.FC = () => {
     }
   };
 
+  // Update comment
+  const handleUpdateComment = (postId: number, commentId: number, newText: string) => {
+    setPosts(
+      posts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              comments: p.comments.map((c) => (c.id === commentId ? { ...c, text: newText } : c)),
+            }
+          : p
+      )
+    );
+    toast.success('Comment updated!');
+  };
+
+  // Update reply
+  const handleUpdateReply = (
+    postId: number,
+    commentId: number,
+    replyId: number,
+    newText: string
+  ) => {
+    setPosts(
+      posts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              comments: p.comments.map((c) =>
+                c.id === commentId
+                  ? {
+                      ...c,
+                      replies: c.replies.map((r) =>
+                        r.id === replyId ? { ...r, text: newText } : r
+                      ),
+                    }
+                  : c
+              ),
+            }
+          : p
+      )
+    );
+    toast.success('Reply updated!');
+  };
+
   const handleSocialLogin = async () => {
     setIsLoading(true);
     try {
@@ -461,6 +505,8 @@ const CommunityPage: React.FC = () => {
                 onLikeReply={handleLikeReply}
                 onAddComment={handleAddComment}
                 onAddReply={handleAddReply}
+                onUpdateComment={handleUpdateComment}
+                onUpdateReply={handleUpdateReply}
                 onDeleteComment={handleDeleteComment}
                 onDeleteReply={handleDeleteReply}
               />
