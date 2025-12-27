@@ -159,8 +159,15 @@ export const NotifyMeButton: React.FC<{
         type="button"
         onClick={() => setIsOpen(false)}
         className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+        aria-label="Close notification form"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

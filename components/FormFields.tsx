@@ -43,7 +43,7 @@ export function FormField<T extends FieldValues>({
         placeholder={placeholder}
         disabled={disabled}
         autoComplete={autoComplete}
-        aria-invalid={!!error}
+        aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
           bg-white/50 dark:bg-slate-700/50

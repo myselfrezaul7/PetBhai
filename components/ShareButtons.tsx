@@ -117,7 +117,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
       )}
       <div className="flex items-center gap-2 flex-wrap">
         {/* Native Share (mobile) */}
-        {typeof navigator !== 'undefined' && navigator.share && (
+        {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
           <ShareButton
             onClick={handleNativeShare}
             bgColor="bg-slate-800 dark:bg-slate-700"
@@ -302,7 +302,8 @@ export const ShareDropdown: React.FC<Omit<ShareButtonsProps, 'showLabel'>> = (pr
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
         aria-label="Share"
-        aria-expanded={isOpen}
+        aria-expanded={isOpen ? 'true' : 'false'}
+        aria-haspopup="true"
       >
         <svg
           className="w-5 h-5 text-slate-600 dark:text-slate-400"
