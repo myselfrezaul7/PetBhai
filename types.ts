@@ -137,6 +137,8 @@ export interface Vet {
   reviews: VetReview[];
 }
 
+export type StockStatus = 'in-stock' | 'low-stock' | 'out-of-stock';
+
 export interface Product {
   id: number;
   name: string;
@@ -149,6 +151,10 @@ export interface Product {
   rating: number;
   reviews: Review[];
   searchTags?: string[];
+  stockStatus?: StockStatus;
+  stockQuantity?: number;
+  originalPrice?: number; // For showing discounts
+  discount?: number; // Percentage discount
 }
 
 export interface CartItem extends Product {
