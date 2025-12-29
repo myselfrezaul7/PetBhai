@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import AnimalCard from '../components/AnimalCard';
 import { useAnimals } from '../contexts/AnimalContext';
 import type { AnimalAge, AnimalStatus } from '../types';
@@ -9,12 +9,59 @@ type GenderFilter = 'All' | 'Male' | 'Female';
 type AgeFilter = 'All' | AnimalAge;
 type StatusFilter = 'All' | AnimalStatus;
 
+// Memoized filter button component for better performance
+const FilterButton = memo<{
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+  ariaLabel?: string;
+}>(({ label, isActive, onClick, ariaLabel }) => (
+  <button
+    onClick={onClick}
+    className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-200 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
+      isActive
+        ? 'bg-orange-500 text-white shadow-md'
+        : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
+    }`}
+    aria-pressed={isActive}
+    aria-label={ariaLabel || `Filter by ${label}`}
+  >
+    {label}
+  </button>
+));
+
+FilterButton.displayName = 'FilterButton';
+
 const AdoptPage: React.FC = () => {
   const { animals, loading, error } = useAnimals();
   const [animalTypeFilter, setAnimalTypeFilter] = useState<AnimalTypeFilter>('All');
   const [genderFilter, setGenderFilter] = useState<GenderFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Available');
+
+  // Memoized filter handlers
+  const handleAnimalTypeChange = useCallback((type: AnimalTypeFilter) => {
+    setAnimalTypeFilter(type);
+  }, []);
+
+  const handleGenderChange = useCallback((gender: GenderFilter) => {
+    setGenderFilter(gender);
+  }, []);
+
+  const handleAgeChange = useCallback((age: AgeFilter) => {
+    setAgeFilter(age);
+  }, []);
+
+  const handleStatusChange = useCallback((status: StatusFilter) => {
+    setStatusFilter(status);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setAnimalTypeFilter('All');
+    setGenderFilter('All');
+    setAgeFilter('All');
+    setStatusFilter('Available');
+  }, []);
 
   const filteredAnimals = useMemo(() => {
     return animals.filter((animal) => {
@@ -39,37 +86,34 @@ const AdoptPage: React.FC = () => {
     });
   }, [animalTypeFilter, genderFilter, ageFilter, statusFilter, animals]);
 
-  const FilterButton: React.FC<{
-    label: string;
-    isActive: boolean;
-    onClick: () => void;
-  }> = ({ label, isActive, onClick }) => (
-    <button
-      onClick={onClick}
-      className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-colors text-xs sm:text-sm whitespace-nowrap ${
-        isActive
-          ? 'bg-orange-500 text-white shadow-md'
-          : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
-      }`}
-    >
-      {label}
-    </button>
-  );
+  // Calculate result count for accessibility
+  const resultCount = filteredAnimals.length;
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div
+        className="flex justify-center items-center h-96"
+        role="status"
+        aria-label="Loading animals"
+      >
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
+        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" aria-hidden="true" />
+        <span className="sr-only">Loading animals...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-6 py-16 text-center">
+      <div className="container mx-auto px-6 py-16 text-center" role="alert">
         <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Animals</h2>
         <p className="text-slate-600 dark:text-slate-300">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -90,111 +134,118 @@ const AdoptPage: React.FC = () => {
       <div className="glass-card p-3 sm:p-4 md:p-6 mb-6 md:mb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Species Filter */}
-          <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Species</label>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <fieldset className="flex flex-col space-y-2">
+            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">
+              Species
+            </legend>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
               <FilterButton
                 label="All"
                 isActive={animalTypeFilter === 'All'}
-                onClick={() => setAnimalTypeFilter('All')}
+                onClick={() => handleAnimalTypeChange('All')}
               />
               <FilterButton
                 label="Dogs"
                 isActive={animalTypeFilter === 'Dog'}
-                onClick={() => setAnimalTypeFilter('Dog')}
+                onClick={() => handleAnimalTypeChange('Dog')}
               />
               <FilterButton
                 label="Cats"
                 isActive={animalTypeFilter === 'Cat'}
-                onClick={() => setAnimalTypeFilter('Cat')}
+                onClick={() => handleAnimalTypeChange('Cat')}
               />
             </div>
-          </div>
+          </fieldset>
 
           {/* Gender Filter */}
-          <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gender</label>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <fieldset className="flex flex-col space-y-2">
+            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gender</legend>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
               <FilterButton
                 label="Any"
                 isActive={genderFilter === 'All'}
-                onClick={() => setGenderFilter('All')}
+                onClick={() => handleGenderChange('All')}
               />
               <FilterButton
                 label="Male"
                 isActive={genderFilter === 'Male'}
-                onClick={() => setGenderFilter('Male')}
+                onClick={() => handleGenderChange('Male')}
               />
               <FilterButton
                 label="Female"
                 isActive={genderFilter === 'Female'}
-                onClick={() => setGenderFilter('Female')}
+                onClick={() => handleGenderChange('Female')}
               />
             </div>
-          </div>
+          </fieldset>
 
           {/* Age Filter */}
-          <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Age</label>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <fieldset className="flex flex-col space-y-2">
+            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">Age</legend>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
               <FilterButton
                 label="Any"
                 isActive={ageFilter === 'All'}
-                onClick={() => setAgeFilter('All')}
+                onClick={() => handleAgeChange('All')}
               />
               <FilterButton
                 label="Puppy/Kitten"
                 isActive={ageFilter === 'Puppy/Kitten'}
-                onClick={() => setAgeFilter('Puppy/Kitten')}
+                onClick={() => handleAgeChange('Puppy/Kitten')}
               />
               <FilterButton
                 label="Young"
                 isActive={ageFilter === 'Young'}
-                onClick={() => setAgeFilter('Young')}
+                onClick={() => handleAgeChange('Young')}
               />
               <FilterButton
                 label="Adult"
                 isActive={ageFilter === 'Adult'}
-                onClick={() => setAgeFilter('Adult')}
+                onClick={() => handleAgeChange('Adult')}
               />
               <FilterButton
                 label="Senior"
                 isActive={ageFilter === 'Senior'}
-                onClick={() => setAgeFilter('Senior')}
+                onClick={() => handleAgeChange('Senior')}
               />
             </div>
-          </div>
+          </fieldset>
 
           {/* Status Filter */}
-          <div className="flex flex-col space-y-2">
-            <label className="font-bold text-slate-700 dark:text-slate-200 text-sm">Status</label>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <fieldset className="flex flex-col space-y-2">
+            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">Status</legend>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
               <FilterButton
                 label="Available"
                 isActive={statusFilter === 'Available'}
-                onClick={() => setStatusFilter('Available')}
+                onClick={() => handleStatusChange('Available')}
               />
               <FilterButton
                 label="Pending"
                 isActive={statusFilter === 'Pending'}
-                onClick={() => setStatusFilter('Pending')}
+                onClick={() => handleStatusChange('Pending')}
               />
               <FilterButton
                 label="Adopted"
                 isActive={statusFilter === 'Adopted'}
-                onClick={() => setStatusFilter('Adopted')}
+                onClick={() => handleStatusChange('Adopted')}
               />
               <FilterButton
                 label="All"
                 isActive={statusFilter === 'All'}
-                onClick={() => setStatusFilter('All')}
+                onClick={() => handleStatusChange('All')}
               />
             </div>
-          </div>
+          </fieldset>
         </div>
       </div>
 
-      {filteredAnimals.length > 0 ? (
+      {/* Screen reader announcement for results */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {`${resultCount} animals found`}
+      </div>
+
+      {resultCount > 0 ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
           {filteredAnimals.map((animal) => (
             <AnimalCard key={animal.id} animal={animal} />
@@ -202,9 +253,15 @@ const AdoptPage: React.FC = () => {
         </div>
       ) : (
         <div className="text-center py-10 glass-card">
-          <p className="text-xl text-slate-700 dark:text-slate-200">
+          <p className="text-xl text-slate-700 dark:text-slate-200 mb-4">
             No animals match your current filters.
           </p>
+          <button
+            onClick={handleClearFilters}
+            className="px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
+          >
+            Clear Filters
+          </button>
         </div>
       )}
     </div>
