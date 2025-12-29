@@ -309,7 +309,11 @@ const CommunityPage: React.FC = () => {
       try {
         await postService.addComment(
           postId,
-          { id: currentUser.id, name: currentUser.name, profilePictureUrl: currentUser.profilePictureUrl },
+          {
+            id: currentUser.id,
+            name: currentUser.name,
+            profilePictureUrl: currentUser.profilePictureUrl,
+          },
           commentText
         );
       } catch (error) {
@@ -344,7 +348,11 @@ const CommunityPage: React.FC = () => {
         await postService.addReply(
           postId,
           commentId,
-          { id: currentUser.id, name: currentUser.name, profilePictureUrl: currentUser.profilePictureUrl },
+          {
+            id: currentUser.id,
+            name: currentUser.name,
+            profilePictureUrl: currentUser.profilePictureUrl,
+          },
           replyText
         );
       } catch (error) {
