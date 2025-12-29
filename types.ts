@@ -197,6 +197,82 @@ export interface PetSitter extends BaseProfessional {
   petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
 }
 
+// Pet for vaccination tracking
+export type PetType = 'dog' | 'cat' | 'bird' | 'other';
+
+export interface Pet {
+  id: string;
+  name: string;
+  type: PetType;
+  breed?: string;
+  birthDate?: string; // ISO string
+  imageUrl?: string;
+  createdAt: string;
+}
+
+export interface VaccinationRecord {
+  id: string;
+  petId: string;
+  vaccineName: string;
+  dateGiven: string; // ISO string
+  nextDueDate: string; // ISO string
+  vetName?: string;
+  notes?: string;
+  isCompleted: boolean;
+  reminderSent?: boolean;
+}
+
+// Common vaccinations for dogs and cats in Bangladesh
+export type VaccineType =
+  | 'rabies'
+  | 'dhpp' // Distemper, Hepatitis, Parvovirus, Parainfluenza
+  | 'bordetella'
+  | 'leptospirosis'
+  | 'fvrcp' // Feline Viral Rhinotracheitis, Calicivirus, Panleukopenia
+  | 'felv' // Feline Leukemia
+  | 'deworming'
+  | 'other';
+
+export const VACCINE_INFO: Record<
+  VaccineType,
+  { name: string; nameBn: string; interval: number; petType: PetType[] }
+> = {
+  rabies: { name: 'Rabies', nameBn: 'জলাতঙ্ক', interval: 365, petType: ['dog', 'cat'] },
+  dhpp: { name: 'DHPP (5-in-1)', nameBn: 'ডিএইচপিপি', interval: 365, petType: ['dog'] },
+  bordetella: {
+    name: 'Bordetella (Kennel Cough)',
+    nameBn: 'কেনেল কফ',
+    interval: 180,
+    petType: ['dog'],
+  },
+  leptospirosis: {
+    name: 'Leptospirosis',
+    nameBn: 'লেপ্টোস্পাইরোসিস',
+    interval: 365,
+    petType: ['dog'],
+  },
+  fvrcp: { name: 'FVRCP (3-in-1)', nameBn: 'এফভিআরসিপি', interval: 365, petType: ['cat'] },
+  felv: { name: 'Feline Leukemia', nameBn: 'ফেলাইন লিউকেমিয়া', interval: 365, petType: ['cat'] },
+  deworming: { name: 'Deworming', nameBn: 'কৃমিনাশক', interval: 90, petType: ['dog', 'cat'] },
+  other: {
+    name: 'Other',
+    nameBn: 'অন্যান্য',
+    interval: 365,
+    petType: ['dog', 'cat', 'bird', 'other'],
+  },
+};
+
+// Delivery areas
+export interface DeliveryArea {
+  district: string;
+  districtBn: string;
+  areas: string[];
+  deliveryDays: number;
+  deliveryFee: number;
+  isAvailable: boolean;
+  isSameDayAvailable?: boolean;
+}
+
 declare global {
   // Extend the Window interface to include properties added by the Facebook SDK.
   interface Window {

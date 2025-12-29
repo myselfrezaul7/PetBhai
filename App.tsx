@@ -24,6 +24,11 @@ import ConfirmationModal from './components/ConfirmationModal';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { PawIcon, ShoppingCartIcon, HeartIcon } from './components/icons';
 import CartSidebar from './components/CartSidebar';
+import WhatsAppButton from './components/WhatsAppButton';
+import { VaccinationProvider } from './contexts/VaccinationContext';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
+import OfflineIndicator from './components/OfflineIndicator';
+import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -119,37 +124,42 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:text-slate-200">
+      <OfflineIndicator />
       <Header />
       <main className="flex-grow">
-        <Suspense fallback={<PawHeartLoader />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
-            <Route path="/vet/:id" element={<VetDetailPage />} />
-            <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:id" element={<ArticleDetailPage />} />
-            <Route path="/plus-membership" element={<PlusMembershipPage />} />
-            <Route path="/adopt" element={<AdoptPage />} />
-            <Route path="/adopt/:id" element={<AnimalDetailPage />} />
-            <Route path="/report" element={<ReportPage />} />
-            <Route path="/volunteer" element={<VolunteerPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/safety" element={<TrustPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
+        <SwipeNavigationProvider>
+          <Suspense fallback={<PawHeartLoader />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
+              <Route path="/vet/:id" element={<VetDetailPage />} />
+              <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<ArticleDetailPage />} />
+              <Route path="/plus-membership" element={<PlusMembershipPage />} />
+              <Route path="/adopt" element={<AdoptPage />} />
+              <Route path="/adopt/:id" element={<AnimalDetailPage />} />
+              <Route path="/report" element={<ReportPage />} />
+              <Route path="/volunteer" element={<VolunteerPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/safety" element={<TrustPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+        </SwipeNavigationProvider>
       </main>
       <GlobalCartElements />
+      <WhatsAppButton />
+      <PWAInstallPrompt />
       {consent === 'all' && <MessengerPlugin />}
       <ScrollToTop />
       <ScrollToTopOnNavigate />
@@ -173,14 +183,16 @@ function App() {
                   <AnimalProvider>
                     <BrandProvider>
                       <AuthProvider>
-                        <CartProvider>
-                          <CookieConsentProvider>
-                            <HashRouter>
-                              <ScrollToTop />
-                              <AppContent />
-                            </HashRouter>
-                          </CookieConsentProvider>
-                        </CartProvider>
+                        <VaccinationProvider>
+                          <CartProvider>
+                            <CookieConsentProvider>
+                              <HashRouter>
+                                <ScrollToTop />
+                                <AppContent />
+                              </HashRouter>
+                            </CookieConsentProvider>
+                          </CartProvider>
+                        </VaccinationProvider>
                       </AuthProvider>
                     </BrandProvider>
                   </AnimalProvider>

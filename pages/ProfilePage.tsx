@@ -7,6 +7,8 @@ import type { Order } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { useToast } from '../contexts/ToastContext';
 import ProductCard from '../components/ProductCard';
+import VaccinationReminder from '../components/VaccinationReminder';
+import PetTools from '../components/PetTools';
 
 const REORDER_THRESHOLD_DAYS = 15;
 
@@ -27,9 +29,9 @@ const ProfilePage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'wishlist' | 'orders' | 'reorder'>(
-    'profile'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'wishlist' | 'orders' | 'reorder' | 'vaccinations' | 'tools'
+  >('profile');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -165,6 +167,8 @@ const ProfilePage: React.FC = () => {
 
         <div className="border-b border-slate-300/50 dark:border-slate-600/50 mb-6 flex flex-wrap">
           <TabButton tabId="profile">Edit Profile</TabButton>
+          <TabButton tabId="vaccinations">🐾 Vaccinations</TabButton>
+          <TabButton tabId="tools">✨ Pet Tools</TabButton>
           <TabButton tabId="wishlist">Wishlist ({wishlistedProducts.length})</TabButton>
           <TabButton tabId="orders">Orders ({currentUser.orderHistory.length})</TabButton>
           <TabButton tabId="reorder">Reorder</TabButton>
@@ -212,6 +216,8 @@ const ProfilePage: React.FC = () => {
                     onChange={handleFileChange}
                     accept="image/*"
                     className="hidden"
+                    aria-label="Upload profile picture"
+                    title="Choose a profile picture"
                   />
                 </div>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -372,6 +378,16 @@ const ProfilePage: React.FC = () => {
                   restock!
                 </p>
               )}
+            </div>
+          )}
+          {activeTab === 'vaccinations' && (
+            <div>
+              <VaccinationReminder />
+            </div>
+          )}
+          {activeTab === 'tools' && (
+            <div>
+              <PetTools />
             </div>
           )}
         </div>
