@@ -1,9 +1,24 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import type { User, Order } from '../types';
 import { MOCK_USERS } from '../constants';
+import { sanitizeInput, validateId } from '../lib/security';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const USERS_STORAGE_KEY = 'petbhai_users';
+
+// Validation helpers
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 255;
+};
+
+const validatePassword = (password: string): boolean => {
+  return password.length >= 6 && password.length <= 128;
+};
+
+const validateName = (name: string): boolean => {
+  return name.trim().length >= 2 && name.trim().length <= 100;
+};
 
 // Helper to get all users (persisted + mock)
 const getAllUsers = (): User[] => {
@@ -117,151 +132,246 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentUser]);
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = useCallback(async (email: string, password: string): Promise<User> => {
+    // Validate inputs
+    const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
+
+    if (!validateEmail(sanitizedEmail)) {
+      throw new Error('Invalid email format');
+    }
+
+    if (!password || password.length < 1) {
+      throw new Error('Password is required');
+    }
+
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const users = getAllUsers();
-    const user = users.find((u) => u.email === email && u.password === password);
+    const user = users.find(
+      (u) => u.email.toLowerCase() === sanitizedEmail && u.password === password
+    );
 
     if (user) {
-      setCurrentUser(user);
-      return user;
+      // Don't expose password in session
+      const safeUser = { ...user };
+      setCurrentUser(safeUser);
+      return safeUser;
     } else {
       throw new Error('Invalid email or password');
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setCurrentUser(null);
-  };
+  }, []);
 
-  const signup = async (name: string, email: string, password: string): Promise<User> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  const signup = useCallback(
+    async (name: string, email: string, password: string): Promise<User> => {
+      // Validate and sanitize inputs
+      const sanitizedName = sanitizeInput(name.trim());
+      const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
 
-    const users = getAllUsers();
-    if (users.some((u) => u.email === email)) {
-      throw new Error('User with this email already exists');
-    }
+      if (!validateName(sanitizedName)) {
+        throw new Error('Name must be 2-100 characters');
+      }
 
-    const newUser: User = {
-      id: Date.now(), // Simple ID generation
-      name,
-      email,
-      password,
-      wishlist: [],
-      orderHistory: [],
-      favorites: [],
-      isPlusMember: false,
-    };
+      if (!validateEmail(sanitizedEmail)) {
+        throw new Error('Invalid email format');
+      }
 
-    const updatedUsers = [...users, newUser];
-    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-    setCurrentUser(newUser);
-    return newUser;
-  };
+      if (!validatePassword(password)) {
+        throw new Error('Password must be 6-128 characters');
+      }
 
-  const socialLogin = async (socialUser: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    photoUrl?: string;
-  }): Promise<User> => {
-    // Check if user already exists
-    const users = getAllUsers();
-    const existingUser = users.find((u) => u.email === socialUser.email);
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-    if (existingUser) {
-      setCurrentUser(existingUser);
-      return existingUser;
-    }
+      const users = getAllUsers();
+      if (users.some((u) => u.email.toLowerCase() === sanitizedEmail)) {
+        throw new Error('User with this email already exists');
+      }
 
-    const newUser: User = {
-      id: Date.now(),
-      name: `${socialUser.firstName} ${socialUser.lastName}`,
-      email: socialUser.email,
-      profilePictureUrl: socialUser.photoUrl,
-      wishlist: [],
-      orderHistory: [],
-      favorites: [],
-      isPlusMember: false,
-    };
+      const newUser: User = {
+        id: Date.now(), // Simple ID generation
+        name: sanitizedName,
+        email: sanitizedEmail,
+        password,
+        wishlist: [],
+        orderHistory: [],
+        favorites: [],
+        isPlusMember: false,
+      };
 
-    setCurrentUser(newUser);
-    // The useEffect will handle saving to USERS_STORAGE_KEY
-    return newUser;
-  };
+      const updatedUsers = [...users, newUser];
+      window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+      setCurrentUser(newUser);
+      return newUser;
+    },
+    []
+  );
 
-  const updateProfile = async (updatedData: {
-    name?: string;
-    profilePictureUrl?: string;
-  }): Promise<User> => {
-    if (!currentUser) throw new Error('No user logged in');
+  const socialLogin = useCallback(
+    async (socialUser: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      photoUrl?: string;
+    }): Promise<User> => {
+      // Validate and sanitize social login data
+      const sanitizedFirstName = sanitizeInput(socialUser.firstName?.trim() || '');
+      const sanitizedLastName = sanitizeInput(socialUser.lastName?.trim() || '');
+      const sanitizedEmail = sanitizeInput(socialUser.email?.trim().toLowerCase() || '');
 
-    const updatedUser = { ...currentUser, ...updatedData };
-    setCurrentUser(updatedUser);
-    return updatedUser;
-  };
+      if (!validateEmail(sanitizedEmail)) {
+        throw new Error('Invalid email from social provider');
+      }
 
-  const addToWishlist = async (productId: number) => {
-    if (!currentUser) return;
-    if (currentUser.wishlist.includes(productId)) return;
+      // Check if user already exists
+      const users = getAllUsers();
+      const existingUser = users.find((u) => u.email.toLowerCase() === sanitizedEmail);
 
-    const updatedUser = {
-      ...currentUser,
-      wishlist: [...currentUser.wishlist, productId],
-    };
-    setCurrentUser(updatedUser);
-  };
+      if (existingUser) {
+        setCurrentUser(existingUser);
+        return existingUser;
+      }
 
-  const removeFromWishlist = async (productId: number) => {
-    if (!currentUser) return;
-    const updatedUser = {
-      ...currentUser,
-      wishlist: currentUser.wishlist.filter((id) => id !== productId),
-    };
-    setCurrentUser(updatedUser);
-  };
+      const newUser: User = {
+        id: Date.now(),
+        name: `${sanitizedFirstName} ${sanitizedLastName}`.trim() || 'User',
+        email: sanitizedEmail,
+        profilePictureUrl: socialUser.photoUrl,
+        wishlist: [],
+        orderHistory: [],
+        favorites: [],
+        isPlusMember: false,
+      };
 
-  const favoritePet = async (animalId: number) => {
-    if (!currentUser) return;
-    if (currentUser.favorites.includes(animalId)) return;
+      setCurrentUser(newUser);
+      // The useEffect will handle saving to USERS_STORAGE_KEY
+      return newUser;
+    },
+    []
+  );
 
-    const updatedUser = {
-      ...currentUser,
-      favorites: [...currentUser.favorites, animalId],
-    };
-    setCurrentUser(updatedUser);
-  };
+  const updateProfile = useCallback(
+    async (updatedData: { name?: string; profilePictureUrl?: string }): Promise<User> => {
+      if (!currentUser) throw new Error('No user logged in');
 
-  const unfavoritePet = async (animalId: number) => {
-    if (!currentUser) return;
-    const updatedUser = {
-      ...currentUser,
-      favorites: currentUser.favorites.filter((id) => id !== animalId),
-    };
-    setCurrentUser(updatedUser);
-  };
+      const sanitizedData: Partial<User> = {};
 
-  const subscribeToPlus = async () => {
+      if (updatedData.name !== undefined) {
+        const sanitizedName = sanitizeInput(updatedData.name.trim());
+        if (!validateName(sanitizedName)) {
+          throw new Error('Name must be 2-100 characters');
+        }
+        sanitizedData.name = sanitizedName;
+      }
+
+      if (updatedData.profilePictureUrl !== undefined) {
+        // Basic URL validation
+        if (updatedData.profilePictureUrl && !updatedData.profilePictureUrl.startsWith('http')) {
+          throw new Error('Invalid profile picture URL');
+        }
+        sanitizedData.profilePictureUrl = updatedData.profilePictureUrl;
+      }
+
+      const updatedUser = { ...currentUser, ...sanitizedData };
+      setCurrentUser(updatedUser);
+      return updatedUser;
+    },
+    [currentUser]
+  );
+
+  const addToWishlist = useCallback(
+    (productId: number) => {
+      if (!currentUser) return;
+      if (!validateId(productId)) return;
+      if (currentUser.wishlist.includes(productId)) return;
+
+      // Limit wishlist size to prevent abuse
+      if (currentUser.wishlist.length >= 100) return;
+
+      const updatedUser = {
+        ...currentUser,
+        wishlist: [...currentUser.wishlist, productId],
+      };
+      setCurrentUser(updatedUser);
+    },
+    [currentUser]
+  );
+
+  const removeFromWishlist = useCallback(
+    (productId: number) => {
+      if (!currentUser) return;
+      if (!validateId(productId)) return;
+
+      const updatedUser = {
+        ...currentUser,
+        wishlist: currentUser.wishlist.filter((id) => id !== productId),
+      };
+      setCurrentUser(updatedUser);
+    },
+    [currentUser]
+  );
+
+  const favoritePet = useCallback(
+    (animalId: number) => {
+      if (!currentUser) return;
+      if (!validateId(animalId)) return;
+      if (currentUser.favorites.includes(animalId)) return;
+
+      // Limit favorites size to prevent abuse
+      if (currentUser.favorites.length >= 100) return;
+
+      const updatedUser = {
+        ...currentUser,
+        favorites: [...currentUser.favorites, animalId],
+      };
+      setCurrentUser(updatedUser);
+    },
+    [currentUser]
+  );
+
+  const unfavoritePet = useCallback(
+    (animalId: number) => {
+      if (!currentUser) return;
+      if (!validateId(animalId)) return;
+
+      const updatedUser = {
+        ...currentUser,
+        favorites: currentUser.favorites.filter((id) => id !== animalId),
+      };
+      setCurrentUser(updatedUser);
+    },
+    [currentUser]
+  );
+
+  const subscribeToPlus = useCallback(() => {
     if (!currentUser) return;
     const updatedUser = {
       ...currentUser,
       isPlusMember: true,
     };
     setCurrentUser(updatedUser);
-  };
+  }, [currentUser]);
 
-  const addOrderToHistory = (order: Order) => {
-    if (currentUser) {
+  const addOrderToHistory = useCallback(
+    (order: Order) => {
+      if (!currentUser) return;
+      if (!order || !order.orderId) return;
+
+      // Limit order history size to prevent memory issues
+      const limitedHistory = currentUser.orderHistory.slice(0, 99);
+
       const updatedUser = {
         ...currentUser,
-        orderHistory: [order, ...currentUser.orderHistory],
+        orderHistory: [order, ...limitedHistory],
       };
       setCurrentUser(updatedUser);
-    }
-  };
+    },
+    [currentUser]
+  );
 
   const value = {
     currentUser,

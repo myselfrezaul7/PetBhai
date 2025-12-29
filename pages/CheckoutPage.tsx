@@ -566,7 +566,11 @@ const CheckoutPage: React.FC = () => {
         {/* Order Summary */}
         <div className="glass-card p-6 sm:p-8 h-fit lg:w-[42%]">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Order Summary</h2>
-          <div className="space-y-4 max-h-80 overflow-y-auto pr-2 overscroll-contain" role="list" aria-label="Cart items">
+          <div
+            className="space-y-4 max-h-80 overflow-y-auto pr-2 overscroll-contain"
+            role="list"
+            aria-label="Cart items"
+          >
             {cartItems.map((item) => (
               <div key={item.id} className="flex justify-between items-start" role="listitem">
                 <div className="flex items-center space-x-4">
@@ -586,7 +590,10 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="font-semibold text-slate-700 dark:text-slate-200 text-right shrink-0 ml-4 tabular-nums">
-                  ৳{(item.price * item.quantity).toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                  ৳
+                  {(item.price * item.quantity).toLocaleString('en-BD', {
+                    minimumFractionDigits: 2,
+                  })}
                 </p>
               </div>
             ))}

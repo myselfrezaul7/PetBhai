@@ -108,6 +108,27 @@ export const isValidImageDataUrl = (dataUrl: string): boolean => {
 };
 
 /**
+ * Validates that an ID is a positive integer
+ * Prevents injection attacks and invalid data
+ */
+export const validateId = (id: unknown): boolean => {
+  if (typeof id !== 'number') return false;
+  if (!Number.isInteger(id)) return false;
+  if (id <= 0) return false;
+  if (id > Number.MAX_SAFE_INTEGER) return false;
+  return true;
+};
+
+/**
+ * Validates that a string ID is numeric and positive
+ */
+export const validateStringId = (id: string): boolean => {
+  if (typeof id !== 'string') return false;
+  const parsed = parseInt(id, 10);
+  return validateId(parsed) && String(parsed) === id;
+};
+
+/**
  * Rate limiting helper for client-side actions
  */
 export class RateLimiter {
