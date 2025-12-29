@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import CreatePostForm from '../components/CreatePostForm';
 import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
 import { MOCK_POSTS } from '../constants';
 import type { Post, Comment, CommentReply } from '../types';
-import { GoogleIcon, UserGroupIcon, HeartIcon, ChatBubbleIcon } from '../components/icons';
+import { GoogleIcon, UserGroupIcon, HeartIcon, ChatBubbleIcon, PawIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
@@ -474,22 +474,38 @@ const CommunityPage: React.FC = () => {
     }
   };
 
-  // Sort posts based on active tab
-  const displayedPosts =
-    activeTab === 'popular' ? [...posts].sort((a, b) => b.likes.length - a.likes.length) : posts;
+  // Handle tab change
+  const handleTabChange = useCallback((tab: 'feed' | 'popular') => {
+    setActiveTab(tab);
+  }, []);
 
-  // Calculate community stats
-  const totalPosts = posts.length;
-  const totalComments = posts.reduce((acc, p) => acc + p.comments.length, 0);
-  const totalLikes = posts.reduce((acc, p) => acc + p.likes.length, 0);
+  // Sort posts based on active tab - memoized
+  const displayedPosts = useMemo(
+    () =>
+      activeTab === 'popular' ? [...posts].sort((a, b) => b.likes.length - a.likes.length) : posts,
+    [activeTab, posts]
+  );
+
+  // Calculate community stats - memoized
+  const communityStats = useMemo(
+    () => ({
+      totalPosts: posts.length,
+      totalComments: posts.reduce((acc, p) => acc + p.comments.length, 0),
+      totalLikes: posts.reduce((acc, p) => acc + p.likes.length, 0),
+    }),
+    [posts]
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl animate-fade-in">
         {/* Hero Section */}
-        <div className="text-center mb-6 md:mb-8">
+        <header className="text-center mb-6 md:mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-lg">
-            <UserGroupIcon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-orange-500" />
+            <UserGroupIcon
+              className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-orange-500"
+              aria-hidden="true"
+            />
           </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-800 dark:text-white mb-2 md:mb-3">
             Community Hub
@@ -498,49 +514,59 @@ const CommunityPage: React.FC = () => {
             Share your pet stories, get advice from fellow pet parents, and be part of Bangladesh's
             most caring pet community.
           </p>
-        </div>
+        </header>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8">
+        <section
+          className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
+          aria-label="Community statistics"
+        >
           <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-500">{totalPosts}</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-500">
+              {communityStats.totalPosts}
+            </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
               Posts
             </p>
           </div>
           <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
             <p className="text-lg sm:text-xl md:text-2xl font-bold text-blue-500">
-              {totalComments}
+              {communityStats.totalComments}
             </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
               Comments
             </p>
           </div>
           <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-pink-500">{totalLikes}</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-pink-500">
+              {communityStats.totalLikes}
+            </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
               Likes
             </p>
           </div>
-        </div>
+        </section>
 
         {/* Community Guidelines */}
-        <div className="glass-card p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-100 dark:border-blue-900/30">
+        <aside
+          className="glass-card p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-100 dark:border-blue-900/30"
+          aria-label="Community guidelines"
+        >
           <div className="flex items-start gap-2.5 sm:gap-3">
             <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">
+              <h2 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">
                 Community Guidelines
-              </h3>
+              </h2>
               <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-0.5 leading-relaxed">
                 Be kind, share helpful tips, and respect fellow pet lovers. Let's make this a safe
                 space for everyone! 🐾
               </p>
             </div>
           </div>
-        </div>
+        </aside>
 
         {/* Post Creation / Login Section */}
         {isAuthenticated ? (
@@ -599,11 +625,18 @@ const CommunityPage: React.FC = () => {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 sm:p-1.5 rounded-lg sm:rounded-xl">
+        <nav
+          className="flex items-center justify-between mb-4 sm:mb-6"
+          aria-label="Post feed filters"
+        >
+          <div
+            className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 sm:p-1.5 rounded-lg sm:rounded-xl"
+            role="tablist"
+          >
             <button
-              onClick={() => setActiveTab('feed')}
-              aria-pressed={activeTab === 'feed'}
+              onClick={() => handleTabChange('feed')}
+              role="tab"
+              aria-selected={activeTab === 'feed'}
               className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'feed'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
@@ -613,8 +646,9 @@ const CommunityPage: React.FC = () => {
               📰 Latest
             </button>
             <button
-              onClick={() => setActiveTab('popular')}
-              aria-pressed={activeTab === 'popular'}
+              onClick={() => handleTabChange('popular')}
+              role="tab"
+              aria-selected={activeTab === 'popular'}
               className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'popular'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
@@ -639,17 +673,23 @@ const CommunityPage: React.FC = () => {
             }}
             className="text-[10px] sm:text-xs text-slate-400 hover:text-red-500 transition-colors hidden sm:block px-2 py-1 rounded active:scale-95 touch-manipulation"
             title="Reset to default posts"
+            aria-label="Reset community data to defaults"
           >
             Reset
           </button>
-        </div>
+        </nav>
 
         {/* Posts Feed */}
-        <div className="space-y-4 sm:space-y-6">
+        <section className="space-y-4 sm:space-y-6" aria-label="Community posts">
           {isLoading ? (
-            <div className="space-y-4 sm:space-y-6">
+            <div
+              className="space-y-4 sm:space-y-6"
+              role="status"
+              aria-label="Loading community posts"
+            >
+              <span className="sr-only">Loading posts...</span>
               {[1, 2, 3].map((i) => (
-                <div key={i} className="glass-card p-4 sm:p-6 animate-pulse">
+                <div key={i} className="glass-card p-4 sm:p-6 animate-pulse" aria-hidden="true">
                   <div className="flex items-center space-x-3 mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
                     <div className="flex-1">
@@ -666,9 +706,12 @@ const CommunityPage: React.FC = () => {
               ))}
             </div>
           ) : displayedPosts.length === 0 ? (
-            <div className="glass-card p-12 text-center">
+            <div className="glass-card p-12 text-center" role="status">
               <div className="flex justify-center mb-4">
-                <ChatBubbleIcon className="w-12 h-12 text-slate-300 dark:text-slate-600" />
+                <ChatBubbleIcon
+                  className="w-12 h-12 text-slate-300 dark:text-slate-600"
+                  aria-hidden="true"
+                />
               </div>
               <p className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">
                 No posts yet!
@@ -696,9 +739,9 @@ const CommunityPage: React.FC = () => {
               />
             ))
           )}
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 
