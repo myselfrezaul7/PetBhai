@@ -12,17 +12,26 @@ import { useConfirmation } from '../contexts/ConfirmationContext';
 
 const POSTS_STORAGE_KEY = 'petbhai_posts';
 
+// Merge user posts with mock posts, ensuring no duplicates
 const getInitialPosts = (): Post[] => {
   try {
-    const posts = window.localStorage.getItem(POSTS_STORAGE_KEY);
-    if (posts) {
-      const parsed = JSON.parse(posts);
+    const storedPosts = window.localStorage.getItem(POSTS_STORAGE_KEY);
+    if (storedPosts) {
+      const parsed = JSON.parse(storedPosts);
       // Validate basic structure
       if (
         Array.isArray(parsed) &&
         parsed.every((p) => p && typeof p === 'object' && typeof p.id === 'number')
       ) {
-        return parsed;
+        // Merge: keep all stored posts, and add any mock posts that don't exist
+        const storedIds = new Set(parsed.map((p: Post) => p.id));
+        const missingMockPosts = MOCK_POSTS.filter((mp) => !storedIds.has(mp.id));
+        // User posts (non-mock) should come first, then mock posts
+        const userPosts = parsed.filter((p: Post) => !MOCK_POSTS.some((mp) => mp.id === p.id));
+        const existingMockPosts = parsed.filter((p: Post) =>
+          MOCK_POSTS.some((mp) => mp.id === p.id)
+        );
+        return [...userPosts, ...existingMockPosts, ...missingMockPosts];
       }
       // Clear invalid data
       console.warn('Invalid posts data in localStorage, resetting to mock posts');
@@ -44,12 +53,37 @@ const getInitialPosts = (): Post[] => {
 
 const CommunityPage: React.FC = () => {
   const { isAuthenticated, socialLogin, currentUser } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(getInitialPosts);
+  const [posts, setPosts] = useState<Post[]>(() => getInitialPosts());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'feed' | 'popular'>('feed');
   const toast = useToast();
   const { confirm } = useConfirmation();
 
+  // Re-read posts when component mounts or when returning to this page
+  useEffect(() => {
+    const freshPosts = getInitialPosts();
+    setPosts(freshPosts);
+  }, []);
+
+  // Listen for storage changes from other tabs/windows
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === POSTS_STORAGE_KEY && e.newValue) {
+        try {
+          const newPosts = JSON.parse(e.newValue);
+          if (Array.isArray(newPosts)) {
+            setPosts(newPosts);
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Save posts to localStorage whenever they change
   useEffect(() => {
     try {
       const serialized = JSON.stringify(posts);

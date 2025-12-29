@@ -452,9 +452,9 @@ const PET_TIPS = {
 // Age calculation data
 const AGE_MULTIPLIERS = {
   dog: {
-    small: [15, 9, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4], // < 20 lbs
-    medium: [15, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // 20-50 lbs
-    large: [15, 9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6], // > 50 lbs
+    small: [15, 9, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4], // < 9 kg
+    medium: [15, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // 9-23 kg
+    large: [15, 9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6], // > 23 kg
   },
   cat: [15, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
   bird: {
@@ -469,15 +469,15 @@ const AGE_MULTIPLIERS = {
 // Food portion calculator data (daily amounts)
 const FOOD_GUIDE = {
   dog: {
-    // Dry food in cups per day based on weight
+    // Dry food in cups per day based on weight (kg)
     portions: [
-      { maxWeight: 5, cups: 0.5, description: 'Toy breeds (Chihuahua, Yorkie)' },
-      { maxWeight: 10, cups: 0.75, description: 'Small breeds (Pomeranian, Maltese)' },
-      { maxWeight: 20, cups: 1.25, description: 'Small-medium breeds (Beagle, Cocker Spaniel)' },
-      { maxWeight: 30, cups: 1.75, description: 'Medium breeds (Border Collie, Bulldog)' },
-      { maxWeight: 50, cups: 2.5, description: 'Large breeds (Labrador, Golden Retriever)' },
-      { maxWeight: 70, cups: 3.25, description: 'Large breeds (German Shepherd, Rottweiler)' },
-      { maxWeight: 100, cups: 4, description: 'Giant breeds (Great Dane, Mastiff)' },
+      { maxWeight: 2, cups: 0.5, description: 'Toy breeds (Chihuahua, Yorkie)' },
+      { maxWeight: 5, cups: 0.75, description: 'Small breeds (Pomeranian, Maltese)' },
+      { maxWeight: 9, cups: 1.25, description: 'Small-medium breeds (Beagle, Cocker Spaniel)' },
+      { maxWeight: 14, cups: 1.75, description: 'Medium breeds (Border Collie, Bulldog)' },
+      { maxWeight: 23, cups: 2.5, description: 'Large breeds (Labrador, Golden Retriever)' },
+      { maxWeight: 32, cups: 3.25, description: 'Large breeds (German Shepherd, Rottweiler)' },
+      { maxWeight: 45, cups: 4, description: 'Giant breeds (Great Dane, Mastiff)' },
       { maxWeight: Infinity, cups: 5, description: 'Extra large breeds' },
     ],
     adjustments: {
@@ -504,8 +504,8 @@ const FOOD_GUIDE = {
   },
   rabbit: {
     hay: 'Unlimited (body size pile)',
-    pellets: '¼ cup per 5 lbs body weight',
-    greens: '2 cups per 5 lbs body weight',
+    pellets: '¼ cup per 2 kg body weight',
+    greens: '2 cups per 2 kg body weight',
   },
   hamster: {
     daily: '1-2 tablespoons of hamster food mix',
@@ -731,9 +731,9 @@ const PetTools: React.FC = () => {
                           : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                       }`}
                     >
-                      {size === 'small' && '🐕 Small (<20 lbs)'}
-                      {size === 'medium' && '🐕 Medium (20-50 lbs)'}
-                      {size === 'large' && '🐕 Large (>50 lbs)'}
+                      {size === 'small' && '🐕 Small (<9 kg)'}
+                      {size === 'medium' && '🐕 Medium (9-23 kg)'}
+                      {size === 'large' && '🐕 Large (>23 kg)'}
                     </button>
                   ))}
                 </div>
@@ -944,16 +944,16 @@ const PetTools: React.FC = () => {
                     htmlFor="pet-weight-slider"
                     className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
                   >
-                    Pet Weight: {petWeight} lbs
+                    Pet Weight: {petWeight} kg
                   </label>
                   <input
                     id="pet-weight-slider"
                     type="range"
                     min="1"
-                    max={foodPetType === 'dog' ? 150 : 25}
+                    max={foodPetType === 'dog' ? 68 : 11}
                     value={petWeight}
                     onChange={(e) => setPetWeight(parseInt(e.target.value))}
-                    aria-label={`Pet weight in pounds: ${petWeight}`}
+                    aria-label={`Pet weight in kilograms: ${petWeight}`}
                     className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
                   />
                 </div>
