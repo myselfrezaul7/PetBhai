@@ -1,22 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { Post } from '../types';
 import { UserIcon, ThumbsUpIcon, ChatBubbleIcon, SendIcon, CloseIcon } from './icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
+import { sanitizeInput, validateContentLength } from '../lib/security';
+
+// Constants for validation
+const MAX_CONTENT_LENGTH = 5000;
+const MAX_COMMENT_LENGTH = 1000;
+const MAX_REPLY_LENGTH = 500;
 
 interface PostCardProps {
   post: Post;
-  onUpdatePost: (postId: number, newContent: string) => void;
-  onDeletePost: (postId: number) => void;
-  onLikePost: (postId: number) => void;
-  onLikeComment: (postId: number, commentId: number) => void;
-  onLikeReply: (postId: number, commentId: number, replyId: number) => void;
-  onAddComment: (postId: number, commentText: string) => void;
-  onAddReply: (postId: number, commentId: number, replyText: string) => void;
-  onUpdateComment: (postId: number, commentId: number, newText: string) => void;
-  onUpdateReply: (postId: number, commentId: number, replyId: number, newText: string) => void;
-  onDeleteComment: (postId: number, commentId: number) => void;
-  onDeleteReply: (postId: number, commentId: number, replyId: number) => void;
+  onUpdatePost: (postId: number, newContent: string) => Promise<void> | void;
+  onDeletePost: (postId: number) => Promise<void> | void;
+  onLikePost: (postId: number) => Promise<void> | void;
+  onLikeComment: (postId: number, commentId: number) => Promise<void> | void;
+  onLikeReply: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
+  onAddComment: (postId: number, commentText: string) => Promise<void> | void;
+  onAddReply: (postId: number, commentId: number, replyText: string) => Promise<void> | void;
+  onUpdateComment: (postId: number, commentId: number, newText: string) => Promise<void> | void;
+  onUpdateReply: (
+    postId: number,
+    commentId: number,
+    replyId: number,
+    newText: string
+  ) => Promise<void> | void;
+  onDeleteComment: (postId: number, commentId: number) => Promise<void> | void;
+  onDeleteReply: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -35,6 +47,9 @@ const PostCard: React.FC<PostCardProps> = ({
 }) => {
   const { currentUser } = useAuth();
   const toast = useToast();
+  const { confirm } = useConfirmation();
+
+  // State
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(post.content);
   const [showComments, setShowComments] = useState(false);
@@ -50,80 +65,297 @@ const PostCard: React.FC<PostCardProps> = ({
   const [editedCommentText, setEditedCommentText] = useState('');
   const [editedReplyText, setEditedReplyText] = useState('');
 
-  const timeSince = (date: string) => {
-    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + 'y';
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + 'mo';
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + 'd';
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + 'h';
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + 'm';
-    return Math.floor(seconds) + 's';
-  };
+  // Loading states for async operations
+  const [isLiking, setIsLiking] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loadingCommentId, setLoadingCommentId] = useState<number | null>(null);
+  const [loadingReplyId, setLoadingReplyId] = useState<string | null>(null);
 
-  const handleUpdate = () => {
-    onUpdatePost(post.id, editedContent);
-    setIsEditing(false);
-  };
+  // Refs
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    onAddComment(post.id, commentText);
-    setCommentText('');
-  };
+  // Auto-resize textarea
+  useEffect(() => {
+    if (isEditing && editTextareaRef.current) {
+      editTextareaRef.current.style.height = 'auto';
+      editTextareaRef.current.style.height = `${editTextareaRef.current.scrollHeight}px`;
+      editTextareaRef.current.focus();
+    }
+  }, [isEditing, editedContent]);
 
-  const handleReplySubmit = (e: React.FormEvent, commentId: number) => {
-    e.preventDefault();
-    if (!replyText.trim()) return;
-    onAddReply(post.id, commentId, replyText);
-    setReplyText('');
-    setReplyingTo(null);
-  };
+  const timeSince = useCallback((date: string) => {
+    try {
+      const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+      if (isNaN(seconds) || seconds < 0) return 'now';
 
-  const handleEditComment = (commentId: number, currentText: string) => {
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + 'y';
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + 'mo';
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + 'd';
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + 'h';
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + 'm';
+      return seconds < 5 ? 'now' : Math.floor(seconds) + 's';
+    } catch {
+      return 'now';
+    }
+  }, []);
+
+  const handleUpdate = useCallback(async () => {
+    const sanitized = sanitizeInput(editedContent);
+    if (!validateContentLength(sanitized, MAX_CONTENT_LENGTH)) {
+      toast.error(`Post must be ${MAX_CONTENT_LENGTH} characters or less`);
+      return;
+    }
+    if (!sanitized.trim()) {
+      toast.error('Post content cannot be empty');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onUpdatePost(post.id, sanitized);
+      setIsEditing(false);
+      toast.success('Post updated! ✓');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update post');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [editedContent, onUpdatePost, post.id, toast]);
+
+  const handleDelete = useCallback(async () => {
+    const confirmed = await confirm({
+      title: 'Delete Post',
+      message: 'Are you sure you want to delete this post? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await onDeletePost(post.id);
+      toast.success('Post deleted');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete post');
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [confirm, onDeletePost, post.id, toast]);
+
+  const handleLikePost = useCallback(async () => {
+    if (isLiking || !currentUser) return;
+
+    setIsLiking(true);
+    try {
+      await onLikePost(post.id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to like post');
+    } finally {
+      setIsLiking(false);
+    }
+  }, [isLiking, currentUser, onLikePost, post.id, toast]);
+
+  const handleCommentSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      const sanitized = sanitizeInput(commentText);
+      if (!validateContentLength(sanitized, MAX_COMMENT_LENGTH)) {
+        toast.error(`Comment must be ${MAX_COMMENT_LENGTH} characters or less`);
+        return;
+      }
+      if (!sanitized.trim()) return;
+
+      setIsSubmitting(true);
+      try {
+        await onAddComment(post.id, sanitized);
+        setCommentText('');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to add comment');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [commentText, onAddComment, post.id, toast]
+  );
+
+  const handleReplySubmit = useCallback(
+    async (e: React.FormEvent, commentId: number) => {
+      e.preventDefault();
+
+      const sanitized = sanitizeInput(replyText);
+      if (!validateContentLength(sanitized, MAX_REPLY_LENGTH)) {
+        toast.error(`Reply must be ${MAX_REPLY_LENGTH} characters or less`);
+        return;
+      }
+      if (!sanitized.trim()) return;
+
+      setLoadingReplyId(`submit-${commentId}`);
+      try {
+        await onAddReply(post.id, commentId, sanitized);
+        setReplyText('');
+        setReplyingTo(null);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to add reply');
+      } finally {
+        setLoadingReplyId(null);
+      }
+    },
+    [replyText, onAddReply, post.id, toast]
+  );
+
+  const handleEditComment = useCallback((commentId: number, currentText: string) => {
     setEditingCommentId(commentId);
     setEditedCommentText(currentText);
     setEditingReplyId(null);
-  };
+  }, []);
 
-  const handleSaveComment = (commentId: number) => {
-    if (!editedCommentText.trim()) return;
-    onUpdateComment(post.id, commentId, editedCommentText);
+  const handleSaveComment = useCallback(
+    async (commentId: number) => {
+      const sanitized = sanitizeInput(editedCommentText);
+      if (!validateContentLength(sanitized, MAX_COMMENT_LENGTH)) {
+        toast.error(`Comment must be ${MAX_COMMENT_LENGTH} characters or less`);
+        return;
+      }
+      if (!sanitized.trim()) return;
+
+      setLoadingCommentId(commentId);
+      try {
+        await onUpdateComment(post.id, commentId, sanitized);
+        setEditingCommentId(null);
+        setEditedCommentText('');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to update comment');
+      } finally {
+        setLoadingCommentId(null);
+      }
+    },
+    [editedCommentText, onUpdateComment, post.id, toast]
+  );
+
+  const handleDeleteComment = useCallback(
+    async (commentId: number) => {
+      const confirmed = await confirm({
+        title: 'Delete Comment',
+        message: 'Are you sure you want to delete this comment?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      });
+
+      if (!confirmed) return;
+
+      setLoadingCommentId(commentId);
+      try {
+        await onDeleteComment(post.id, commentId);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to delete comment');
+      } finally {
+        setLoadingCommentId(null);
+      }
+    },
+    [confirm, onDeleteComment, post.id, toast]
+  );
+
+  const handleCancelEditComment = useCallback(() => {
     setEditingCommentId(null);
     setEditedCommentText('');
-  };
+  }, []);
 
-  const handleCancelEditComment = () => {
-    setEditingCommentId(null);
-    setEditedCommentText('');
-  };
-
-  const handleEditReply = (commentId: number, replyId: number, currentText: string) => {
+  const handleEditReply = useCallback((commentId: number, replyId: number, currentText: string) => {
     setEditingReplyId({ commentId, replyId });
     setEditedReplyText(currentText);
     setEditingCommentId(null);
-  };
+  }, []);
 
-  const handleSaveReply = (commentId: number, replyId: number) => {
-    if (!editedReplyText.trim()) return;
-    onUpdateReply(post.id, commentId, replyId, editedReplyText);
+  const handleSaveReply = useCallback(
+    async (commentId: number, replyId: number) => {
+      const sanitized = sanitizeInput(editedReplyText);
+      if (!validateContentLength(sanitized, MAX_REPLY_LENGTH)) {
+        toast.error(`Reply must be ${MAX_REPLY_LENGTH} characters or less`);
+        return;
+      }
+      if (!sanitized.trim()) return;
+
+      setLoadingReplyId(`${commentId}-${replyId}`);
+      try {
+        await onUpdateReply(post.id, commentId, replyId, sanitized);
+        setEditingReplyId(null);
+        setEditedReplyText('');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to update reply');
+      } finally {
+        setLoadingReplyId(null);
+      }
+    },
+    [editedReplyText, onUpdateReply, post.id, toast]
+  );
+
+  const handleDeleteReply = useCallback(
+    async (commentId: number, replyId: number) => {
+      const confirmed = await confirm({
+        title: 'Delete Reply',
+        message: 'Are you sure you want to delete this reply?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      });
+
+      if (!confirmed) return;
+
+      setLoadingReplyId(`${commentId}-${replyId}`);
+      try {
+        await onDeleteReply(post.id, commentId, replyId);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to delete reply');
+      } finally {
+        setLoadingReplyId(null);
+      }
+    },
+    [confirm, onDeleteReply, post.id, toast]
+  );
+
+  const handleCancelEditReply = useCallback(() => {
     setEditingReplyId(null);
     setEditedReplyText('');
-  };
+  }, []);
 
-  const handleCancelEditReply = () => {
-    setEditingReplyId(null);
-    setEditedReplyText('');
-  };
+  const handleLikeComment = useCallback(
+    async (commentId: number) => {
+      if (loadingCommentId === commentId) return;
 
-  const handleShare = async () => {
+      try {
+        await onLikeComment(post.id, commentId);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to like comment');
+      }
+    },
+    [loadingCommentId, onLikeComment, post.id, toast]
+  );
+
+  const handleLikeReply = useCallback(
+    async (commentId: number, replyId: number) => {
+      const key = `${commentId}-${replyId}`;
+      if (loadingReplyId === key) return;
+
+      try {
+        await onLikeReply(post.id, commentId, replyId);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to like reply');
+      }
+    },
+    [loadingReplyId, onLikeReply, post.id, toast]
+  );
+
+  const handleShare = useCallback(async () => {
     const shareUrl = window.location.href;
-    const shareText = `Check out this post on PetBhai: "${post.content.substring(0, 100)}..."`;
+    const shareText = `Check out this post on PetBhai: "${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}"`;
 
     if (navigator.share) {
       try {
@@ -133,21 +365,36 @@ const PostCard: React.FC<PostCardProps> = ({
           url: shareUrl,
         });
       } catch {
-        // User cancelled sharing
+        // User cancelled sharing or not supported
       }
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      toast.success('Link copied to clipboard! 📋');
+      try {
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+        toast.success('Link copied to clipboard! 📋');
+      } catch {
+        toast.error('Failed to copy link');
+      }
     }
-  };
+  }, [post.content, toast]);
+
+  // Keyboard handlers for accessibility
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  }, []);
 
   const isAuthor = currentUser?.id === post.author.id;
   const hasLikedPost = currentUser ? post.likes.includes(currentUser.id) : false;
+  const isDisabled = isSubmitting || isDeleting;
 
   return (
     <>
-      <div className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl">
+      <div
+        className={`glass-card overflow-hidden transition-all duration-300 hover:shadow-xl ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+      >
         <div className="p-4 sm:p-6">
           <div className="flex items-start justify-between mb-3 sm:mb-4">
             <div className="flex items-center space-x-3 sm:space-x-4">
@@ -157,6 +404,7 @@ const PostCard: React.FC<PostCardProps> = ({
                     src={post.author.profilePictureUrl}
                     alt={post.author.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <UserIcon className="w-5 h-5 sm:w-7 sm:h-7 text-slate-600 dark:text-slate-300" />
@@ -171,19 +419,24 @@ const PostCard: React.FC<PostCardProps> = ({
                 </p>
               </div>
             </div>
-            {isAuthor && (
+            {isAuthor && !isEditing && (
               <div className="flex space-x-1 sm:space-x-2 text-xs sm:text-sm">
                 <button
-                  onClick={() => setIsEditing(true)}
-                  className="font-semibold text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-1.5 sm:px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+                  onClick={() => {
+                    setEditedContent(post.content);
+                    setIsEditing(true);
+                  }}
+                  disabled={isDisabled}
+                  className="font-semibold text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 touch-manipulation disabled:opacity-50"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => onDeletePost(post.id)}
-                  className="font-semibold text-red-500 hover:text-red-600 transition-colors px-1.5 sm:px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                  onClick={handleDelete}
+                  disabled={isDisabled}
+                  className="font-semibold text-red-500 hover:text-red-600 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation disabled:opacity-50"
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             )}
@@ -191,29 +444,61 @@ const PostCard: React.FC<PostCardProps> = ({
           {isEditing ? (
             <div>
               <textarea
+                ref={editTextareaRef}
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                maxLength={MAX_CONTENT_LENGTH}
+                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none min-h-[100px] touch-manipulation"
                 rows={3}
                 aria-label="Edit post content"
+                disabled={isSubmitting}
               />
-              <div className="flex justify-end space-x-2 mt-3">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              <div className="flex items-center justify-between mt-2">
+                <span
+                  className={`text-xs ${editedContent.length > MAX_CONTENT_LENGTH * 0.9 ? 'text-orange-500' : 'text-slate-400'}`}
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdate}
-                  className="text-sm font-bold text-white bg-orange-500 px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-                >
-                  Save Changes
-                </button>
+                  {editedContent.length}/{MAX_CONTENT_LENGTH}
+                </span>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedContent(post.content);
+                    }}
+                    disabled={isSubmitting}
+                    className="text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors active:scale-95 touch-manipulation disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdate}
+                    disabled={isSubmitting || !editedContent.trim()}
+                    className="text-sm font-bold text-white bg-orange-500 px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors active:scale-95 touch-manipulation disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isSubmitting && (
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                    )}
+                    Save Changes
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
-            <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base mb-3 sm:mb-4 whitespace-pre-wrap leading-relaxed">
+            <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base mb-3 sm:mb-4 whitespace-pre-wrap leading-relaxed break-words">
               {post.content}
             </p>
           )}
@@ -223,11 +508,15 @@ const PostCard: React.FC<PostCardProps> = ({
           <div
             className="bg-black/5 dark:bg-black/20 cursor-pointer relative group"
             onClick={() => setShowImageModal(true)}
+            onKeyDown={(e) => handleKeyDown(e, () => setShowImageModal(true))}
+            role="button"
+            tabIndex={0}
+            aria-label="View full image"
           >
             <img
               src={post.imageUrl}
               alt="Post content"
-              className="w-full max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+              className="w-full max-h-[400px] sm:max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -241,15 +530,18 @@ const PostCard: React.FC<PostCardProps> = ({
         {/* Action Buttons */}
         <div className="px-3 sm:px-6 py-2 sm:py-3 border-y border-white/20 dark:border-slate-700/50 flex justify-around">
           <button
-            onClick={() => onLikePost(post.id)}
-            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-base ${
+            onClick={handleLikePost}
+            disabled={isLiking || !currentUser}
+            aria-label={hasLikedPost ? 'Unlike post' : 'Like post'}
+            aria-pressed={hasLikedPost}
+            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation disabled:opacity-50 ${
               hasLikedPost
                 ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <ThumbsUpIcon
-              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${hasLikedPost ? 'scale-110' : ''}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${hasLikedPost ? 'scale-110' : ''} ${isLiking ? 'animate-pulse' : ''}`}
             />
             <span className="hidden xs:inline">
               {post.likes.length > 0 ? post.likes.length : ''} Like
@@ -259,7 +551,9 @@ const PostCard: React.FC<PostCardProps> = ({
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
-            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-base ${
+            aria-expanded={showComments}
+            aria-label={`${showComments ? 'Hide' : 'Show'} comments`}
+            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation ${
               showComments
                 ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-slate-700/50'
@@ -276,7 +570,8 @@ const PostCard: React.FC<PostCardProps> = ({
           </button>
           <button
             onClick={handleShare}
-            className="flex items-center space-x-1 sm:space-x-2 text-slate-600 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50"
+            aria-label="Share post"
+            className="flex items-center space-x-1 sm:space-x-2 text-slate-600 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50 active:scale-95 touch-manipulation"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5"
@@ -297,7 +592,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
         {/* Comments Section */}
         {showComments && (
-          <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="p-4 sm:p-6 bg-slate-50/50 dark:bg-slate-800/50">
             {/* Comment Input */}
             {currentUser ? (
               <form onSubmit={handleCommentSubmit} className="mb-6">
@@ -308,6 +603,7 @@ const PostCard: React.FC<PostCardProps> = ({
                         src={currentUser.profilePictureUrl}
                         alt="You"
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -317,22 +613,56 @@ const PostCard: React.FC<PostCardProps> = ({
                   </div>
                   <div className="flex-1 flex flex-col sm:flex-row gap-2">
                     <input
+                      ref={commentInputRef}
                       type="text"
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       placeholder="Write a comment..."
-                      className="w-full p-2.5 sm:p-3 text-sm sm:text-base border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      maxLength={MAX_COMMENT_LENGTH}
+                      disabled={isSubmitting}
+                      className="w-full p-2.5 sm:p-3 text-sm sm:text-base border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent touch-manipulation disabled:opacity-50"
                     />
                     <button
                       type="submit"
-                      disabled={!commentText.trim()}
-                      className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-4 py-2 sm:p-3 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-0"
+                      disabled={!commentText.trim() || isSubmitting}
+                      className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-4 py-2 sm:p-3 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-0 active:scale-95 touch-manipulation min-h-[40px] sm:min-h-0"
                     >
-                      <SendIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="sm:hidden text-sm font-medium">Send</span>
+                      {isSubmitting ? (
+                        <svg
+                          className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      ) : (
+                        <SendIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
+                      <span className="sm:hidden text-sm font-medium">
+                        {isSubmitting ? 'Sending...' : 'Send'}
+                      </span>
                     </button>
                   </div>
                 </div>
+                {commentText.length > MAX_COMMENT_LENGTH * 0.8 && (
+                  <p
+                    className={`text-xs mt-1 ml-12 ${commentText.length >= MAX_COMMENT_LENGTH ? 'text-red-500' : 'text-orange-500'}`}
+                  >
+                    {commentText.length}/{MAX_COMMENT_LENGTH}
+                  </p>
+                )}
               </form>
             ) : (
               <p className="text-center text-slate-500 dark:text-slate-400 mb-4 py-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
@@ -405,10 +735,12 @@ const PostCard: React.FC<PostCardProps> = ({
                               </p>
                             )}
                           </div>
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 ml-2">
+                          <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-1.5 ml-2">
                             <button
-                              onClick={() => onLikeComment(post.id, comment.id)}
-                              className={`text-xs font-semibold transition-colors ${
+                              onClick={() => handleLikeComment(comment.id)}
+                              disabled={loadingCommentId === comment.id}
+                              aria-label={hasLikedComment ? 'Unlike comment' : 'Like comment'}
+                              className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
                                 hasLikedComment
                                   ? 'text-orange-500'
                                   : 'text-slate-500 dark:text-slate-400 hover:text-orange-500'
@@ -421,7 +753,7 @@ const PostCard: React.FC<PostCardProps> = ({
                               onClick={() =>
                                 setReplyingTo(replyingTo === comment.id ? null : comment.id)
                               }
-                              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors"
+                              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
                             >
                               Reply
                             </button>
@@ -432,15 +764,17 @@ const PostCard: React.FC<PostCardProps> = ({
                               <>
                                 <button
                                   onClick={() => handleEditComment(comment.id, comment.text)}
-                                  className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors"
+                                  disabled={loadingCommentId === comment.id}
+                                  className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
                                 >
                                   Edit
                                 </button>
                                 <button
-                                  onClick={() => onDeleteComment(post.id, comment.id)}
-                                  className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors"
+                                  onClick={() => handleDeleteComment(comment.id)}
+                                  disabled={loadingCommentId === comment.id}
+                                  className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
                                 >
-                                  Delete
+                                  {loadingCommentId === comment.id ? '...' : 'Delete'}
                                 </button>
                               </>
                             )}
@@ -512,10 +846,12 @@ const PostCard: React.FC<PostCardProps> = ({
                                       </p>
                                     )}
                                   </div>
-                                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 ml-2">
+                                  <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-1 ml-2">
                                     <button
-                                      onClick={() => onLikeReply(post.id, comment.id, reply.id)}
-                                      className={`text-xs font-semibold transition-colors ${
+                                      onClick={() => handleLikeReply(comment.id, reply.id)}
+                                      disabled={loadingReplyId === `${comment.id}-${reply.id}`}
+                                      aria-label={hasLikedReply ? 'Unlike reply' : 'Like reply'}
+                                      className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
                                         hasLikedReply
                                           ? 'text-orange-500'
                                           : 'text-slate-400 hover:text-orange-500'
@@ -537,17 +873,23 @@ const PostCard: React.FC<PostCardProps> = ({
                                             onClick={() =>
                                               handleEditReply(comment.id, reply.id, reply.text)
                                             }
-                                            className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors"
+                                            disabled={
+                                              loadingReplyId === `${comment.id}-${reply.id}`
+                                            }
+                                            className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
                                           >
                                             Edit
                                           </button>
                                           <button
-                                            onClick={() =>
-                                              onDeleteReply(post.id, comment.id, reply.id)
+                                            onClick={() => handleDeleteReply(comment.id, reply.id)}
+                                            disabled={
+                                              loadingReplyId === `${comment.id}-${reply.id}`
                                             }
-                                            className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors"
+                                            className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
                                           >
-                                            Delete
+                                            {loadingReplyId === `${comment.id}-${reply.id}`
+                                              ? '...'
+                                              : 'Delete'}
                                           </button>
                                         </>
                                       )}
@@ -572,6 +914,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                   src={currentUser.profilePictureUrl}
                                   alt="You"
                                   className="w-full h-full object-cover"
+                                  loading="lazy"
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
@@ -585,19 +928,56 @@ const PostCard: React.FC<PostCardProps> = ({
                                 value={replyText}
                                 onChange={(e) => setReplyText(e.target.value)}
                                 placeholder={`Reply to ${comment.author.name}...`}
-                                className="w-full p-2 text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500"
+                                maxLength={MAX_REPLY_LENGTH}
+                                disabled={loadingReplyId === `submit-${comment.id}`}
+                                className="w-full p-2 text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 touch-manipulation disabled:opacity-50"
                                 autoFocus
                               />
                               <button
                                 type="submit"
-                                disabled={!replyText.trim()}
-                                className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-3 py-1.5 sm:p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-1.5 sm:gap-0"
+                                disabled={
+                                  !replyText.trim() || loadingReplyId === `submit-${comment.id}`
+                                }
+                                className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-3 py-1.5 sm:p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-1.5 sm:gap-0 active:scale-95 touch-manipulation min-h-[36px] sm:min-h-0"
                               >
-                                <SendIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                <span className="sm:hidden text-xs font-medium">Reply</span>
+                                {loadingReplyId === `submit-${comment.id}` ? (
+                                  <svg
+                                    className="animate-spin h-3.5 w-3.5 sm:h-4 sm:w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <SendIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                )}
+                                <span className="sm:hidden text-xs font-medium">
+                                  {loadingReplyId === `submit-${comment.id}`
+                                    ? 'Sending...'
+                                    : 'Reply'}
+                                </span>
                               </button>
                             </div>
                           </div>
+                          {replyText.length > MAX_REPLY_LENGTH * 0.7 && (
+                            <p
+                              className={`text-xs mt-1 ml-10 ${replyText.length >= MAX_REPLY_LENGTH ? 'text-red-500' : 'text-orange-500'}`}
+                            >
+                              {replyText.length}/{MAX_REPLY_LENGTH}
+                            </p>
+                          )}
                         </form>
                       )}
                     </div>
@@ -612,21 +992,25 @@ const PostCard: React.FC<PostCardProps> = ({
       {/* Image Modal */}
       {showImageModal && post.imageUrl && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={() => setShowImageModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Full size image"
         >
           <button
-            className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white hover:text-orange-400 transition-colors p-2 rounded-full bg-black/30 hover:bg-black/50 active:scale-95 touch-manipulation z-10"
             onClick={() => setShowImageModal(false)}
             aria-label="Close image modal"
           >
-            <CloseIcon className="w-8 h-8" />
+            <CloseIcon className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
           <img
             src={post.imageUrl}
-            alt="Post content"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            alt="Post content - full size"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg select-none"
             onClick={(e) => e.stopPropagation()}
+            draggable={false}
           />
         </div>
       )}
