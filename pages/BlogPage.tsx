@@ -46,7 +46,7 @@ const BlogPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+    <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
       <header className="text-center mb-8 md:mb-12 max-w-3xl mx-auto">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-slate-50">
           {t('blog_page_title')}
@@ -74,7 +74,7 @@ const BlogPage: React.FC = () => {
           <p className="text-xl text-slate-600 dark:text-slate-400">No articles found.</p>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 

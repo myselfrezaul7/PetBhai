@@ -119,16 +119,16 @@ const AdoptPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
-      <div className="glass-card p-4 sm:p-6 md:p-8 mb-6 md:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-3 md:mb-4">
+    <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+      <header className="glass-card p-4 sm:p-6 md:p-8 mb-6 md:mb-12 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 dark:text-white mb-3 md:mb-4">
           Find Your New Best Friend
         </h1>
-        <p className="text-sm sm:text-base md:text-lg text-center text-slate-700 dark:text-slate-200 max-w-3xl mx-auto px-2">
+        <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto px-2">
           These wonderful animals are waiting for a loving family to call their own. Use the filters
           to find the perfect match for you.
         </p>
-      </div>
+      </header>
 
       {/* Filters Section */}
       <div className="glass-card p-3 sm:p-4 md:p-6 mb-6 md:mb-16">
@@ -264,7 +264,7 @@ const AdoptPage: React.FC = () => {
           </button>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
