@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MailIcon, FacebookIcon, InstagramIcon, YouTubeIcon, PhoneIcon } from './icons';
+import { MailIcon, FacebookIcon, InstagramIcon, YouTubeIcon } from './icons';
 import Logo from './Logo';
 
 // WhatsApp Icon Component
@@ -94,14 +94,6 @@ const Footer: React.FC = () => {
               >
                 <WhatsAppIcon className="w-5 h-5" />
                 <span>WhatsApp Us</span>
-              </a>
-
-              <a
-                href="tel:+8801712345678"
-                className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
-              >
-                <PhoneIcon className="w-5 h-5" />
-                <span>+880 1712-345678</span>
               </a>
 
               <a
@@ -227,45 +219,6 @@ const Footer: React.FC = () => {
                   />
                 </svg>
                 Verified by Pet Lovers
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Emergency Helpline Banner */}
-        <div className="mt-10 pt-6 border-t border-slate-200/50 dark:border-slate-700/30">
-          <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 dark:from-red-900/30 dark:to-orange-900/30 rounded-xl p-4 border border-red-200/50 dark:border-red-800/30">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                  <PhoneIcon className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-center md:text-left">
-                  <h4 className="font-bold text-red-600 dark:text-red-400">
-                    Pet Emergency Hotline
-                  </h4>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    24/7 Available for urgent pet emergencies
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <a
-                  href="tel:+8801712345678"
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full text-sm transition-colors flex items-center space-x-2"
-                >
-                  <PhoneIcon className="w-4 h-4" />
-                  <span>Call Now</span>
-                </a>
-                <a
-                  href="https://wa.me/8801712345678?text=EMERGENCY:%20"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full text-sm transition-colors flex items-center space-x-2"
-                >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  <span>WhatsApp</span>
-                </a>
               </div>
             </div>
           </div>

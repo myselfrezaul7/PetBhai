@@ -26,7 +26,6 @@ import { PawIcon, ShoppingCartIcon, HeartIcon } from './components/icons';
 import CartSidebar from './components/CartSidebar';
 import WhatsAppButton from './components/WhatsAppButton';
 import { VaccinationProvider } from './contexts/VaccinationContext';
-import PWAInstallPrompt from './components/PWAInstallPrompt';
 import OfflineIndicator from './components/OfflineIndicator';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
 
@@ -159,7 +158,6 @@ const AppContent: React.FC = () => {
       </main>
       <GlobalCartElements />
       <WhatsAppButton />
-      <PWAInstallPrompt />
       {consent === 'all' && <MessengerPlugin />}
       <ScrollToTop />
       <ScrollToTopOnNavigate />

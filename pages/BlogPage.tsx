@@ -37,10 +37,10 @@ const BlogPage: React.FC = () => {
   return (
     <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
       <div className="text-center mb-8 md:mb-12 max-w-3xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-white">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-slate-50">
           {t('blog_page_title')}
         </h1>
-        <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-200 mt-2 md:mt-4 px-2">
+        <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-100 mt-2 md:mt-4 px-2">
           {t('blog_page_subtitle')}
         </p>
       </div>
