@@ -603,7 +603,8 @@ const CommunityPage: React.FC = () => {
           <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 sm:p-1.5 rounded-lg sm:rounded-xl">
             <button
               onClick={() => setActiveTab('feed')}
-              className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+              aria-pressed={activeTab === 'feed'}
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'feed'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -613,7 +614,8 @@ const CommunityPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('popular')}
-              className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+              aria-pressed={activeTab === 'popular'}
+              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'popular'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -623,13 +625,19 @@ const CommunityPage: React.FC = () => {
             </button>
           </div>
           <button
-            onClick={() => {
-              if (window.confirm('Reset community data? This will clear your local posts.')) {
+            onClick={async () => {
+              const shouldReset = await confirm({
+                title: 'Reset Community Data?',
+                message: 'This will clear all local posts and restore defaults. Continue?',
+                confirmText: 'Reset',
+                cancelText: 'Cancel',
+              });
+              if (shouldReset) {
                 window.localStorage.removeItem('petbhai_posts');
                 window.location.reload();
               }
             }}
-            className="text-[10px] sm:text-xs text-slate-400 hover:text-red-500 transition-colors hidden sm:block"
+            className="text-[10px] sm:text-xs text-slate-400 hover:text-red-500 transition-colors hidden sm:block px-2 py-1 rounded active:scale-95 touch-manipulation"
             title="Reset to default posts"
           >
             Reset
@@ -637,8 +645,27 @@ const CommunityPage: React.FC = () => {
         </div>
 
         {/* Posts Feed */}
-        <div className="space-y-6">
-          {displayedPosts.length === 0 ? (
+        <div className="space-y-4 sm:space-y-6">
+          {isLoading ? (
+            <div className="space-y-4 sm:space-y-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="glass-card p-4 sm:p-6 animate-pulse">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 sm:w-32 mb-2"></div>
+                      <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-16 sm:w-20"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                  </div>
+                  <div className="mt-4 h-48 sm:h-64 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                </div>
+              ))}
+            </div>
+          ) : displayedPosts.length === 0 ? (
             <div className="glass-card p-12 text-center">
               <div className="flex justify-center mb-4">
                 <ChatBubbleIcon className="w-12 h-12 text-slate-300 dark:text-slate-600" />
