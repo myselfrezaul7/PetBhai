@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import CreatePostForm from '../components/CreatePostForm';
 import PostCard from '../components/PostCard';
@@ -9,64 +9,74 @@ import { GoogleIcon, UserGroupIcon, HeartIcon, ChatBubbleIcon } from '../compone
 import { signInWithGoogle } from '../services/authService';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
+import * as postService from '../services/postService';
 
 const POSTS_STORAGE_KEY = 'petbhai_posts';
 
-// Merge user posts with mock posts, ensuring no duplicates
-const getInitialPosts = (): Post[] => {
+// Fallback to localStorage when API is unavailable
+const getLocalPosts = (): Post[] => {
   try {
     const storedPosts = window.localStorage.getItem(POSTS_STORAGE_KEY);
     if (storedPosts) {
       const parsed = JSON.parse(storedPosts);
-      // Validate basic structure
       if (
         Array.isArray(parsed) &&
         parsed.every((p) => p && typeof p === 'object' && typeof p.id === 'number')
       ) {
-        // Merge: keep all stored posts, and add any mock posts that don't exist
-        const storedIds = new Set(parsed.map((p: Post) => p.id));
-        const missingMockPosts = MOCK_POSTS.filter((mp) => !storedIds.has(mp.id));
-        // User posts (non-mock) should come first, then mock posts
-        const userPosts = parsed.filter((p: Post) => !MOCK_POSTS.some((mp) => mp.id === p.id));
-        const existingMockPosts = parsed.filter((p: Post) =>
-          MOCK_POSTS.some((mp) => mp.id === p.id)
-        );
-        return [...userPosts, ...existingMockPosts, ...missingMockPosts];
+        return parsed;
       }
-      // Clear invalid data
-      console.warn('Invalid posts data in localStorage, resetting to mock posts');
-      window.localStorage.removeItem(POSTS_STORAGE_KEY);
-    }
-    // Initialize with mock data if empty or invalid
-    window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(MOCK_POSTS));
-    return MOCK_POSTS;
-  } catch (error) {
-    console.error('Error reading posts from localStorage', error);
-    try {
-      window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(MOCK_POSTS));
-    } catch {
-      // localStorage might be disabled
     }
     return MOCK_POSTS;
+  } catch {
+    return MOCK_POSTS;
+  }
+};
+
+const saveLocalPosts = (posts: Post[]) => {
+  try {
+    window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
+  } catch {
+    // localStorage might be disabled or full
   }
 };
 
 const CommunityPage: React.FC = () => {
   const { isAuthenticated, socialLogin, currentUser } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(() => getInitialPosts());
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [useApi, setUseApi] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'feed' | 'popular'>('feed');
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  // Re-read posts when component mounts or when returning to this page
-  useEffect(() => {
-    const freshPosts = getInitialPosts();
-    setPosts(freshPosts);
+  // Fetch posts from API or fallback to localStorage
+  const fetchPosts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const apiPosts = await postService.fetchPosts();
+      setPosts(apiPosts);
+      setUseApi(true);
+      // Also save to localStorage as cache
+      saveLocalPosts(apiPosts);
+    } catch (error) {
+      console.warn('API unavailable, using localStorage fallback:', error);
+      setUseApi(false);
+      const localPosts = getLocalPosts();
+      setPosts(localPosts);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Listen for storage changes from other tabs/windows
+  // Fetch posts on mount
   useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  // Listen for storage changes from other tabs/windows (localStorage fallback)
+  useEffect(() => {
+    if (useApi) return; // Only listen when using localStorage
+
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === POSTS_STORAGE_KEY && e.newValue) {
         try {
@@ -81,26 +91,53 @@ const CommunityPage: React.FC = () => {
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [useApi]);
 
-  // Save posts to localStorage whenever they change
-  useEffect(() => {
-    try {
-      const serialized = JSON.stringify(posts);
-      window.localStorage.setItem(POSTS_STORAGE_KEY, serialized);
-    } catch (error) {
-      console.error('Error writing posts to localStorage', error);
-      // Don't crash the app if localStorage is full or disabled
+  const handleAddPost = async (newPost: Post) => {
+    if (useApi && currentUser) {
+      try {
+        const createdPost = await postService.createPost(
+          {
+            id: currentUser.id,
+            name: currentUser.name,
+            profilePictureUrl: currentUser.profilePictureUrl,
+          },
+          newPost.content,
+          newPost.imageUrl
+        );
+        setPosts((prevPosts) => [createdPost, ...prevPosts]);
+        toast.success('Post shared successfully! 🎉');
+        return;
+      } catch (error) {
+        console.warn('API error, falling back to localStorage:', error);
+        setUseApi(false);
+      }
     }
-  }, [posts]);
-
-  const handleAddPost = (newPost: Post) => {
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
+    // Fallback to localStorage
+    setPosts((prevPosts) => {
+      const updated = [newPost, ...prevPosts];
+      saveLocalPosts(updated);
+      return updated;
+    });
     toast.success('Post shared successfully! 🎉');
   };
 
-  const handleUpdatePost = (postId: number, newContent: string) => {
-    setPosts(posts.map((p) => (p.id === postId ? { ...p, content: newContent } : p)));
+  const handleUpdatePost = async (postId: number, newContent: string) => {
+    if (useApi && currentUser) {
+      try {
+        await postService.updatePost(postId, newContent, currentUser.id);
+        setPosts(posts.map((p) => (p.id === postId ? { ...p, content: newContent } : p)));
+        toast.success('Post updated!');
+        return;
+      } catch (error) {
+        console.warn('API error, falling back to localStorage:', error);
+        setUseApi(false);
+      }
+    }
+    // Fallback to localStorage
+    const updated = posts.map((p) => (p.id === postId ? { ...p, content: newContent } : p));
+    setPosts(updated);
+    saveLocalPosts(updated);
     toast.success('Post updated!');
   };
 
@@ -109,104 +146,152 @@ const CommunityPage: React.FC = () => {
       title: 'Delete Post?',
       message: 'Are you sure you want to delete this post? This action cannot be undone.',
     });
-    if (shouldDelete) {
-      setPosts(posts.filter((p) => p.id !== postId));
-      toast.success('Post deleted successfully.');
+    if (!shouldDelete) return;
+
+    if (useApi && currentUser) {
+      try {
+        await postService.deletePost(postId, currentUser.id);
+        setPosts(posts.filter((p) => p.id !== postId));
+        toast.success('Post deleted successfully.');
+        return;
+      } catch (error) {
+        console.warn('API error, falling back to localStorage:', error);
+        setUseApi(false);
+      }
     }
+    // Fallback to localStorage
+    const updated = posts.filter((p) => p.id !== postId);
+    setPosts(updated);
+    saveLocalPosts(updated);
+    toast.success('Post deleted successfully.');
   };
 
   // Like/Unlike a post
-  const handleLikePost = (postId: number) => {
+  const handleLikePost = async (postId: number) => {
     if (!currentUser) {
       toast.error('Please sign in to like posts');
       return;
     }
-    setPosts(
-      posts.map((p) => {
-        if (p.id === postId) {
-          const hasLiked = p.likes.includes(currentUser.id);
-          return {
-            ...p,
-            likes: hasLiked
-              ? p.likes.filter((id) => id !== currentUser.id)
-              : [...p.likes, currentUser.id],
-          };
-        }
-        return p;
-      })
-    );
+
+    if (useApi) {
+      try {
+        const updatedPost = await postService.togglePostLike(postId, currentUser.id);
+        setPosts(posts.map((p) => (p.id === postId ? updatedPost : p)));
+        return;
+      } catch (error) {
+        console.warn('API error, falling back to localStorage:', error);
+        setUseApi(false);
+      }
+    }
+
+    // Fallback to localStorage
+    const updated = posts.map((p) => {
+      if (p.id === postId) {
+        const hasLiked = p.likes.includes(currentUser.id);
+        return {
+          ...p,
+          likes: hasLiked
+            ? p.likes.filter((id) => id !== currentUser.id)
+            : [...p.likes, currentUser.id],
+        };
+      }
+      return p;
+    });
+    setPosts(updated);
+    saveLocalPosts(updated);
   };
 
   // Like/Unlike a comment
-  const handleLikeComment = (postId: number, commentId: number) => {
+  const handleLikeComment = async (postId: number, commentId: number) => {
     if (!currentUser) {
       toast.error('Please sign in to like comments');
       return;
     }
-    setPosts(
-      posts.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            comments: p.comments.map((c) => {
-              if (c.id === commentId) {
-                const hasLiked = c.likes.includes(currentUser.id);
-                return {
-                  ...c,
-                  likes: hasLiked
-                    ? c.likes.filter((id) => id !== currentUser.id)
-                    : [...c.likes, currentUser.id],
-                };
-              }
-              return c;
-            }),
-          };
-        }
-        return p;
-      })
-    );
+
+    if (useApi) {
+      try {
+        await postService.toggleCommentLike(postId, commentId, currentUser.id);
+      } catch (error) {
+        console.warn('API error for comment like:', error);
+      }
+    }
+
+    // Update local state (works for both API and localStorage)
+    const updated = posts.map((p) => {
+      if (p.id === postId) {
+        return {
+          ...p,
+          comments: p.comments.map((c) => {
+            if (c.id === commentId) {
+              const hasLiked = c.likes.includes(currentUser.id);
+              return {
+                ...c,
+                likes: hasLiked
+                  ? c.likes.filter((id) => id !== currentUser.id)
+                  : [...c.likes, currentUser.id],
+              };
+            }
+            return c;
+          }),
+        };
+      }
+      return p;
+    });
+    setPosts(updated);
+    if (!useApi) saveLocalPosts(updated);
   };
 
   // Like/Unlike a reply
-  const handleLikeReply = (postId: number, commentId: number, replyId: number) => {
+  const handleLikeReply = async (postId: number, commentId: number, replyId: number) => {
     if (!currentUser) {
       toast.error('Please sign in to like replies');
       return;
     }
-    setPosts(
-      posts.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            comments: p.comments.map((c) => {
-              if (c.id === commentId) {
-                return {
-                  ...c,
-                  replies: c.replies.map((r) => {
-                    if (r.id === replyId) {
-                      const hasLiked = r.likes.includes(currentUser.id);
-                      return {
-                        ...r,
-                        likes: hasLiked
-                          ? r.likes.filter((id) => id !== currentUser.id)
-                          : [...r.likes, currentUser.id],
-                      };
-                    }
-                    return r;
-                  }),
-                };
-              }
-              return c;
-            }),
-          };
-        }
-        return p;
-      })
-    );
+
+    if (useApi) {
+      try {
+        await postService.toggleReplyLike(postId, commentId, replyId, currentUser.id);
+      } catch (error) {
+        console.warn('API error for reply like:', error);
+      }
+    }
+
+    // Update local state
+    const updated = posts.map((p) => {
+      if (p.id === postId) {
+        return {
+          ...p,
+          comments: p.comments.map((c) => {
+            if (c.id === commentId) {
+              return {
+                ...c,
+                replies: c.replies.map((r) => {
+                  if (r.id === replyId) {
+                    const hasLiked = r.likes.includes(currentUser.id);
+                    return {
+                      ...r,
+                      likes: hasLiked
+                        ? r.likes.filter((id) => id !== currentUser.id)
+                        : [...r.likes, currentUser.id],
+                    };
+                  }
+                  return r;
+                }),
+              };
+            }
+            return c;
+          }),
+        };
+      }
+      return p;
+    });
+    setPosts(updated);
+    if (!useApi) saveLocalPosts(updated);
   };
 
-  const handleAddComment = (postId: number, commentText: string) => {
+  const handleAddComment = async (postId: number, commentText: string) => {
     if (!currentUser) return;
+
     const newComment: Comment = {
       id: Date.now(),
       author: {
@@ -219,13 +304,29 @@ const CommunityPage: React.FC = () => {
       likes: [],
       timestamp: new Date().toISOString(),
     };
-    setPosts(
-      posts.map((p) => (p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p))
+
+    if (useApi) {
+      try {
+        await postService.addComment(
+          postId,
+          { id: currentUser.id, name: currentUser.name, profilePictureUrl: currentUser.profilePictureUrl },
+          commentText
+        );
+      } catch (error) {
+        console.warn('API error for adding comment:', error);
+      }
+    }
+
+    const updated = posts.map((p) =>
+      p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p
     );
+    setPosts(updated);
+    if (!useApi) saveLocalPosts(updated);
   };
 
-  const handleAddReply = (postId: number, commentId: number, replyText: string) => {
+  const handleAddReply = async (postId: number, commentId: number, replyText: string) => {
     if (!currentUser) return;
+
     const newReply: CommentReply = {
       id: Date.now(),
       author: {
@@ -237,17 +338,33 @@ const CommunityPage: React.FC = () => {
       likes: [],
       timestamp: new Date().toISOString(),
     };
-    setPosts(
-      posts.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              comments: p.comments.map((c) =>
-                c.id === commentId ? { ...c, replies: [...c.replies, newReply] } : c
-              ),
-            }
-          : p
-      )
+
+    if (useApi) {
+      try {
+        await postService.addReply(
+          postId,
+          commentId,
+          { id: currentUser.id, name: currentUser.name, profilePictureUrl: currentUser.profilePictureUrl },
+          replyText
+        );
+      } catch (error) {
+        console.warn('API error for adding reply:', error);
+      }
+    }
+
+    const updated = posts.map((p) =>
+      p.id === postId
+        ? {
+            ...p,
+            comments: p.comments.map((c) =>
+              c.id === commentId ? { ...c, replies: [...c.replies, newReply] } : c
+            ),
+          }
+        : p
+    );
+    setPosts(updated);
+    if (!useApi) saveLocalPosts(updated);
+  };
     );
   };
 

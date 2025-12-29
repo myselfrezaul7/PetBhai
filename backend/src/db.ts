@@ -5,8 +5,9 @@ import {
   MOCK_VETS,
   MOCK_ANIMALS,
   MOCK_BRANDS,
+  MOCK_POSTS,
 } from './data/mockData';
-import type { User, Product, Article, Vet, Animal, Brand, Order } from './types';
+import type { User, Product, Article, Vet, Animal, Brand, Order, Post } from './types';
 
 // In-memory database
 export const db = {
@@ -17,4 +18,5 @@ export const db = {
   animals: [...MOCK_ANIMALS] as Animal[],
   brands: [...MOCK_BRANDS] as Brand[],
   orders: [] as Order[],
+  posts: [...MOCK_POSTS] as Post[],
 };

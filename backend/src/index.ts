@@ -11,6 +11,7 @@ import brandRoutes from './routes/brandRoutes';
 import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
 import aiRoutes from './routes/aiRoutes';
+import postRoutes from './routes/postRoutes';
 import { requestLogger, errorLogger } from './middleware/logger';
 import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -63,6 +64,7 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/posts', postRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({
