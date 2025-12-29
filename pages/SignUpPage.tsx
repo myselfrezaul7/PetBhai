@@ -131,11 +131,13 @@ const SignUpPage: React.FC = () => {
   }, [socialLogin, navigate]);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow flex items-center justify-center animate-fade-in">
+    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow flex items-center justify-center animate-fade-in">
       <div className="w-full max-w-md glass-card p-6 sm:p-8 md:p-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-slate-800 dark:text-white mb-6">
-          Join Our Community
-        </h1>
+        <header className="text-center mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
+            Join Our Community
+          </h1>
+        </header>
 
         {error && (
           <p
@@ -309,13 +311,13 @@ const SignUpPage: React.FC = () => {
           Already have an account?{' '}
           <Link
             to="/login"
-            className="font-bold text-orange-600 hover:underline touch-manipulation"
+            className="font-bold text-orange-600 hover:underline touch-manipulation active:scale-95"
           >
             Log in
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 };
 

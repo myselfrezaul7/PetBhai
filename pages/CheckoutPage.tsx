@@ -243,17 +243,17 @@ const CheckoutPage: React.FC = () => {
   }, [socialLogin, toast]);
 
   return (
-    <div className="container mx-auto px-4 py-12 animate-fade-in">
-      <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-10">
-        Checkout
-      </h1>
-      <div className="flex flex-col-reverse lg:flex-row gap-12 max-w-5xl mx-auto">
+    <main className="container mx-auto px-4 py-8 sm:py-12 animate-fade-in">
+      <header className="text-center mb-6 sm:mb-10">
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 dark:text-white">Checkout</h1>
+      </header>
+      <div className="flex flex-col-reverse lg:flex-row gap-8 lg:gap-12 max-w-5xl mx-auto">
         {/* Customer Form */}
-        <div className="glass-card p-8 lg:w-[58%]">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+        <section className="glass-card p-5 sm:p-8 lg:w-[58%]" aria-label="Shipping and payment">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-2">
             {isAuthenticated ? 'Confirm Shipping Details' : 'Guest Checkout'}
           </h2>
-          <p className="text-slate-600 dark:text-slate-300 mb-6">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-6">
             We'll use this information for delivery.
           </p>
 
@@ -561,11 +561,13 @@ const CheckoutPage: React.FC = () => {
               </button>
             </div>
           </form>
-        </div>
+        </section>
 
         {/* Order Summary */}
-        <div className="glass-card p-6 sm:p-8 h-fit lg:w-[42%]">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Order Summary</h2>
+        <aside className="glass-card p-5 sm:p-8 h-fit lg:w-[42%]" aria-label="Order summary">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6">
+            Order Summary
+          </h2>
           <div
             className="space-y-4 max-h-80 overflow-y-auto pr-2 overscroll-contain"
             role="list"
@@ -599,16 +601,16 @@ const CheckoutPage: React.FC = () => {
             ))}
           </div>
           <div className="border-t border-slate-300/50 dark:border-slate-600/50 mt-6 pt-4">
-            <div className="flex justify-between items-center text-xl font-bold">
+            <div className="flex justify-between items-center text-lg sm:text-xl font-bold">
               <span className="text-slate-800 dark:text-white">Total:</span>
               <span className="text-slate-800 dark:text-white tabular-nums">
                 ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
-        </div>
+        </aside>
       </div>
-    </div>
+    </main>
   );
 };
 
