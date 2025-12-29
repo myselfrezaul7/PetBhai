@@ -207,7 +207,7 @@ const ProfilePage: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
+    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
       <div className="max-w-4xl mx-auto">
         <div className="glass-card p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-4 sm:space-y-0 sm:space-x-6">
@@ -513,7 +513,7 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

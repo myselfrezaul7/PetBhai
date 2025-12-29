@@ -145,14 +145,16 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-slate-800 dark:text-white mb-3 md:mb-4">
-          Shop For Your Buddy
-        </h1>
-        <p className="text-sm sm:text-base md:text-lg text-center text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-6 md:mb-10 px-2">
-          Find everything you need to keep your pet happy and healthy, from premium food to fun
-          toys.
-        </p>
+      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+        <header className="text-center mb-6 md:mb-10">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 dark:text-white mb-3 md:mb-4">
+            Shop For Your Buddy
+          </h1>
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto px-2">
+            Find everything you need to keep your pet happy and healthy, from premium food to fun
+            toys.
+          </p>
+        </header>
 
         {/* Filters & Sorting */}
         <div className="glass-card p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6">
@@ -299,7 +301,7 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
+      </main>
 
       {/* Quick View Modal */}
       {selectedProduct && (
