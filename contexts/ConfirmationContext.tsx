@@ -3,6 +3,8 @@ import React, { createContext, useState, useContext, useCallback, ReactNode } fr
 interface ConfirmationOptions {
   title: string;
   message: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 interface ConfirmationState extends ConfirmationOptions {
