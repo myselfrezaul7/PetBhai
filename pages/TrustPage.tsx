@@ -22,51 +22,51 @@ const TrustPage: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-12">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-16 sm:pt-24 pb-8 sm:pb-12">
       <div className="container mx-auto px-4 md:px-6">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-6">
+        <header className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-4 sm:mb-6">
             {t('trust_title')}
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">{t('trust_subtitle')}</p>
-        </div>
+          <p className="text-sm sm:text-lg text-slate-600 dark:text-slate-300">{t('trust_subtitle')}</p>
+        </header>
 
         {/* Trust Pillars */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
+        <section className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-20" aria-label="Trust pillars">
           {/* Pillar 1: Vetted Products */}
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 dark:text-green-400">
-              <CheckCircleIcon className="w-8 h-8" />
+          <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-green-600 dark:text-green-400" aria-hidden="true">
+              <CheckCircleIcon className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 sm:mb-4">
               {t('trust_pillar_1_title')}
             </h3>
-            <p className="text-slate-600 dark:text-slate-300">{t('trust_pillar_1_desc')}</p>
-          </div>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{t('trust_pillar_1_desc')}</p>
+          </article>
 
           {/* Pillar 2: Verified Professionals */}
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
-            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 dark:text-blue-400">
-              <ShieldCheckIconLocal className="w-8 h-8" />
+          <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-blue-600 dark:text-blue-400" aria-hidden="true">
+              <ShieldCheckIconLocal className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 sm:mb-4">
               {t('trust_pillar_2_title')}
             </h3>
-            <p className="text-slate-600 dark:text-slate-300">{t('trust_pillar_2_desc')}</p>
-          </div>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{t('trust_pillar_2_desc')}</p>
+          </article>
 
           {/* Pillar 3: Community Guidelines */}
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
-            <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-600 dark:text-purple-400">
-              <HeartIcon className="w-8 h-8" />
+          <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-purple-600 dark:text-purple-400" aria-hidden="true">
+              <HeartIcon className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 sm:mb-4">
               {t('trust_pillar_3_title')}
             </h3>
-            <p className="text-slate-600 dark:text-slate-300">{t('trust_pillar_3_desc')}</p>
-          </div>
-        </div>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{t('trust_pillar_3_desc')}</p>
+          </article>
+        </section>
 
         {/* Detailed Sections */}
         <div className="space-y-16 max-w-4xl mx-auto">
@@ -134,7 +134,7 @@ const TrustPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

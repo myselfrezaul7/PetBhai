@@ -11,20 +11,20 @@ import {
 
 const TermsPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-16">
+      <header className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-10 sm:py-16">
         <div className="container mx-auto px-4 md:px-6 text-center">
-          <DocumentTextIcon className="w-16 h-16 mx-auto mb-4 opacity-90" />
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">Terms and Conditions</h1>
-          <p className="text-lg text-orange-100 max-w-2xl mx-auto">
+          <DocumentTextIcon className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 opacity-90" aria-hidden="true" />
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-3 sm:mb-4">Terms and Conditions</h1>
+          <p className="text-sm sm:text-lg text-orange-100 max-w-2xl mx-auto px-2">
             Welcome to PetBhai. By accessing our website and purchasing our products, you agree to
             the following terms.
           </p>
         </div>
-      </div>
+      </header>
 
-      <div className="container mx-auto px-4 md:px-6 py-12">
+      <div className="container mx-auto px-4 md:px-6 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto">
           {/* Section 1 */}
           <section className="mb-10 bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 md:p-8">
@@ -411,14 +411,14 @@ const TermsPage: React.FC = () => {
           <div className="text-center mt-8">
             <Link
               to="/"
-              className="inline-flex items-center px-6 py-3 bg-orange-500 text-white font-bold rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 bg-orange-500 text-white font-bold rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-lg touch-manipulation active:scale-95 text-sm sm:text-base"
             >
               ← Back to Home
             </Link>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
