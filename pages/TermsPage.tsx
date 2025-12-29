@@ -15,8 +15,13 @@ const TermsPage: React.FC = () => {
       {/* Hero Section */}
       <header className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-10 sm:py-16">
         <div className="container mx-auto px-4 md:px-6 text-center">
-          <DocumentTextIcon className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 opacity-90" aria-hidden="true" />
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-3 sm:mb-4">Terms and Conditions</h1>
+          <DocumentTextIcon
+            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 opacity-90"
+            aria-hidden="true"
+          />
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-3 sm:mb-4">
+            Terms and Conditions
+          </h1>
           <p className="text-sm sm:text-lg text-orange-100 max-w-2xl mx-auto px-2">
             Welcome to PetBhai. By accessing our website and purchasing our products, you agree to
             the following terms.
