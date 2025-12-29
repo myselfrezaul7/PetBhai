@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { MenuIcon, CloseIcon, SearchIcon, UserIcon } from './icons';
 import Logo from './Logo';
@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle';
 import SearchResults, { type SearchResultsData } from './SearchResults';
 import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { sanitizeInput } from '../lib/security';
 
 interface PageResult {
   name: string;
@@ -71,12 +72,12 @@ const Header: React.FC = () => {
   const inactiveLinkClass =
     'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 font-medium transition-colors';
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     setIsMenuOpen(false);
     setIsProfileMenuOpen(false);
     navigate('/');
-  };
+  }, [logout, navigate]);
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -169,37 +170,55 @@ const Header: React.FC = () => {
     };
   }, [isMenuOpen]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    // Sanitize search input to prevent XSS
+    const sanitized = sanitizeInput(e.target.value);
+    setSearchQuery(sanitized);
+  }, []);
 
-  const handleSearchFocus = () => {
+  const handleSearchFocus = useCallback(() => {
     setIsSearchActive(true);
-  };
+  }, []);
 
-  const closeSearchResults = () => {
+  const closeSearchResults = useCallback(() => {
     setIsSearchActive(false);
     setSearchQuery('');
-  };
+  }, []);
 
-  const handleOpenMobileSearch = () => {
+  const handleOpenMobileSearch = useCallback(() => {
     setSearchQuery('');
     setIsSearchOpen(true);
     setIsSearchActive(true);
-  };
+  }, []);
 
-  const handleCloseMobileSearch = () => {
+  const handleCloseMobileSearch = useCallback(() => {
     setIsSearchOpen(false);
-    closeSearchResults();
-  };
+    setIsSearchActive(false);
+    setSearchQuery('');
+  }, []);
 
-  const handleLogoClick = (e: React.MouseEvent) => {
+  const handleLogoClick = useCallback(
+    (e: React.MouseEvent) => {
+      setIsMenuOpen(false);
+      if (location.pathname === '/') {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [location.pathname]
+  );
+
+  const handleMenuClose = useCallback(() => {
     setIsMenuOpen(false);
-    if (location.pathname === '/') {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  }, []);
+
+  const handleMenuOpen = useCallback(() => {
+    setIsMenuOpen(true);
+  }, []);
+
+  const handleProfileMenuToggle = useCallback(() => {
+    setIsProfileMenuOpen((prev) => !prev);
+  }, []);
 
   const MobileNavLink: React.FC<{ to: string; children: React.ReactNode; className?: string }> = ({
     to,
@@ -208,9 +227,9 @@ const Header: React.FC = () => {
   }) => (
     <NavLink
       to={to}
-      onClick={() => setIsMenuOpen(false)}
+      onClick={handleMenuClose}
       className={({ isActive }) =>
-        `block py-3 text-2xl text-center transition-colors ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium hover:text-orange-500'} ${className}`
+        `block py-3 text-xl sm:text-2xl text-center transition-colors touch-manipulation ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium hover:text-orange-500'} ${className}`
       }
     >
       {children}
@@ -226,7 +245,7 @@ const Header: React.FC = () => {
       <NavLink
         to={to}
         className={({ isActive }) =>
-          `${isActive ? activeLinkClass : inactiveLinkClass} ${className}`
+          `${isActive ? activeLinkClass : inactiveLinkClass} ${className} touch-manipulation`
         }
       >
         {children}
@@ -312,8 +331,11 @@ const Header: React.FC = () => {
             {isAuthenticated && currentUser ? (
               <div className="relative" ref={profileMenuRef}>
                 <button
-                  onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                  className="relative flex items-center space-x-2 focus:outline-none group"
+                  onClick={handleProfileMenuToggle}
+                  className="relative flex items-center space-x-2 focus:outline-none group touch-manipulation"
+                  aria-label="User menu"
+                  aria-expanded={isProfileMenuOpen}
+                  aria-haspopup="true"
                 >
                   <div className="ring-2 ring-transparent group-hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
                     {currentUser.profilePictureUrl ? (
@@ -321,6 +343,7 @@ const Header: React.FC = () => {
                         src={currentUser.profilePictureUrl}
                         alt={currentUser.name}
                         className="w-10 h-10 rounded-full object-cover"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
@@ -428,14 +451,14 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={handleOpenMobileSearch}
-                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                   aria-label="Open search"
                 >
                   <SearchIcon className="w-7 h-7" />
                 </button>
                 <button
-                  onClick={() => setIsMenuOpen(true)}
-                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+                  onClick={handleMenuOpen}
+                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                   aria-label="Open menu"
                 >
                   <MenuIcon className="w-8 h-8" />
@@ -449,12 +472,15 @@ const Header: React.FC = () => {
       {/* Mobile Menu Overlay */}
       <div
         className={`fixed inset-0 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) lg:hidden flex flex-col`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
       >
         <div className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-800">
           <NavLink
             to="/"
             onClick={handleLogoClick}
-            className="flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white"
+            className="flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white touch-manipulation"
           >
             <Logo className="w-10 h-10 text-orange-500" />
             <span>PetBhai</span>
@@ -462,22 +488,23 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             <button
               onClick={toggleLanguage}
-              className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform"
+              className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform touch-manipulation"
+              aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
             >
               {language === 'en' ? 'BN' : 'EN'}
             </button>
             <ThemeToggle />
             <button
-              onClick={() => setIsMenuOpen(false)}
-              className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform"
+              onClick={handleMenuClose}
+              className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform touch-manipulation"
               aria-label="Close menu"
             >
               <CloseIcon className="w-8 h-8" />
             </button>
           </div>
         </div>
-        <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8">
-          <nav className="flex flex-col space-y-6 w-full px-10">
+        <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8 overscroll-contain">
+          <nav className="flex flex-col space-y-6 w-full px-8 sm:px-10">
             <MobileNavLink to="/">{t('nav_home')}</MobileNavLink>
             <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
             <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
@@ -490,7 +517,7 @@ const Header: React.FC = () => {
               {t('nav_plus')}
             </MobileNavLink>
           </nav>
-          <div className="mt-10 flex flex-col space-y-4 w-full px-10">
+          <div className="mt-10 flex flex-col space-y-4 w-full px-8 sm:px-10">
             {isAuthenticated && currentUser ? (
               <>
                 <Link
