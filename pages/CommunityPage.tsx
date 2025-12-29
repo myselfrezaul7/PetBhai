@@ -365,8 +365,6 @@ const CommunityPage: React.FC = () => {
     setPosts(updated);
     if (!useApi) saveLocalPosts(updated);
   };
-    );
-  };
 
   // Delete comment
   const handleDeleteComment = async (postId: number, commentId: number) => {
