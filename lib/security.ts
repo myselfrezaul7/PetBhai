@@ -246,11 +246,26 @@ export const throttle = <T extends (...args: Parameters<T>) => ReturnType<T>>(
  */
 export const validateContentLength = (
   content: string,
-  minLength: number = 1,
   maxLength: number = 5000,
-  fieldName: string = 'Content'
+  minLength: number = 1
+): boolean => {
+  const trimmed = typeof content === 'string' ? content.trim() : '';
+  return trimmed.length >= minLength && trimmed.length <= maxLength;
+};
+
+/**
+ * Content validator with detailed error messages
+ */
+export const validateContent = (
+  content: string,
+  options: {
+    minLength?: number;
+    maxLength?: number;
+    fieldName?: string;
+  } = {}
 ): { valid: boolean; error?: string } => {
-  const trimmed = content.trim();
+  const { minLength = 1, maxLength = 5000, fieldName = 'Content' } = options;
+  const trimmed = typeof content === 'string' ? content.trim() : '';
 
   if (trimmed.length < minLength) {
     if (minLength === 1) {
