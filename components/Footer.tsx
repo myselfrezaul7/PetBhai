@@ -193,55 +193,9 @@ const Footer: React.FC = () => {
             <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
               We Accept
             </h3>
-            <div
-              className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-6"
-              role="list"
-              aria-label="Accepted payment methods"
-            >
-              <div
-                className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-200 dark:border-slate-700"
-                role="listitem"
-              >
-                <img
-                  src="https://i.ibb.co/27wH07C/bkash.png"
-                  alt="bKash mobile payment"
-                  className="h-6"
-                  title="bKash"
-                  loading="lazy"
-                />
-              </div>
-              <div
-                className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-200 dark:border-slate-700"
-                role="listitem"
-              >
-                <img
-                  src="https://i.ibb.co/qjqBcf5/nagad.png"
-                  alt="Nagad mobile payment"
-                  className="h-6"
-                  title="Nagad"
-                  loading="lazy"
-                />
-              </div>
-              <div
-                className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-200 dark:border-slate-700"
-                role="listitem"
-              >
-                <img
-                  src="https://i.ibb.co/6wLmMYy/rocket.png"
-                  alt="Rocket mobile payment"
-                  className="h-6"
-                  title="Rocket"
-                  loading="lazy"
-                />
-              </div>
-              <div
-                className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-                role="listitem"
-                aria-label="Cash on Delivery"
-              >
-                <span aria-hidden="true">💵</span> COD
-              </div>
-            </div>
+            <p className="text-sm sm:text-base font-bold text-slate-800 dark:text-white mb-6">
+              bKash, Nagad, COD
+            </p>
             <nav aria-label="Legal links">
               <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
                 Legal
