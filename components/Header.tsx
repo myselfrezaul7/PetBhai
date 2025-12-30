@@ -6,6 +6,9 @@ import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import SearchResults, { type SearchResultsData } from './SearchResults';
 import { useProducts } from '../contexts/ProductContext';
+import { useArticles } from '../contexts/ArticleContext';
+import { useVets } from '../contexts/VetContext';
+import { useAnimals } from '../contexts/AnimalContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { sanitizeInput } from '../lib/security';
 
@@ -47,6 +50,9 @@ const ALL_PAGES: PageResult[] = [
 const Header: React.FC = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
   const { products } = useProducts();
+  const { articles } = useArticles();
+  const { vets } = useVets();
+  const { animals } = useAnimals();
   const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,10 +69,18 @@ const Header: React.FC = () => {
   const [searchResults, setSearchResults] = useState<SearchResultsData>({
     products: [],
     pages: [],
+    articles: [],
+    vets: [],
+    animals: [],
   });
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchAnnouncement, setSearchAnnouncement] = useState('');
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    const saved = localStorage.getItem('petbhai_recent_searches');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const activeLinkClass = 'text-orange-500 dark:text-orange-400 font-bold';
   const inactiveLinkClass =
@@ -95,17 +109,29 @@ const Header: React.FC = () => {
     };
   }, [profileMenuRef, searchRef]);
 
+  const addToRecentSearches = useCallback((query: string) => {
+    if (!query.trim() || query.length < 2) return;
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((s) => s.toLowerCase() !== query.toLowerCase());
+      const updated = [query, ...filtered].slice(0, 5);
+      localStorage.setItem('petbhai_recent_searches', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   // Debounced search effect
   useEffect(() => {
     if (searchQuery.trim().length < 2) {
-      setSearchResults({ products: [], pages: [] });
+      setSearchResults({ products: [], pages: [], articles: [], vets: [], animals: [] });
       setIsSearching(false);
       setSearchAnnouncement('');
+      setActiveIndex(-1);
       return;
     }
 
     setIsSearching(true);
-    setSearchAnnouncement('Searching...');
+    setSearchAnnouncement(t('search_searching'));
+    setActiveIndex(-1);
 
     const handler = setTimeout(() => {
       const lowerCaseQuery = searchQuery.toLowerCase();
@@ -126,17 +152,49 @@ const Header: React.FC = () => {
           page.keywords.some((k) => k.toLowerCase().includes(lowerCaseQuery))
       ).slice(0, 3);
 
-      const totalResults = filteredProducts.length + filteredPages.length;
+      const filteredVets = vets
+        .filter(
+          (vet) =>
+            vet.name.toLowerCase().includes(lowerCaseQuery) ||
+            vet.specialization.toLowerCase().includes(lowerCaseQuery)
+        )
+        .slice(0, 3);
+
+      const filteredArticles = articles
+        .filter(
+          (article) =>
+            article.title.toLowerCase().includes(lowerCaseQuery) ||
+            article.content.toLowerCase().includes(lowerCaseQuery)
+        )
+        .slice(0, 3);
+
+      const filteredAnimals = animals
+        .filter(
+          (animal) =>
+            animal.name.toLowerCase().includes(lowerCaseQuery) ||
+            animal.breed.toLowerCase().includes(lowerCaseQuery)
+        )
+        .slice(0, 3);
+
+      const totalResults =
+        filteredProducts.length +
+        filteredPages.length +
+        filteredVets.length +
+        filteredArticles.length +
+        filteredAnimals.length;
 
       setSearchResults({
         products: filteredProducts,
         pages: filteredPages,
+        vets: filteredVets,
+        articles: filteredArticles,
+        animals: filteredAnimals,
       });
 
       if (totalResults > 0) {
-        setSearchAnnouncement(`${totalResults} results found.`);
+        setSearchAnnouncement(`${totalResults} ${t('search_results_found')}`);
       } else {
-        setSearchAnnouncement(`No results found for "${searchQuery}"`);
+        setSearchAnnouncement(`${t('search_no_results')} "${searchQuery}"`);
       }
 
       setIsSearching(false);
@@ -145,18 +203,49 @@ const Header: React.FC = () => {
     return () => {
       clearTimeout(handler);
     };
-  }, [searchQuery, products]);
+  }, [searchQuery, products, articles, vets, animals]);
 
-  // Keep the aria-expanded attribute on inputs in sync for assistive tech
-  useEffect(() => {
-    const expanded = Boolean(isSearchActive && searchQuery);
-    if (desktopInputRef.current) {
-      desktopInputRef.current.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isSearchActive) return;
+
+    const totalResults =
+      searchResults.pages.length +
+      searchResults.products.length +
+      searchResults.vets.length +
+      searchResults.animals.length +
+      searchResults.articles.length;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev < totalResults - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0) {
+        e.preventDefault();
+        const allResults = [
+          ...searchResults.pages.map((p) => ({ path: p.path })),
+          ...searchResults.products.map((p) => ({ path: `/product/${p.id}` })),
+          ...searchResults.vets.map((v) => ({ path: `/vet/${v.id}` })),
+          ...searchResults.animals.map((a) => ({ path: `/adopt/${a.id}` })),
+          ...searchResults.articles.map((a) => ({ path: `/blog/${a.id}` })),
+        ];
+        const selected = allResults[activeIndex];
+        if (selected) {
+          addToRecentSearches(searchQuery);
+          navigate(selected.path);
+          closeSearchResults();
+        }
+      } else if (searchQuery.trim()) {
+        addToRecentSearches(searchQuery);
+        navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
+        closeSearchResults();
+      }
+    } else if (e.key === 'Escape') {
+      closeSearchResults();
     }
-    if (mobileInputRef.current) {
-      mobileInputRef.current.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-    }
-  }, [isSearchActive, searchQuery]);
+  };
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -183,6 +272,7 @@ const Header: React.FC = () => {
   const closeSearchResults = useCallback(() => {
     setIsSearchActive(false);
     setSearchQuery('');
+    setActiveIndex(-1);
   }, []);
 
   const handleOpenMobileSearch = useCallback(() => {
@@ -195,6 +285,7 @@ const Header: React.FC = () => {
     setIsSearchOpen(false);
     setIsSearchActive(false);
     setSearchQuery('');
+    setActiveIndex(-1);
   }, []);
 
   const handleLogoClick = useCallback(
@@ -295,6 +386,7 @@ const Header: React.FC = () => {
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
+                onKeyDown={handleKeyDown}
                 className="w-48 focus:w-64 transition-all duration-300 ease-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
                 aria-label="Search"
                 autoComplete="off"
@@ -302,18 +394,48 @@ const Header: React.FC = () => {
                 aria-haspopup="listbox"
                 aria-autocomplete="list"
                 aria-controls="search-results-desktop"
-                aria-expanded="false"
+                aria-expanded={isSearchActive && searchQuery.length >= 2 ? 'true' : 'false'}
               />
 
-              {isSearchActive && searchQuery && (
+              {isSearchActive && (
                 <div className="animate-fade-in origin-top">
-                  <SearchResults
-                    id="search-results-desktop"
-                    query={searchQuery}
-                    results={searchResults}
-                    loading={isSearching}
-                    onClose={closeSearchResults}
-                  />
+                  {searchQuery.length >= 2 ? (
+                    <SearchResults
+                      id="search-results-desktop"
+                      query={searchQuery}
+                      results={searchResults}
+                      loading={isSearching}
+                      onClose={closeSearchResults}
+                      activeIndex={activeIndex}
+                    />
+                  ) : (
+                    recentSearches.length > 0 && (
+                      <div className="absolute top-full mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 py-3 border border-slate-200 dark:border-slate-700 animate-scale-in">
+                        <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-4">
+                          {t('search_recent')}
+                        </h3>
+                        {recentSearches.map((s, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setSearchQuery(s)}
+                            className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2"
+                          >
+                            <SearchIcon className="w-3 h-3 opacity-50" />
+                            <span>{s}</span>
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => {
+                            setRecentSearches([]);
+                            localStorage.removeItem('petbhai_recent_searches');
+                          }}
+                          className="w-full text-center mt-2 pt-2 border-t border-slate-100 dark:border-slate-700 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"
+                        >
+                          {t('search_clear_history')}
+                        </button>
+                      </div>
+                    )
+                  )}
                 </div>
               )}
             </div>
@@ -334,7 +456,7 @@ const Header: React.FC = () => {
                   onClick={handleProfileMenuToggle}
                   className="relative flex items-center space-x-2 focus:outline-none group touch-manipulation"
                   aria-label="User menu"
-                  aria-expanded={isProfileMenuOpen}
+                  aria-expanded={isProfileMenuOpen ? 'true' : 'false'}
                   aria-haspopup="true"
                 >
                   <div className="ring-2 ring-transparent group-hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
@@ -416,6 +538,7 @@ const Header: React.FC = () => {
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onFocus={handleSearchFocus}
+                    onKeyDown={handleKeyDown}
                     className="w-full py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
                     aria-label="Search"
                     autoFocus
@@ -424,18 +547,39 @@ const Header: React.FC = () => {
                     aria-haspopup="listbox"
                     aria-autocomplete="list"
                     aria-controls="search-results-mobile"
-                    aria-expanded="false"
+                    aria-expanded={isSearchActive && searchQuery.length >= 2 ? 'true' : 'false'}
                   />
 
-                  {isSearchActive && searchQuery && (
+                  {isSearchActive && (
                     <div className="animate-fade-in origin-top">
-                      <SearchResults
-                        id="search-results-mobile"
-                        query={searchQuery}
-                        results={searchResults}
-                        loading={isSearching}
-                        onClose={closeSearchResults}
-                      />
+                      {searchQuery.length >= 2 ? (
+                        <SearchResults
+                          id="search-results-mobile"
+                          query={searchQuery}
+                          results={searchResults}
+                          loading={isSearching}
+                          onClose={closeSearchResults}
+                          activeIndex={activeIndex}
+                        />
+                      ) : (
+                        recentSearches.length > 0 && (
+                          <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 py-3 border border-slate-200 dark:border-slate-700 animate-scale-in">
+                            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-4">
+                              Recent Searches
+                            </h3>
+                            {recentSearches.map((s, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setSearchQuery(s)}
+                                className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2"
+                              >
+                                <SearchIcon className="w-3 h-3 opacity-50" />
+                                <span>{s}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )
+                      )}
                     </div>
                   )}
                 </div>

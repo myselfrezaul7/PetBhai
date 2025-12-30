@@ -22,7 +22,28 @@ const translations: Translations = {
   nav_signup: { en: 'Sign Up', bn: 'সাইন আপ' },
   nav_logout: { en: 'Logout', bn: 'লগআউট' },
   nav_profile: { en: 'My Profile', bn: 'আমার প্রোফাইল' },
-  search_placeholder: { en: 'Search products...', bn: 'পছন্দের পণ্য খুঁজুন...' },
+  search_placeholder: {
+    en: 'Search for products, vets, blogs...',
+    bn: 'পণ্য, ভেট বা ব্লগ খুঁজুন...',
+  },
+  search_results_found: { en: 'results found.', bn: 'টি ফলাফল পাওয়া গেছে।' },
+  search_no_results: { en: 'No results found for', bn: 'কোনো ফলাফল পাওয়া যায়নি' },
+  search_recent: { en: 'Recent Searches', bn: 'সাম্প্রতিক সার্চ' },
+  search_clear_history: { en: 'Clear History', bn: 'ইতিহাস মুছুন' },
+  search_quick_links: { en: 'Quick Links', bn: 'দ্রুত লিংক' },
+  search_products: { en: 'Products', bn: 'পণ্যসমূহ' },
+  search_vets: { en: 'Veterinarians', bn: 'পশুচিকিৎসক' },
+  search_adoption: { en: 'Adoption', bn: 'দত্তক' },
+  search_blog: { en: 'Blog & Tips', bn: 'ব্লগ ও টিপস' },
+  search_view_all: { en: 'View all results', bn: 'সব ফলাফল দেখুন' },
+  search_clear: { en: 'Clear search', bn: 'সার্চ মুছুন' },
+  search_searching: { en: 'Searching...', bn: 'সার্চ হচ্ছে...' },
+  search_navigation_tip: {
+    en: 'Use ↑↓ to navigate, Enter to select',
+    bn: '↑↓ দিয়ে নেভিগেট করুন, Enter দিয়ে সিলেক্ট করুন',
+  },
+  search_in_cart: { en: 'In Cart', bn: 'কার্টে আছে' },
+  search_by: { en: 'By', bn: 'লিখেছেন' },
 
   // Home Page
   hero_title: {
