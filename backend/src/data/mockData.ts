@@ -460,7 +460,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/pet-flea-tick/600/400',
     author: 'ডঃ কবির হোসেন',
     date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 18,
+    readTime: 4,
   },
   {
     id: 12,
@@ -485,7 +485,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/rainy-day-dog/600/400',
     author: 'পেটভাই টিম',
     date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 17,
+    readTime: 4,
   },
   {
     id: 13,
@@ -510,7 +510,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/senior-golden-retriever/600/400',
     author: 'ডঃ ফাতিমা আহমেদ',
     date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 19,
+    readTime: 5,
   },
   {
     id: 14,
@@ -533,7 +533,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/bangladesh-street-dog/600/400',
     author: 'আয়েশা রহমান',
     date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 18,
+    readTime: 4,
   },
   {
     id: 10,
@@ -559,7 +559,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/parvovirus-dog/600/400',
     author: 'ডঃ ফাতিমা আহমেদ',
     date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 20,
+    readTime: 5,
   },
   {
     id: 9,
@@ -587,7 +587,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/puppy-potty-training/600/400',
     author: 'ডঃ নাজিয়া ইসলাম',
     date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 18,
+    readTime: 4,
   },
   {
     id: 4,
@@ -613,7 +613,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/cat-care-bd/600/400',
     author: 'ডঃ নাজিয়া ইসলাম',
     date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 19,
+    readTime: 5,
   },
   {
     id: 5,
@@ -642,7 +642,7 @@ export const MOCK_ARTICLES: Article[] = [
     imageUrl: 'https://picsum.photos/seed/dog-vaccination/600/400',
     author: 'ডঃ কবির হোসেন',
     date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 18,
+    readTime: 4,
   },
   {
     id: 6,
@@ -666,7 +666,7 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     imageUrl: 'https://picsum.photos/seed/sick-cat-vet/600/400',
     author: 'পেটভাই টিম',
     date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 19,
+    readTime: 5,
   },
   {
     id: 7,
@@ -692,7 +692,7 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     imageUrl: 'https://picsum.photos/seed/rabies-vaccine-dog/600/400',
     author: 'ডঃ ফাতিমা আহমেদ',
     date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 17,
+    readTime: 4,
   },
   {
     id: 8,
@@ -714,7 +714,7 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     imageUrl: 'https://picsum.photos/seed/vet-surgery-pet/600/400',
     author: 'পেটভাই টিম',
     date: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 19,
+    readTime: 5,
   },
   {
     id: 1,
@@ -742,7 +742,7 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     imageUrl: 'https://picsum.photos/seed/pet-food-bowls/600/400',
     author: 'ডঃ নাজিয়া ইসলাম',
     date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 20,
+    readTime: 6,
   },
   {
     id: 2,
@@ -768,7 +768,7 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     imageUrl: 'https://picsum.photos/seed/dog-grooming-brush/600/400',
     author: 'আয়েশা রহমান',
     date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 17,
+    readTime: 4,
   },
   {
     id: 3,
@@ -792,7 +792,7 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     imageUrl: 'https://picsum.photos/seed/dog-puzzle-toy/600/400',
     author: 'পেটভাই টিম',
     date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-    readTime: 18,
+    readTime: 4,
   },
 ];
 
