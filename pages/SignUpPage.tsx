@@ -200,7 +200,7 @@ const SignUpPage: React.FC = () => {
                   : 'border-slate-300 dark:border-slate-600'
               }`}
               aria-required="true"
-              aria-invalid={!!fieldErrors.name}
+              aria-invalid={fieldErrors.name ? 'true' : 'false'}
               aria-describedby={fieldErrors.name ? 'name-error' : error ? 'auth-error' : undefined}
             />
             {fieldErrors.name && (
@@ -232,7 +232,7 @@ const SignUpPage: React.FC = () => {
                   : 'border-slate-300 dark:border-slate-600'
               }`}
               aria-required="true"
-              aria-invalid={!!fieldErrors.email}
+              aria-invalid={fieldErrors.email ? 'true' : 'false'}
               aria-describedby={
                 fieldErrors.email ? 'email-error' : error ? 'auth-error' : undefined
               }
@@ -266,7 +266,7 @@ const SignUpPage: React.FC = () => {
                     : 'border-slate-300 dark:border-slate-600'
                 }`}
                 aria-required="true"
-                aria-invalid={!!fieldErrors.password}
+                aria-invalid={fieldErrors.password ? 'true' : 'false'}
                 aria-describedby={
                   fieldErrors.password ? 'password-error' : error ? 'auth-error' : undefined
                 }

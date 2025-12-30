@@ -23,7 +23,7 @@ const FilterButton = memo<{
         ? 'bg-orange-500 text-white shadow-md'
         : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
     }`}
-    aria-pressed={isActive}
+    aria-pressed={isActive ? 'true' : 'false'}
     aria-label={ariaLabel || `Filter by ${label}`}
   >
     {label}

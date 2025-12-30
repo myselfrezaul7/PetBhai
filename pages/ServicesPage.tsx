@@ -21,8 +21,9 @@ const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => vo
           ? 'border-orange-500 text-orange-600 dark:text-orange-400'
           : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
       }`}
-      aria-selected={isActive}
+      aria-selected={isActive ? 'true' : 'false'}
       role="tab"
+      tabIndex={isActive ? 0 : -1}
       aria-controls={`${label.toLowerCase()}-panel`}
     >
       {label}
