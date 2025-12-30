@@ -142,18 +142,6 @@ const Footer: React.FC = () => {
               Connect
             </h3>
             <div className="flex flex-col items-center md:items-start space-y-3">
-              {/* WhatsApp - Primary Contact for Bangladesh */}
-              <a
-                href="https://wa.me/8801712345678?text=Hi%20PetBhai!"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors font-semibold touch-manipulation active:scale-95"
-                aria-label="Contact us on WhatsApp"
-              >
-                <WhatsAppIcon className="w-5 h-5" aria-hidden="true" />
-                <span>WhatsApp Us</span>
-              </a>
-
               <a
                 href="mailto:petbhaibd@gmail.com"
                 className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation active:scale-95"
