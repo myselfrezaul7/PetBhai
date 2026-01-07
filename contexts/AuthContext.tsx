@@ -1,10 +1,15 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import type { User, Order } from '../types';
-import { MOCK_USERS } from '../constants';
 import { sanitizeInput, validateId } from '../lib/security';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
-const USERS_STORAGE_KEY = 'petbhai_users';
+const TOKEN_STORAGE_KEY = 'petbhai_token';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface AuthResponse {
+  user: User;
+  token: string;
+}
 
 // Validation helpers
 const validateEmail = (email: string): boolean => {
@@ -18,40 +23,6 @@ const validatePassword = (password: string): boolean => {
 
 const validateName = (name: string): boolean => {
   return name.trim().length >= 2 && name.trim().length <= 100;
-};
-
-// Helper to get all users (persisted + mock)
-const getAllUsers = (): User[] => {
-  try {
-    const storedUsers = window.localStorage.getItem(USERS_STORAGE_KEY);
-    if (storedUsers) {
-      const parsed = JSON.parse(storedUsers);
-      // Validate that parsed data is an array of user-like objects
-      if (
-        Array.isArray(parsed) &&
-        parsed.every(
-          (u) =>
-            u && typeof u === 'object' && typeof u.id === 'number' && typeof u.email === 'string'
-        )
-      ) {
-        return parsed;
-      }
-      // Clear invalid data
-      console.warn('Invalid user data in localStorage, resetting to mock users');
-      window.localStorage.removeItem(USERS_STORAGE_KEY);
-    }
-    // Initialize with mock users if empty or invalid
-    window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(MOCK_USERS));
-    return MOCK_USERS;
-  } catch (error) {
-    console.error('Error reading users from localStorage', error);
-    try {
-      window.localStorage.removeItem(USERS_STORAGE_KEY);
-    } catch {
-      // localStorage might be disabled
-    }
-    return MOCK_USERS;
-  }
 };
 
 const getInitialCurrentUser = (): User | null => {
@@ -110,20 +81,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(getInitialCurrentUser);
 
-  // Sync currentUser changes to localStorage and update the user in the main users list
   useEffect(() => {
     try {
       if (currentUser) {
         window.localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
-
-        // Also update this user in the main users list
-        const allUsers = getAllUsers();
-        const updatedUsers = allUsers.map((u) => (u.id === currentUser.id ? currentUser : u));
-        // If user not found (e.g. social login), add them
-        if (!updatedUsers.find((u) => u.id === currentUser.id)) {
-          updatedUsers.push(currentUser);
-        }
-        window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
       } else {
         window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
       }
@@ -133,7 +94,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser]);
 
   const login = useCallback(async (email: string, password: string): Promise<User> => {
-    // Validate inputs
     const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
 
     if (!validateEmail(sanitizedEmail)) {
@@ -144,69 +104,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Password is required');
     }
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: sanitizedEmail, password }),
+      });
 
-    const users = getAllUsers();
-    const user = users.find(
-      (u) => u.email.toLowerCase() === sanitizedEmail && u.password === password
-    );
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Login failed');
+      }
 
-    if (user) {
-      // Don't expose password in session
-      const safeUser = { ...user };
-      setCurrentUser(safeUser);
-      return safeUser;
-    } else {
-      throw new Error('Invalid email or password');
+      const data: AuthResponse = await response.json();
+
+      // Save token
+      window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      setCurrentUser(data.user);
+
+      return data.user;
+    } catch (error: any) {
+      console.error('Login error:', error);
+      throw new Error(error.message || 'Failed to login');
     }
   }, []);
 
   const logout = useCallback(() => {
     setCurrentUser(null);
+    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
   }, []);
 
   const signup = useCallback(
     async (name: string, email: string, password: string): Promise<User> => {
-      // Validate and sanitize inputs
       const sanitizedName = sanitizeInput(name.trim());
       const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
 
-      if (!validateName(sanitizedName)) {
-        throw new Error('Name must be 2-100 characters');
+      if (!validateName(sanitizedName)) throw new Error('Name must be 2-100 characters');
+      if (!validateEmail(sanitizedEmail)) throw new Error('Invalid email format');
+      if (!validatePassword(password)) throw new Error('Password must be 6-128 characters');
+
+      try {
+        const response = await fetch(`${API_URL}/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: sanitizedName, email: sanitizedEmail, password }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Signup failed');
+        }
+
+        const data: AuthResponse = await response.json();
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        setCurrentUser(data.user);
+
+        return data.user;
+      } catch (error: any) {
+        console.error('Signup error:', error);
+        throw new Error(error.message || 'Failed to signup');
       }
-
-      if (!validateEmail(sanitizedEmail)) {
-        throw new Error('Invalid email format');
-      }
-
-      if (!validatePassword(password)) {
-        throw new Error('Password must be 6-128 characters');
-      }
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const users = getAllUsers();
-      if (users.some((u) => u.email.toLowerCase() === sanitizedEmail)) {
-        throw new Error('User with this email already exists');
-      }
-
-      const newUser: User = {
-        id: Date.now(), // Simple ID generation
-        name: sanitizedName,
-        email: sanitizedEmail,
-        password,
-        wishlist: [],
-        orderHistory: [],
-        favorites: [],
-        isPlusMember: false,
-      };
-
-      const updatedUsers = [...users, newUser];
-      window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-      setCurrentUser(newUser);
-      return newUser;
     },
     []
   );
@@ -218,28 +178,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: string;
       photoUrl?: string;
     }): Promise<User> => {
-      // Validate and sanitize social login data
-      const sanitizedFirstName = sanitizeInput(socialUser.firstName?.trim() || '');
-      const sanitizedLastName = sanitizeInput(socialUser.lastName?.trim() || '');
-      const sanitizedEmail = sanitizeInput(socialUser.email?.trim().toLowerCase() || '');
-
-      if (!validateEmail(sanitizedEmail)) {
-        throw new Error('Invalid email from social provider');
-      }
-
-      // Check if user already exists
-      const users = getAllUsers();
-      const existingUser = users.find((u) => u.email.toLowerCase() === sanitizedEmail);
-
-      if (existingUser) {
-        setCurrentUser(existingUser);
-        return existingUser;
-      }
+      // For now, allow social login to just set the user in state for the session
+      // In a real app, this should exchange the social token for a callback to backend
+      console.warn('Social login backend integration pending');
 
       const newUser: User = {
         id: Date.now(),
-        name: `${sanitizedFirstName} ${sanitizedLastName}`.trim() || 'User',
-        email: sanitizedEmail,
+        name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
+        email: socialUser.email,
         profilePictureUrl: socialUser.photoUrl,
         wishlist: [],
         orderHistory: [],
@@ -248,7 +194,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setCurrentUser(newUser);
-      // The useEffect will handle saving to USERS_STORAGE_KEY
       return newUser;
     },
     []
@@ -258,65 +203,88 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async (updatedData: { name?: string; profilePictureUrl?: string }): Promise<User> => {
       if (!currentUser) throw new Error('No user logged in');
 
-      const sanitizedData: Partial<User> = {};
+      try {
+        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+        // Note: Backend might require token in header
+        const response = await fetch(`${API_URL}/auth/${currentUser.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+          body: JSON.stringify(updatedData),
+        });
 
-      if (updatedData.name !== undefined) {
-        const sanitizedName = sanitizeInput(updatedData.name.trim());
-        if (!validateName(sanitizedName)) {
-          throw new Error('Name must be 2-100 characters');
+        if (!response.ok) {
+          throw new Error('Failed to update profile');
         }
-        sanitizedData.name = sanitizedName;
-      }
 
-      if (updatedData.profilePictureUrl !== undefined) {
-        // Basic URL validation
-        if (updatedData.profilePictureUrl && !updatedData.profilePictureUrl.startsWith('http')) {
-          throw new Error('Invalid profile picture URL');
-        }
-        sanitizedData.profilePictureUrl = updatedData.profilePictureUrl;
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+        return updatedUser;
+      } catch (error) {
+        console.error('Update profile error:', error);
+        throw error;
       }
-
-      const updatedUser = { ...currentUser, ...sanitizedData };
-      setCurrentUser(updatedUser);
-      return updatedUser;
     },
     [currentUser]
   );
 
   const addToWishlist = useCallback(
-    (productId: number) => {
+    async (productId: number) => {
       if (!currentUser) return;
-      if (!validateId(productId)) return;
-      if (currentUser.wishlist.includes(productId)) return;
 
-      // Limit wishlist size to prevent abuse
-      if (currentUser.wishlist.length >= 100) return;
+      // Optimistic update
+      const oldUser = { ...currentUser };
+      if (!oldUser.wishlist.includes(productId)) {
+        setCurrentUser({ ...oldUser, wishlist: [...oldUser.wishlist, productId] });
 
-      const updatedUser = {
-        ...currentUser,
-        wishlist: [...currentUser.wishlist, productId],
-      };
-      setCurrentUser(updatedUser);
+        try {
+          const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+          await fetch(`${API_URL}/auth/${currentUser.id}/wishlist`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token ? `Bearer ${token}` : '',
+            },
+            body: JSON.stringify({ productId }),
+          });
+        } catch (err) {
+          console.error('Failed to sync wishlist', err);
+          setCurrentUser(oldUser);
+        }
+      }
     },
     [currentUser]
   );
 
   const removeFromWishlist = useCallback(
-    (productId: number) => {
+    async (productId: number) => {
       if (!currentUser) return;
-      if (!validateId(productId)) return;
 
-      const updatedUser = {
-        ...currentUser,
-        wishlist: currentUser.wishlist.filter((id) => id !== productId),
-      };
-      setCurrentUser(updatedUser);
+      const oldUser = { ...currentUser };
+      if (oldUser.wishlist.includes(productId)) {
+        setCurrentUser({ ...oldUser, wishlist: oldUser.wishlist.filter((id) => id !== productId) });
+
+        try {
+          const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+          await fetch(`${API_URL}/auth/${currentUser.id}/wishlist/${productId}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: token ? `Bearer ${token}` : '',
+            },
+          });
+        } catch (err) {
+          console.error('Failed to sync wishlist removal', err);
+          setCurrentUser(oldUser);
+        }
+      }
     },
     [currentUser]
   );
 
   const favoritePet = useCallback(
-    (animalId: number) => {
+    async (animalId: number) => {
       if (!currentUser) return;
       if (!validateId(animalId)) return;
       if (currentUser.favorites.includes(animalId)) return;
@@ -324,36 +292,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Limit favorites size to prevent abuse
       if (currentUser.favorites.length >= 100) return;
 
+      const oldUser = { ...currentUser };
       const updatedUser = {
         ...currentUser,
         favorites: [...currentUser.favorites, animalId],
       };
       setCurrentUser(updatedUser);
+
+      try {
+        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+        await fetch(`${API_URL}/auth/${currentUser.id}/favorites`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+          body: JSON.stringify({ animalId }),
+        });
+      } catch (err) {
+        console.error('Failed to sync favorite', err);
+        setCurrentUser(oldUser);
+      }
     },
     [currentUser]
   );
 
   const unfavoritePet = useCallback(
-    (animalId: number) => {
+    async (animalId: number) => {
       if (!currentUser) return;
       if (!validateId(animalId)) return;
 
+      const oldUser = { ...currentUser };
       const updatedUser = {
         ...currentUser,
         favorites: currentUser.favorites.filter((id) => id !== animalId),
       };
       setCurrentUser(updatedUser);
+
+      try {
+        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+        await fetch(`${API_URL}/auth/${currentUser.id}/favorites/${animalId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        });
+      } catch (err) {
+        console.error('Failed to sync unfavorite', err);
+        setCurrentUser(oldUser);
+      }
     },
     [currentUser]
   );
 
-  const subscribeToPlus = useCallback(() => {
+  const subscribeToPlus = useCallback(async () => {
     if (!currentUser) return;
+
+    const oldUser = { ...currentUser };
     const updatedUser = {
       ...currentUser,
       isPlusMember: true,
     };
     setCurrentUser(updatedUser);
+
+    try {
+      const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+      await fetch(`${API_URL}/auth/${currentUser.id}/subscribe`, {
+        method: 'POST',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      });
+    } catch (err) {
+      console.error('Failed to sync subscription', err);
+      setCurrentUser(oldUser);
+    }
   }, [currentUser]);
 
   const addOrderToHistory = useCallback(

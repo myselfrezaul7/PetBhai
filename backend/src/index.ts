@@ -26,15 +26,38 @@ console.log('Backend API initializing...');
 // Security middleware - should be first
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Disable CSP for now to allow images/scripts from various sources
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'"],
+      },
+    },
     crossOriginEmbedderPolicy: false,
   })
 );
 
 // CORS configuration
+const allowedOrigins = ['http://localhost:3000', 'https://myselfrezaul7.github.io'];
+
+if (process.env.CORS_ORIGIN) {
+  allowedOrigins.push(...process.env.CORS_ORIGIN.split(','));
+}
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
