@@ -362,9 +362,8 @@ const Header: React.FC = () => {
             <ul className="flex items-center space-x-8 text-[15px]">
               <DesktopNavLink to="/">{t('nav_home')}</DesktopNavLink>
               <DesktopNavLink to="/shop">{t('nav_shop')}</DesktopNavLink>
-              <DesktopNavLink to="/ai-tools">AI Tools</DesktopNavLink>
               <DesktopNavLink to="/community">{t('nav_community')}</DesktopNavLink>
-              <DesktopNavLink to="/impact">Impact</DesktopNavLink>
+              <DesktopNavLink to="/adopt">Adopt</DesktopNavLink>
               <DesktopNavLink to="/services">{t('nav_services')}</DesktopNavLink>
               <DesktopNavLink to="/blog">{t('nav_blog')}</DesktopNavLink>
               <DesktopNavLink
@@ -660,9 +659,8 @@ const Header: React.FC = () => {
           <nav className="flex flex-col space-y-6 w-full px-8 sm:px-10">
             <MobileNavLink to="/">{t('nav_home')}</MobileNavLink>
             <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
-            <MobileNavLink to="/ai-tools">AI Tools</MobileNavLink>
             <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
-            <MobileNavLink to="/impact">Impact Dashboard</MobileNavLink>
+            <MobileNavLink to="/adopt">Adopt</MobileNavLink>
             <MobileNavLink to="/services">{t('nav_services')}</MobileNavLink>
             <MobileNavLink to="/blog">{t('nav_blog')}</MobileNavLink>
             <MobileNavLink

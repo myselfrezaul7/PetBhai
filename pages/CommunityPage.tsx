@@ -45,7 +45,8 @@ const CommunityPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [useApi, setUseApi] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<'feed' | 'popular'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'popular' | 'trending'>('feed');
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const toast = useToast();
   const { confirm } = useConfirmation();
 
@@ -475,15 +476,121 @@ const CommunityPage: React.FC = () => {
   };
 
   // Handle tab change
-  const handleTabChange = useCallback((tab: 'feed' | 'popular') => {
+  const handleTabChange = useCallback((tab: 'feed' | 'popular' | 'trending') => {
     setActiveTab(tab);
   }, []);
 
   // Sort posts based on active tab - memoized
-  const displayedPosts = useMemo(
-    () =>
-      activeTab === 'popular' ? [...posts].sort((a, b) => b.likes.length - a.likes.length) : posts,
-    [activeTab, posts]
+  const displayedPosts = useMemo(() => {
+    if (activeTab === 'popular') {
+      return [...posts].sort((a, b) => b.likes.length - a.likes.length);
+    }
+    if (activeTab === 'trending') {
+      // Trending: Recent posts with most engagement in last 7 days
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      return [...posts]
+        .filter((p) => new Date(p.timestamp) >= sevenDaysAgo)
+        .sort((a, b) => {
+          const engagementA = a.likes.length + a.comments.length;
+          const engagementB = b.likes.length + b.comments.length;
+          return engagementB - engagementA;
+        });
+    }
+    return posts;
+  }, [activeTab, posts]);
+
+  // Trending topics based on post content
+  const trendingTopics = useMemo(() => {
+    const topicCounts: Record<string, number> = {};
+    const topics = [
+      'Training',
+      'Health',
+      'Adoption',
+      'Food',
+      'Grooming',
+      'Behavior',
+      'Rescue',
+      'Vaccination',
+    ];
+
+    posts.forEach((post) => {
+      const content = (post.content || '').toLowerCase();
+      topics.forEach((topic) => {
+        if (content.includes(topic.toLowerCase())) {
+          topicCounts[topic] = (topicCounts[topic] || 0) + 1;
+        }
+      });
+    });
+
+    return Object.entries(topicCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([topic, count]) => ({ topic, count }));
+  }, [posts]);
+
+  // Community leaderboard - most active users
+  const leaderboard = useMemo(() => {
+    const userStats: Record<
+      string,
+      { name: string; posts: number; comments: number; likes: number; profilePictureUrl?: string }
+    > = {};
+
+    posts.forEach((post) => {
+      const authorId = post.author.id.toString();
+      if (!userStats[authorId]) {
+        userStats[authorId] = {
+          name: post.author.name,
+          posts: 0,
+          comments: 0,
+          likes: 0,
+          profilePictureUrl: post.author.profilePictureUrl,
+        };
+      }
+      userStats[authorId].posts++;
+      userStats[authorId].likes += post.likes.length;
+
+      post.comments.forEach((comment) => {
+        const commenterId = comment.author.id.toString();
+        if (!userStats[commenterId]) {
+          userStats[commenterId] = {
+            name: comment.author.name,
+            posts: 0,
+            comments: 0,
+            likes: 0,
+            profilePictureUrl: comment.author.profilePictureUrl,
+          };
+        }
+        userStats[commenterId].comments++;
+      });
+    });
+
+    return Object.entries(userStats)
+      .map(([id, stats]) => ({
+        id,
+        ...stats,
+        score: stats.posts * 10 + stats.comments * 3 + stats.likes,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+  }, [posts]);
+
+  // User badge system
+  const getUserBadge = useCallback(
+    (userId: number) => {
+      const userPosts = posts.filter((p) => p.author.id === userId);
+      const postCount = userPosts.length;
+      const totalLikes = userPosts.reduce((sum, p) => sum + p.likes.length, 0);
+
+      if (postCount >= 20 || totalLikes >= 100)
+        return { emoji: '🏆', name: 'Legend', color: 'text-yellow-500' };
+      if (postCount >= 10 || totalLikes >= 50)
+        return { emoji: '⭐', name: 'Star', color: 'text-purple-500' };
+      if (postCount >= 5 || totalLikes >= 20)
+        return { emoji: '🌟', name: 'Active', color: 'text-blue-500' };
+      if (postCount >= 1) return { emoji: '🐾', name: 'Newcomer', color: 'text-green-500' };
+      return null;
+    },
+    [posts]
   );
 
   // Calculate community stats - memoized
@@ -546,6 +653,138 @@ const CommunityPage: React.FC = () => {
             </p>
           </div>
         </section>
+
+        {/* Trending Topics & Leaderboard Toggle */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:mb-8">
+          {/* Trending Topics */}
+          {trendingTopics.length > 0 && (
+            <div className="glass-card p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/30">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                <span className="text-lg">🔥</span>
+                Trending Topics
+              </h3>
+              <div className="space-y-2">
+                {trendingTopics.map(({ topic, count }) => (
+                  <div key={topic} className="flex items-center justify-between">
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
+                      #{topic}
+                    </span>
+                    <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full">
+                      {count} posts
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Leaderboard Toggle */}
+          <div className="glass-card p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-100 dark:border-yellow-800/30">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+              <span className="text-lg">👑</span>
+              Top Contributors
+            </h3>
+            {leaderboard.slice(0, 3).map((user, idx) => {
+              const badge = getUserBadge(parseInt(user.id));
+              return (
+                <div key={user.id} className="flex items-center gap-2 mb-2 last:mb-0">
+                  <span className="text-sm font-bold text-slate-400 w-4">{idx + 1}.</span>
+                  {user.profilePictureUrl ? (
+                    <img
+                      src={user.profilePictureUrl}
+                      alt={user.name}
+                      className="w-6 h-6 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-[10px] font-bold">
+                      {user.name.charAt(0)}
+                    </div>
+                  )}
+                  <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium flex-1 truncate">
+                    {user.name}
+                  </span>
+                  {badge && (
+                    <span className="text-sm" title={badge.name}>
+                      {badge.emoji}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+            <button
+              onClick={() => setShowLeaderboard(!showLeaderboard)}
+              className="mt-3 w-full text-xs text-center text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold"
+            >
+              {showLeaderboard ? 'Hide Full Leaderboard' : 'View Full Leaderboard'}
+            </button>
+          </div>
+        </div>
+
+        {/* Full Leaderboard Modal */}
+        {showLeaderboard && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowLeaderboard(false)}
+          >
+            <div
+              className="glass-card p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <span>👑</span>
+                  Community Leaderboard
+                </h2>
+                <button
+                  onClick={() => setShowLeaderboard(false)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-3">
+                {leaderboard.map((user, idx) => {
+                  const badge = getUserBadge(parseInt(user.id));
+                  return (
+                    <div
+                      key={user.id}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50"
+                    >
+                      <span className="text-lg font-bold text-slate-400 w-6">{idx + 1}</span>
+                      {user.profilePictureUrl ? (
+                        <img
+                          src={user.profilePictureUrl}
+                          alt={user.name}
+                          className="w-10 h-10 rounded-full"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-sm font-bold">
+                          {user.name.charAt(0)}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-slate-800 dark:text-white truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {user.posts} posts • {user.comments} comments • {user.likes} likes
+                        </p>
+                      </div>
+                      {badge && (
+                        <div className="text-right">
+                          <span className="text-2xl" title={badge.name}>
+                            {badge.emoji}
+                          </span>
+                          <p className={`text-xs font-bold ${badge.color}`}>{badge.name}</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Community Guidelines */}
         <aside
@@ -637,7 +876,7 @@ const CommunityPage: React.FC = () => {
               onClick={() => handleTabChange('feed')}
               role="tab"
               aria-selected={activeTab === 'feed'}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'feed'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -646,16 +885,28 @@ const CommunityPage: React.FC = () => {
               📰 Latest
             </button>
             <button
+              onClick={() => handleTabChange('trending')}
+              role="tab"
+              aria-selected={activeTab === 'trending'}
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
+                activeTab === 'trending'
+                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              }`}
+            >
+              🔥 Trending
+            </button>
+            <button
               onClick={() => handleTabChange('popular')}
               role="tab"
               aria-selected={activeTab === 'popular'}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'popular'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
-              🔥 Popular
+              ⭐ Popular
             </button>
           </div>
           <button

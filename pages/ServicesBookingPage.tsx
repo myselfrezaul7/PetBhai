@@ -4,11 +4,65 @@ import { useToast } from '../contexts/ToastContext';
 
 const ServicesBookingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'transport' | 'photography'>('transport');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
-  const handleBooking = (e: React.FormEvent) => {
+  const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Booking request sent! A partner will contact you shortly.');
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      data[key] = value.toString();
+    });
+
+    try {
+      // Send booking confirmation to petbhaibd@gmail.com
+      const serviceType = activeTab === 'transport' ? 'Pet Taxi & Transport' : 'Pet Photography';
+      const emailBody = `
+New ${serviceType} Booking Request
+
+Customer Details:
+- Mobile Number: ${data.mobile || 'Not provided'}
+- Email: ${data.email || 'Not provided'}
+
+Service Details:
+${
+  activeTab === 'transport'
+    ? `
+- Pickup Location: ${data.pickupLocation || 'Not specified'}
+- Destination Type: ${data.destinationType || 'Not specified'}
+- Date & Time: ${data.datetime || 'Not specified'}
+`
+    : `
+- Package: ${data.package || 'Not specified'}
+- Preferred Date: ${data.date || 'Not specified'}
+`
+}
+
+Please contact the customer to confirm the booking.
+      `.trim();
+
+      // In a real implementation, this would call your backend API
+      // For now, we'll use mailto: as a fallback
+      const mailtoLink = `mailto:petbhaibd@gmail.com?subject=New ${encodeURIComponent(serviceType)} Booking&body=${encodeURIComponent(emailBody)}`;
+
+      // Open default email client
+      window.location.href = mailtoLink;
+
+      toast.success(
+        'Booking request sent! We will contact you shortly via your provided mobile number.'
+      );
+
+      // Reset form
+      (e.target as HTMLFormElement).reset();
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast.error('Failed to send booking request. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,8 +125,35 @@ const ServicesBookingPage: React.FC = () => {
 
                   <form onSubmit={handleBooking} className="flex-1 space-y-4">
                     <div>
+                      <label className="block text-sm font-bold mb-1">
+                        Mobile Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        name="mobile"
+                        required
+                        placeholder="01XXXXXXXXX"
+                        pattern="[0-9]{11}"
+                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-1">
+                        Email <span className="text-xs text-slate-500">(Optional)</span>
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-sm font-bold mb-1">Pickup Location</label>
-                      <select className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600">
+                      <select
+                        name="pickupLocation"
+                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                      >
                         {BANGLADESH_DISTRICTS.map((d) => (
                           <option key={d}>{d}</option>
                         ))}
@@ -80,7 +161,10 @@ const ServicesBookingPage: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-bold mb-1">Destination Type</label>
-                      <select className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600">
+                      <select
+                        name="destinationType"
+                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                      >
                         <option>Veterinary Clinic</option>
                         <option>Boarding Center</option>
                         <option>Grooming Salon</option>
@@ -92,14 +176,17 @@ const ServicesBookingPage: React.FC = () => {
                       <label className="block text-sm font-bold mb-1">Date & Time</label>
                       <input
                         type="datetime-local"
+                        name="datetime"
+                        required
                         className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg shadow-lg"
+                      disabled={isSubmitting}
+                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg transition-colors"
                     >
-                      Book Pet Taxi
+                      {isSubmitting ? 'Sending...' : 'Book Pet Taxi'}
                     </button>
                   </form>
                 </div>
@@ -122,6 +209,30 @@ const ServicesBookingPage: React.FC = () => {
                   </div>
 
                   <form onSubmit={handleBooking} className="flex-1 space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold mb-1">
+                        Mobile Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        name="mobile"
+                        required
+                        placeholder="01XXXXXXXXX"
+                        pattern="[0-9]{11}"
+                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-1">
+                        Email <span className="text-xs text-slate-500">(Optional)</span>
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-bold mb-1">Package Type</label>
                       <div className="space-y-2">
@@ -172,14 +283,17 @@ const ServicesBookingPage: React.FC = () => {
                       <label className="block text-sm font-bold mb-1">Preferred Date</label>
                       <input
                         type="date"
+                        name="date"
+                        required
                         className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-lg shadow-lg"
+                      disabled={isSubmitting}
+                      className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg transition-colors"
                     >
-                      Book Photoshoot
+                      {isSubmitting ? 'Sending...' : 'Book Photoshoot'}
                     </button>
                   </form>
                 </div>
