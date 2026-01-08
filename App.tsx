@@ -28,6 +28,7 @@ import WhatsAppButton from './components/WhatsAppButton';
 import { VaccinationProvider } from './contexts/VaccinationContext';
 import OfflineIndicator from './components/OfflineIndicator';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
+import { PetManagementProvider } from './contexts/PetManagementContext';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -53,6 +54,11 @@ const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetailPage
 const ThumbnailGeneratorPage = lazy(() => import('./pages/ThumbnailGeneratorPage'));
 const TrustPage = lazy(() => import('./pages/TrustPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PetDashboardPage = lazy(() => import('./pages/PetDashboardPage'));
+const PetCompatibilityPage = lazy(() => import('./pages/PetCompatibilityPage'));
+const AIPetToolsPage = lazy(() => import('./pages/AIPetToolsPage'));
+const ServicesBookingPage = lazy(() => import('./pages/ServicesBookingPage'));
+const ImpactDashboardPage = lazy(() => import('./pages/ImpactDashboardPage'));
 
 const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
@@ -151,6 +157,11 @@ const AppContent: React.FC = () => {
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/safety" element={<TrustPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/dashboard" element={<PetDashboardPage />} />
+              <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
+              <Route path="/ai-tools" element={<AIPetToolsPage />} />
+              <Route path="/services/booking" element={<ServicesBookingPage />} />
+              <Route path="/impact" element={<ImpactDashboardPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
@@ -182,14 +193,16 @@ function App() {
                     <BrandProvider>
                       <AuthProvider>
                         <VaccinationProvider>
-                          <CartProvider>
-                            <CookieConsentProvider>
-                              <HashRouter>
-                                <ScrollToTop />
-                                <AppContent />
-                              </HashRouter>
-                            </CookieConsentProvider>
-                          </CartProvider>
+                          <PetManagementProvider>
+                            <CartProvider>
+                              <CookieConsentProvider>
+                                <HashRouter>
+                                  <ScrollToTop />
+                                  <AppContent />
+                                </HashRouter>
+                              </CookieConsentProvider>
+                            </CartProvider>
+                          </PetManagementProvider>
                         </VaccinationProvider>
                       </AuthProvider>
                     </BrandProvider>

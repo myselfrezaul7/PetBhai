@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
+import { Link } from 'react-router-dom';
 import { MOCK_GROOMERS, MOCK_TRAINERS, MOCK_PET_SITTERS, BANGLADESH_DISTRICTS } from '../constants';
 import { useVets } from '../contexts/VetContext';
 import VetCard from '../components/VetCard';
@@ -189,6 +190,27 @@ const ServicesPage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Specialized Services CTA */}
+      <div className="mt-16 text-center animate-fade-in">
+        <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">
+          Looking for something else?
+        </h2>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Link
+            to="/services/booking"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl text-white font-bold shadow-lg hover:shadow-orange-500/25 hover:scale-105 transition-all"
+          >
+            <span>🚚 Pet Taxi & Transport</span>
+          </Link>
+          <Link
+            to="/services/booking"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl text-white font-bold shadow-lg hover:shadow-pink-500/25 hover:scale-105 transition-all"
+          >
+            <span>📸 Pet Photography</span>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

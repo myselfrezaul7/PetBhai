@@ -362,7 +362,9 @@ const Header: React.FC = () => {
             <ul className="flex items-center space-x-8 text-[15px]">
               <DesktopNavLink to="/">{t('nav_home')}</DesktopNavLink>
               <DesktopNavLink to="/shop">{t('nav_shop')}</DesktopNavLink>
+              <DesktopNavLink to="/ai-tools">AI Tools</DesktopNavLink>
               <DesktopNavLink to="/community">{t('nav_community')}</DesktopNavLink>
+              <DesktopNavLink to="/impact">Impact</DesktopNavLink>
               <DesktopNavLink to="/services">{t('nav_services')}</DesktopNavLink>
               <DesktopNavLink to="/blog">{t('nav_blog')}</DesktopNavLink>
               <DesktopNavLink
@@ -489,6 +491,13 @@ const Header: React.FC = () => {
                         {currentUser.email}
                       </p>
                     </div>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 hover:text-orange-600 dark:hover:text-orange-400 transition-colors bg-orange-50/50 dark:bg-slate-700/30 font-semibold"
+                    >
+                      My Pet Dashboard
+                    </Link>
                     <Link
                       to="/profile"
                       onClick={() => setIsProfileMenuOpen(false)}
@@ -651,7 +660,9 @@ const Header: React.FC = () => {
           <nav className="flex flex-col space-y-6 w-full px-8 sm:px-10">
             <MobileNavLink to="/">{t('nav_home')}</MobileNavLink>
             <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
+            <MobileNavLink to="/ai-tools">AI Tools</MobileNavLink>
             <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
+            <MobileNavLink to="/impact">Impact Dashboard</MobileNavLink>
             <MobileNavLink to="/services">{t('nav_services')}</MobileNavLink>
             <MobileNavLink to="/blog">{t('nav_blog')}</MobileNavLink>
             <MobileNavLink
@@ -664,6 +675,13 @@ const Header: React.FC = () => {
           <div className="mt-10 flex flex-col space-y-4 w-full px-8 sm:px-10">
             {isAuthenticated && currentUser ? (
               <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full text-center py-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold text-lg border-2 border-orange-200 dark:border-orange-800"
+                >
+                  My Pet Dashboard
+                </Link>
                 <Link
                   to="/profile"
                   onClick={() => setIsMenuOpen(false)}
