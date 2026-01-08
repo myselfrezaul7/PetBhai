@@ -68,26 +68,32 @@ Make sure to build the project first with `npm run build`.
 ## API Endpoints
 
 ### Products
+
 - `GET /api/products` - Get all products
 - `GET /api/products/:id` - Get product by ID
 
 ### Articles
+
 - `GET /api/articles` - Get all articles
 - `GET /api/articles/:id` - Get article by ID
 
 ### Vets
+
 - `GET /api/vets` - Get all veterinarians
 - `GET /api/vets/:id` - Get vet by ID
 
 ### Animals
+
 - `GET /api/animals` - Get all animals for adoption
 - `GET /api/animals/:id` - Get animal by ID
 
 ### Brands
+
 - `GET /api/brands` - Get all brands
 - `GET /api/brands/:id` - Get brand by ID
 
 ### Authentication
+
 - `POST /api/auth/login` - User login
 - `POST /api/auth/signup` - User registration
 - `PUT /api/auth/:id` - Update user profile
@@ -98,6 +104,7 @@ Make sure to build the project first with `npm run build`.
 - `POST /api/auth/:id/subscribe` - Subscribe to Plus membership
 
 ### Orders
+
 - `POST /api/orders` - Create new order
 - `GET /api/orders/user/:userId` - Get user's order history
 

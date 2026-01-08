@@ -92,7 +92,6 @@ const PetDashboardPage: React.FC = () => {
       addPet({
         ...formData,
         weight: parseFloat(formData.weight) || undefined,
-        weightHistory: [],
         activityLevel: formData.activityLevel as any,
       });
       setActiveTab('overview');
@@ -308,7 +307,12 @@ const PetDashboardPage: React.FC = () => {
                       <p className="opacity-90">
                         {selectedPet.breed} •{' '}
                         {selectedPet.gender === 'male' ? '♂️ Male' : '♀️ Female'} •{' '}
-                        {selectedPet.age || 'Age Unknown'}
+                        {selectedPet.birthDate
+                          ? `${Math.floor(
+                              (new Date().getTime() - new Date(selectedPet.birthDate).getTime()) /
+                                (365.25 * 24 * 60 * 60 * 1000)
+                            )} years`
+                          : 'Age Unknown'}
                       </p>
                       <div className="flex gap-2 mt-3">
                         <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm">

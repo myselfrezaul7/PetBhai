@@ -9,6 +9,10 @@ export const isAiConfigured = (): boolean => {
   return true;
 };
 
+export const generateText = async (prompt: string): Promise<string> => {
+  return await getVetAssistantResponse(prompt);
+};
+
 export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
     return 'Please provide a question for me to answer.';

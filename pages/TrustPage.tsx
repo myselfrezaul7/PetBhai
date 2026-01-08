@@ -29,42 +29,62 @@ const TrustPage: React.FC = () => {
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-4 sm:mb-6">
             {t('trust_title')}
           </h1>
-          <p className="text-sm sm:text-lg text-slate-600 dark:text-slate-300">{t('trust_subtitle')}</p>
+          <p className="text-sm sm:text-lg text-slate-600 dark:text-slate-300">
+            {t('trust_subtitle')}
+          </p>
         </header>
 
         {/* Trust Pillars */}
-        <section className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-20" aria-label="Trust pillars">
+        <section
+          className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-20"
+          aria-label="Trust pillars"
+        >
           {/* Pillar 1: Vetted Products */}
           <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-green-600 dark:text-green-400" aria-hidden="true">
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-green-600 dark:text-green-400"
+              aria-hidden="true"
+            >
               <CheckCircleIcon className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 sm:mb-4">
               {t('trust_pillar_1_title')}
             </h3>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{t('trust_pillar_1_desc')}</p>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+              {t('trust_pillar_1_desc')}
+            </p>
           </article>
 
           {/* Pillar 2: Verified Professionals */}
           <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-blue-600 dark:text-blue-400" aria-hidden="true">
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            >
               <ShieldCheckIconLocal className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 sm:mb-4">
               {t('trust_pillar_2_title')}
             </h3>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{t('trust_pillar_2_desc')}</p>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+              {t('trust_pillar_2_desc')}
+            </p>
           </article>
 
           {/* Pillar 3: Community Guidelines */}
           <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-purple-600 dark:text-purple-400" aria-hidden="true">
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-purple-600 dark:text-purple-400"
+              aria-hidden="true"
+            >
               <HeartIcon className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 sm:mb-4">
               {t('trust_pillar_3_title')}
             </h3>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{t('trust_pillar_3_desc')}</p>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+              {t('trust_pillar_3_desc')}
+            </p>
           </article>
         </section>
 

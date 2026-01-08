@@ -77,6 +77,9 @@ export interface GroupBuyItem {
 }
 
 export interface ImpactStats {
+  strayAnimalsFed: number;
+  vaccinationsFunded: number;
+  totalDonations: number;
   animalsHelped: number;
   mealsProvided: number;
   adoptionsCompleted: number;
@@ -123,6 +126,7 @@ interface PetManagementContextType {
   // Impact Stats
   impactStats: ImpactStats;
   incrementImpact: (key: keyof ImpactStats, amount?: number) => void;
+  updateImpactStats: (stats: Partial<ImpactStats>) => void;
 }
 
 const PetManagementContext = createContext<PetManagementContextType | undefined>(undefined);
@@ -136,6 +140,9 @@ const IMPACT_KEY = 'petbhai_impact_stats';
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 const DEFAULT_IMPACT_STATS: ImpactStats = {
+  strayAnimalsFed: 0,
+  vaccinationsFunded: 0,
+  totalDonations: 0,
   animalsHelped: 1247,
   mealsProvided: 15680,
   adoptionsCompleted: 342,
@@ -477,6 +484,13 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
   }, []);
 
+  const updateImpactStats = useCallback(
+    (stats: Partial<ImpactStats>) => {
+      setImpactStats((prev) => ({ ...prev, ...stats }));
+    },
+    [setImpactStats]
+  );
+
   return (
     <PetManagementContext.Provider
       value={{
@@ -504,6 +518,7 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         getActiveGroupBuys,
         impactStats,
         incrementImpact,
+        updateImpactStats,
       }}
     >
       {children}

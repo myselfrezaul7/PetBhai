@@ -51,6 +51,7 @@ To run the full application with the backend API:
     ```
 
 2.  **Start both servers:**
+
     ```bash
     npm run dev:full
     ```
