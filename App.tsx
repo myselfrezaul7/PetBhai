@@ -60,11 +60,11 @@ const ServicesBookingPage = lazy(() => import('./pages/ServicesBookingPage'));
 
 const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
-    <div className="relative w-20 h-20 animate-heartbeat">
+    <div className="relative w-20 h-20 motion-safe:animate-heartbeat motion-reduce:animate-none">
       <HeartIcon className="w-full h-full text-orange-500" />
       <PawIcon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-white dark:text-slate-900" />
     </div>
-    <p className="mt-4 text-orange-500 font-semibold animate-pulse tracking-wide">
+    <p className="mt-4 text-orange-500 font-semibold motion-safe:animate-pulse motion-reduce:animate-none tracking-wide">
       {message || 'Loading...'}
     </p>
   </div>

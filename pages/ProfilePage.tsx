@@ -424,14 +424,14 @@ const ProfilePage: React.FC = () => {
                         {order.status && (
                           <span
                             className={`px-2 py-0.5 rounded-full font-semibold ${
-                              order.status === 'Delivered'
+                              order.status === 'delivered'
                                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                : order.status === 'Cancelled'
+                                : order.status === 'cancelled' || order.status === 'refunded'
                                   ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                   : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
                             }`}
                           >
-                            {order.status}
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
                         )}
                       </div>

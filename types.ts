@@ -35,7 +35,14 @@ export interface Order {
   total: number;
   items: CartItem[];
   paymentMethod?: string;
-  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status?:
+    | 'pending'
+    | 'confirmed'
+    | 'processing'
+    | 'shipped'
+    | 'delivered'
+    | 'cancelled'
+    | 'refunded';
 }
 
 export type AnimalStatus = 'Available' | 'Pending' | 'Adopted';

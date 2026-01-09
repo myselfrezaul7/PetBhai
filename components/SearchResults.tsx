@@ -16,6 +16,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 interface PageResult {
   name: string;
   path: string;
+  keywords?: string[];
 }
 
 export interface SearchResultsData {
@@ -52,16 +53,19 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     results.vets.length > 0 ||
     results.animals.length > 0;
 
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
   const highlightText = (text: string, highlight: string) => {
     if (!highlight.trim()) {
       return <span>{text}</span>;
     }
-    const regex = new RegExp(`(${highlight})`, 'gi');
+    const safe = escapeRegExp(highlight);
+    const regex = new RegExp(`(${safe})`, 'gi');
     const parts = text.split(regex);
     return (
       <span>
         {parts.map((part, i) =>
-          regex.test(part) ? (
+          i % 2 === 1 ? (
             <mark
               key={i}
               className="bg-orange-200 dark:bg-orange-900/50 text-orange-900 dark:text-orange-100 rounded-sm px-0.5 font-bold"
@@ -79,13 +83,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   return (
     <div
       id={id}
-      className="absolute top-full mt-2 w-full md:w-[500px] bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden border border-slate-200 dark:border-slate-700 transform origin-top animate-scale-in"
+      className="absolute top-full mt-2 w-full md:w-[500px] bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden border border-slate-200 dark:border-slate-700 transform origin-top motion-safe:animate-scale-in motion-reduce:animate-none"
       aria-label="Search results"
     >
       <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+            <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full motion-safe:animate-spin motion-reduce:animate-none mb-3"></div>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
               Searching for "{query}"...
             </p>

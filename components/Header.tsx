@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useDeferredValue, useMemo } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { MenuIcon, CloseIcon, SearchIcon, UserIcon } from './icons';
 import Logo from './Logo';
@@ -11,12 +11,7 @@ import { useVets } from '../contexts/VetContext';
 import { useAnimals } from '../contexts/AnimalContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { sanitizeInput } from '../lib/security';
-
-interface PageResult {
-  name: string;
-  path: string;
-  keywords: string[];
-}
+import { useGlobalSearch, type PageResult } from '../hooks/useGlobalSearch';
 
 const ALL_PAGES: PageResult[] = [
   { name: 'Home', path: '/', keywords: ['home', 'bari', 'বাড়ি', 'নীড়', 'hom'] },
@@ -66,21 +61,44 @@ const Header: React.FC = () => {
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResultsData>({
-    products: [],
-    pages: [],
-    articles: [],
-    vets: [],
-    animals: [],
-  });
-  const [isSearching, setIsSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchAnnouncement, setSearchAnnouncement] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
-    const saved = localStorage.getItem('petbhai_recent_searches');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('petbhai_recent_searches');
+      const parsed = saved ? (JSON.parse(saved) as unknown) : [];
+      return Array.isArray(parsed) ? (parsed.filter((v) => typeof v === 'string') as string[]) : [];
+    } catch {
+      return [];
+    }
   });
+
+  const deferredQuery = useDeferredValue(searchQuery);
+  const computedResults = useGlobalSearch({
+    query: deferredQuery,
+    products,
+    pages: ALL_PAGES,
+    articles,
+    vets,
+    animals,
+  });
+
+  const searchResults: SearchResultsData = useMemo(
+    () => ({
+      products: computedResults.products,
+      pages: computedResults.pages,
+      vets: computedResults.vets,
+      articles: computedResults.articles,
+      animals: computedResults.animals,
+    }),
+    [computedResults]
+  );
+
+  const isSearching =
+    searchQuery.trim().length >= 2 &&
+    deferredQuery.trim().length >= 2 &&
+    deferredQuery !== searchQuery;
 
   const activeLinkClass = 'text-orange-500 dark:text-orange-400 font-bold';
   const inactiveLinkClass =
@@ -119,91 +137,33 @@ const Header: React.FC = () => {
     });
   }, []);
 
-  // Debounced search effect
   useEffect(() => {
-    if (searchQuery.trim().length < 2) {
-      setSearchResults({ products: [], pages: [], articles: [], vets: [], animals: [] });
-      setIsSearching(false);
+    setActiveIndex(-1);
+
+    const effectiveQuery = deferredQuery.trim();
+    if (effectiveQuery.length < 2) {
       setSearchAnnouncement('');
-      setActiveIndex(-1);
       return;
     }
 
-    setIsSearching(true);
-    setSearchAnnouncement(t('search_searching'));
-    setActiveIndex(-1);
+    if (isSearching) {
+      setSearchAnnouncement(t('search_searching'));
+      return;
+    }
 
-    const handler = setTimeout(() => {
-      const lowerCaseQuery = searchQuery.toLowerCase();
+    const totalResults =
+      searchResults.products.length +
+      searchResults.pages.length +
+      searchResults.vets.length +
+      searchResults.articles.length +
+      searchResults.animals.length;
 
-      const filteredProducts = products
-        .filter((product) => {
-          const query = lowerCaseQuery;
-          const nameMatch = product.name.toLowerCase().includes(query);
-          const categoryMatch = product.category.toLowerCase().includes(query);
-          const tagMatch = product.searchTags?.some((tag) => tag.toLowerCase().includes(query));
-          return nameMatch || categoryMatch || tagMatch;
-        })
-        .slice(0, 4);
-
-      const filteredPages = ALL_PAGES.filter(
-        (page) =>
-          page.name.toLowerCase().includes(lowerCaseQuery) ||
-          page.keywords.some((k) => k.toLowerCase().includes(lowerCaseQuery))
-      ).slice(0, 3);
-
-      const filteredVets = vets
-        .filter(
-          (vet) =>
-            vet.name.toLowerCase().includes(lowerCaseQuery) ||
-            vet.specialization.toLowerCase().includes(lowerCaseQuery)
-        )
-        .slice(0, 3);
-
-      const filteredArticles = articles
-        .filter(
-          (article) =>
-            article.title.toLowerCase().includes(lowerCaseQuery) ||
-            article.content.toLowerCase().includes(lowerCaseQuery)
-        )
-        .slice(0, 3);
-
-      const filteredAnimals = animals
-        .filter(
-          (animal) =>
-            animal.name.toLowerCase().includes(lowerCaseQuery) ||
-            animal.breed.toLowerCase().includes(lowerCaseQuery)
-        )
-        .slice(0, 3);
-
-      const totalResults =
-        filteredProducts.length +
-        filteredPages.length +
-        filteredVets.length +
-        filteredArticles.length +
-        filteredAnimals.length;
-
-      setSearchResults({
-        products: filteredProducts,
-        pages: filteredPages,
-        vets: filteredVets,
-        articles: filteredArticles,
-        animals: filteredAnimals,
-      });
-
-      if (totalResults > 0) {
-        setSearchAnnouncement(`${totalResults} ${t('search_results_found')}`);
-      } else {
-        setSearchAnnouncement(`${t('search_no_results')} "${searchQuery}"`);
-      }
-
-      setIsSearching(false);
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchQuery, products, articles, vets, animals]);
+    if (totalResults > 0) {
+      setSearchAnnouncement(`${totalResults} ${t('search_results_found')}`);
+    } else {
+      setSearchAnnouncement(`${t('search_no_results')} "${effectiveQuery}"`);
+    }
+  }, [deferredQuery, isSearching, searchResults, t]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isSearchActive) return;
@@ -398,12 +358,16 @@ const Header: React.FC = () => {
                 aria-expanded={isSearchActive && searchQuery.length >= 2 ? 'true' : 'false'}
               />
 
+              <span className="sr-only" aria-live="polite">
+                {searchAnnouncement}
+              </span>
+
               {isSearchActive && (
                 <div className="animate-fade-in origin-top">
                   {searchQuery.length >= 2 ? (
                     <SearchResults
                       id="search-results-desktop"
-                      query={searchQuery}
+                      query={deferredQuery}
                       results={searchResults}
                       loading={isSearching}
                       onClose={closeSearchResults}
@@ -558,12 +522,16 @@ const Header: React.FC = () => {
                     aria-expanded={isSearchActive && searchQuery.length >= 2 ? 'true' : 'false'}
                   />
 
+                  <span className="sr-only" aria-live="polite">
+                    {searchAnnouncement}
+                  </span>
+
                   {isSearchActive && (
                     <div className="animate-fade-in origin-top">
                       {searchQuery.length >= 2 ? (
                         <SearchResults
                           id="search-results-mobile"
-                          query={searchQuery}
+                          query={deferredQuery}
                           results={searchResults}
                           loading={isSearching}
                           onClose={closeSearchResults}
