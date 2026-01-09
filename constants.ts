@@ -20,6 +20,10 @@ export const MOCK_BRANDS: Brand[] = [
   { id: 2, name: 'Pedigree', logoUrl: 'https://i.ibb.co/M2xN0d4/pedigree-logo.png' },
   { id: 3, name: 'Drools', logoUrl: 'https://i.ibb.co/3k5g2xH/drools-logo.png' },
   { id: 4, name: 'Me-O', logoUrl: 'https://i.ibb.co/Y0M4yC4/meo-logo.png' },
+  { id: 5, name: 'Whiskas', logoUrl: 'https://picsum.photos/seed/brand-whiskas/240/160' },
+  { id: 6, name: 'SmartHeart', logoUrl: 'https://picsum.photos/seed/brand-smartheart/240/160' },
+  { id: 7, name: 'Purepet', logoUrl: 'https://picsum.photos/seed/brand-purepet/240/160' },
+  { id: 8, name: 'Reflex', logoUrl: 'https://picsum.photos/seed/brand-reflex/240/160' },
 ];
 
 const MOCK_REVIEWS: Review[] = [
@@ -44,7 +48,7 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 1,
     name: 'Me-O Adult Cat Food Tuna',
     category: 'Cat Food',
-    price: 1850,
+    price: 2850,
     imageUrl: 'https://picsum.photos/seed/catfood1/400/300',
     description:
       'A delicious and nutritious tuna-flavored dry food for adult cats of all breeds. Enriched with vitamins and minerals for a healthy life.',
@@ -55,10 +59,33 @@ export const MOCK_PRODUCTS: Product[] = [
     searchTags: ['বিড়াল', 'খাবার', 'ক্যাট ফুড', 'cat food', 'biral', 'khabar', 'meo', 'tuna'],
   },
   {
+    id: 3,
+    name: 'Whiskas Adult Dry Cat Food (Ocean Fish)',
+    category: 'Cat Food',
+    price: 790,
+    imageUrl: 'https://picsum.photos/seed/catfood-whiskas/400/300',
+    description:
+      'Popular daily dry food for adult cats with balanced nutrition and ocean fish flavor.',
+    weight: '1.2kg',
+    brandId: 5,
+    rating: 4.6,
+    reviews: [],
+    searchTags: [
+      'বিড়াল',
+      'খাবার',
+      'whiskas',
+      'ক্যাট ফুড',
+      'ocean fish',
+      'cat food',
+      'biral',
+      'khabar',
+    ],
+  },
+  {
     id: 2,
     name: 'Drools Optimum Performance Puppy Food',
     category: 'Dog Food',
-    price: 380,
+    price: 1350,
     imageUrl: 'https://picsum.photos/seed/dogfood1/400/300',
     description:
       'Specially formulated for puppies to support their growth and development with essential nutrients, prebiotics and probiotics.',
@@ -90,7 +117,7 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 4,
     name: 'Pedigree Adult Dry Dog Food (Chicken & Veg)',
     category: 'Dog Food',
-    price: 1500,
+    price: 5600,
     imageUrl: 'https://picsum.photos/seed/dogfood2/400/300',
     description:
       'A complete and balanced meal for your adult dog, packed with chicken and vegetable goodness for a healthy immune system.',
@@ -111,10 +138,24 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
   },
   {
+    id: 5,
+    name: 'SmartHeart Adult Dog Food (Chicken & Egg)',
+    category: 'Dog Food',
+    price: 1650,
+    imageUrl: 'https://picsum.photos/seed/dogfood-smartheart/400/300',
+    description:
+      'Everyday adult dog food with chicken & egg flavor, suitable for regular feeding.',
+    weight: '3kg',
+    brandId: 6,
+    rating: 4.4,
+    reviews: [],
+    searchTags: ['কুকুর', 'খাবার', 'smartheart', 'ডগ ফুড', 'adult', 'kukur', 'khabar', 'chicken'],
+  },
+  {
     id: 6,
     name: 'Royal Canin Persian Adult Cat Food',
     category: 'Cat Food',
-    price: 2200,
+    price: 3450,
     imageUrl: 'https://picsum.photos/seed/catfood3/400/300',
     description:
       'Tailor-made nutrition for Persian cats to maintain their long, beautiful coats and digestive health. Almond-shaped kibble for easy grasping.',
@@ -146,7 +187,7 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 7,
     name: 'Interactive Feather Wand for Cats',
     category: 'Cat Supplies',
-    price: 450,
+    price: 350,
     imageUrl: 'https://picsum.photos/seed/cattoy1/400/300',
     description:
       'Engage your cat in hours of fun with this interactive feather wand. Great for exercise and bonding.',
@@ -160,7 +201,7 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 8,
     name: 'Durable Rubber Chew Bone for Dogs',
     category: 'Dog Supplies',
-    price: 600,
+    price: 650,
     imageUrl: 'https://picsum.photos/seed/dogtoy1/400/300',
     description:
       'A tough, durable chew toy designed to withstand even the most enthusiastic chewers. Promotes dental health.',
@@ -174,7 +215,7 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 9,
     name: 'Herbal Pet Shampoo for Dogs & Cats',
     category: 'Grooming',
-    price: 750,
+    price: 650,
     imageUrl: 'https://picsum.photos/seed/shampoo1/400/300',
     description:
       "A gentle, all-natural herbal shampoo that cleans, soothes, and moisturizes your pet's skin and coat.",
@@ -185,10 +226,24 @@ export const MOCK_PRODUCTS: Product[] = [
     searchTags: ['শ্যাম্পু', 'গোসল', 'পরিষ্কার', 'shampoo', 'grooming', 'gosol', 'porishkar'],
   },
   {
+    id: 10,
+    name: 'Premium Clumping Cat Litter (Bentonite)',
+    category: 'Cat Supplies',
+    price: 950,
+    imageUrl: 'https://picsum.photos/seed/catlitter/400/300',
+    description:
+      'Low-dust clumping bentonite litter with good odor control for daily use.',
+    weight: '10L',
+    brandId: 5,
+    rating: 4.5,
+    reviews: [],
+    searchTags: ['লিটার', 'বিড়াল', 'cat litter', 'bentonite', 'odor control', 'biral', 'litter'],
+  },
+  {
     id: 11,
     name: 'Heavy-Duty Nylon Dog Leash',
     category: 'Dog Supplies',
-    price: 850,
+    price: 750,
     imageUrl: 'https://picsum.photos/seed/dogleash1/400/300',
     description:
       'A strong and reliable 6-foot nylon leash, perfect for daily walks and training sessions.',
@@ -198,13 +253,55 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [],
     searchTags: ['বেল্ট', 'রশি', 'লিচ', 'belt', 'leash', 'roshi', 'walk'],
   },
+  {
+    id: 12,
+    name: 'Dog Training Pads (30 pcs)',
+    category: 'Dog Supplies',
+    price: 650,
+    imageUrl: 'https://picsum.photos/seed/trainingpads/400/300',
+    description:
+      'Absorbent puppy training pads for indoor potty training and travel.',
+    weight: '30 pcs',
+    brandId: 7,
+    rating: 4.3,
+    reviews: [],
+    searchTags: ['পটি প্যাড', 'training pads', 'puppy', 'indoor', 'ডগ', 'কুকুর', 'kukur'],
+  },
+  {
+    id: 13,
+    name: 'Reflex Plus Adult Cat Food (Chicken)',
+    category: 'Cat Food',
+    price: 1550,
+    imageUrl: 'https://picsum.photos/seed/catfood-reflex/400/300',
+    description:
+      'High-protein adult dry food with chicken, designed to support coat and digestion.',
+    weight: '2kg',
+    brandId: 8,
+    rating: 4.6,
+    reviews: [],
+    searchTags: ['reflex', 'বিড়াল', 'খাবার', 'cat food', 'adult', 'chicken', 'biral', 'khabar'],
+  },
+  {
+    id: 14,
+    name: 'Slicker Brush for Dogs & Cats',
+    category: 'Grooming',
+    price: 450,
+    imageUrl: 'https://picsum.photos/seed/slickerbrush/400/300',
+    description:
+      'Regular grooming brush to reduce shedding and keep coat clean and untangled.',
+    weight: '1 pc',
+    brandId: 7,
+    rating: 4.4,
+    reviews: [],
+    searchTags: ['ব্রাশ', 'গ্রুমিং', 'slicker brush', 'shedding', 'grooming', 'porishkar'],
+  },
 ];
 
 const MOCK_ORDERS: Order[] = [
   {
     orderId: 'PB-1678886400',
     date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    total: 2300,
+    total: 3200,
     items: [
       { ...MOCK_PRODUCTS[0], quantity: 1 },
       { ...MOCK_PRODUCTS[4], quantity: 1 },
@@ -213,7 +310,7 @@ const MOCK_ORDERS: Order[] = [
   {
     orderId: 'PB-1679886400',
     date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    total: 1500,
+    total: 5600,
     items: [{ ...MOCK_PRODUCTS[2], quantity: 1 }],
   },
 ];
