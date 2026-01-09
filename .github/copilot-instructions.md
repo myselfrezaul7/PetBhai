@@ -166,6 +166,11 @@ npm run dev  # Runs on http://localhost:3000
 - **Build config**: [vite.config.ts](../vite.config.ts)
 - **CI config**: `.github/workflows/` (if present)
 
+## Workflow Automation
+
+- **Auto-commit**: Always commit and push changes immediately after completing a task or set of changes. Do not wait for user confirmation unless there's ambiguity.
+  - Command: `git add . && git commit -m "feat/fix: description" && git push`
+
 ---
 
 _Last updated: December 2025_
