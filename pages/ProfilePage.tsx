@@ -417,9 +417,24 @@ const ProfilePage: React.FC = () => {
                           {order.total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
                         </p>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">
-                        Date: {new Date(order.date).toLocaleDateString()}
-                      </p>
+                      <div className="flex justify-between items-center mb-3 text-xs sm:text-sm">
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Date: {new Date(order.date).toLocaleDateString()}
+                        </p>
+                        {order.status && (
+                          <span
+                            className={`px-2 py-0.5 rounded-full font-semibold ${
+                              order.status === 'Delivered'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                : order.status === 'Cancelled'
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                            }`}
+                          >
+                            {order.status}
+                          </span>
+                        )}
+                      </div>
                       <ul className="text-xs sm:text-sm space-y-1">
                         {order.items.map((item) => (
                           <li

@@ -167,7 +167,7 @@ const CheckoutPage: React.FC = () => {
           })),
           total: cartTotal,
           userId: currentUser?.id,
-          shippingDetails: sanitizedFormData,
+          shippingAddress: sanitizedFormData,
           paymentMethod,
         };
 

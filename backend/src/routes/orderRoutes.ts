@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import nodemailer from 'nodemailer';
 import { db } from '../db';
 import type { Order } from '../types';
 import { AuthRequest, requireAuth, requireAdmin } from '../middleware/auth';
@@ -51,6 +52,90 @@ const calculateEstimatedDelivery = (): string => {
   today.setDate(today.getDate() + deliveryDays);
   return today.toISOString();
 };
+
+// Helper function to send email
+async function sendOrderEmail(order: ExtendedOrder) {
+  // Check for credentials
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn(
+      'Email credentials (EMAIL_USER, EMAIL_PASS) not found in env. Skipping email notification.'
+    );
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: 'petbhaibd@gmail.com',
+    subject: `New Order Placed: ${order.orderId}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #f97316;">New Order Placed</h1>
+        <p><strong>Order ID:</strong> ${order.orderId}</p>
+        <p><strong>Date:</strong> ${new Date(order.date).toLocaleString()}</p>
+        <p><strong>Status:</strong> <span style="background-color: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 9999px;">${order.status}</span></p>
+        
+        <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px;">Customer Details</h3>
+        <p><strong>Name:</strong> ${order.shippingAddress?.name || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${order.shippingAddress?.phone || 'N/A'}</p>
+        <p><strong>Address:</strong> ${order.shippingAddress?.address || 'N/A'}</p>
+        ${order.shippingAddress?.city ? `<p><strong>City:</strong> ${order.shippingAddress.city}</p>` : ''}
+        
+        <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px;">Order Items</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <thead>
+            <tr style="background-color: #f3f4f6; text-align: left;">
+              <th style="padding: 10px; border-bottom: 1px solid #ddd;">Item</th>
+              <th style="padding: 10px; border-bottom: 1px solid #ddd;">Qty</th>
+              <th style="padding: 10px; border-bottom: 1px solid #ddd;">Price</th>
+              <th style="padding: 10px; border-bottom: 1px solid #ddd;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.items
+              .map(
+                (item) => `
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                  <div style="font-weight: bold;">${item.name}</div>
+                  <div style="font-size: 0.8em; color: #666;">ID: ${item.id}</div>
+                </td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.quantity}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">৳${item.price}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">৳${item.price * item.quantity}</td>
+              </tr>
+            `
+              )
+              .join('')}
+          </tbody>
+        </table>
+        
+        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+          <h3 style="margin-top: 0;">Total Amount: <span style="color: #f97316;">৳${order.total}</span></h3>
+          <p style="margin-bottom: 0;"><strong>Payment Method:</strong> ${order.paymentMethod || 'Cash on Delivery'}</p>
+        </div>
+        
+        <div style="margin-top: 30px; font-size: 0.8em; color: #888; text-align: center;">
+          <p>This is an automated notification from PetBhai System.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Order notification email sent: ${info.messageId}`);
+  } catch (error) {
+    console.error('Error sending order email:', error);
+  }
+}
 
 // Create Order
 router.post('/', orderLimiter, (req, res) => {
@@ -113,6 +198,9 @@ router.post('/', orderLimiter, (req, res) => {
       user.orderHistory.unshift(newOrder);
     }
   }
+
+  // Send email notification asynchronously
+  sendOrderEmail(newOrder).catch((err) => console.error('Failed to trigger email:', err));
 
   res.status(201).json({
     message: 'Order placed successfully',
