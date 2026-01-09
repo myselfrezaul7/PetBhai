@@ -471,58 +471,6 @@ const CheckoutPage: React.FC = () => {
                     />
                   </span>
                 </label>
-                <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'rocket' ? 'border-purple-600 ring-2 ring-purple-600 bg-purple-50/50 dark:bg-purple-900/20' : 'border-slate-300 dark:border-slate-600'}`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="rocket"
-                    checked={paymentMethod === 'rocket'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-purple-600 focus:ring-purple-500"
-                  />
-                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
-                    Rocket
-                    <img
-                      src="https://i.ibb.co/6wLmMYy/rocket.png"
-                      alt="Rocket"
-                      className="h-5 ml-2"
-                      loading="lazy"
-                    />
-                  </span>
-                </label>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-300/50 dark:border-slate-600/50">
-                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3">
-                  We Accept
-                </p>
-                <div className="flex items-center space-x-4">
-                  <img
-                    src="https://i.ibb.co/27wH07C/bkash.png"
-                    alt="bKash"
-                    className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
-                    title="bKash"
-                  />
-                  <img
-                    src="https://i.ibb.co/qjqBcf5/nagad.png"
-                    alt="Nagad"
-                    className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
-                    title="Nagad"
-                  />
-                  <img
-                    src="https://i.ibb.co/6wLmMYy/rocket.png"
-                    alt="Rocket"
-                    className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
-                    title="Rocket"
-                  />
-                  <img
-                    src="https://i.ibb.co/p3y5M3D/bank.png"
-                    alt="Bank"
-                    className="h-6 grayscale hover:grayscale-0 transition-all duration-300"
-                    title="Bank Transfer"
-                  />
-                </div>
               </div>
             </div>
             <div className="pt-4">

@@ -99,10 +99,6 @@ const TermsPage: React.FC = () => {
                     <img src="https://i.ibb.co/qjqBcf5/nagad.png" alt="Nagad" className="h-8" />
                     <span className="text-sm font-medium">Nagad</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <img src="https://i.ibb.co/6wLmMYy/rocket.png" alt="Rocket" className="h-8" />
-                    <span className="text-sm font-medium">Rocket</span>
-                  </div>
                 </div>
               </div>
               <div>
