@@ -1,6 +1,6 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
-import { MOCK_PRODUCTS } from '../data/mockData';
+import { db } from '../db';
 
 const router = express.Router();
 
@@ -19,12 +19,13 @@ const getAiInstance = () => {
   return new GoogleGenAI({ apiKey });
 };
 
-// Generate a summary of the product catalog for the AI
-const productCatalog = MOCK_PRODUCTS.map(
-  (p) => `- ${p.name} (${p.category}): ৳${p.price} [Rating: ${p.rating}/5]`
-).join('\n');
+// Generate dynamic system instruction with up-to-date inventory
+const getSystemInstruction = () => {
+  const productCatalog = db.products
+    .map((p) => `- ${p.name} (${p.category}): ৳${p.price} [Rating: ${p.rating}/5]`)
+    .join('\n');
 
-const SYSTEM_INSTRUCTION = `You are an AI Vet for PetBhai, an animal welfare organization. Provide helpful, general first-aid and pet care advice. 
+  return `You are an AI Vet for PetBhai, an animal welfare organization. Provide helpful, general first-aid and pet care advice. 
 Your role is to give safe, preliminary guidance. You are NOT a substitute for a professional veterinarian. 
 Do not diagnose conditions or prescribe specific medications. 
 Crucially, if a situation seems serious, you must strongly advise the user to consult a licensed, in-person veterinarian immediately.
@@ -40,6 +41,7 @@ ${productCatalog}
 If the user needs something not on this list, you can suggest general types of products but clarify you don't sell them directly.
 Keep your answers concise and easy for a non-medical person to understand. Format your responses using simple Markdown.
 Use asterisks for bullet points (e.g., * Item 1) and double asterisks for bolding important text (e.g., **Warning**). If you use Google Search, cite your sources.`;
+};
 
 // Chat Endpoint
 router.post(
@@ -65,7 +67,7 @@ router.post(
       model: 'gemini-2.0-flash-thinking-exp', // Using a strong model for reasoning
       contents: [{ parts: [{ text: sanitizedPrompt }] }],
       config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+        systemInstruction: getSystemInstruction(),
         thinkingConfig: { thinkingBudget: 2048 },
         tools: [{ googleSearch: {} }],
       },

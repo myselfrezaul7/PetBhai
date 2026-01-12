@@ -137,8 +137,31 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Start server only if not running in Vercel (Vercel handles starting the server logic)
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
+  });
+
+  // Graceful shutdown
+  const gracefulShutdown = () => {
+    console.log('Received kill signal, shutting down gracefully');
+    server.close(() => {
+      console.log('Closed out remaining connections');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
+
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    // Persist any critical state if possible
+    process.exit(1); // Exit to allow process manager (PM2) to restart us
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit immediately, but log it. In future Node versions this might crash.
   });
 }
 

@@ -32,9 +32,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
-        // Fallback to mock data silently
-        setProducts(MOCK_PRODUCTS);
-        setError(null);
+        setError('Failed to load products. Please try again later.');
+        // Fallback removed to enforce Real Data Policy
+        setProducts([]);
       } finally {
         setLoading(false);
       }

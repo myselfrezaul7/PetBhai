@@ -1,14 +1,14 @@
 import express from 'express';
-import { MOCK_VETS } from '../data/mockData';
+import { db } from '../db';
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.json(MOCK_VETS);
+  res.json(db.vets);
 });
 
 router.get('/:id', (req, res) => {
-  const vet = MOCK_VETS.find((v) => v.id === parseInt(req.params.id));
+  const vet = db.vets.find((v) => v.id === parseInt(req.params.id));
   if (vet) {
     res.json(vet);
   } else {

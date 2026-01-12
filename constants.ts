@@ -143,8 +143,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Food',
     price: 1650,
     imageUrl: 'https://picsum.photos/seed/dogfood-smartheart/400/300',
-    description:
-      'Everyday adult dog food with chicken & egg flavor, suitable for regular feeding.',
+    description: 'Everyday adult dog food with chicken & egg flavor, suitable for regular feeding.',
     weight: '3kg',
     brandId: 6,
     rating: 4.4,
@@ -231,8 +230,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Cat Supplies',
     price: 950,
     imageUrl: 'https://picsum.photos/seed/catlitter/400/300',
-    description:
-      'Low-dust clumping bentonite litter with good odor control for daily use.',
+    description: 'Low-dust clumping bentonite litter with good odor control for daily use.',
     weight: '10L',
     brandId: 5,
     rating: 4.5,
@@ -259,8 +257,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Supplies',
     price: 650,
     imageUrl: 'https://picsum.photos/seed/trainingpads/400/300',
-    description:
-      'Absorbent puppy training pads for indoor potty training and travel.',
+    description: 'Absorbent puppy training pads for indoor potty training and travel.',
     weight: '30 pcs',
     brandId: 7,
     rating: 4.3,
@@ -287,8 +284,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Grooming',
     price: 450,
     imageUrl: 'https://picsum.photos/seed/slickerbrush/400/300',
-    description:
-      'Regular grooming brush to reduce shedding and keep coat clean and untangled.',
+    description: 'Regular grooming brush to reduce shedding and keep coat clean and untangled.',
     weight: '1 pc',
     brandId: 7,
     rating: 4.4,
