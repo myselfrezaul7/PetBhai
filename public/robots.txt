@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /checkout
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /#/login
+Disallow: /#/signup
+Disallow: /#/checkout
+Disallow: /#/profile
+Disallow: /#/dashboard
+
+Sitemap: https://www.petbhai.com/sitemap.xml

@@ -29,6 +29,15 @@ import { VaccinationProvider } from './contexts/VaccinationContext';
 import OfflineIndicator from './components/OfflineIndicator';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
 import { PetManagementProvider } from './contexts/PetManagementContext';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { HelmetProvider } from 'react-helmet-async';
+import SEO, {
+  HomePageSEO,
+  ShopPageSEO,
+  AdoptPageSEO,
+  BlogPageSEO,
+  ServicesPageSEO,
+} from './components/SEO';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -103,6 +112,151 @@ const GlobalCartElements: React.FC = () => {
   );
 };
 
+const RouteSEO: React.FC = () => {
+  const location = useLocation();
+  const path = location.pathname;
+
+  if (path === '/') return <HomePageSEO />;
+  if (path === '/shop') return <ShopPageSEO />;
+  if (path === '/services') return <ServicesPageSEO />;
+  if (path === '/adopt') return <AdoptPageSEO />;
+  if (path === '/blog') return <BlogPageSEO />;
+  if (path === '/community') {
+    return (
+      <SEO
+        title="Community Hub"
+        description="Join PetBhai's community to share pet stories, get expert advice, and connect with pet lovers across Bangladesh."
+        keywords={['pet community', 'pet lovers bangladesh', 'pet stories', 'pet advice']}
+      />
+    );
+  }
+  if (path === '/plus-membership') {
+    return (
+      <SEO
+        title="Plus Membership"
+        description="Unlock exclusive perks with PetBhai Plus membership including free delivery, discounts, and vet consultations."
+        keywords={['petbhai plus', 'pet membership', 'pet perks']}
+      />
+    );
+  }
+  if (path === '/faq') {
+    return (
+      <SEO
+        title="Frequently Asked Questions"
+        description="Find answers to common PetBhai questions about orders, deliveries, adoption, and services."
+        keywords={['petbhai faq', 'pet care questions', 'pet services help']}
+      />
+    );
+  }
+  if (path === '/safety') {
+    return (
+      <SEO
+        title="Safety & Trust"
+        description="Learn about PetBhai safety standards, verified services, and trusted pet care policies."
+        keywords={['pet safety', 'trusted pet services', 'petbhai trust']}
+      />
+    );
+  }
+  if (path === '/terms') {
+    return (
+      <SEO
+        title="Terms & Conditions"
+        description="Review PetBhai's terms and conditions for services, purchases, and community participation."
+        keywords={['petbhai terms', 'terms and conditions']}
+      />
+    );
+  }
+  if (path === '/report') {
+    return (
+      <SEO
+        title="Report a Concern"
+        description="Report pet welfare concerns or issues and help us keep the community safe."
+        keywords={['report pet', 'animal welfare', 'pet safety report']}
+      />
+    );
+  }
+  if (path === '/volunteer') {
+    return (
+      <SEO
+        title="Volunteer"
+        description="Join PetBhai's volunteer community to support pet welfare initiatives across Bangladesh."
+        keywords={['volunteer', 'animal welfare bangladesh', 'pet rescue']}
+      />
+    );
+  }
+  if (path === '/compatibility-quiz') {
+    return (
+      <SEO
+        title="Pet Compatibility Quiz"
+        description="Find the perfect pet companion with our quick compatibility quiz."
+        keywords={['pet compatibility', 'pet quiz', 'adopt a pet']}
+      />
+    );
+  }
+  if (path === '/services/booking') {
+    return (
+      <SEO
+        title="Book a Service"
+        description="Book trusted pet services including grooming, training, and vet appointments with PetBhai."
+        keywords={['book pet service', 'pet grooming booking', 'vet appointment']}
+      />
+    );
+  }
+  if (path.startsWith('/product/')) {
+    return (
+      <SEO
+        title="Product Details"
+        description="Explore premium pet products and supplies available on PetBhai."
+        type="product"
+      />
+    );
+  }
+  if (path.startsWith('/blog/')) {
+    return (
+      <SEO
+        title="Article"
+        description="Read expert pet care tips and stories from the PetBhai blog."
+        type="article"
+      />
+    );
+  }
+  if (path.startsWith('/adopt/')) {
+    return (
+      <SEO
+        title="Adoption Listing"
+        description="Meet pets looking for a loving home and start the adoption process."
+        keywords={['adopt a pet', 'pet adoption listing']}
+      />
+    );
+  }
+  if (path.startsWith('/vet/') || path.startsWith('/services/professional/')) {
+    return (
+      <SEO
+        title="Service Provider"
+        description="View verified vet and service provider profiles on PetBhai."
+        keywords={['pet services', 'vet profile', 'pet grooming']}
+      />
+    );
+  }
+  if (path === '/checkout') return <SEO title="Checkout" noindex />;
+  if (path === '/login') return <SEO title="Login" noindex />;
+  if (path === '/signup') return <SEO title="Sign Up" noindex />;
+  if (path === '/profile') return <SEO title="Profile" noindex />;
+  if (path === '/dashboard') return <SEO title="Dashboard" noindex />;
+  if (path === '/thumbnail-generator') {
+    return (
+      <SEO
+        title="Thumbnail Generator"
+        description="Create pet-friendly thumbnails quickly with PetBhai's generator."
+        keywords={['thumbnail generator', 'pet design tools']}
+        noindex
+      />
+    );
+  }
+
+  return <SEO title="PetBhai" />;
+};
+
 const AppContent: React.FC = () => {
   const { consent } = useCookieConsent();
 
@@ -127,6 +281,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:text-slate-200">
+      <RouteSEO />
       <OfflineIndicator />
       <Header />
       <main className="flex-grow">
@@ -169,6 +324,7 @@ const AppContent: React.FC = () => {
       <ScrollToTop />
       <ScrollToTopOnNavigate />
       <Footer />
+      <SpeedInsights />
       <ToastContainer />
       <ConfirmationModal />
       <CookieConsentBanner />
@@ -178,38 +334,40 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <ConfirmationProvider>
-          <ToastProvider>
-            <ArticleProvider>
-              <ProductProvider>
-                <VetProvider>
-                  <AnimalProvider>
-                    <BrandProvider>
-                      <AuthProvider>
-                        <VaccinationProvider>
-                          <PetManagementProvider>
-                            <CartProvider>
-                              <CookieConsentProvider>
-                                <HashRouter>
-                                  <ScrollToTop />
-                                  <AppContent />
-                                </HashRouter>
-                              </CookieConsentProvider>
-                            </CartProvider>
-                          </PetManagementProvider>
-                        </VaccinationProvider>
-                      </AuthProvider>
-                    </BrandProvider>
-                  </AnimalProvider>
-                </VetProvider>
-              </ProductProvider>
-            </ArticleProvider>
-          </ToastProvider>
-        </ConfirmationProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <ConfirmationProvider>
+            <ToastProvider>
+              <ArticleProvider>
+                <ProductProvider>
+                  <VetProvider>
+                    <AnimalProvider>
+                      <BrandProvider>
+                        <AuthProvider>
+                          <VaccinationProvider>
+                            <PetManagementProvider>
+                              <CartProvider>
+                                <CookieConsentProvider>
+                                  <HashRouter>
+                                    <ScrollToTop />
+                                    <AppContent />
+                                  </HashRouter>
+                                </CookieConsentProvider>
+                              </CartProvider>
+                            </PetManagementProvider>
+                          </VaccinationProvider>
+                        </AuthProvider>
+                      </BrandProvider>
+                    </AnimalProvider>
+                  </VetProvider>
+                </ProductProvider>
+              </ArticleProvider>
+            </ToastProvider>
+          </ConfirmationProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 

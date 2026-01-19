@@ -8,6 +8,7 @@ interface SEOProps {
   image?: string;
   url?: string;
   type?: 'website' | 'article' | 'product';
+  noindex?: boolean;
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
@@ -34,9 +35,10 @@ const SEO: React.FC<SEOProps> = ({
     'pet adoption bangladesh',
     'পোষা প্রাণী',
   ],
-  image = 'https://petbhai.com/og-image.jpg',
+  image,
   url,
   type = 'website',
+  noindex = false,
   author,
   publishedTime,
   modifiedTime,
@@ -50,9 +52,17 @@ const SEO: React.FC<SEOProps> = ({
   twitterCreator = '@petbhai_bd',
 }) => {
   const siteTitle = 'PetBhai';
+  const baseUrl =
+    import.meta.env.VITE_SITE_URL ||
+    (typeof window !== 'undefined'
+      ? `${window.location.origin}${import.meta.env.BASE_URL}`
+      : 'https://www.petbhai.com/');
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const defaultImage = new URL('landing-hero.png', normalizedBaseUrl).toString();
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const currentUrl =
-    url || (typeof window !== 'undefined' ? window.location.href : 'https://petbhai.com');
+    url || (typeof window !== 'undefined' ? window.location.href : normalizedBaseUrl);
+  const resolvedImage = image || defaultImage;
 
   // Schema.org structured data
   const getStructuredData = () => {
@@ -62,7 +72,7 @@ const SEO: React.FC<SEOProps> = ({
       name: title || siteTitle,
       description,
       url: currentUrl,
-      image,
+      image: resolvedImage,
     };
 
     if (type === 'product' && price) {
@@ -98,7 +108,7 @@ const SEO: React.FC<SEOProps> = ({
           name: siteTitle,
           logo: {
             '@type': 'ImageObject',
-            url: 'https://petbhai.com/logo.png',
+            url: new URL('icon-192x192.png', normalizedBaseUrl).toString(),
           },
         },
       };
@@ -109,7 +119,7 @@ const SEO: React.FC<SEOProps> = ({
       '@type': 'WebSite',
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://petbhai.com/#/shop?q={search_term_string}',
+        target: `${normalizedBaseUrl}#/shop?q={search_term_string}`,
         'query-input': 'required name=search_term_string',
       },
     };
@@ -122,13 +132,14 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords.join(', ')} />
       <link rel="canonical" href={currentUrl} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:url" content={currentUrl} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
+      <meta property="og:image" content={resolvedImage} />
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:locale:alternate" content="bn_BD" />
@@ -138,7 +149,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:url" content={currentUrl} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image" content={resolvedImage} />
       {twitterCreator && <meta name="twitter:creator" content={twitterCreator} />}
 
       {/* Article specific */}
@@ -175,8 +186,8 @@ const SEO: React.FC<SEOProps> = ({
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'PetBhai',
-          url: 'https://petbhai.com',
-          logo: 'https://petbhai.com/logo.png',
+          url: normalizedBaseUrl,
+          logo: new URL('icon-192x192.png', normalizedBaseUrl).toString(),
           sameAs: [
             'https://www.facebook.com/petbhaibd',
             'https://www.instagram.com/petbhai_bd',
