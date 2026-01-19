@@ -29,7 +29,7 @@ import { VaccinationProvider } from './contexts/VaccinationContext';
 import OfflineIndicator from './components/OfflineIndicator';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
 import { PetManagementProvider } from './contexts/PetManagementContext';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { HelmetProvider } from 'react-helmet-async';
 import SEO, {
   HomePageSEO,
