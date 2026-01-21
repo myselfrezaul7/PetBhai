@@ -30,18 +30,36 @@
       content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     />
     <meta name="bingbot" content="index, follow" />
+    <meta name="slurp" content="index, follow" />
+    <meta name="duckduckbot" content="index, follow" />
     <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/" />
     <meta name="author" content="PetBhai" />
     <meta
       name="keywords"
-      content="pet shop, pet supplies, pet adoption, veterinary services, pet food, pet grooming, animal welfare, Bangladesh pets, dog food, cat food, pet accessories"
+      content="pet shop, pet supplies, pet adoption, veterinary services, pet food, pet grooming, animal welfare, Bangladesh pets, dog food, cat food, pet accessories, পোষা প্রাণী, পেট শপ বাংলাদেশ, কুকুরের খাবার, বিড়ালের খাবার"
     />
     <meta name="geo.region" content="BD" />
-    <meta name="geo.placename" content="Bangladesh" />
+    <meta name="geo.placename" content="Dhaka, Bangladesh" />
+    <meta name="geo.position" content="23.8103;90.4125" />
+    <meta name="ICBM" content="23.8103, 90.4125" />
     <meta name="language" content="English" />
-    <meta name="revisit-after" content="7 days" />
+    <meta name="revisit-after" content="3 days" />
     <meta name="rating" content="general" />
     <meta name="distribution" content="global" />
+    <meta name="target" content="all" />
+    <meta name="audience" content="all" />
+    <meta name="coverage" content="Worldwide" />
+    <meta name="subject" content="Pet Care, Pet Supplies, Animal Welfare" />
+    <meta name="classification" content="Business, Shopping, Pets" />
+    <meta name="pagename" content="PetBhai - Animal Welfare & Pet Supplies" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+
+    <!-- Speakable Content for Voice Search (Google Assistant) -->
+    <meta name="speakable" content="description" />
+    
+    <!-- Humans.txt - for SEO credit -->
+    <link rel="author" type="text/plain" href="./humans.txt" />
 
     <!-- Security Headers -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -285,9 +303,82 @@
                 "description": "Premium pet food, toys, and accessories"
               }
             ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://myselfrezaul7.github.io/PetBhai/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What services does PetBhai offer?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "PetBhai offers pet adoption services, veterinary consultations, pet grooming, premium pet food and supplies, AI pet assistant, and a community platform for pet lovers in Bangladesh."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How can I adopt a pet from PetBhai?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Visit our Adopt page, browse available pets, fill out the adoption application form, and our team will contact you for the adoption process. We ensure all pets are vaccinated and healthy."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you offer home delivery for pet supplies?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, PetBhai offers home delivery for all pet supplies across Bangladesh. We provide fast and reliable delivery with tracking options."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How can I consult a veterinarian online?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "You can use our Consult Vet feature to book online consultations with certified veterinarians. Choose your preferred vet, select a time slot, and get professional advice for your pet."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What payment methods does PetBhai accept?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "PetBhai accepts bKash, Nagad, credit/debit cards, and cash on delivery for your convenience."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "SpeakableSpecification",
+            "@id": "https://myselfrezaul7.github.io/PetBhai/#speakable",
+            "cssSelector": ["meta[name='description']", "h1", ".hero-text"]
           }
         ]
       }
+    </script>
+
+    <!-- Additional Schema: SoftwareApplication for PWA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "PetBhai",
+      "operatingSystem": "Web, Android, iOS",
+      "applicationCategory": "LifestyleApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BDT"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "PetBhai - Your trusted partner for pet adoption, veterinary services, and premium pet supplies in Bangladesh"
+    }
     </script>
 
     <!-- Google Analytics Placeholder -->

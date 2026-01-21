@@ -1,5 +1,10 @@
+# PetBhai Robots.txt
+# https://myselfrezaul7.github.io/PetBhai/
+
+# Allow all search engines
 User-agent: *
 Allow: /
+Disallow: /api/
 Disallow: /login
 Disallow: /signup
 Disallow: /checkout
@@ -10,9 +15,70 @@ Disallow: /#/signup
 Disallow: /#/checkout
 Disallow: /#/profile
 Disallow: /#/dashboard
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
 
-# Crawl-delay for polite crawling
+# Google specific
+User-agent: Googlebot
+Allow: /
 Crawl-delay: 1
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /
+
+# Google Video
+User-agent: Googlebot-Video
+Allow: /
+
+# Google Mobile
+User-agent: Googlebot-Mobile
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Baidu
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+# Yandex
+User-agent: Yandex
+Allow: /
+Crawl-delay: 2
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+
+# Facebook
+User-agent: facebookexternalhit
+Allow: /
+
+# Twitter
+User-agent: Twitterbot
+Allow: /
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# Block bad bots (SEO crawlers that waste bandwidth)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
 
 # Sitemap location
 Sitemap: https://myselfrezaul7.github.io/PetBhai/sitemap.xml

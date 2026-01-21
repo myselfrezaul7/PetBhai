@@ -1,0 +1,17 @@
+/* TEAM */
+Name: PetBhai Team
+Site: https://myselfrezaul7.github.io/PetBhai/
+Location: Dhaka, Bangladesh
+Twitter: @petbhai
+
+/* SITE */
+Last update: 2026/01/21
+Standards: HTML5, CSS3, JavaScript ES6+
+Software: React, Vite, Tailwind CSS, Node.js, Express
+Components: React Router, React Helmet
+Hosting: GitHub Pages, Vercel
+
+/* THANKS */
+React Team - https://react.dev
+Tailwind CSS - https://tailwindcss.com
+Vite - https://vitejs.dev
