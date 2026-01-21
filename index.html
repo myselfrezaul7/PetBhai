@@ -17,23 +17,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PetBhai - Animal Welfare &amp; Pet Supplies</title>
 
+    <!-- Security Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- Security: Content Security Policy (Enhanced) -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://esm.sh http://localhost:5000 https://api.petbhai.com https://*.google-analytics.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; upgrade-insecure-requests;"
+    />
+
     <!-- PWA & SEO Tags -->
     <link rel="icon" type="image/png" href="./icon-192x192.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="apple-touch-icon" href="./icon-192x192.png" />
+    <meta name="theme-color" content="#f97316" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta
       name="description"
       content="PetBhai - Your trusted partner in animal welfare, offering pet adoption, services, and premium supplies."
     />
 
+    <!-- DNS Prefetch for Performance -->
+    <link rel="dns-prefetch" href="https://esm.sh" />
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+    <!-- Preconnect for Critical Resources -->
+    <link rel="preconnect" href="https://esm.sh" crossorigin />
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.petbhai.com/" />
-    <!-- Security: Content Security Policy -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://esm.sh http://localhost:5000 https://api.petbhai.com;"
-    />
     <meta property="og:title" content="PetBhai - Your Pet's Best Friend in Bangladesh" />
     <meta
       property="og:description"

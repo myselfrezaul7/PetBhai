@@ -66,6 +66,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "lighthouse": "^13.0.1",
     "prettier": "^3.7.4",
+    "terser": "^5.46.0",
     "ts-jest": "^29.1.2",
     "typescript": "^5.2.2",
     "typescript-eslint": "^8.50.1",

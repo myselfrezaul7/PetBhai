@@ -1,48 +1,80 @@
-const CACHE_NAME = 'petbhai-cache-v3'; // Incremented version
-const STATIC_CACHE = 'petbhai-static-v3';
-const DYNAMIC_CACHE = 'petbhai-dynamic-v1';
-const IMAGE_CACHE = 'petbhai-images-v1';
+const CACHE_NAME = 'petbhai-cache-v4'; // Incremented version
+const STATIC_CACHE = 'petbhai-static-v4';
+const DYNAMIC_CACHE = 'petbhai-dynamic-v2';
+const IMAGE_CACHE = 'petbhai-images-v2';
+const FONT_CACHE = 'petbhai-fonts-v1';
+const API_CACHE = 'petbhai-api-v1';
 
-const urlsToCache = ['/', '/index.html', '/manifest.json'];
+// Critical assets to precache
+const urlsToCache = ['/', '/index.html', '/manifest.json', '/icon-192x192.png'];
 
 // Cache size limits
-const DYNAMIC_CACHE_LIMIT = 50;
-const IMAGE_CACHE_LIMIT = 100;
+const DYNAMIC_CACHE_LIMIT = 75;
+const IMAGE_CACHE_LIMIT = 150;
+const API_CACHE_LIMIT = 50;
 
-// Trim cache to limit
-const trimCache = (cacheName, maxItems) => {
-  caches.open(cacheName).then((cache) => {
-    cache.keys().then((keys) => {
-      if (keys.length > maxItems) {
-        cache.delete(keys[0]).then(() => trimCache(cacheName, maxItems));
-      }
-    });
+// API cache TTL (5 minutes for most data)
+const API_CACHE_TTL = 5 * 60 * 1000;
+
+// Trim cache to limit (FIFO eviction)
+const trimCache = async (cacheName, maxItems) => {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    const keysToDelete = keys.slice(0, keys.length - maxItems);
+    await Promise.all(keysToDelete.map((key) => cache.delete(key)));
+  }
+};
+
+// Check if cached response is still valid
+const isCacheValid = (response, maxAge) => {
+  if (!response) return false;
+  const dateHeader = response.headers.get('sw-cache-time');
+  if (!dateHeader) return true; // No timestamp, assume valid
+  const cacheTime = parseInt(dateHeader, 10);
+  return Date.now() - cacheTime < maxAge;
+};
+
+// Add timestamp to response for cache validation
+const addCacheTimestamp = async (response) => {
+  const cloned = response.clone();
+  const headers = new Headers(cloned.headers);
+  headers.append('sw-cache-time', Date.now().toString());
+  const body = await cloned.blob();
+  return new Response(body, {
+    status: cloned.status,
+    statusText: cloned.statusText,
+    headers,
   });
 };
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      console.log('Opened cache');
+      console.log('Service Worker: Precaching static assets');
       return cache.addAll(urlsToCache);
     })
   );
+  // Immediately take control
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [STATIC_CACHE, DYNAMIC_CACHE, IMAGE_CACHE];
+  const cacheWhitelist = [STATIC_CACHE, DYNAMIC_CACHE, IMAGE_CACHE, FONT_CACHE, API_CACHE];
   event.waitUntil(
     Promise.all([
+      // Clean old caches
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheWhitelist.indexOf(cacheName) === -1) {
+            if (!cacheWhitelist.includes(cacheName)) {
+              console.log('Service Worker: Removing old cache', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       }),
+      // Take control of all clients immediately
       self.clients.claim(),
     ])
   );
@@ -51,30 +83,116 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(event.request.url);
 
-  // Navigation requests: Network first, fall back to cache (index.html)
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Skip chrome-extension and other non-http(s) protocols
+  if (!requestUrl.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Navigation requests: Network first with offline fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('/index.html');
+      fetch(event.request)
+        .then((response) => {
+          // Cache the navigation response
+          const responseClone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          return caches.match('/index.html');
+        })
+    );
+    return;
+  }
+
+  // Font requests: Cache first with long TTL
+  if (
+    requestUrl.hostname.includes('fonts.googleapis.com') ||
+    requestUrl.hostname.includes('fonts.gstatic.com') ||
+    requestUrl.pathname.match(/\.(woff2?|ttf|otf|eot)$/i)
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request).then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+          caches.open(FONT_CACHE).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+          return networkResponse;
+        });
       })
     );
     return;
   }
 
-  // API or Data requests: Network only (or specific strategy if needed)
+  // API requests: Network first with cache fallback for GET requests
   if (event.request.url.includes('/api/')) {
-    event.respondWith(fetch(event.request));
+    // Skip caching for auth and order endpoints (sensitive data)
+    if (
+      event.request.url.includes('/api/auth') ||
+      event.request.url.includes('/api/orders') ||
+      event.request.url.includes('/api/csrf')
+    ) {
+      event.respondWith(fetch(event.request));
+      return;
+    }
+
+    // Cache-then-network for product/article data with short TTL
+    event.respondWith(
+      caches.open(API_CACHE).then(async (cache) => {
+        try {
+          const networkResponse = await fetch(event.request);
+          if (networkResponse.ok) {
+            const responseWithTimestamp = await addCacheTimestamp(networkResponse.clone());
+            cache.put(event.request, responseWithTimestamp);
+            trimCache(API_CACHE, API_CACHE_LIMIT);
+          }
+          return networkResponse;
+        } catch {
+          // Network failed, try cache
+          const cachedResponse = await cache.match(event.request);
+          if (cachedResponse && isCacheValid(cachedResponse, API_CACHE_TTL)) {
+            return cachedResponse;
+          }
+          // Return a basic error response
+          return new Response(JSON.stringify({ error: 'Offline' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      })
+    );
     return;
   }
 
   // Image requests: Cache first with network fallback
   if (
     event.request.destination === 'image' ||
-    requestUrl.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)
+    requestUrl.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|avif)$/i)
   ) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {
+          // Background refresh for stale images
+          fetch(event.request)
+            .then((networkResponse) => {
+              if (networkResponse.ok) {
+                caches.open(IMAGE_CACHE).then((cache) => {
+                  cache.put(event.request, networkResponse);
+                });
+              }
+            })
+            .catch(() => {});
           return cachedResponse;
         }
 
@@ -121,7 +239,6 @@ self.addEventListener('fetch', (event) => {
 
           const responseToCache = networkResponse.clone();
           caches.open(DYNAMIC_CACHE).then((cache) => {
-            // Ensure we don't cache unsupported schemes (like chrome-extension://)
             if (event.request.url.startsWith('http')) {
               cache.put(event.request, responseToCache);
               trimCache(DYNAMIC_CACHE, DYNAMIC_CACHE_LIMIT);
@@ -129,12 +246,59 @@ self.addEventListener('fetch', (event) => {
           });
           return networkResponse;
         })
-        .catch((err) => {
-          // Network failed, do nothing (we likely returned cachedResponse)
-          console.log('Network fetch failed for', event.request.url);
+        .catch(() => {
+          console.log('Service Worker: Network fetch failed for', event.request.url);
+          return cachedResponse;
         });
 
       return cachedResponse || fetchPromise;
+    })
+  );
+});
+
+// Background sync for failed requests (if supported)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-pending-requests') {
+    event.waitUntil(
+      // Handle any queued requests here
+      Promise.resolve()
+    );
+  }
+});
+
+// Push notifications handler
+self.addEventListener('push', (event) => {
+  if (event.data) {
+    const data = event.data.json();
+    const options = {
+      body: data.body || 'New notification from PetBhai',
+      icon: '/icon-192x192.png',
+      badge: '/icon-192x192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || '/',
+      },
+    };
+    event.waitUntil(self.registration.showNotification(data.title || 'PetBhai', options));
+  }
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((windowClients) => {
+      // Check if there's already a window/tab open
+      for (const client of windowClients) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Open a new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
     })
   );
 });

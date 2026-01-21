@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import path from 'path';
+import compression from 'compression';
 import productRoutes from './routes/productRoutes';
 import articleRoutes from './routes/articleRoutes';
 import vetRoutes from './routes/vetRoutes';
@@ -15,6 +16,7 @@ import postRoutes from './routes/postRoutes';
 import { requestLogger, errorLogger } from './middleware/logger';
 import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
+import { botProtection, honeypotValidation, getCSRFTokenHandler } from './middleware/botProtection';
 
 dotenv.config();
 
@@ -23,21 +25,71 @@ const port = process.env.PORT || 5000;
 
 console.log('Backend API initializing...');
 
+// Compression middleware - should be early for performance
+app.use(
+  compression({
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+    level: 6, // Balance between compression ratio and speed
+  })
+);
+
 // Security middleware - should be first
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://esm.sh', 'https://cdn.tailwindcss.com'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+        connectSrc: ["'self'", 'https://esm.sh', 'https://api.petbhai.com'],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: [],
       },
     },
     crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
+    noSniff: true,
+    originAgentCluster: true,
+    dnsPrefetchControl: { allow: false },
+    frameguard: { action: 'deny' },
+    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
   })
 );
+
+// Additional security headers not covered by helmet
+app.use((req, res, next) => {
+  // Permissions Policy (formerly Feature Policy)
+  res.setHeader(
+    'Permissions-Policy',
+    'accelerometer=(), camera=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()'
+  );
+  // Additional XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Prevent caching of sensitive data
+  if (req.path.includes('/api/auth') || req.path.includes('/api/orders')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  next();
+});
 
 // CORS configuration
 const allowedOrigins = ['http://localhost:3000', 'https://myselfrezaul7.github.io'];
@@ -75,8 +127,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Security: XSS and SQL injection protection
 app.use(securityMiddleware);
 
+// Bot protection middleware
+app.use(botProtection);
+
 // Global rate limiting
 app.use('/api/', apiLimiter);
+
+// CSRF token endpoint
+app.get('/api/csrf-token', getCSRFTokenHandler);
+
+// Honeypot validation for form submissions
+app.use('/api/auth', honeypotValidation);
+app.use('/api/orders', honeypotValidation);
 
 // Routes
 app.use('/api/products', productRoutes);
