@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Environment variable for JWT secret (should be set in production)
-const JWT_SECRET = process.env.JWT_SECRET || 'petbhai_secret_key_change_in_production';
+// In development, we use a fallback, but in production this MUST be set via environment variable
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_local_only';
 
 // Extended Request type with user info
 export interface AuthRequest extends Request {
