@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
-// reCAPTCHA Site Key - this is public and safe to include in frontend code
-const RECAPTCHA_SITE_KEY = '6LdkHlIsAAAAAHPwFOmITApmRfZXi9XFo9JfBFdh';
+// reCAPTCHA Site Key - stored in environment variable for security
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '';
 
 // Declare global grecaptcha type
 declare global {

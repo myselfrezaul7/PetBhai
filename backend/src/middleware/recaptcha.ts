@@ -2,8 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { securityLog } from './logger';
 
 // reCAPTCHA Secret Key - stored in environment variable for security
-const RECAPTCHA_SECRET_KEY =
-  process.env.RECAPTCHA_SECRET_KEY || '6LdkHlIsAAAAAJvhJTawpqTK9FW4x7HwiqnFMZ15';
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || '';
 
 interface RecaptchaVerifyResponse {
   success: boolean;

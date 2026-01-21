@@ -417,8 +417,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Food',
     price: 1450,
     imageUrl: 'https://picsum.photos/seed/smartheartdog1/400/300',
-    description:
-      'SmartHeart Dog Food with Roast Beef flavor. Irresistible taste for your dog.',
+    description: 'SmartHeart Dog Food with Roast Beef flavor. Irresistible taste for your dog.',
     weight: '3kg',
     brandId: 6,
     rating: 4.6,
@@ -445,8 +444,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Dog Food',
     price: 1700,
     imageUrl: 'https://picsum.photos/seed/reflexdog1/400/300',
-    description:
-      'Reflex Dog Food with Lamb & Rice is easy to digest and perfect for adult dogs.',
+    description: 'Reflex Dog Food with Lamb & Rice is easy to digest and perfect for adult dogs.',
     weight: '3kg',
     brandId: 14,
     rating: 4.7,
@@ -543,8 +541,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Accessories',
     price: 250,
     imageUrl: 'https://picsum.photos/seed/collar1/400/300',
-    description:
-      'Colorful nylon collar with a cute bell. Adjustable size for cats and small dogs.',
+    description: 'Colorful nylon collar with a cute bell. Adjustable size for cats and small dogs.',
     weight: '1 unit',
     brandId: 16,
     rating: 4.3,
