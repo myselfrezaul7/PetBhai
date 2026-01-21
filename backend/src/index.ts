@@ -29,7 +29,7 @@ console.log('Backend API initializing...');
 // Compression middleware - should be early for performance
 app.use(
   compression({
-    filter: (req, res) => {
+    filter: (req: express.Request, res: express.Response) => {
       if (req.headers['x-no-compression']) {
         return false;
       }
