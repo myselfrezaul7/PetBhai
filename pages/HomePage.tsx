@@ -26,16 +26,30 @@ const HomePage: React.FC = () => {
     <main className="w-full">
       {/* Hero Section */}
       <section
-        className="container mx-auto px-4 md:px-6 pt-6 md:pt-12 pb-8 md:pb-12 animate-fade-in"
-        style={{ animationDelay: '0ms' }}
+        className="container mx-auto px-4 md:px-6 pt-6 md:pt-12 pb-8 md:pb-12"
         aria-label="Hero banner"
       >
         <div className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl group">
-          <img
-            src="/landing-hero.png"
-            alt="PetBhai - Your Pet's Partner"
-            className="w-full h-auto object-cover"
-          />
+          <picture>
+            {/* WebP for modern browsers - mobile first */}
+            <source
+              srcSet="/landing-hero-mobile.webp"
+              type="image/webp"
+              media="(max-width: 768px)"
+            />
+            <source srcSet="/landing-hero.webp" type="image/webp" />
+            {/* PNG fallback */}
+            <img
+              src="/landing-hero.png"
+              alt="PetBhai - Your Pet's Partner"
+              className="w-full h-auto object-cover"
+              width="1200"
+              height="630"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
 
           {/* Overlay Buttons */}
           <div className="absolute bottom-4 sm:bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 px-4 z-10">
