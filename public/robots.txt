@@ -11,4 +11,11 @@ Disallow: /#/checkout
 Disallow: /#/profile
 Disallow: /#/dashboard
 
-Sitemap: https://www.petbhai.com/sitemap.xml
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://myselfrezaul7.github.io/PetBhai/sitemap.xml
+
+# Host directive
+Host: https://myselfrezaul7.github.io/PetBhai/
