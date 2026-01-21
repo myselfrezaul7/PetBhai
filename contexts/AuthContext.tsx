@@ -58,9 +58,9 @@ const getInitialCurrentUser = (): User | null => {
 interface AuthContextType {
   currentUser: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string, recaptchaToken?: string) => Promise<User>;
   logout: () => void;
-  signup: (name: string, email: string, password: string) => Promise<User>;
+  signup: (name: string, email: string, password: string, recaptchaToken?: string) => Promise<User>;
   socialLogin: (socialUser: {
     firstName: string;
     lastName: string;
@@ -93,43 +93,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentUser]);
 
-  const login = useCallback(async (email: string, password: string): Promise<User> => {
-    const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
+  const login = useCallback(
+    async (email: string, password: string, recaptchaToken?: string): Promise<User> => {
+      const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
 
-    if (!validateEmail(sanitizedEmail)) {
-      throw new Error('Invalid email format');
-    }
-
-    if (!password || password.length < 1) {
-      throw new Error('Password is required');
-    }
-
-    try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: sanitizedEmail, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Login failed');
+      if (!validateEmail(sanitizedEmail)) {
+        throw new Error('Invalid email format');
       }
 
-      const data: AuthResponse = await response.json();
+      if (!password || password.length < 1) {
+        throw new Error('Password is required');
+      }
 
-      // Save token
-      window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-      setCurrentUser(data.user);
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: sanitizedEmail, password, recaptchaToken }),
+        });
 
-      return data.user;
-    } catch (error: any) {
-      console.error('Login error:', error);
-      throw new Error(error.message || 'Failed to login');
-    }
-  }, []);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Login failed');
+        }
+
+        const data: AuthResponse = await response.json();
+
+        // Save token
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        setCurrentUser(data.user);
+
+        return data.user;
+      } catch (error: any) {
+        console.error('Login error:', error);
+        throw new Error(error.message || 'Failed to login');
+      }
+    },
+    []
+  );
 
   const logout = useCallback(() => {
     setCurrentUser(null);
@@ -138,7 +141,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signup = useCallback(
-    async (name: string, email: string, password: string): Promise<User> => {
+    async (
+      name: string,
+      email: string,
+      password: string,
+      recaptchaToken?: string
+    ): Promise<User> => {
       const sanitizedName = sanitizeInput(name.trim());
       const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
 
@@ -150,7 +158,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const response = await fetch(`${API_URL}/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: sanitizedName, email: sanitizedEmail, password }),
+          body: JSON.stringify({
+            name: sanitizedName,
+            email: sanitizedEmail,
+            password,
+            recaptchaToken,
+          }),
         });
 
         if (!response.ok) {

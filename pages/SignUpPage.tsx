@@ -4,6 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleIcon, EyeIcon, EyeOffIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import { sanitizeInput } from '../lib/security';
+import { ReCaptcha, useReCaptcha } from '../components/ReCaptcha';
+import HoneypotFields from '../components/HoneypotFields';
 
 interface FormErrors {
   name?: string;
@@ -23,6 +25,7 @@ const SignUpPage: React.FC = () => {
   const { signup, socialLogin } = useAuth();
   const navigate = useNavigate();
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const { token: recaptchaToken, isVerified, handleVerify, handleExpire } = useReCaptcha();
 
   // Focus name input on mount
   useEffect(() => {
@@ -98,11 +101,17 @@ const SignUpPage: React.FC = () => {
         return;
       }
 
+      // Check reCAPTCHA verification
+      if (!isVerified || !recaptchaToken) {
+        setError('Please complete the reCAPTCHA verification');
+        return;
+      }
+
       setFieldErrors({});
       setIsLoading(true);
 
       try {
-        await signup(sanitizedName, sanitizedEmail, password);
+        await signup(sanitizedName, sanitizedEmail, password, recaptchaToken);
         navigate('/community');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -110,7 +119,18 @@ const SignUpPage: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [name, email, password, signup, navigate, validateName, validateEmail, validatePassword]
+    [
+      name,
+      email,
+      password,
+      signup,
+      navigate,
+      validateName,
+      validateEmail,
+      validatePassword,
+      isVerified,
+      recaptchaToken,
+    ]
   );
 
   const handleSocialLogin = useCallback(async () => {
@@ -177,6 +197,7 @@ const SignUpPage: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <HoneypotFields />
           <div>
             <label
               htmlFor="name"
@@ -293,10 +314,21 @@ const SignUpPage: React.FC = () => {
               Must be at least 6 characters
             </p>
           </div>
+
+          {/* reCAPTCHA */}
+          <div className="flex justify-center">
+            <ReCaptcha
+              onVerify={handleVerify}
+              onExpire={handleExpire}
+              theme="light"
+              size="normal"
+            />
+          </div>
+
           <div>
             <button
               type="submit"
-              disabled={isLoading || isSocialLoading}
+              disabled={isLoading || isSocialLoading || !isVerified}
               className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98] flex items-center justify-center gap-2"
               aria-label={isLoading ? 'Creating account, please wait' : 'Sign Up with Email'}
             >

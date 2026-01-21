@@ -4,6 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleIcon, EyeIcon, EyeOffIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import { sanitizeInput } from '../lib/security';
+import { ReCaptcha, useReCaptcha } from '../components/ReCaptcha';
+import HoneypotFields from '../components/HoneypotFields';
 
 interface FormErrors {
   email?: string;
@@ -21,6 +23,7 @@ const LoginPage: React.FC = () => {
   const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const { token: recaptchaToken, isVerified, handleVerify, handleExpire } = useReCaptcha();
 
   // Focus email input on mount
   useEffect(() => {
@@ -76,11 +79,17 @@ const LoginPage: React.FC = () => {
         return;
       }
 
+      // Check reCAPTCHA verification
+      if (!isVerified || !recaptchaToken) {
+        setError('Please complete the reCAPTCHA verification');
+        return;
+      }
+
       setFieldErrors({});
       setIsLoading(true);
 
       try {
-        await login(sanitizedEmail, password);
+        await login(sanitizedEmail, password, recaptchaToken);
         navigate('/community');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -88,7 +97,7 @@ const LoginPage: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [email, password, login, navigate, validateEmail, validatePassword]
+    [email, password, login, navigate, validateEmail, validatePassword, isVerified, recaptchaToken]
   );
 
   const handleSocialLogin = useCallback(async () => {
@@ -155,6 +164,7 @@ const LoginPage: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <HoneypotFields />
           <div>
             <label
               htmlFor="email"
@@ -237,10 +247,21 @@ const LoginPage: React.FC = () => {
               </p>
             )}
           </div>
+
+          {/* reCAPTCHA */}
+          <div className="flex justify-center">
+            <ReCaptcha
+              onVerify={handleVerify}
+              onExpire={handleExpire}
+              theme="light"
+              size="normal"
+            />
+          </div>
+
           <div>
             <button
               type="submit"
-              disabled={isLoading || isSocialLoading}
+              disabled={isLoading || isSocialLoading || !isVerified}
               className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98] flex items-center justify-center gap-2"
               aria-label={isLoading ? 'Logging in, please wait' : 'Login with Email'}
             >

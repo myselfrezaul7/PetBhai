@@ -17,6 +17,7 @@ import { requestLogger, errorLogger } from './middleware/logger';
 import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
 import { botProtection, honeypotValidation, getCSRFTokenHandler } from './middleware/botProtection';
+import { recaptchaMiddleware } from './middleware/recaptcha';
 
 dotenv.config();
 
@@ -44,12 +45,24 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", 'https://esm.sh', 'https://cdn.tailwindcss.com'],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://esm.sh',
+          'https://cdn.tailwindcss.com',
+          'https://www.google.com/recaptcha/',
+          'https://www.gstatic.com/recaptcha/',
+        ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
-        connectSrc: ["'self'", 'https://esm.sh', 'https://api.petbhai.com'],
-        frameSrc: ["'none'"],
+        connectSrc: [
+          "'self'",
+          'https://esm.sh',
+          'https://api.petbhai.com',
+          'https://www.google.com/recaptcha/',
+        ],
+        frameSrc: ['https://www.google.com/recaptcha/', 'https://recaptcha.google.com/recaptcha/'],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
@@ -139,6 +152,13 @@ app.get('/api/csrf-token', getCSRFTokenHandler);
 // Honeypot validation for form submissions
 app.use('/api/auth', honeypotValidation);
 app.use('/api/orders', honeypotValidation);
+
+// reCAPTCHA verification for sensitive endpoints
+// Applied to login, signup, and order creation
+app.post('/api/auth/login', recaptchaMiddleware);
+app.post('/api/auth/signup', recaptchaMiddleware);
+app.post('/api/auth/register', recaptchaMiddleware);
+app.post('/api/orders', recaptchaMiddleware);
 
 // Routes
 app.use('/api/products', productRoutes);
