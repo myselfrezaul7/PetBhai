@@ -57,7 +57,7 @@
 
     <!-- Speakable Content for Voice Search (Google Assistant) -->
     <meta name="speakable" content="description" />
-    
+
     <!-- Humans.txt - for SEO credit -->
     <link rel="author" type="text/plain" href="./humans.txt" />
 
@@ -183,12 +183,11 @@
             "inLanguage": "en-US"
           },
           {
-            "@type": "LocalBusiness",
+            "@type": ["LocalBusiness", "PetStore"],
             "@id": "https://myselfrezaul7.github.io/PetBhai/#localbusiness",
             "name": "PetBhai",
             "image": "https://myselfrezaul7.github.io/PetBhai/icon-512x512.png",
             "url": "https://myselfrezaul7.github.io/PetBhai/",
-            "@type": ["LocalBusiness", "PetStore", "VeterinaryCare"],
             "priceRange": "$$",
             "address": {
               "@type": "PostalAddress",
@@ -279,28 +278,28 @@
             "name": "Pet Services",
             "itemListElement": [
               {
-                "@type": "Service",
+                "@type": "ListItem",
                 "position": 1,
                 "name": "Pet Adoption",
-                "description": "Find your perfect furry companion from our rescued animals"
+                "url": "https://myselfrezaul7.github.io/PetBhai/#/adopt"
               },
               {
-                "@type": "Service",
+                "@type": "ListItem",
                 "position": 2,
                 "name": "Veterinary Care",
-                "description": "Professional veterinary services and consultations"
+                "url": "https://myselfrezaul7.github.io/PetBhai/#/consult-vet"
               },
               {
-                "@type": "Service",
+                "@type": "ListItem",
                 "position": 3,
                 "name": "Pet Grooming",
-                "description": "Professional grooming services for dogs and cats"
+                "url": "https://myselfrezaul7.github.io/PetBhai/#/services"
               },
               {
-                "@type": "Service",
+                "@type": "ListItem",
                 "position": 4,
                 "name": "Pet Supplies",
-                "description": "Premium pet food, toys, and accessories"
+                "url": "https://myselfrezaul7.github.io/PetBhai/#/shop"
               }
             ]
           },
@@ -349,11 +348,6 @@
                 }
               }
             ]
-          },
-          {
-            "@type": "SpeakableSpecification",
-            "@id": "https://myselfrezaul7.github.io/PetBhai/#speakable",
-            "cssSelector": ["meta[name='description']", "h1", ".hero-text"]
           }
         ]
       }
@@ -361,24 +355,24 @@
 
     <!-- Additional Schema: SoftwareApplication for PWA -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "PetBhai",
-      "operatingSystem": "Web, Android, iOS",
-      "applicationCategory": "LifestyleApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "BDT"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "250"
-      },
-      "description": "PetBhai - Your trusted partner for pet adoption, veterinary services, and premium pet supplies in Bangladesh"
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "PetBhai",
+        "operatingSystem": "Web, Android, iOS",
+        "applicationCategory": "LifestyleApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BDT"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "250"
+        },
+        "description": "PetBhai - Your trusted partner for pet adoption, veterinary services, and premium pet supplies in Bangladesh"
+      }
     </script>
 
     <!-- Google Analytics Placeholder -->
