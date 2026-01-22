@@ -11,7 +11,28 @@ import {
 } from './data/mockData';
 import type { User, Product, Article, Vet, Animal, Brand, Order, Post } from './types';
 
-const DB_PATH = path.join(__dirname, '../data/db.json');
+// Resolve DB_PATH reliably whether running from dist or src
+const getDbPath = (): string => {
+  // Check if we're in dist or src directory
+  const possiblePaths = [
+    path.join(__dirname, '../data/db.json'), // From dist/
+    path.join(__dirname, '../../data/db.json'), // From dist/src/
+    path.join(process.cwd(), 'backend/data/db.json'), // From project root
+    path.join(process.cwd(), 'data/db.json'), // From backend folder
+  ];
+
+  for (const p of possiblePaths) {
+    const dir = path.dirname(p);
+    if (fs.existsSync(dir)) {
+      return p;
+    }
+  }
+
+  // Default to first path and create directory
+  return possiblePaths[0];
+};
+
+const DB_PATH = getDbPath();
 
 interface DatabaseSchema {
   users: User[];
@@ -37,13 +58,36 @@ const INITIAL_DATA: DatabaseSchema = {
 
 class Database {
   public data: DatabaseSchema;
+  private isLoaded: boolean = false;
+  private loadError: Error | null = null;
 
   constructor() {
-    this.data = this.loadData();
+    try {
+      this.data = this.loadData();
+      this.isLoaded = true;
+      console.log(
+        `Database initialized with ${this.data.products.length} products, ${this.data.users.length} users`
+      );
+    } catch (error) {
+      console.error('CRITICAL: Failed to initialize database:', error);
+      this.loadError = error as Error;
+      // Fall back to in-memory initial data
+      this.data = JSON.parse(JSON.stringify(INITIAL_DATA));
+      this.isLoaded = true;
+    }
+  }
+
+  public getStatus(): { loaded: boolean; error: string | null; path: string } {
+    return {
+      loaded: this.isLoaded,
+      error: this.loadError?.message || null,
+      path: DB_PATH,
+    };
   }
 
   private loadData(): DatabaseSchema {
     try {
+      console.log(`Attempting to load database from: ${DB_PATH}`);
       const dir = path.dirname(DB_PATH);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -65,14 +109,35 @@ class Database {
     return initialClone;
   }
 
-  private saveData(data: DatabaseSchema) {
-    try {
-      const tempPath = `${DB_PATH}.tmp`;
-      fs.writeFileSync(tempPath, JSON.stringify(data, null, 2));
-      fs.renameSync(tempPath, DB_PATH);
-    } catch (e) {
-      console.error('Failed to save DB', e);
+  private saveData(data: DatabaseSchema, retries = 3): boolean {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const dir = path.dirname(DB_PATH);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        const tempPath = `${DB_PATH}.tmp.${Date.now()}`;
+        fs.writeFileSync(tempPath, JSON.stringify(data, null, 2));
+
+        // Atomic rename
+        if (fs.existsSync(DB_PATH)) {
+          fs.unlinkSync(DB_PATH);
+        }
+        fs.renameSync(tempPath, DB_PATH);
+        return true;
+      } catch (e) {
+        console.error(`Failed to save DB (attempt ${attempt}/${retries}):`, e);
+        if (attempt < retries) {
+          // Wait briefly before retry
+          const waitMs = attempt * 100;
+          const start = Date.now();
+          while (Date.now() - start < waitMs) {
+            /* busy wait */
+          }
+        }
+      }
     }
+    return false;
   }
 
   public write() {

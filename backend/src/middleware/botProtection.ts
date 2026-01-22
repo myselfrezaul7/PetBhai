@@ -168,6 +168,11 @@ const trackRequest = (req: Request): void => {
 
 // Bot protection middleware
 export const botProtection = (req: Request, res: Response, next: NextFunction): void => {
+  // Skip bot protection in development for easier testing
+  if (process.env.NODE_ENV !== 'production' && process.env.SKIP_BOT_PROTECTION === 'true') {
+    return next();
+  }
+
   const ip = getClientIP(req);
   const userAgent = req.headers['user-agent'] || '';
 

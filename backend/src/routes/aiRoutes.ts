@@ -8,20 +8,32 @@ const router = express.Router();
 const asyncHandler =
   (fn: express.RequestHandler): express.RequestHandler =>
   (req, res, next) =>
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve(fn(req, res, next)).catch((error) => {
+      console.error('AI Route Error:', error);
+      // Don't crash - return a friendly error
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: 'AI service temporarily unavailable',
+          message:
+            process.env.NODE_ENV === 'development' ? error.message : 'Please try again later',
+        });
+      }
+    });
 
-// Initialize Gemini AI
+// Initialize Gemini AI with error handling
 const getAiInstance = () => {
   const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-  if (!apiKey) {
-    throw new Error('API_KEY environment variable is not set.');
+  if (!apiKey || apiKey === 'your-gemini-api-key') {
+    console.warn('GEMINI_API_KEY not configured - AI features will be unavailable');
+    return null;
   }
   return new GoogleGenAI({ apiKey });
 };
 
 // Generate dynamic system instruction with up-to-date inventory
 const getSystemInstruction = () => {
-  const productCatalog = db.products
+  const products = db.products || [];
+  const productCatalog = products
     .map((p) => `- ${p.name} (${p.category}): ৳${p.price} [Rating: ${p.rating}/5]`)
     .join('\n');
 
@@ -63,6 +75,13 @@ router.post(
     }
 
     const ai = getAiInstance();
+    if (!ai) {
+      return res.status(503).json({
+        error: 'AI service not configured',
+        text: 'The AI assistant is currently unavailable. Please contact support or try again later.',
+      });
+    }
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-thinking-exp', // Using a strong model for reasoning
       contents: [{ parts: [{ text: sanitizedPrompt }] }],
@@ -124,6 +143,10 @@ router.post(
     }
 
     const ai = getAiInstance();
+    if (!ai) {
+      return res.status(503).json({ error: 'AI service not configured' });
+    }
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-exp',
       contents: {
@@ -173,6 +196,10 @@ router.post(
     }
 
     const ai = getAiInstance();
+    if (!ai) {
+      return res.status(503).json({ error: 'AI service not configured' });
+    }
+
     const prompt = `Create a high-quality, eye-catching YouTube vlog thumbnail. 
       Title context: "${sanitizedTitle}". 
       Subject: ${sanitizedSubject}. 
@@ -235,6 +262,10 @@ router.post(
     }
 
     const ai = getAiInstance();
+    if (!ai) {
+      return res.status(503).json({ error: 'AI service not configured' });
+    }
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-thinking-exp',
       contents: {

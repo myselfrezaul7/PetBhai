@@ -18,13 +18,21 @@ import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
 import { botProtection, honeypotValidation, getCSRFTokenHandler } from './middleware/botProtection';
 import { recaptchaMiddleware } from './middleware/recaptcha';
+import { db } from './db';
 
 dotenv.config();
 
+// Validate critical components before starting
+console.log('Backend API initializing...');
+const dbStatus = db.getStatus();
+if (!dbStatus.loaded) {
+  console.error('WARNING: Database had issues loading:', dbStatus.error);
+} else {
+  console.log(`Database loaded successfully from: ${dbStatus.path}`);
+}
+
 const app = express();
 const port = process.env.PORT || 5000;
-
-console.log('Backend API initializing...');
 
 // Compression middleware - should be early for performance
 app.use(
@@ -171,12 +179,26 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/posts', postRoutes);
 
+// Enhanced health check endpoint
 app.get('/api/health', (req, res) => {
+  const dbStatus = db.getStatus();
+  const memUsage = process.memoryUsage();
+
   res.json({
-    status: 'ok',
+    status: dbStatus.loaded ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
+    uptime: Math.floor(process.uptime()),
     environment: process.env.NODE_ENV || 'development',
+    database: {
+      loaded: dbStatus.loaded,
+      path: dbStatus.path,
+      error: dbStatus.error,
+      productCount: db.products?.length || 0,
+    },
+    memory: {
+      heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+      heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + 'MB',
+    },
   });
 });
 
@@ -219,32 +241,71 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Start server only if not running in Vercel (Vercel handles starting the server logic)
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+  const startServer = (attemptPort: number, maxRetries = 3): void => {
+    const server = app
+      .listen(attemptPort)
+      .on('listening', () => {
+        console.log(`\n🚀 Server is running on port ${attemptPort}`);
+        console.log(`   Health check: http://localhost:${attemptPort}/api/health`);
+        console.log(`   Products API: http://localhost:${attemptPort}/api/products\n`);
+      })
+      .on('error', (err: NodeJS.ErrnoException) => {
+        if (err.code === 'EADDRINUSE') {
+          console.warn(`⚠️  Port ${attemptPort} is in use.`);
+          if (maxRetries > 0) {
+            const newPort = attemptPort + 1;
+            console.log(`   Trying port ${newPort}...`);
+            startServer(newPort, maxRetries - 1);
+          } else {
+            console.error(
+              '❌ Could not find an available port. Please close other applications or specify a different port.'
+            );
+            process.exit(1);
+          }
+        } else {
+          console.error('❌ Server error:', err);
+          process.exit(1);
+        }
+      });
 
-  // Graceful shutdown
-  const gracefulShutdown = () => {
-    console.log('Received kill signal, shutting down gracefully');
-    server.close(() => {
-      console.log('Closed out remaining connections');
-      process.exit(0);
-    });
+    // Graceful shutdown with timeout
+    const gracefulShutdown = (signal: string) => {
+      console.log(`\n${signal} received. Shutting down gracefully...`);
+
+      // Force exit after 10 seconds if graceful shutdown fails
+      const forceExitTimeout = setTimeout(() => {
+        console.error('Forced shutdown after timeout');
+        process.exit(1);
+      }, 10000);
+
+      server.close(() => {
+        clearTimeout(forceExitTimeout);
+        console.log('Server closed. Goodbye!');
+        process.exit(0);
+      });
+    };
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   };
 
-  process.on('SIGTERM', gracefulShutdown);
-  process.on('SIGINT', gracefulShutdown);
-
+  // Global error handlers - prevent crashes
   process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-    // Persist any critical state if possible
-    process.exit(1); // Exit to allow process manager (PM2) to restart us
+    console.error('❌ Uncaught Exception:', err.message);
+    console.error(err.stack);
+    // In development, try to keep running for debugging
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
   });
 
   process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Don't exit immediately, but log it. In future Node versions this might crash.
+    console.error('❌ Unhandled Promise Rejection:', reason);
+    // Don't crash - log and continue
   });
+
+  // Start the server
+  startServer(Number(port));
 }
 
 export default app;
