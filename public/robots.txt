@@ -10,11 +10,6 @@ Disallow: /signup
 Disallow: /checkout
 Disallow: /profile
 Disallow: /dashboard
-Disallow: /#/login
-Disallow: /#/signup
-Disallow: /#/checkout
-Disallow: /#/profile
-Disallow: /#/dashboard
 Disallow: /*?*sort=
 Disallow: /*?*filter=
 Disallow: /*?*page=
