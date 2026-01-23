@@ -3,6 +3,7 @@ import type { ChatMessage } from '../types';
 import { getVetAssistantResponse, isAiConfigured } from '../services/geminiService';
 import { PawIcon, SendIcon, CloseIcon, TrashIcon } from '../components/icons';
 import { useConfirmation } from '../contexts/ConfirmationContext';
+import { sanitizeUrl } from '../lib/security';
 
 const CHAT_HISTORY_STORAGE_KEY = 'petbhai_ai_chat_history';
 const WARNING_DISMISSED_KEY = 'petbhai_ai_warning_dismissed';
@@ -23,12 +24,21 @@ const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
         return <strong key={i}>{part.slice(2, -2)}</strong>;
       } else if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
         const [label, url] = part.slice(1, -1).split('](');
+        const safeUrl = sanitizeUrl(url);
+        if (!safeUrl) {
+          return (
+            <span key={i} className="text-slate-600 dark:text-slate-300">
+              {label}
+            </span>
+          );
+        }
         return (
           <a
             key={i}
-            href={url}
+            href={safeUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
+            referrerPolicy="no-referrer"
             className="text-orange-600 dark:text-orange-400 underline hover:text-orange-800"
           >
             {label}

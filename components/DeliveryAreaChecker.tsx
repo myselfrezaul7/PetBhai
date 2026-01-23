@@ -458,6 +458,7 @@ const DeliveryAreaChecker: React.FC<DeliveryAreaCheckerProps> = ({
                   href={`https://wa.me/8801712345678?text=Hi!%20I%20want%20delivery%20in%20${encodeURIComponent(selectedDistrict)}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  referrerPolicy="no-referrer"
                   className="inline-flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

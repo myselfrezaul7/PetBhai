@@ -94,6 +94,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
           href={href}
           target="_blank"
           rel="noopener noreferrer"
+          referrerPolicy="no-referrer"
           className={buttonClasses}
           aria-label={`Share on ${label}`}
           title={`Share on ${label}`}

@@ -162,6 +162,7 @@ const Footer: React.FC = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    referrerPolicy="no-referrer"
                     className={`group relative p-2 rounded-full transition-all duration-300 ${link.hoverBg} ${link.glowColor} touch-manipulation active:scale-95`}
                     aria-label={`Follow us on ${link.name}`}
                     role="listitem"
