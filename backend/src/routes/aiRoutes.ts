@@ -1,6 +1,8 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import { db } from '../db';
+import fs from 'fs';
+import path from 'path';
 
 const router = express.Router();
 
@@ -307,6 +309,106 @@ router.post(
         condition: 'Analysis failed - please try again',
       });
     }
+  })
+);
+
+// Batch Generate Blog Images
+router.post(
+  '/generate-blog-images',
+  asyncHandler(async (req, res) => {
+    const articles = db.articles;
+    const ai = getAiInstance();
+
+    if (!ai) {
+      return res.status(503).json({ error: 'AI service not configured' });
+    }
+
+    const results: { id: number; title: string; success: boolean; error?: string }[] = [];
+
+    // Resolve public/blog-images path
+    // We are in backend/src/routes/aiRoutes.ts -> needs to go up 3 levels to root, then public
+    const publicDir = path.resolve(__dirname, '../../../public');
+    const blogImagesDir = path.join(publicDir, 'blog-images');
+
+    if (!fs.existsSync(blogImagesDir)) {
+      try {
+        fs.mkdirSync(blogImagesDir, { recursive: true });
+      } catch (err) {
+        console.error('Failed to create blog-images directory:', err);
+        return res.status(500).json({ error: 'Failed to create images directory' });
+      }
+    }
+
+    // Process articles sequentially
+    for (const article of articles) {
+      try {
+        console.log(`Generating image for article: ${article.title}`);
+
+        // Use "Nano Banana Pro" in the prompt as requested
+        const prompt = `Create a blog post header image for the article titled "${article.title}". 
+        The context is about pet care.
+        Style: Nano Banana Pro, vibrant, modern, high quality, photorealistic or artistic illustration compatible with a pet care blog.`;
+
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.0-flash-exp',
+          contents: {
+            parts: [{ text: prompt }],
+          },
+          config: {
+            imageConfig: {
+              aspectRatio: '16:9', // Standard blog header ratio
+            },
+          },
+        });
+
+        let base64Data = null;
+        if (response.candidates?.[0]?.content?.parts) {
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData?.data) {
+              base64Data = part.inlineData.data;
+              break;
+            }
+          }
+        }
+
+        if (base64Data) {
+          const fileName = `article-${article.id}-${Date.now()}.png`;
+          const filePath = path.join(blogImagesDir, fileName);
+
+          fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+
+          // Update article in DB
+          article.imageUrl = `/blog-images/${fileName}`;
+          results.push({ id: article.id, title: article.title, success: true });
+        } else {
+          results.push({
+            id: article.id,
+            title: article.title,
+            success: false,
+            error: 'No image data returned',
+          });
+        }
+
+        // Small delay
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error: any) {
+        console.error(`Error generating image for article ${article.id}:`, error);
+        results.push({
+          id: article.id,
+          title: article.title,
+          success: false,
+          error: error.message,
+        });
+      }
+    }
+
+    // Persist changes
+    db.write();
+
+    res.json({
+      message: 'Blog image generation complete',
+      results,
+    });
   })
 );
 
