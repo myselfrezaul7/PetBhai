@@ -3,34 +3,261 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Donate to Pet Welfare | PetBhai</title>
+    <title>Donate to Animal Welfare | Support Rescue Pets | PetBhai Bangladesh</title>
     <meta
       name="description"
-      content="Support animal welfare in Bangladesh. Donate to rescue, treatment, and care programs with PetBhai."
+      content="Support animal welfare in Bangladesh. Your donation helps rescue, shelter, feed, and provide medical care to stray and abandoned animals."
     />
-    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="donate to animals Bangladesh, animal welfare donation, help stray animals, support pet rescue, পোষা প্রাণী দান, পশু কল্যাণ"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/donation/" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Donate to Pet Welfare | PetBhai" />
+    <meta property="og:site_name" content="PetBhai" />
+    <meta property="og:title" content="Donate to Animal Welfare | Support Rescue Pets" />
     <meta
       property="og:description"
-      content="Support animal welfare in Bangladesh with PetBhai donations."
+      content="Support animal welfare in Bangladesh. Help rescue and care for stray animals."
     />
     <meta property="og:url" content="https://myselfrezaul7.github.io/PetBhai/donation/" />
     <meta property="og:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Donate to Animal Welfare Bangladesh" />
+    <meta name="twitter:description" content="Help rescue and care for stray animals." />
+    <meta name="twitter:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/PetBhai/favicon.ico" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "DonateAction",
+        "name": "Donate to PetBhai Animal Welfare",
+        "description": "Support animal rescue and welfare programs in Bangladesh",
+        "recipient": {
+          "@type": "Organization",
+          "name": "PetBhai Animal Welfare"
+        }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://myselfrezaul7.github.io/PetBhai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Donation",
+            "item": "https://myselfrezaul7.github.io/PetBhai/donation/"
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f9fafb;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      main {
+        padding: 40px 20px;
+      }
+      .impact {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+      .impact-item {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .impact-amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ef4444;
+      }
+      .donation-box {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .cta {
+        display: inline-block;
+        background: #ef4444;
+        color: white;
+        padding: 18px 40px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 10px;
+      }
+      .cta:hover {
+        background: #dc2626;
+      }
+      .cta-secondary {
+        background: #6b7280;
+      }
+      .how-helps {
+        background: #fef2f2;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 30px 0;
+      }
+      .how-helps h2 {
+        color: #dc2626;
+        margin-bottom: 15px;
+      }
+      footer {
+        background: #1f2937;
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      footer a {
+        color: #ef4444;
+      }
+      .breadcrumb {
+        padding: 15px 20px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+      }
+      .breadcrumb span {
+        color: #9ca3af;
+        margin: 0 8px;
+      }
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Donate to Pet Welfare</h1>
-      <p>
-        Help us support rescue, treatment, and care programs for animals in need across Bangladesh.
-      </p>
-      <p>
-        <a href="/#/donation">Donate now</a>
-      </p>
-      <p>
-        <a href="/">Back to PetBhai Home</a>
-      </p>
+    <nav class="breadcrumb"><a href="/PetBhai/">Home</a><span>›</span><strong>Donate</strong></nav>
+
+    <header>
+      <h1>❤️ Support Animal Welfare</h1>
+      <p>Every Donation Saves Lives | Make a Difference Today</p>
+    </header>
+
+    <main class="container">
+      <section class="donation-box">
+        <h2>Help Us Care for Animals in Need</h2>
+        <p>
+          Your generous donation helps us rescue, shelter, feed, and provide medical care to stray
+          and abandoned animals across Bangladesh.
+        </p>
+
+        <div style="margin: 25px 0">
+          <a href="/PetBhai/#/donation" class="cta">💝 Donate Now</a>
+          <a href="/PetBhai/volunteer/" class="cta cta-secondary">🤝 Volunteer Instead</a>
+        </div>
+      </section>
+
+      <section class="impact">
+        <div class="impact-item">
+          <div class="impact-amount">৳100</div>
+          <p>Feeds one animal for a week</p>
+        </div>
+        <div class="impact-item">
+          <div class="impact-amount">৳500</div>
+          <p>Provides vaccinations</p>
+        </div>
+        <div class="impact-item">
+          <div class="impact-amount">৳1,000</div>
+          <p>Emergency medical care</p>
+        </div>
+        <div class="impact-item">
+          <div class="impact-amount">৳5,000</div>
+          <p>Spay/neuter surgery</p>
+        </div>
+      </section>
+
+      <section class="how-helps">
+        <h2>How Your Donation Helps</h2>
+        <ul style="padding-left: 25px; margin-top: 15px">
+          <li><strong>Rescue Operations:</strong> Save animals from dangerous situations</li>
+          <li><strong>Medical Care:</strong> Treat sick and injured animals</li>
+          <li><strong>Shelter:</strong> Provide safe temporary homes</li>
+          <li><strong>Food & Nutrition:</strong> Keep animals fed and healthy</li>
+          <li><strong>Adoption Programs:</strong> Find forever homes for rescues</li>
+          <li><strong>Spay/Neuter:</strong> Control stray population humanely</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Other Ways to Help</h2>
+        <p>
+          <a href="/PetBhai/volunteer/">Become a Volunteer</a> •
+          <a href="/PetBhai/adopt/">Adopt a Pet</a> •
+          <a href="/PetBhai/community/">Spread Awareness</a>
+        </p>
+      </section>
     </main>
+
+    <footer>
+      <p><strong>PetBhai</strong> - Bangladesh's Trusted Pet Care Platform</p>
+      <p>
+        <a href="/PetBhai/">Home</a> • <a href="/PetBhai/shop/">Shop</a> •
+        <a href="/PetBhai/services/">Services</a> • <a href="/PetBhai/adopt/">Adopt</a> •
+        <a href="/PetBhai/blog/">Blog</a>
+      </p>
+      <p style="margin-top: 15px; opacity: 0.7">© 2026 PetBhai. All rights reserved.</p>
+    </footer>
   </body>
 </html>

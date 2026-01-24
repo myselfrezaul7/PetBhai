@@ -3,32 +3,298 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pet Services | Vets, Grooming & Training | PetBhai</title>
+    <title>Pet Services Bangladesh | Grooming, Training, Boarding | PetBhai</title>
     <meta
       name="description"
-      content="Find trusted veterinarians, grooming, training, and pet care services near you. Book online or visit in person with PetBhai."
+      content="Professional pet services in Bangladesh. Dog grooming, pet training, boarding, walking, and more. Book trusted pet care services near you."
     />
-    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="pet services Bangladesh, dog grooming Dhaka, pet training, pet boarding, pet sitting, dog walking, পোষা প্রাণীর সেবা, কুকুরের গ্রুমিং"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/services/" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Pet Services | PetBhai" />
-    <meta property="og:description" content="Find trusted vets, grooming, and training services." />
+    <meta property="og:site_name" content="PetBhai" />
+    <meta property="og:title" content="Pet Services Bangladesh | Grooming, Training, Boarding" />
+    <meta
+      property="og:description"
+      content="Professional pet services in Bangladesh. Grooming, training, boarding and more."
+    />
     <meta property="og:url" content="https://myselfrezaul7.github.io/PetBhai/services/" />
     <meta property="og:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pet Services Bangladesh" />
+    <meta
+      name="twitter:description"
+      content="Professional pet grooming, training, boarding and more."
+    />
+    <meta name="twitter:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/PetBhai/favicon.ico" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "PetBhai Pet Services",
+        "description": "Professional pet care services including grooming, training, boarding in Bangladesh",
+        "url": "https://myselfrezaul7.github.io/PetBhai/services/",
+        "priceRange": "৳৳",
+        "serviceType": ["Pet Grooming", "Pet Training", "Pet Boarding", "Pet Walking"],
+        "areaServed": { "@type": "Country", "name": "Bangladesh" }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://myselfrezaul7.github.io/PetBhai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Services",
+            "item": "https://myselfrezaul7.github.io/PetBhai/services/"
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f9fafb;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background: linear-gradient(135deg, #a855f7, #9333ea);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      main {
+        padding: 40px 20px;
+      }
+      .services {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+      .service {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+      .service:hover {
+        transform: translateY(-5px);
+      }
+      .service h3 {
+        color: #a855f7;
+        margin-bottom: 10px;
+      }
+      .service-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+      .service-price {
+        color: #6b7280;
+        font-weight: 600;
+        margin: 10px 0;
+      }
+      .cta {
+        display: inline-block;
+        background: #a855f7;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 20px 10px 20px 0;
+      }
+      .cta:hover {
+        background: #9333ea;
+      }
+      .cta-secondary {
+        background: #6b7280;
+      }
+      footer {
+        background: #1f2937;
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      footer a {
+        color: #a855f7;
+      }
+      .breadcrumb {
+        padding: 15px 20px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+      }
+      .breadcrumb span {
+        color: #9ca3af;
+        margin: 0 8px;
+      }
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Pet Services</h1>
-      <p>
-        Discover trusted veterinarians, grooming, training, and pet care services. Book online and
-        get expert care for your pets.
-      </p>
-      <p>
-        <a href="/#/services">Open the full services experience</a>
-      </p>
-      <p>
-        <a href="/">Back to PetBhai Home</a>
-      </p>
+    <nav class="breadcrumb">
+      <a href="/PetBhai/">Home</a><span>›</span><strong>Pet Services</strong>
+    </nav>
+
+    <header>
+      <h1>✨ Professional Pet Services</h1>
+      <p>Grooming • Training • Boarding • Walking | Quality Care for Your Pets</p>
+    </header>
+
+    <main class="container">
+      <section>
+        <h2>Premium Pet Care Services in Bangladesh</h2>
+        <p>
+          Give your pet the care they deserve with PetBhai's professional pet services. From
+          grooming to training, boarding to walking – we connect you with trusted service providers
+          across Bangladesh.
+        </p>
+
+        <a href="/PetBhai/#/services" class="cta">📅 Book a Service</a>
+        <a href="/PetBhai/" class="cta cta-secondary">🏠 Back to Home</a>
+      </section>
+
+      <section class="services">
+        <article class="service">
+          <div class="service-icon">✂️</div>
+          <h3>Pet Grooming</h3>
+          <p>
+            Professional grooming services including bathing, haircut, nail trimming, and ear
+            cleaning for dogs and cats.
+          </p>
+          <div class="service-price">Starting from ৳500</div>
+          <a href="/PetBhai/#/services?type=grooming">Book Grooming →</a>
+        </article>
+
+        <article class="service">
+          <div class="service-icon">🎓</div>
+          <h3>Pet Training</h3>
+          <p>
+            Expert trainers for obedience training, behavior correction, and puppy socialization
+            programs.
+          </p>
+          <div class="service-price">Starting from ৳2,000/session</div>
+          <a href="/PetBhai/#/services?type=training">Book Training →</a>
+        </article>
+
+        <article class="service">
+          <div class="service-icon">🏨</div>
+          <h3>Pet Boarding</h3>
+          <p>
+            Safe and comfortable boarding facilities for when you're away. Daily updates and loving
+            care.
+          </p>
+          <div class="service-price">Starting from ৳800/night</div>
+          <a href="/PetBhai/#/services?type=boarding">Book Boarding →</a>
+        </article>
+
+        <article class="service">
+          <div class="service-icon">🚶</div>
+          <h3>Dog Walking</h3>
+          <p>
+            Regular exercise for your dog with trusted walkers. Individual or group walks available.
+          </p>
+          <div class="service-price">Starting from ৳200/walk</div>
+          <a href="/PetBhai/#/services?type=walking">Book Walking →</a>
+        </article>
+
+        <article class="service">
+          <div class="service-icon">🏥</div>
+          <h3>Vet Visits</h3>
+          <p>At-home veterinary visits for checkups, vaccinations, and minor treatments.</p>
+          <div class="service-price">Starting from ৳1,000</div>
+          <a href="/PetBhai/find-vet/">Find a Vet →</a>
+        </article>
+
+        <article class="service">
+          <div class="service-icon">📸</div>
+          <h3>Pet Photography</h3>
+          <p>Professional pet photoshoots to capture precious moments with your furry friend.</p>
+          <div class="service-price">Starting from ৳3,000</div>
+          <a href="/PetBhai/#/services?type=photography">Book Session →</a>
+        </article>
+      </section>
+
+      <section>
+        <h2>Why Choose PetBhai Services?</h2>
+        <ul style="margin: 20px 0; padding-left: 20px">
+          <li>Verified and trained service providers</li>
+          <li>Insured services for your peace of mind</li>
+          <li>Easy online booking and payment</li>
+          <li>Customer reviews and ratings</li>
+          <li>Satisfaction guarantee</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Related Pages</h2>
+        <p>
+          <a href="/PetBhai/services/booking/">Book Appointment</a> •
+          <a href="/PetBhai/find-vet/">Find a Vet</a> • <a href="/PetBhai/shop/">Pet Supplies</a> •
+          <a href="/PetBhai/community/">Community</a>
+        </p>
+      </section>
     </main>
+
+    <footer>
+      <p><strong>PetBhai</strong> - Bangladesh's Trusted Pet Care Platform</p>
+      <p>
+        <a href="/PetBhai/">Home</a> • <a href="/PetBhai/shop/">Shop</a> •
+        <a href="/PetBhai/adopt/">Adopt</a> • <a href="/PetBhai/blog/">Blog</a> •
+        <a href="/PetBhai/community/">Community</a>
+      </p>
+      <p style="margin-top: 15px; opacity: 0.7">© 2026 PetBhai. All rights reserved.</p>
+    </footer>
   </body>
 </html>

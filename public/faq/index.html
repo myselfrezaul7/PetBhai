@@ -3,32 +3,344 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FAQ | PetBhai</title>
+    <title>Pet Care FAQ | Common Questions Answered | PetBhai Bangladesh</title>
     <meta
       name="description"
-      content="Find answers to common questions about orders, deliveries, adoption, and pet services at PetBhai."
+      content="Find answers to frequently asked questions about pet care, PetBhai services, orders, shipping, and more. Get help with your pet-related queries."
     />
-    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="pet care FAQ, PetBhai help, pet questions answered, dog care questions, cat care FAQ, পোষা প্রাণীর প্রশ্ন"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/faq/" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="FAQ | PetBhai" />
+    <meta property="og:site_name" content="PetBhai" />
+    <meta property="og:title" content="Pet Care FAQ | Common Questions Answered" />
     <meta
       property="og:description"
-      content="Answers to common PetBhai questions and support topics."
+      content="Find answers to frequently asked questions about pet care and PetBhai services."
     />
     <meta property="og:url" content="https://myselfrezaul7.github.io/PetBhai/faq/" />
     <meta property="og:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pet Care FAQ | PetBhai" />
+    <meta name="twitter:description" content="Common pet care questions answered." />
+    <meta name="twitter:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/PetBhai/favicon.ico" />
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I place an order on PetBhai?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Browse our shop, add items to cart, proceed to checkout, and complete payment. Orders are processed within 24 hours."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What areas do you deliver to?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We deliver across Bangladesh including Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, and other major cities."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I adopt a pet through PetBhai?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Visit our Adopt page, browse available pets, fill out the adoption application, and our team will contact you for next steps."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are the products on PetBhai authentic?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, we guarantee 100% authentic products from verified suppliers. We do not sell counterfeit items."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I contact customer support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can reach us through the AI Assistant, email, or WhatsApp. We typically respond within 24 hours."
+            }
+          }
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://myselfrezaul7.github.io/PetBhai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "FAQ",
+            "item": "https://myselfrezaul7.github.io/PetBhai/faq/"
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f9fafb;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      main {
+        padding: 40px 20px;
+      }
+      .faq-section {
+        margin: 30px 0;
+      }
+      .faq-section h2 {
+        color: #4f46e5;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 10px;
+      }
+      .faq-item {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .faq-question {
+        padding: 20px;
+        font-weight: 600;
+        color: #1f2937;
+        cursor: pointer;
+      }
+      .faq-question::before {
+        content: '❓';
+        margin-right: 10px;
+      }
+      .faq-answer {
+        padding: 0 20px 20px;
+        color: #4b5563;
+      }
+      .cta {
+        display: inline-block;
+        background: #6366f1;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 20px 10px 20px 0;
+      }
+      .cta:hover {
+        background: #4f46e5;
+      }
+      .cta-secondary {
+        background: #6b7280;
+      }
+      footer {
+        background: #1f2937;
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      footer a {
+        color: #6366f1;
+      }
+      .breadcrumb {
+        padding: 15px 20px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+      }
+      .breadcrumb span {
+        color: #9ca3af;
+        margin: 0 8px;
+      }
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Frequently Asked Questions</h1>
-      <p>Learn about orders, deliveries, adoption, and services with PetBhai.</p>
-      <p>
-        <a href="/#/faq">View FAQ</a>
-      </p>
-      <p>
-        <a href="/">Back to PetBhai Home</a>
-      </p>
+    <nav class="breadcrumb"><a href="/PetBhai/">Home</a><span>›</span><strong>FAQ</strong></nav>
+
+    <header>
+      <h1>❓ Frequently Asked Questions</h1>
+      <p>Find Answers to Common Pet Care & Service Questions</p>
+    </header>
+
+    <main class="container">
+      <section>
+        <p>
+          Can't find your answer? <a href="/PetBhai/ai-assistant/">Ask our AI Assistant</a> or
+          contact support.
+        </p>
+        <a href="/PetBhai/#/faq" class="cta">View All FAQs</a>
+        <a href="/PetBhai/" class="cta cta-secondary">🏠 Back to Home</a>
+      </section>
+
+      <section class="faq-section">
+        <h2>🛒 Shopping & Orders</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I place an order on PetBhai?</div>
+          <div class="faq-answer">
+            Browse our shop, add items to your cart, proceed to checkout, and complete payment.
+            Orders are processed within 24 hours and you'll receive tracking information via email.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">What areas do you deliver to?</div>
+          <div class="faq-answer">
+            We deliver across Bangladesh including Dhaka, Chittagong, Sylhet, Rajshahi, Khulna,
+            Rangpur, Barisal, and other major cities. Delivery times vary by location.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Are the products authentic?</div>
+          <div class="faq-answer">
+            Yes! We guarantee 100% authentic products from verified suppliers. We do not sell
+            counterfeit or expired items. If you receive a product that doesn't meet quality
+            standards, we'll replace it.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">What payment methods are accepted?</div>
+          <div class="faq-answer">
+            We accept bKash, Nagad, credit/debit cards, and cash on delivery (COD) for most areas.
+          </div>
+        </div>
+      </section>
+
+      <section class="faq-section">
+        <h2>🐾 Pet Adoption</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How can I adopt a pet through PetBhai?</div>
+          <div class="faq-answer">
+            Visit our <a href="/PetBhai/adopt/">Adopt page</a>, browse available pets, fill out the
+            adoption application, and our team will contact you for next steps including a
+            meet-and-greet.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Is there an adoption fee?</div>
+          <div class="faq-answer">
+            Most adoptions have a small fee (typically ৳500-2000) that covers vaccinations,
+            deworming, and spaying/neutering. This ensures pets go to committed homes.
+          </div>
+        </div>
+      </section>
+
+      <section class="faq-section">
+        <h2>🏥 Veterinary Services</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How does online vet consultation work?</div>
+          <div class="faq-answer">
+            Book a consultation, describe your pet's symptoms, and connect with a licensed vet via
+            chat or video call. You'll receive advice and prescriptions digitally.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can the AI assistant replace a vet?</div>
+          <div class="faq-answer">
+            No, our AI provides general guidance only. For medical emergencies or serious concerns,
+            always consult a licensed veterinarian.
+          </div>
+        </div>
+      </section>
+
+      <section class="faq-section">
+        <h2>📞 Support</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I contact customer support?</div>
+          <div class="faq-answer">
+            Use our <a href="/PetBhai/ai-assistant/">AI Assistant</a> for instant help, or reach us
+            via email or WhatsApp. We typically respond within 24 hours.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Still Have Questions?</h2>
+        <p>
+          <a href="/PetBhai/ai-assistant/">Ask AI Assistant</a> •
+          <a href="/PetBhai/community/">Ask the Community</a> •
+          <a href="/PetBhai/blog/">Read Our Blog</a>
+        </p>
+      </section>
     </main>
+
+    <footer>
+      <p><strong>PetBhai</strong> - Bangladesh's Trusted Pet Care Platform</p>
+      <p>
+        <a href="/PetBhai/">Home</a> • <a href="/PetBhai/shop/">Shop</a> •
+        <a href="/PetBhai/services/">Services</a> • <a href="/PetBhai/adopt/">Adopt</a> •
+        <a href="/PetBhai/blog/">Blog</a>
+      </p>
+      <p style="margin-top: 15px; opacity: 0.7">© 2026 PetBhai. All rights reserved.</p>
+    </footer>
   </body>
 </html>

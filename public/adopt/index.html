@@ -3,35 +3,363 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Adopt a Pet | PetBhai</title>
+    <title>Adopt a Pet in Bangladesh | Dogs & Cats for Adoption | PetBhai</title>
     <meta
       name="description"
-      content="Adopt a dog or cat in Bangladesh. Browse verified adoption listings and give a pet a loving home."
+      content="Adopt dogs, cats & other pets in Bangladesh. Find your perfect furry companion. Free pet adoption, rescue animals, shelter pets available in Dhaka & nationwide."
     />
-    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="adopt pet Bangladesh, dog adoption Dhaka, cat adoption, rescue pets, shelter animals, free pet adoption, কুকুর দত্তক, বিড়াল দত্তক, পোষা প্রাণী দত্তক"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/adopt/" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Adopt a Pet | PetBhai" />
+    <meta property="og:site_name" content="PetBhai" />
+    <meta property="og:title" content="Adopt a Pet in Bangladesh | Dogs & Cats for Adoption" />
     <meta
       property="og:description"
-      content="Adopt a dog or cat in Bangladesh. Browse verified adoption listings."
+      content="Find your perfect furry companion. Adopt dogs, cats & other pets in Bangladesh."
     />
     <meta property="og:url" content="https://myselfrezaul7.github.io/PetBhai/adopt/" />
     <meta property="og:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+    <meta property="og:locale" content="en_BD" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Adopt a Pet in Bangladesh | Dogs & Cats for Adoption" />
+    <meta
+      name="twitter:description"
+      content="Find your perfect furry companion. Adopt dogs, cats & other pets in Bangladesh."
+    />
+    <meta name="twitter:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/PetBhai/favicon.ico" />
+    <link rel="apple-touch-icon" href="/PetBhai/apple-touch-icon.png" />
+
+    <!-- Structured Data - Animal Shelter -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "AnimalShelter",
+        "name": "PetBhai Pet Adoption",
+        "description": "Pet adoption platform connecting rescue animals with loving homes in Bangladesh",
+        "url": "https://myselfrezaul7.github.io/PetBhai/adopt/",
+        "logo": "https://myselfrezaul7.github.io/PetBhai/icon-512x512.png",
+        "image": "https://myselfrezaul7.github.io/PetBhai/landing-hero.png",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "BD",
+          "addressRegion": "Dhaka"
+        }
+      }
+    </script>
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://myselfrezaul7.github.io/PetBhai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Adopt",
+            "item": "https://myselfrezaul7.github.io/PetBhai/adopt/"
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f9fafb;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background: linear-gradient(135deg, #ec4899, #db2777);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      main {
+        padding: 40px 20px;
+      }
+      .pets {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+      .pet-type {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+        text-align: center;
+      }
+      .pet-type:hover {
+        transform: translateY(-5px);
+      }
+      .pet-type h3 {
+        color: #ec4899;
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+      }
+      .pet-type .emoji {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+      .cta {
+        display: inline-block;
+        background: #ec4899;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 20px 10px 20px 0;
+      }
+      .cta:hover {
+        background: #db2777;
+      }
+      .cta-secondary {
+        background: #6b7280;
+      }
+      .process {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 30px 0;
+      }
+      .process h2 {
+        color: #1f2937;
+        margin-bottom: 20px;
+      }
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+      .step {
+        text-align: center;
+        padding: 20px;
+      }
+      .step-number {
+        background: #ec4899;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      footer {
+        background: #1f2937;
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      footer a {
+        color: #ec4899;
+      }
+      .breadcrumb {
+        padding: 15px 20px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+      }
+      .breadcrumb a:hover {
+        color: #ec4899;
+      }
+      .breadcrumb span {
+        color: #9ca3af;
+        margin: 0 8px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+        text-align: center;
+      }
+      .stat {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+      }
+      .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ec4899;
+      }
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Adopt a Pet</h1>
-      <p>
-        Find loving dogs and cats ready for adoption. Browse verified listings and connect with
-        rescue partners across Bangladesh.
-      </p>
-      <p>
-        <a href="/#/adopt">Open adoption listings</a>
-      </p>
-      <p>
-        <a href="/">Back to PetBhai Home</a>
-      </p>
+    <nav class="breadcrumb">
+      <a href="/PetBhai/">Home</a><span>›</span><strong>Adopt a Pet</strong>
+    </nav>
+
+    <header>
+      <h1>🐾 Adopt a Pet in Bangladesh</h1>
+      <p>Give a Loving Home to a Rescue Animal | Change a Life Today</p>
+    </header>
+
+    <main class="container">
+      <section>
+        <h2>Find Your Perfect Furry Companion</h2>
+        <p>
+          PetBhai connects loving families with rescue animals across Bangladesh. Every adoption
+          saves a life and creates a forever bond. Browse our available pets and find your new best
+          friend today!
+        </p>
+
+        <a href="/PetBhai/#/adopt" class="cta">🐕 View Available Pets</a>
+        <a href="/PetBhai/" class="cta cta-secondary">🏠 Back to Home</a>
+      </section>
+
+      <section class="stats">
+        <div class="stat">
+          <div class="stat-number">500+</div>
+          <div>Pets Adopted</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">200+</div>
+          <div>Rescue Partners</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">50+</div>
+          <div>Cities Covered</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">100%</div>
+          <div>Vaccinated</div>
+        </div>
+      </section>
+
+      <section class="pets">
+        <article class="pet-type">
+          <div class="emoji">🐕</div>
+          <h3>Dogs for Adoption</h3>
+          <p>
+            Loving dogs of all breeds and sizes looking for forever homes. Puppies and adult dogs
+            available.
+          </p>
+          <a href="/PetBhai/#/adopt?type=dog">Adopt a Dog →</a>
+        </article>
+
+        <article class="pet-type">
+          <div class="emoji">🐈</div>
+          <h3>Cats for Adoption</h3>
+          <p>Sweet cats and kittens ready to be your cuddle companion. Various breeds available.</p>
+          <a href="/PetBhai/#/adopt?type=cat">Adopt a Cat →</a>
+        </article>
+
+        <article class="pet-type">
+          <div class="emoji">🐰</div>
+          <h3>Other Pets</h3>
+          <p>Rabbits, birds, and other small animals also looking for loving homes.</p>
+          <a href="/PetBhai/#/adopt">View All Pets →</a>
+        </article>
+      </section>
+
+      <section class="process">
+        <h2>How Pet Adoption Works</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Browse Pets</h3>
+            <p>Look through our available pets and find one that matches your lifestyle.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Submit Application</h3>
+            <p>Fill out our simple adoption form with your details and preferences.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Meet & Greet</h3>
+            <p>Schedule a meeting with the pet to ensure it's a perfect match.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <h3>Take Home</h3>
+            <p>Complete the adoption and welcome your new family member!</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Why Adopt from PetBhai?</h2>
+        <ul style="margin: 20px 0; padding-left: 20px">
+          <li>All pets are vaccinated and health-checked</li>
+          <li>Spaying/neutering included</li>
+          <li>Post-adoption support and guidance</li>
+          <li>No breeding mill animals - only rescues</li>
+          <li>Home visit assistance available</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Related Services</h2>
+        <p>
+          <a href="/PetBhai/compatibility-quiz/">Pet Compatibility Quiz</a> •
+          <a href="/PetBhai/find-vet/">Find a Vet</a> • <a href="/PetBhai/shop/">Pet Supplies</a> •
+          <a href="/PetBhai/volunteer/">Volunteer</a>
+        </p>
+      </section>
     </main>
+
+    <footer>
+      <p><strong>PetBhai</strong> - Bangladesh's Trusted Pet Care Platform</p>
+      <p>
+        <a href="/PetBhai/">Home</a> • <a href="/PetBhai/shop/">Shop</a> •
+        <a href="/PetBhai/services/">Services</a> • <a href="/PetBhai/blog/">Blog</a> •
+        <a href="/PetBhai/community/">Community</a>
+      </p>
+      <p style="margin-top: 15px; opacity: 0.7">© 2026 PetBhai. All rights reserved.</p>
+    </footer>
   </body>
 </html>

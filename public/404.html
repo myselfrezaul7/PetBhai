@@ -3,33 +3,108 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>404 — PetBhai</title>
-    <meta name="robots" content="noindex" />
+    <title>Page Not Found — PetBhai Pet Care Bangladesh</title>
+    <meta name="description" content="Sorry, this page doesn't exist. Find pet supplies, adoption, vet services, and more on PetBhai - Bangladesh's leading pet care platform." />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Page Not Found — PetBhai" />
+    <meta property="og:description" content="Let's get you back on track. Explore PetBhai for pet supplies, adoption, and vet services in Bangladesh." />
+    <meta property="og:url" content="https://myselfrezaul7.github.io/PetBhai/" />
+    <meta property="og:site_name" content="PetBhai" />
+    <meta property="og:type" content="website" />
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      .float { animation: float 3s ease-in-out infinite; }
+      @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
+    </style>
     <script>
       // For SPA on GitHub Pages: redirect paths to hash-based routes so HashRouter can handle them.
       (function () {
         try {
           var path = window.location.pathname;
-          // Remove repo name from path if present (for GitHub Pages project pages)
           var repoName = '/PetBhai';
           if (path.startsWith(repoName)) {
             path = path.substring(repoName.length);
           }
-
-          var redirect = repoName + '/#' + path + window.location.search + window.location.hash;
-          window.location.replace(redirect);
+          // Only redirect if there's an actual path to redirect to
+          if (path && path !== '/' && path !== '') {
+            var redirect = repoName + '/#' + path + window.location.search;
+            setTimeout(function() { window.location.replace(redirect); }, 3000);
+          }
         } catch (e) {
-          window.location.replace('./');
+          // Fail silently - let user click links
         }
       })();
     </script>
   </head>
-  <body class="bg-slate-50 text-slate-800 flex flex-col items-center justify-center h-screen p-4">
-    <div class="text-center">
-      <h1 class="text-6xl font-bold text-orange-500 mb-4">404</h1>
-      <p class="text-2xl font-semibold mb-2">Page Not Found</p>
-      <p class="text-slate-600 animate-pulse">Redirecting you to the right place...</p>
-    </div>
+  <body class="bg-gradient-to-br from-orange-50 via-white to-amber-50 text-slate-800 min-h-screen flex flex-col">
+    <header class="p-4 border-b border-orange-100">
+      <a href="/PetBhai/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <span class="text-2xl">🐾</span>
+        <span class="font-bold text-xl text-orange-600">PetBhai</span>
+      </a>
+    </header>
+    
+    <main class="flex-1 flex items-center justify-center p-6">
+      <div class="text-center max-w-lg">
+        <!-- Animated Pet Icon -->
+        <div class="float text-8xl mb-6">🐕</div>
+        
+        <h1 class="text-7xl font-bold text-orange-500 mb-4">404</h1>
+        <h2 class="text-2xl font-semibold text-slate-700 mb-3">Oops! This page wandered off</h2>
+        <p class="text-slate-600 mb-6">Don't worry, even the best pets get lost sometimes. Let's get you back on track!</p>
+        
+        <p class="text-sm text-orange-500 pulse-slow mb-8">Redirecting automatically in a moment...</p>
+        
+        <!-- Quick Links -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+          <a href="/PetBhai/" class="bg-orange-500 text-white px-4 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center justify-center gap-2">
+            <span>🏠</span> Home
+          </a>
+          <a href="/PetBhai/shop/" class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2">
+            <span>🛒</span> Shop
+          </a>
+          <a href="/PetBhai/adopt/" class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2">
+            <span>❤️</span> Adopt
+          </a>
+          <a href="/PetBhai/find-vet/" class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2">
+            <span>🏥</span> Find Vet
+          </a>
+          <a href="/PetBhai/blog/" class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2">
+            <span>📚</span> Blog
+          </a>
+          <a href="/PetBhai/ai-assistant/" class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2">
+            <span>🤖</span> AI Help
+          </a>
+        </div>
+        
+        <!-- Search Suggestion -->
+        <div class="bg-white/80 backdrop-blur rounded-xl p-6 border border-orange-100 shadow-sm">
+          <h3 class="font-semibold text-slate-700 mb-3">Popular on PetBhai</h3>
+          <div class="flex flex-wrap justify-center gap-2 text-sm">
+            <a href="/PetBhai/#/shop" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">Dog Food</a>
+            <a href="/PetBhai/#/shop" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">Cat Food</a>
+            <a href="/PetBhai/#/adopt" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">Pet Adoption</a>
+            <a href="/PetBhai/#/find-vet" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">Emergency Vet</a>
+            <a href="/PetBhai/#/services" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">Pet Grooming</a>
+            <a href="/PetBhai/#/blog" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">Pet Care Tips</a>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="p-4 text-center text-sm text-slate-500 border-t border-orange-100">
+      <p>© 2026 PetBhai — Bangladesh's Complete Pet Care Platform</p>
+      <p class="mt-1">
+        <a href="/PetBhai/faq/" class="text-orange-500 hover:underline">FAQ</a> · 
+        <a href="/PetBhai/#/contact" class="text-orange-500 hover:underline">Contact Us</a> · 
+        <a href="/PetBhai/terms/" class="text-orange-500 hover:underline">Terms</a>
+      </p>
+    </footer>
   </body>
 </html>

@@ -3,35 +3,344 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pet Care Blog | PetBhai</title>
+    <title>Pet Care Blog | Tips, Guides & News | PetBhai Bangladesh</title>
     <meta
       name="description"
-      content="Read expert tips on pet care, nutrition, health, and training from the PetBhai blog."
+      content="Expert pet care tips, health guides, training advice & news for dog and cat owners in Bangladesh. Learn how to care for your pets from PetBhai experts."
     />
-    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="pet care blog, dog care tips, cat health guide, pet training, pet nutrition, Bangladesh pet advice, কুকুরের যত্ন, বিড়ালের যত্ন, পোষা প্রাণীর স্বাস্থ্য"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href="https://myselfrezaul7.github.io/PetBhai/blog/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Pet Care Blog | PetBhai" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="blog" />
+    <meta property="og:site_name" content="PetBhai" />
+    <meta property="og:title" content="Pet Care Blog | Tips, Guides & News" />
     <meta
       property="og:description"
-      content="Expert tips on pet care, nutrition, health, and training."
+      content="Expert pet care tips, health guides, training advice & news for pet owners in Bangladesh."
     />
     <meta property="og:url" content="https://myselfrezaul7.github.io/PetBhai/blog/" />
     <meta property="og:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+    <meta property="og:locale" content="en_BD" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pet Care Blog | Tips, Guides & News" />
+    <meta
+      name="twitter:description"
+      content="Expert pet care tips, health guides, training advice for pet owners in Bangladesh."
+    />
+    <meta name="twitter:image" content="https://myselfrezaul7.github.io/PetBhai/landing-hero.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/PetBhai/favicon.ico" />
+    <link rel="apple-touch-icon" href="/PetBhai/apple-touch-icon.png" />
+
+    <!-- Structured Data - Blog -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "PetBhai Pet Care Blog",
+        "description": "Expert pet care tips, health guides, and training advice for pet owners in Bangladesh",
+        "url": "https://myselfrezaul7.github.io/PetBhai/blog/",
+        "publisher": {
+          "@type": "Organization",
+          "name": "PetBhai",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://myselfrezaul7.github.io/PetBhai/icon-512x512.png"
+          }
+        },
+        "blogPost": [
+          {
+            "@type": "BlogPosting",
+            "headline": "Complete Guide to Dog Nutrition in Bangladesh",
+            "description": "Learn about the best foods and nutrition tips for your dog",
+            "url": "https://myselfrezaul7.github.io/PetBhai/#/blog"
+          },
+          {
+            "@type": "BlogPosting",
+            "headline": "Cat Health: Common Issues and Prevention",
+            "description": "Protect your cat from common health problems",
+            "url": "https://myselfrezaul7.github.io/PetBhai/#/blog"
+          }
+        ]
+      }
+    </script>
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://myselfrezaul7.github.io/PetBhai/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": "https://myselfrezaul7.github.io/PetBhai/blog/"
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f9fafb;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      main {
+        padding: 40px 20px;
+      }
+      .articles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+      }
+      .article {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+      .article:hover {
+        transform: translateY(-5px);
+      }
+      .article-content {
+        padding: 20px;
+      }
+      .article h3 {
+        color: #8b5cf6;
+        margin-bottom: 10px;
+      }
+      .article-meta {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+      .cta {
+        display: inline-block;
+        background: #8b5cf6;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 20px 10px 20px 0;
+      }
+      .cta:hover {
+        background: #7c3aed;
+      }
+      .cta-secondary {
+        background: #6b7280;
+      }
+      .topics {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 30px 0;
+      }
+      .topics h2 {
+        color: #1f2937;
+        margin-bottom: 20px;
+      }
+      .topic-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .topic-tag {
+        background: #f3f4f6;
+        padding: 8px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        color: #4b5563;
+        transition: background 0.2s;
+      }
+      .topic-tag:hover {
+        background: #8b5cf6;
+        color: white;
+      }
+      footer {
+        background: #1f2937;
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      footer a {
+        color: #8b5cf6;
+      }
+      .breadcrumb {
+        padding: 15px 20px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+      }
+      .breadcrumb a:hover {
+        color: #8b5cf6;
+      }
+      .breadcrumb span {
+        color: #9ca3af;
+        margin: 0 8px;
+      }
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Pet Care Blog</h1>
-      <p>
-        Explore expert advice on pet care, nutrition, health, and training to keep your pets happy
-        and healthy.
-      </p>
-      <p>
-        <a href="/#/blog">Open the full blog</a>
-      </p>
-      <p>
-        <a href="/">Back to PetBhai Home</a>
-      </p>
+    <nav class="breadcrumb"><a href="/PetBhai/">Home</a><span>›</span><strong>Blog</strong></nav>
+
+    <header>
+      <h1>📚 Pet Care Blog</h1>
+      <p>Expert Tips, Health Guides & News for Pet Lovers</p>
+    </header>
+
+    <main class="container">
+      <section>
+        <h2>Learn How to Care for Your Pets</h2>
+        <p>
+          Welcome to PetBhai's pet care blog – your trusted source for expert advice on dog care,
+          cat health, pet nutrition, training tips, and more. Our articles are written by
+          veterinarians and pet care experts in Bangladesh.
+        </p>
+
+        <a href="/PetBhai/#/blog" class="cta">📖 Read All Articles</a>
+        <a href="/PetBhai/" class="cta cta-secondary">🏠 Back to Home</a>
+      </section>
+
+      <section class="articles">
+        <article class="article">
+          <div class="article-content">
+            <h3>🐕 Dog Nutrition Guide</h3>
+            <p class="article-meta">Health & Nutrition</p>
+            <p>
+              Complete guide to feeding your dog the right food for their age, size, and health
+              needs. Learn about the best dog food brands available in Bangladesh.
+            </p>
+            <a href="/PetBhai/#/blog">Read More →</a>
+          </div>
+        </article>
+
+        <article class="article">
+          <div class="article-content">
+            <h3>🐈 Cat Health Essentials</h3>
+            <p class="article-meta">Health & Wellness</p>
+            <p>
+              Keep your cat healthy with our comprehensive guide to common cat health issues,
+              prevention tips, and when to visit the vet.
+            </p>
+            <a href="/PetBhai/#/blog">Read More →</a>
+          </div>
+        </article>
+
+        <article class="article">
+          <div class="article-content">
+            <h3>🏠 New Pet Owner Guide</h3>
+            <p class="article-meta">Getting Started</p>
+            <p>
+              First-time pet owner? Learn everything you need to know about bringing home a new pet,
+              from supplies to training basics.
+            </p>
+            <a href="/PetBhai/#/blog">Read More →</a>
+          </div>
+        </article>
+
+        <article class="article">
+          <div class="article-content">
+            <h3>💉 Vaccination Schedule</h3>
+            <p class="article-meta">Health & Prevention</p>
+            <p>
+              Essential vaccination guide for dogs and cats in Bangladesh. Keep your pets protected
+              from common diseases.
+            </p>
+            <a href="/PetBhai/#/blog">Read More →</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="topics">
+        <h2>Popular Topics</h2>
+        <div class="topic-tags">
+          <a href="/PetBhai/#/blog" class="topic-tag">Dog Care</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Cat Health</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Pet Nutrition</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Training Tips</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Grooming</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Vaccinations</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Pet Behavior</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">First Aid</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Senior Pets</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Puppy Care</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Kitten Care</a>
+          <a href="/PetBhai/#/blog" class="topic-tag">Pet Safety</a>
+        </div>
+      </section>
+
+      <section>
+        <h2>Related Resources</h2>
+        <p>
+          <a href="/PetBhai/ai-assistant/">AI Pet Assistant</a> •
+          <a href="/PetBhai/find-vet/">Find a Vet</a> •
+          <a href="/PetBhai/consult-vet/">Online Vet Consultation</a> •
+          <a href="/PetBhai/shop/">Pet Supplies</a>
+        </p>
+      </section>
     </main>
+
+    <footer>
+      <p><strong>PetBhai</strong> - Bangladesh's Trusted Pet Care Platform</p>
+      <p>
+        <a href="/PetBhai/">Home</a> • <a href="/PetBhai/shop/">Shop</a> •
+        <a href="/PetBhai/services/">Services</a> • <a href="/PetBhai/adopt/">Adopt</a> •
+        <a href="/PetBhai/community/">Community</a>
+      </p>
+      <p style="margin-top: 15px; opacity: 0.7">© 2026 PetBhai. All rights reserved.</p>
+    </footer>
   </body>
 </html>
