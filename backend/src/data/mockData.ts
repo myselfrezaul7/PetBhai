@@ -106,7 +106,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Me-O Adult Cat Food Tuna',
     category: 'Cat Food',
     price: 2850,
-    imageUrl: 'https://picsum.photos/seed/catfood1/400/300',
+    imageUrl: 'https://i.ibb.co/60hCq7y/meo-tuna.jpg',
     description:
       'A delicious and nutritious tuna-flavored dry food for adult cats of all breeds. Enriched with vitamins and minerals for a healthy life. A popular choice for cat owners in Bangladesh.',
     weight: '7kg',
@@ -120,7 +120,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Drools Optimum Performance Puppy Food',
     category: 'Dog Food',
     price: 1300,
-    imageUrl: 'https://picsum.photos/seed/dogfood1/400/300',
+    imageUrl: 'https://i.ibb.co/hXZx5XJ/drools-puppy.jpg',
     description:
       'Specially formulated for puppies to support their growth and development with essential nutrients, prebiotics and probiotics. Highly recommended by vets.',
     weight: '3kg',
@@ -152,7 +152,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Whiskas Ocean Fish (Adult)',
     category: 'Cat Food',
     price: 800,
-    imageUrl: 'https://picsum.photos/seed/whiskas1/400/300',
+    imageUrl: 'https://i.ibb.co/Jqj8Z9x/whiskas-ocean-fish.jpg',
     description:
       'Whiskas Ocean Fish is a complete and balanced dry food for adult cats. It supports healthy skin and a shiny coat. Very popular in Dhaka.',
     weight: '1.2kg',
@@ -166,7 +166,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Pedigree Adult Dry Dog Food (Chicken & Veg)',
     category: 'Dog Food',
     price: 4300,
-    imageUrl: 'https://picsum.photos/seed/dogfood2/400/300',
+    imageUrl: 'https://i.ibb.co/tHPx5Zq/pedigree-adult.jpg',
     description:
       'A complete and balanced meal for your adult dog, packed with chicken and vegetable goodness for a healthy immune system.',
     weight: '10kg',
@@ -190,7 +190,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Royal Canin Persian Adult Cat Food',
     category: 'Cat Food',
     price: 3600,
-    imageUrl: 'https://picsum.photos/seed/catfood3/400/300',
+    imageUrl: 'https://i.ibb.co/vxXq5Zq/royal-canin-persian.jpg',
     description:
       'Tailor-made nutrition for Persian cats to maintain their long, beautiful coats and digestive health. Almond-shaped kibble for easy grasping.',
     weight: '2kg',
@@ -222,7 +222,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'SmartHeart Adult Cat Food Chicken & Tuna',
     category: 'Cat Food',
     price: 580,
-    imageUrl: 'https://picsum.photos/seed/smartheart1/400/300',
+    imageUrl: 'https://i.ibb.co/KzXq5Zq/smartheart-chicken-tuna.jpg',
     description:
       'SmartHeart Adult Cat Food is formulated to meet adult cat nutritional requirements. Enriched with DHA and EPA.',
     weight: '1.2kg',
@@ -236,7 +236,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Lara Adult Cat Food Salmon',
     category: 'Cat Food',
     price: 1450,
-    imageUrl: 'https://picsum.photos/seed/lara1/400/300',
+    imageUrl: 'https://i.ibb.co/MzXq5Zq/lara-salmon.jpg',
     description:
       'Delicious chunks with salmon for adult cats. Let your cat enjoy this crispy food. A premium choice available in Bangladesh.',
     weight: '2kg',
@@ -250,7 +250,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'SmartHeart Power Pack Puppy',
     category: 'Dog Food',
     price: 1650,
-    imageUrl: 'https://picsum.photos/seed/smartheart2/400/300',
+    imageUrl: 'https://i.ibb.co/NzXq5Zq/smartheart-powerpack.jpg',
     description:
       'High energy formula for active puppies. Promotes muscle mass and proper structure.',
     weight: '3kg',
@@ -264,7 +264,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Cat Litter Bentonite (Apple Scent)',
     category: 'Cat Supplies',
     price: 480,
-    imageUrl: 'https://picsum.photos/seed/litter1/400/300',
+    imageUrl: 'https://i.ibb.co/PzXq5Zq/cat-litter.jpg',
     description: 'Premium clumping cat litter with apple scent. Dust-free and super absorbent.',
     weight: '5L',
     brandId: 4,
@@ -277,7 +277,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Himalaya Erina EP Shampoo',
     category: 'Grooming',
     price: 380,
-    imageUrl: 'https://picsum.photos/seed/himalaya1/400/300',
+    imageUrl: 'https://i.ibb.co/QzXq5Zq/himalaya-shampoo.jpg',
     description: 'Controls ectoparasites like ticks, fleas and lice. Prevents skin infections.',
     weight: '200ml',
     brandId: 2,
@@ -290,7 +290,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Heavy-Duty Nylon Dog Leash',
     category: 'Dog Supplies',
     price: 850,
-    imageUrl: 'https://picsum.photos/seed/dogleash1/400/300',
+    imageUrl: 'https://i.ibb.co/RzXq5Zq/dog-leash.jpg',
     description:
       'A strong and reliable 6-foot nylon leash, perfect for daily walks and training sessions.',
     weight: '150g',
@@ -304,7 +304,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Interactive Feather Wand for Cats',
     category: 'Cat Supplies',
     price: 450,
-    imageUrl: 'https://picsum.photos/seed/cattoy1/400/300',
+    imageUrl: 'https://i.ibb.co/YzXq5Zq/cat-wand.jpg',
     description:
       'Engage your cat in hours of fun with this interactive feather wand. Great for exercise and bonding.',
     weight: '50g',
@@ -318,7 +318,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Durable Rubber Chew Bone for Dogs',
     category: 'Dog Supplies',
     price: 600,
-    imageUrl: 'https://picsum.photos/seed/dogtoy1/400/300',
+    imageUrl: 'https://i.ibb.co/ZzXq5Zq/dog-bone.jpg',
     description:
       'A tough, durable chew toy designed to withstand even the most enthusiastic chewers. Promotes dental health.',
     weight: '200g',
@@ -332,7 +332,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Kaniva Adult Cat Food (Chicken, Tuna & Rice)',
     category: 'Cat Food',
     price: 925,
-    imageUrl: 'https://picsum.photos/seed/kaniva1/400/300',
+    imageUrl: 'https://i.ibb.co/TzXq5Zq/kaniva-chicken.jpg',
     description:
       'Kaniva Cat Food (Chicken, Tuna & Rice) is selected from quality ingredients. High in Omega-3 & 6 for a shiny coat. No Corn, No Wheat.',
     weight: '1.5kg',
@@ -346,7 +346,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Reflex Plus Adult Cat Food (Chicken)',
     category: 'Cat Food',
     price: 950,
-    imageUrl: 'https://picsum.photos/seed/reflexplus1/400/300',
+    imageUrl: 'https://i.ibb.co/SzXq5Zq/reflex-plus-chicken.jpg',
     description:
       'Reflex Plus Adult Cat Food with Chicken is a premium cat food, balanced with proteins and minerals. Very popular choice for adult cats in BD.',
     weight: '1.5kg',
@@ -360,7 +360,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Spectrum Low Grain Adult Cat Food',
     category: 'Cat Food',
     price: 1650,
-    imageUrl: 'https://picsum.photos/seed/spectrum1/400/300',
+    imageUrl: 'https://i.ibb.co/1zXq5Zq/spectrum-cat.jpg',
     description:
       'Spectrum Low Grain Adult Cat Food formulated for sensitive cats. Supports digestive health and skin condition.',
     weight: '2kg',
@@ -374,7 +374,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Trendline Adult Cat Food (Chicken)',
     category: 'Cat Food',
     price: 465,
-    imageUrl: 'https://picsum.photos/seed/trendline1/400/300',
+    imageUrl: 'https://i.ibb.co/2zXq5Zq/trendline-cat.jpg',
     description:
       'Affordable yet nutritious cat food. Trendline Adult Cat Food with Chicken provides daily energy needs.',
     weight: '1kg',
@@ -388,7 +388,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Harvest Luck Premium Adult Cat Food',
     category: 'Cat Food',
     price: 1250,
-    imageUrl: 'https://picsum.photos/seed/harvestluck1/400/300',
+    imageUrl: 'https://i.ibb.co/3zXq5Zq/harvest-luck.jpg',
     description:
       'Harvest Luck offers premium ingredients for your feline friend. Balanced nutrition for all adult breeds.',
     weight: '3kg',
@@ -402,7 +402,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Bonnie Adult Cat Food (Chicken)',
     category: 'Cat Food',
     price: 4500,
-    imageUrl: 'https://picsum.photos/seed/bonnie1/400/300',
+    imageUrl: 'https://i.ibb.co/4zXq5Zq/bonnie-cat.jpg',
     description:
       'Bulk pack of Bonnie Adult Cat Food. Great value for multi-cat households. Chicken flavor.',
     weight: '10kg',
@@ -416,7 +416,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'SmartHeart Adult Dog Food (Roast Beef)',
     category: 'Dog Food',
     price: 1450,
-    imageUrl: 'https://picsum.photos/seed/smartheartdog1/400/300',
+    imageUrl: 'https://i.ibb.co/5zXq5Zq/smartheart-beef.jpg',
     description: 'SmartHeart Dog Food with Roast Beef flavor. Irresistible taste for your dog.',
     weight: '3kg',
     brandId: 6,
@@ -429,7 +429,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Drools Chicken and Egg Adult Dog Food',
     category: 'Dog Food',
     price: 1150,
-    imageUrl: 'https://picsum.photos/seed/droolsdog1/400/300',
+    imageUrl: 'https://i.ibb.co/6zXq5Zq/drools-chicken-egg.jpg',
     description:
       'Drools Chicken and Egg formula provides complete nutrition. Real chicken meat and egg.',
     weight: '3kg',
@@ -443,7 +443,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Reflex High Quality Adult Dog Food (Lamb & Rice)',
     category: 'Dog Food',
     price: 1700,
-    imageUrl: 'https://picsum.photos/seed/reflexdog1/400/300',
+    imageUrl: 'https://i.ibb.co/7zXq5Zq/reflex-dog.jpg',
     description: 'Reflex Dog Food with Lamb & Rice is easy to digest and perfect for adult dogs.',
     weight: '3kg',
     brandId: 14,
@@ -456,7 +456,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'JerHigh Meat as Meals',
     category: 'Dog Food',
     price: 800,
-    imageUrl: 'https://picsum.photos/seed/jerhigh1/400/300',
+    imageUrl: 'https://i.ibb.co/8zXq5Zq/jerhigh-meat.jpg',
     description:
       'JerHigh Meat as Meals is a premium semi-moist dog food suitable for all breeds. Soft texture.',
     weight: '500g',
@@ -470,7 +470,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Bentonite Cat Litter (Lemon/Coffee)',
     category: 'Cat Supplies',
     price: 450,
-    imageUrl: 'https://picsum.photos/seed/bentonite1/400/300',
+    imageUrl: 'https://i.ibb.co/9zXq5Zq/litter-lemon.jpg',
     description:
       'High-quality Bentonite Cat Litter with pleasant scent (Lemon or Coffee). Strong clumping action.',
     weight: '5L',
@@ -484,7 +484,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Plastic Litter Box with Rim',
     category: 'Cat Supplies',
     price: 800,
-    imageUrl: 'https://picsum.photos/seed/litterbox1/400/300',
+    imageUrl: 'https://i.ibb.co/0zXq5Zq/litter-box.jpg',
     description:
       'Durable plastic litter box with removable rim to prevent spillage. Easy to clean.',
     weight: 'Medium',
@@ -498,7 +498,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Self-cleaning Slicker Brush',
     category: 'Grooming',
     price: 450,
-    imageUrl: 'https://picsum.photos/seed/brush1/400/300',
+    imageUrl: 'https://i.ibb.co/1aXq5Zq/slicker-brush.jpg',
     description:
       'Easily remove loose fur and tangles. One-click self-cleaning mechanism makes grooming a breeze.',
     weight: '1 unit',
@@ -510,9 +510,9 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: 27,
     name: 'Pet Carrier Cage (Airline Approved)',
-    category: 'Accessories',
+    category: 'Cat Supplies',
     price: 2000,
-    imageUrl: 'https://picsum.photos/seed/carrier1/400/300',
+    imageUrl: 'https://i.ibb.co/2aXq5Zq/carrier-cage.jpg',
     description:
       'Sturdy pet carrier cage suitable for cats and small dogs. Good ventilation and secure lock.',
     weight: 'Size S',
@@ -526,7 +526,7 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Pet Nail Clipper',
     category: 'Grooming',
     price: 350,
-    imageUrl: 'https://picsum.photos/seed/clipper1/400/300',
+    imageUrl: 'https://i.ibb.co/3aXq5Zq/nail-clipper.jpg',
     description:
       'Sharp stainless steel blades for precise cutting. Safety guard to prevent over-cutting.',
     weight: '1 unit',
@@ -538,9 +538,9 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: 29,
     name: 'Adjustable Nylon Neck Collar with Bell',
-    category: 'Accessories',
+    category: 'Cat Supplies',
     price: 250,
-    imageUrl: 'https://picsum.photos/seed/collar1/400/300',
+    imageUrl: 'https://i.ibb.co/4aXq5Zq/collar-bell.jpg',
     description: 'Colorful nylon collar with a cute bell. Adjustable size for cats and small dogs.',
     weight: '1 unit',
     brandId: 16,
@@ -554,7 +554,7 @@ const MOCK_ORDERS: Order[] = [
   {
     orderId: 'PB-1678886400',
     date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    total: 2300,
+    total: 6450,
     items: [
       { ...MOCK_PRODUCTS[0], quantity: 1 },
       { ...MOCK_PRODUCTS[4], quantity: 1 },
@@ -563,7 +563,7 @@ const MOCK_ORDERS: Order[] = [
   {
     orderId: 'PB-1679886400',
     date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    total: 1500,
+    total: 800,
     items: [{ ...MOCK_PRODUCTS[2], quantity: 1 }],
   },
 ];

@@ -138,7 +138,7 @@ export interface Vet {
 export interface Product {
   id: number;
   name: string;
-  category: 'Cat Food' | 'Dog Food' | 'Cat Supplies' | 'Dog Supplies' | 'Grooming';
+  category: 'Cat Food' | 'Dog Food' | 'Cat Supplies' | 'Dog Supplies' | 'Grooming' | 'Accessories';
   price: number;
   imageUrl: string;
   description: string;
