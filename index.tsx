@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Build version: 2026-01-25-v2
+const BUILD_VERSION = '2026-01-25-v3';
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error('Could not find root element to mount to');
+  throw new Error(`Could not find root element - build ${BUILD_VERSION}`);
 }
 
 const root = ReactDOM.createRoot(rootElement);
