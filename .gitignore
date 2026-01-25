@@ -32,3 +32,4 @@ backend/dist
 .env.local
 reports/
 tmp_*.html
+.vercel

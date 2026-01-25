@@ -11,8 +11,20 @@ import {
 } from './data/mockData';
 import type { User, Product, Article, Vet, Animal, Brand, Order, Post } from './types';
 
+// Detect if running in serverless environment (Vercel, AWS Lambda, etc.)
+const isServerless = !!(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.NETLIFY
+);
+
 // Resolve DB_PATH reliably whether running from dist or src
 const getDbPath = (): string => {
+  // In serverless, we can't write to filesystem, so return a dummy path
+  if (isServerless) {
+    return '/tmp/db.json'; // Vercel allows /tmp but it's ephemeral
+  }
+
   // Check if we're in dist or src directory
   const possiblePaths = [
     path.join(__dirname, '../data/db.json'), // From dist/
@@ -23,8 +35,12 @@ const getDbPath = (): string => {
 
   for (const p of possiblePaths) {
     const dir = path.dirname(p);
-    if (fs.existsSync(dir)) {
-      return p;
+    try {
+      if (fs.existsSync(dir)) {
+        return p;
+      }
+    } catch {
+      // Ignore filesystem errors in restricted environments
     }
   }
 
@@ -86,6 +102,12 @@ class Database {
   }
 
   private loadData(): DatabaseSchema {
+    // In serverless environment, always use in-memory data
+    if (isServerless) {
+      console.log('Running in serverless environment - using in-memory database');
+      return JSON.parse(JSON.stringify(INITIAL_DATA));
+    }
+    
     try {
       console.log(`Attempting to load database from: ${DB_PATH}`);
       const dir = path.dirname(DB_PATH);
@@ -110,6 +132,11 @@ class Database {
   }
 
   private saveData(data: DatabaseSchema, retries = 3): boolean {
+    // Skip file operations in serverless environment
+    if (isServerless) {
+      return true; // Pretend success - data stays in memory only
+    }
+    
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         const dir = path.dirname(DB_PATH);
