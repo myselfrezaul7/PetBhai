@@ -195,6 +195,8 @@ router.post('/', orderLimiter, (req, res) => {
   if (orderData.userId) {
     const user = db.users.find((u) => u.id === orderData.userId);
     if (user) {
+      // Initialize orderHistory if not exists
+      if (!user.orderHistory) user.orderHistory = [];
       user.orderHistory.unshift(newOrder);
     }
   }
@@ -309,6 +311,8 @@ router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, r
   if ((order as any).userId) {
     const user = db.users.find((u) => u.id === (order as any).userId);
     if (user) {
+      // Initialize orderHistory if not exists
+      if (!user.orderHistory) user.orderHistory = [];
       const userOrderIndex = user.orderHistory.findIndex((o) => o.orderId === orderId);
       if (userOrderIndex !== -1) {
         user.orderHistory[userOrderIndex] = order;

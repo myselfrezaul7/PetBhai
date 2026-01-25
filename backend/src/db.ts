@@ -107,7 +107,7 @@ class Database {
       console.log('Running in serverless environment - using in-memory database');
       return JSON.parse(JSON.stringify(INITIAL_DATA));
     }
-    
+
     try {
       console.log(`Attempting to load database from: ${DB_PATH}`);
       const dir = path.dirname(DB_PATH);
@@ -136,7 +136,7 @@ class Database {
     if (isServerless) {
       return true; // Pretend success - data stays in memory only
     }
-    
+
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         const dir = path.dirname(DB_PATH);

@@ -33,10 +33,24 @@ export interface Order {
   total: number;
   items: CartItem[];
   paymentMethod?: string;
+  status?:
+    | 'pending'
+    | 'processing'
+    | 'shipped'
+    | 'delivered'
+    | 'cancelled'
+    | 'confirmed'
+    | 'refunded';
 }
 
-export type AnimalStatus = 'Available' | 'Pending' | 'Adopted';
-export type AnimalAge = 'Puppy/Kitten' | 'Young' | 'Adult' | 'Senior';
+export type AnimalStatus =
+  | 'Available'
+  | 'Pending'
+  | 'Adopted'
+  | 'available'
+  | 'pending'
+  | 'adopted';
+export type AnimalAge = 'Puppy/Kitten' | 'Young' | 'Adult' | 'Senior' | string;
 export type AnimalGender = 'Male' | 'Female';
 export type AnimalSize = 'Small' | 'Medium' | 'Large';
 
@@ -44,24 +58,39 @@ export interface Animal {
   id: number;
   name: string;
   breed: string;
+  species?: string;
   age: AnimalAge;
-  gender: AnimalGender;
-  size: AnimalSize;
+  gender?: AnimalGender;
+  sex?: 'Male' | 'Female';
+  size?: AnimalSize;
   status: AnimalStatus;
   description: string;
   imageUrl: string;
+  location?: string;
+  color?: string;
+  vaccinated?: boolean;
+  spayedNeutered?: boolean;
+  postedAt?: string;
 }
 
 export interface User {
-  id: number;
+  id: number | string;
   name: string;
   email: string;
   password?: string;
   profilePictureUrl?: string;
-  wishlist: number[]; // Array of product IDs
-  orderHistory: Order[];
-  favorites: number[]; // Array of animal IDs
+  wishlist?: number[]; // Array of product IDs
+  orderHistory?: Order[];
+  orders?: Order[]; // Alternative orders field
+  favorites?: number[]; // Array of animal IDs
   isPlusMember?: boolean;
+  role?: 'customer' | 'admin';
+  defaultShippingAddress?: {
+    fullName: string;
+    address: string;
+    city: string;
+    phone: string;
+  };
 }
 
 export interface CommentReply {
@@ -147,6 +176,7 @@ export interface Product {
   rating: number;
   reviews: Review[];
   searchTags?: string[];
+  stockStatus?: 'in-stock' | 'low-stock' | 'out-of-stock';
 }
 
 export interface CartItem extends Product {

@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_local_only';
 // Extended Request type with user info
 export interface AuthRequest extends Request {
   user?: {
-    id: number;
+    id: number | string;
     email: string;
     name: string;
     isPlusMember?: boolean;
@@ -18,7 +18,7 @@ export interface AuthRequest extends Request {
 
 // JWT payload interface
 export interface JwtPayload {
-  id: number;
+  id: number | string;
   email: string;
   name: string;
   isPlusMember?: boolean;

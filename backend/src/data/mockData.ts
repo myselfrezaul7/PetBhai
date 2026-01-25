@@ -9,6 +9,7 @@ import {
   VetReview,
   Animal,
   Brand,
+  Comment,
 } from '../types';
 
 export const MOCK_BRANDS: Brand[] = [

@@ -226,6 +226,8 @@ router.post('/:id/wishlist', (req, res) => {
   const user = db.users.find((u) => u.id === userId);
 
   if (user) {
+    // Initialize wishlist if not exists
+    if (!user.wishlist) user.wishlist = [];
     if (!user.wishlist.includes(productId)) {
       user.wishlist.push(productId);
     }
@@ -247,6 +249,8 @@ router.delete('/:id/wishlist/:productId', (req, res) => {
   const user = db.users.find((u) => u.id === userId);
 
   if (user) {
+    // Initialize wishlist if not exists
+    if (!user.wishlist) user.wishlist = [];
     user.wishlist = user.wishlist.filter((id) => id !== productId);
     res.json(sanitizeUser(user));
   } else {
@@ -266,6 +270,8 @@ router.post('/:id/favorites', (req, res) => {
   const user = db.users.find((u) => u.id === userId);
 
   if (user) {
+    // Initialize favorites if not exists
+    if (!user.favorites) user.favorites = [];
     if (!user.favorites.includes(animalId)) {
       user.favorites.push(animalId);
     }
@@ -287,6 +293,8 @@ router.delete('/:id/favorites/:animalId', (req, res) => {
   const user = db.users.find((u) => u.id === userId);
 
   if (user) {
+    // Initialize favorites if not exists
+    if (!user.favorites) user.favorites = [];
     user.favorites = user.favorites.filter((id) => id !== animalId);
     res.json(sanitizeUser(user));
   } else {
