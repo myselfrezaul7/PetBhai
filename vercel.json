@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm install --include=dev && cd backend && npm install",
-  "buildCommand": "cd backend && npm run build && cd .. && npm run build",
+  "installCommand": "npm cache clean --force && npm install --include=dev && cd backend && npm install",
+  "buildCommand": "echo 'Starting fresh build...' && cd backend && npm run build && cd .. && rm -rf dist && npm run build && echo 'Build complete!'",
   "outputDirectory": "dist",
   "functions": {
     "api/index.ts": {
