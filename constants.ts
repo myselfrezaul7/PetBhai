@@ -556,7 +556,7 @@ export const MOCK_USERS: User[] = [
     email: 'aisha@example.com',
     profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
     wishlist: [2, 4],
-    orderHistory: MOCK_ORDERS,
+    orderHistory: [],
     favorites: [1, 3],
     isPlusMember: true,
   },
