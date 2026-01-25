@@ -1,5 +1,10 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  type Auth,
+} from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -49,3 +54,35 @@ if (isFirebaseConfigured()) {
 }
 
 export { auth, googleProvider };
+
+/**
+ * Send a password reset email to the specified email address
+ * Uses Firebase Auth's built-in password reset functionality
+ */
+export const sendPasswordResetEmail = async (email: string): Promise<void> => {
+  if (!isFirebaseConfigured() || !auth) {
+    throw new Error('Firebase is not configured. Password reset is unavailable.');
+  }
+
+  try {
+    await firebaseSendPasswordResetEmail(auth, email);
+  } catch (error: unknown) {
+    const firebaseError = error as { code?: string; message?: string };
+    console.error('Password reset error:', firebaseError);
+
+    switch (firebaseError.code) {
+      case 'auth/user-not-found':
+        // For security, don't reveal if user exists or not
+        // Just return success silently
+        return;
+      case 'auth/invalid-email':
+        throw new Error('Please enter a valid email address.');
+      case 'auth/too-many-requests':
+        throw new Error('Too many requests. Please try again later.');
+      case 'auth/network-request-failed':
+        throw new Error('Network error. Please check your internet connection.');
+      default:
+        throw new Error('Failed to send password reset email. Please try again.');
+    }
+  }
+};

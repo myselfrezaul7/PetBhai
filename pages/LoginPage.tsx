@@ -6,6 +6,7 @@ import { signInWithGoogle } from '../services/authService';
 import { sanitizeInput } from '../lib/security';
 import { ReCaptcha, useReCaptcha } from '../components/ReCaptcha';
 import HoneypotFields from '../components/HoneypotFields';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 
 interface FormErrors {
   email?: string;
@@ -20,6 +21,7 @@ const LoginPage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<boolean>(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -246,6 +248,16 @@ const LoginPage: React.FC = () => {
                 {fieldErrors.password}
               </p>
             )}
+            {/* Forgot Password Link */}
+            <div className="mt-2 text-right">
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 hover:underline font-medium touch-manipulation"
+              >
+                Forgot password?
+              </button>
+            </div>
           </div>
 
           {/* reCAPTCHA */}
@@ -282,6 +294,13 @@ const LoginPage: React.FC = () => {
           </Link>
         </p>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        initialEmail={email}
+      />
     </main>
   );
 };

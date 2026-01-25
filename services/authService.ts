@@ -1,5 +1,10 @@
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider, isFirebaseConfigured } from './firebase';
+import {
+  auth,
+  googleProvider,
+  isFirebaseConfigured,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+} from './firebase';
 
 interface SocialUser {
   firstName: string;
@@ -82,4 +87,20 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
         );
     }
   }
+};
+
+/**
+ * Send a password reset email to the specified email address
+ */
+export const sendPasswordResetEmail = async (email: string): Promise<void> => {
+  if (!email || !email.trim()) {
+    throw new Error('Email address is required.');
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    throw new Error('Please enter a valid email address.');
+  }
+
+  await firebaseSendPasswordResetEmail(email.trim().toLowerCase());
 };
