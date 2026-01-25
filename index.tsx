@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 
+// Build version: 2026-01-25-v2
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Could not find root element to mount to');
