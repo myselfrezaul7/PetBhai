@@ -52,16 +52,40 @@ const SEO: React.FC<SEOProps> = ({
   twitterCreator = '@petbhai_bd',
 }) => {
   const siteTitle = 'PetBhai';
+  // Always use production URL for canonical tags to avoid duplicate indexing issues
+  const productionUrl = 'https://www.petbhai.com/';
   const baseUrl =
     import.meta.env.VITE_SITE_URL ||
     (typeof window !== 'undefined'
       ? `${window.location.origin}${import.meta.env.BASE_URL}`
-      : 'https://www.petbhai.com/');
+      : productionUrl);
   const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const defaultImage = new URL('landing-hero.png', normalizedBaseUrl).toString();
+  const defaultImage = new URL('landing-hero.png', productionUrl).toString();
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
-  const currentUrl =
-    url || (typeof window !== 'undefined' ? window.location.href : normalizedBaseUrl);
+
+  // Generate clean canonical URL without query params or hash fragments
+  const getCanonicalUrl = () => {
+    if (url) {
+      // If explicit URL provided, ensure it uses production domain
+      return url.startsWith('http') ? url : `${productionUrl}${url.replace(/^\//, '')}`;
+    }
+    if (typeof window !== 'undefined') {
+      // Extract path from hash router (e.g., /#/shop -> /shop/)
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#/')) {
+        const path = hash.substring(2).split('?')[0]; // Remove #/ prefix and query params
+        const cleanPath = path.endsWith('/') || path === '' ? path : `${path}/`;
+        return `${productionUrl}${cleanPath}`;
+      }
+      // For non-hash URLs, use pathname without query params
+      const pathname = window.location.pathname.replace(/\/index\.html$/, '/');
+      const cleanPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
+      return `${productionUrl.slice(0, -1)}${cleanPath}`;
+    }
+    return productionUrl;
+  };
+
+  const currentUrl = getCanonicalUrl();
   const resolvedImage = image || defaultImage;
 
   // Schema.org structured data
@@ -108,7 +132,7 @@ const SEO: React.FC<SEOProps> = ({
           name: siteTitle,
           logo: {
             '@type': 'ImageObject',
-            url: new URL('icon-192x192.png', normalizedBaseUrl).toString(),
+            url: `${productionUrl}icon-192x192.png`,
           },
         },
       };
@@ -119,7 +143,7 @@ const SEO: React.FC<SEOProps> = ({
       '@type': 'WebSite',
       potentialAction: {
         '@type': 'SearchAction',
-        target: `${normalizedBaseUrl}#/shop?q={search_term_string}`,
+        target: `${productionUrl}#/shop?q={search_term_string}`,
         'query-input': 'required name=search_term_string',
       },
     };

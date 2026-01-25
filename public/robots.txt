@@ -1,5 +1,5 @@
 # PetBhai Robots.txt
-# https://myselfrezaul7.github.io/PetBhai/
+# https://www.petbhai.com/
 
 # Allow all search engines
 User-agent: *
@@ -76,7 +76,7 @@ User-agent: DotBot
 Disallow: /
 
 # Sitemap location
-Sitemap: https://myselfrezaul7.github.io/PetBhai/sitemap.xml
+Sitemap: https://www.petbhai.com/sitemap.xml
 
 # Host directive
-Host: https://myselfrezaul7.github.io/PetBhai/
+Host: https://www.petbhai.com/
