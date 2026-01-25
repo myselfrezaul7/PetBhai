@@ -1,7 +1,6 @@
 import type {
   User,
   Post,
-  Vet,
   Product,
   Order,
   Comment,
@@ -9,9 +8,6 @@ import type {
   Review,
   Article,
   VetReview,
-  Groomer,
-  Trainer,
-  PetSitter,
   Animal,
 } from './types';
 
@@ -1201,122 +1197,9 @@ export const MOCK_ANIMALS: Animal[] = [
   },
 ];
 
-export const MOCK_GROOMERS: Groomer[] = [
-  {
-    id: 101,
-    category: 'Groomer',
-    name: 'Posh Paws Grooming',
-    imageUrl: 'https://picsum.photos/seed/groomer1/200/200',
-    bio: "Certified Master Groomer with a gentle touch. We offer a calm, cage-free environment to make your pet's spa day a treat.",
-    location: 'Gulshan',
-    rating: 4.9,
-    specialties: ['Long-haired Breeds', 'Creative Grooming', 'Cat Grooming'],
-    services: [
-      { name: 'Full Groom', price: 2500, description: 'Bath, haircut, nail trim, ear cleaning.' },
-      { name: 'Bath & Brush', price: 1500, description: 'For in-between grooming sessions.' },
-    ],
-  },
-  {
-    id: 102,
-    category: 'Groomer',
-    name: 'The Dapper Dog',
-    imageUrl: 'https://picsum.photos/seed/groomer2/200/200',
-    bio: 'Specializing in all dog breeds, from Chihuahuas to Great Danes. We focus on a positive and stress-free experience.',
-    location: 'Dhanmondi',
-    rating: 4.8,
-    specialties: ['Breed Standard Cuts', 'De-shedding Treatments'],
-    services: [
-      {
-        name: "Puppy's First Groom",
-        price: 1200,
-        description: 'A gentle introduction to grooming.',
-      },
-      { name: 'Medicated Bath', price: 1800, description: 'For skin issues and allergies.' },
-    ],
-  },
-];
-
-export const MOCK_TRAINERS: Trainer[] = [
-  {
-    id: 201,
-    category: 'Trainer',
-    name: 'GoodBoy Dog Training',
-    imageUrl: 'https://picsum.photos/seed/trainer1/200/200',
-    bio: 'Certified professional dog trainer focused on building a strong, positive bond between you and your dog.',
-    location: 'Banani',
-    rating: 5.0,
-    certifications: ['CPDT-KA'],
-    methods: 'Positive Reinforcement',
-    services: [
-      { name: 'Puppy Socialization Class', price: 5000, description: '5-week group course.' },
-      { name: 'Private Obedience Training', price: 2000, description: 'Per one-hour session.' },
-    ],
-  },
-  {
-    id: 202,
-    category: 'Trainer',
-    name: 'Pawsitive Steps',
-    imageUrl: 'https://picsum.photos/seed/trainer2/200/200',
-    bio: "Behavioral consultant specializing in leash reactivity and separation anxiety. Let's build your dog's confidence!",
-    location: 'Uttara',
-    rating: 4.9,
-    certifications: ['KPA-CTP'],
-    methods: 'Clicker Training, Positive Reinforcement',
-    services: [
-      {
-        name: 'Behavioral Consultation',
-        price: 2500,
-        description: 'Initial 90-minute assessment.',
-      },
-      {
-        name: 'Leash Manners Workshop',
-        price: 'Varies',
-        description: 'Group and private sessions available.',
-      },
-    ],
-  },
-];
-
-export const MOCK_PET_SITTERS: PetSitter[] = [
-  {
-    id: 301,
-    category: 'Pet Sitter',
-    name: 'Home Comforts Pet Sitting',
-    imageUrl: 'https://picsum.photos/seed/sitter1/200/200',
-    bio: 'Experienced and reliable pet sitter offering in-your-home care so your pets can stay in their familiar environment.',
-    location: 'Mirpur',
-    rating: 4.9,
-    servicesOffered: ['House Sitting', 'Drop-in Visits'],
-    petTypes: ['Dogs', 'Cats'],
-    services: [
-      {
-        name: 'Overnight House Sitting',
-        price: 2000,
-        description: 'Per night, includes walks and feeding.',
-      },
-      {
-        name: '30-Min Drop-in Visit',
-        price: 500,
-        description: 'For feeding, potty breaks, and playtime.',
-      },
-    ],
-  },
-  {
-    id: 302,
-    category: 'Pet Sitter',
-    name: 'The Pet Palace BD',
-    imageUrl: 'https://picsum.photos/seed/sitter2/200/200',
-    bio: "Your pet's home away from home! We offer premium boarding with spacious play areas and 24/7 supervision.",
-    location: 'Bashundhara R/A',
-    rating: 4.8,
-    servicesOffered: ['Boarding'],
-    petTypes: ['Dogs', 'Cats', 'Small Animals'],
-    services: [
-      { name: 'Dog Boarding (Small Breed)', price: 1000, description: 'Per night.' },
-      { name: 'Cat Boarding (Luxury Suite)', price: 1200, description: 'Per night.' },
-    ],
-  },
-];
+// NOTE: Groomers, Trainers, Pet Sitters data has been removed.
+// These services show "Coming Soon" on the ServicesPage.
+// When ready, implement backend API endpoints for these services.
 
 export const BANGLADESH_DISTRICTS: string[] = [
   'Bagerhat',

@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Brand } from '../types';
-import { MOCK_BRANDS } from '../constants';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -30,9 +29,8 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setError(null);
       } catch (err) {
         console.error('Error fetching brands:', err);
-        // Fallback to mock data silently
-        setBrands(MOCK_BRANDS);
-        setError(null);
+        setError('Failed to load brands. Please try again later.');
+        setBrands([]);
       } finally {
         setLoading(false);
       }

@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Vet } from '../types';
-import { MOCK_VETS } from '../constants';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -30,9 +29,8 @@ export const VetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setError(null);
       } catch (err) {
         console.error('Error fetching vets:', err);
-        // Fallback to mock data silently
-        setVets(MOCK_VETS);
-        setError(null);
+        setError('Failed to load veterinarians. Please try again later.');
+        setVets([]);
       } finally {
         setLoading(false);
       }

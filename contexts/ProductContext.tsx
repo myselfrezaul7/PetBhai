@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Product, Review } from '../types';
-import { MOCK_PRODUCTS } from '../constants';
 
 // Use relative path for API to leverage Vite proxy in dev and same-origin in prod
 const API_URL = import.meta.env.VITE_API_URL || '/api';

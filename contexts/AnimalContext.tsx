@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Animal } from '../types';
-import { MOCK_ANIMALS } from '../constants';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -31,9 +30,8 @@ export const AnimalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setError(null);
       } catch (err) {
         console.error('Error fetching animals:', err);
-        // Fallback to mock data silently so the UI doesn't break
-        setAnimals(MOCK_ANIMALS);
-        setError(null);
+        setError('Failed to load animals for adoption. Please try again later.');
+        setAnimals([]);
       } finally {
         setLoading(false);
       }

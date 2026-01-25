@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { Article } from '../types';
-import { MOCK_ARTICLES } from '../constants';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -31,9 +30,8 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
       } catch (err) {
         console.error('Error fetching articles:', err);
-        // Fallback to mock data silently
-        setArticles(MOCK_ARTICLES);
-        setError(null);
+        setError('Failed to load articles. Please try again later.');
+        setArticles([]);
       } finally {
         setLoading(false);
       }

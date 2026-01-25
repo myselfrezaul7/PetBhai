@@ -14,20 +14,22 @@ const SERVICE_TABS: ServiceTab[] = ['Vets', 'Groomers', 'Trainers', 'Sitters'];
 // Memoized tab button component
 const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => void }>(
   ({ label, isActive, onClick }) => (
-    <button
-      onClick={onClick}
-      className={`px-3 sm:px-4 py-2 sm:py-3 font-bold text-sm sm:text-lg rounded-t-lg transition-all duration-200 border-b-4 whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
-        isActive
-          ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-          : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
-      }`}
-      aria-selected={isActive ? 'true' : 'false'}
-      role="tab"
-      tabIndex={isActive ? 0 : -1}
-      aria-controls={`${label.toLowerCase()}-panel`}
-    >
-      {label}
-    </button>
+    <li role="presentation">
+      <button
+        onClick={onClick}
+        className={`px-3 sm:px-4 py-2 sm:py-3 font-bold text-sm sm:text-lg rounded-t-lg transition-all duration-200 border-b-4 whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
+          isActive
+            ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+            : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
+        }`}
+        aria-selected={isActive}
+        role="tab"
+        tabIndex={isActive ? 0 : -1}
+        aria-controls={`${label.toLowerCase()}-panel`}
+      >
+        {label}
+      </button>
+    </li>
   )
 );
 
@@ -83,8 +85,8 @@ const ServicesPage: React.FC = () => {
       <div className="glass-card p-3 sm:p-4 mb-8 md:mb-12">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="border-b border-slate-300/50 dark:border-slate-600/50 w-full overflow-x-auto scrollbar-hide">
-            <nav
-              className="flex space-x-1 sm:space-x-2 min-w-max pb-px"
+            <ul
+              className="flex space-x-1 sm:space-x-2 min-w-max pb-px list-none m-0 p-0"
               role="tablist"
               aria-label="Service categories"
             >
@@ -96,7 +98,7 @@ const ServicesPage: React.FC = () => {
                   onClick={() => handleTabChange(tab)}
                 />
               ))}
-            </nav>
+            </ul>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
             <label
