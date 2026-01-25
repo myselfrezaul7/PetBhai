@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
-import { MOCK_GROOMERS, MOCK_TRAINERS, MOCK_PET_SITTERS, BANGLADESH_DISTRICTS } from '../constants';
+import { BANGLADESH_DISTRICTS } from '../constants';
 import { useVets } from '../contexts/VetContext';
 import VetCard from '../components/VetCard';
-import ServiceCard from '../components/ServiceCard';
-import type { Vet, Groomer, Trainer, PetSitter } from '../types';
+import type { Vet } from '../types';
 import { PawIcon } from '../components/icons';
 
 type ServiceTab = 'Vets' | 'Groomers' | 'Trainers' | 'Sitters';
@@ -53,28 +52,18 @@ const ServicesPage: React.FC = () => {
   }, []);
 
   const professionals = useMemo(() => {
-    let list: (Vet | Groomer | Trainer | PetSitter)[] = [];
-    switch (activeTab) {
-      case 'Vets':
-        list = vets;
-        break;
-      case 'Groomers':
-        list = MOCK_GROOMERS;
-        break;
-      case 'Trainers':
-        list = MOCK_TRAINERS;
-        break;
-      case 'Sitters':
-        list = MOCK_PET_SITTERS;
-        break;
+    if (activeTab === 'Vets') {
+      if (locationFilter === 'All') {
+        return vets;
+      }
+      return vets.filter((p) => p.address.includes(locationFilter));
     }
-    if (locationFilter === 'All') {
-      return list;
-    }
-    return list.filter((p) =>
-      'address' in p ? p.address.includes(locationFilter) : p.location === locationFilter
-    );
+    // For Groomers, Trainers, Sitters - return empty (Coming Soon)
+    return [];
   }, [activeTab, locationFilter, vets]);
+
+  // Check if current tab is "Coming Soon"
+  const isComingSoon = activeTab !== 'Vets';
 
   // Count results for accessibility
   const resultCount = professionals.length;
@@ -158,6 +147,25 @@ const ServicesPage: React.FC = () => {
             Try Again
           </button>
         </div>
+      ) : isComingSoon ? (
+        <div className="text-center py-16 glass-card">
+          <div className="text-6xl mb-6">🚧</div>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-4">
+            Coming Soon!
+          </h2>
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-md mx-auto mb-6">
+            We're working hard to bring you the best {activeTab.toLowerCase()} in Bangladesh. Stay
+            tuned!
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              onClick={() => handleTabChange('Vets')}
+              className="px-6 py-3 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
+            >
+              Browse Vets Instead
+            </button>
+          </div>
+        </div>
       ) : resultCount > 0 ? (
         <section
           id={`${activeTab.toLowerCase()}-panel`}
@@ -165,14 +173,9 @@ const ServicesPage: React.FC = () => {
           aria-label={`${activeTab} listings`}
         >
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
-            {professionals.map((p) => {
-              if ('specialization' in p) {
-                // It's a Vet
-                return <VetCard key={`vet-${p.id}`} vet={p} />;
-              }
-              // It's a Groomer, Trainer, or Sitter
-              return <ServiceCard key={`${p.category}-${p.id}`} professional={p} />;
-            })}
+            {professionals.map((p) => (
+              <VetCard key={`vet-${p.id}`} vet={p as Vet} />
+            ))}
           </div>
         </section>
       ) : (
