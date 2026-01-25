@@ -30,9 +30,9 @@ export default defineConfig(({ mode }) => {
       minify: 'terser',
       terserOptions: {
         compress: {
-          drop_console: false, // Keep console for debugging
-          drop_debugger: isProduction,
-          pure_funcs: [], // Don't remove any console functions for now
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.debug'],
         },
       },
       // Code splitting for optimal loading
