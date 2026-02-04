@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { CloseIcon, ShoppingCartIcon } from './icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ProductQuickViewModalProps {
   product: Product | null;
@@ -10,6 +11,7 @@ interface ProductQuickViewModalProps {
 }
 
 const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, onClose }) => {
+  const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
   const [isAdding, setIsAdding] = useState(false);
 
@@ -52,7 +54,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-20 bg-white/80 dark:bg-black/50 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm backdrop-blur-md"
-          aria-label="Close modal"
+          aria-label={t('aria_close_modal')}
         >
           <CloseIcon className="w-5 h-5 text-slate-700 dark:text-white" />
         </button>
@@ -78,7 +80,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
             <div className="flex items-center space-x-3 mb-6">
               <StarRatingDisplay rating={product.rating} />
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                ({product.reviews.length} reviews)
+                ({product.reviews.length} {t('label_reviews')})
               </span>
             </div>
 
@@ -87,7 +89,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
                 ৳{product.price}
               </p>
               <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">
-                Weight: {product.weight}
+                {t('label_weight')} {product.weight}
               </p>
             </div>
 
@@ -110,10 +112,10 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
               <ShoppingCartIcon className="w-5 h-5" />
               <span>
                 {isAdding
-                  ? 'Added to Cart'
+                  ? t('btn_added_full')
                   : quantityInCart > 0
-                    ? `Add More (${quantityInCart} in Cart)`
-                    : 'Add to Cart'}
+                    ? `${t('btn_add_more')} (${quantityInCart} ${t('text_in_cart')})`
+                    : t('btn_add_to_cart')}
               </span>
             </button>
             <Link
@@ -121,7 +123,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
               onClick={onClose}
               className="w-full py-3.5 rounded-xl font-bold text-center border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-slate-800 transition-colors"
             >
-              View Full Details
+              {t('btn_view_full_details')}
             </Link>
           </div>
         </div>

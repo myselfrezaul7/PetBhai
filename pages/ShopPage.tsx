@@ -5,6 +5,7 @@ import { useBrands } from '../contexts/BrandContext';
 import { SearchIcon } from '../components/icons';
 import type { Product } from '../types';
 import { useProducts } from '../contexts/ProductContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import ProductQuickViewModal from '../components/ProductQuickViewModal';
 import { sanitizeInput } from '../lib/security';
 
@@ -28,6 +29,7 @@ const CATEGORY_OPTIONS: CategoryFilter[] = [
 ];
 
 const ShopPage: React.FC = () => {
+  const { t } = useLanguage();
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('All');
   const [activeBrand, setActiveBrand] = useState<string>(location.state?.brand || 'All');
@@ -123,21 +125,33 @@ const ShopPage: React.FC = () => {
 
   // Memoized category button component
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = useCallback(
-    ({ filter }) => (
-      <button
-        onClick={() => handleCategoryChange(filter)}
-        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
-          activeCategory === filter
-            ? 'bg-orange-500 text-white shadow-lg transform scale-105'
-            : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
-        }`}
-        aria-pressed={activeCategory === filter ? 'true' : 'false'}
-        aria-label={`Filter by ${filter}`}
-      >
-        {filter}
-      </button>
-    ),
-    [activeCategory, handleCategoryChange]
+    ({ filter }) => {
+      const label =
+        {
+          All: t('cat_all'),
+          'Dog Food': t('cat_dog_food'),
+          'Cat Food': t('cat_cat_food'),
+          'Dog Supplies': t('cat_dog_supplies'),
+          'Cat Supplies': t('cat_cat_supplies'),
+          Grooming: t('cat_grooming'),
+        }[filter] || filter;
+
+      return (
+        <button
+          onClick={() => handleCategoryChange(filter)}
+          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
+            activeCategory === filter
+              ? 'bg-orange-500 text-white shadow-lg transform scale-105'
+              : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
+          }`}
+          aria-pressed={activeCategory === filter ? 'true' : 'false'}
+          aria-label={`Filter by ${label}`}
+        >
+          {label}
+        </button>
+      );
+    },
+    [activeCategory, handleCategoryChange, t]
   );
 
   // Calculate result count for accessibility
@@ -148,11 +162,10 @@ const ShopPage: React.FC = () => {
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
         <header className="text-center mb-6 md:mb-10">
           <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 dark:text-white mb-3 md:mb-4">
-            Shop For Your Buddy
+            {t('shop_title')}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto px-2">
-            Find everything you need to keep your pet happy and healthy, from premium food to fun
-            toys.
+            {t('shop_subtitle')}
           </p>
         </header>
 
@@ -168,11 +181,11 @@ const ShopPage: React.FC = () => {
             </span>
             <input
               type="search"
-              placeholder="Search products..."
+              placeholder={t('shop_search_placeholder')}
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
-              aria-label="Search products"
+              aria-label={t('shop_search_label')}
               autoComplete="off"
             />
           </div>
@@ -195,7 +208,7 @@ const ShopPage: React.FC = () => {
                 htmlFor="brand-filter"
                 className="font-semibold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap"
               >
-                Brand:
+                {t('filter_brand')}
               </label>
               <div className="relative flex-1 sm:flex-none">
                 <select
@@ -204,7 +217,7 @@ const ShopPage: React.FC = () => {
                   onChange={handleBrandChange}
                   className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                 >
-                  <option value="All">All Brands</option>
+                  <option value="All">{t('filter_brand_all')}</option>
                   {brands.map((brand) => (
                     <option key={brand.id} value={brand.name}>
                       {brand.name}
@@ -231,7 +244,7 @@ const ShopPage: React.FC = () => {
                 htmlFor="sort-by"
                 className="font-semibold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap"
               >
-                Sort by:
+                {t('filter_sort')}
               </label>
               <div className="relative flex-1 sm:flex-none">
                 <select
@@ -240,10 +253,10 @@ const ShopPage: React.FC = () => {
                   onChange={handleSortChange}
                   className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                 >
-                  <option value="default">Default</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating-desc">Highest Rated</option>
+                  <option value="default">{t('filter_sort_default')}</option>
+                  <option value="price-asc">{t('filter_sort_price_asc')}</option>
+                  <option value="price-desc">{t('filter_sort_price_desc')}</option>
+                  <option value="rating-desc">{t('filter_sort_rating')}</option>
                 </select>
                 <div
                   className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700 dark:text-slate-300"
@@ -265,7 +278,7 @@ const ShopPage: React.FC = () => {
 
         {/* Results Count - Screen reader announcement */}
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {!loading && `${resultCount} products found`}
+          {!loading && `${resultCount} ${t('shop_products_found')}`}
         </div>
 
         {/* Loading State */}
@@ -273,16 +286,14 @@ const ShopPage: React.FC = () => {
           <div
             className="flex justify-center items-center h-64"
             role="status"
-            aria-label="Loading products"
+            aria-label={t('shop_loading')}
           >
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-            <span className="sr-only">Loading products...</span>
+            <span className="sr-only">{t('shop_loading')}</span>
           </div>
         ) : resultCount === 0 ? (
           <div className="text-center py-16">
-            <p className="text-lg text-slate-600 dark:text-slate-400">
-              No products found matching your criteria.
-            </p>
+            <p className="text-lg text-slate-600 dark:text-slate-400">{t('shop_no_results')}</p>
             <button
               onClick={() => {
                 setSearchQuery('');
@@ -291,7 +302,7 @@ const ShopPage: React.FC = () => {
               }}
               className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
             >
-              Clear Filters
+              {t('shop_clear_filters')}
             </button>
           </div>
         ) : (

@@ -139,6 +139,49 @@ const translations: Translations = {
   },
   trust_vet_title: { en: 'How We Verify Vets', bn: 'কিভাবে আমরা ভেট যাচাই করি' },
   trust_delivery_title: { en: 'Secure Shopping & Delivery', bn: 'নিরাপদ কেনাকাটা ও ডেলিভারি' },
+
+  // Shop Page
+  shop_title: { en: 'Shop For Your Buddy', bn: 'আপনার প্রিয় বন্ধুর কেনাকাটা' },
+  shop_subtitle: {
+    en: 'Find everything you need to keep your pet happy and healthy, from premium food to fun toys.',
+    bn: 'আপনার পোষা প্রাণীর সুস্বাস্থ্য ও আনন্দের জন্য প্রয়োজনীয় খাবার ও খেলনা—সবকিছুই পাবেন এখানে।',
+  },
+  shop_search_placeholder: { en: 'Search products...', bn: 'পণ্য খুঁজুন...' },
+  shop_search_label: { en: 'Search products', bn: 'পণ্য খুঁজুন' },
+  cat_all: { en: 'All', bn: 'সব' },
+  cat_dog_food: { en: 'Dog Food', bn: 'কুকুরের খাবার' },
+  cat_cat_food: { en: 'Cat Food', bn: 'বিড়ালের খাবার' },
+  cat_dog_supplies: { en: 'Dog Supplies', bn: 'কুকুরের সামগ্রী' },
+  cat_cat_supplies: { en: 'Cat Supplies', bn: 'বিড়ালের সামগ্রী' },
+  cat_grooming: { en: 'Grooming', bn: 'গ্রুমিং' },
+  filter_brand: { en: 'Brand:', bn: 'ব্র্যান্ড:' },
+  filter_brand_all: { en: 'All Brands', bn: 'সব ব্র্যান্ড' },
+  filter_sort: { en: 'Sort by:', bn: 'সাজান:' },
+  filter_sort_default: { en: 'Default', bn: 'ডিফল্ট' },
+  filter_sort_price_asc: { en: 'Price: Low to High', bn: 'দাম: কম থেকে বেশি' },
+  filter_sort_price_desc: { en: 'Price: High to Low', bn: 'দাম: বেশি থেকে কম' },
+  filter_sort_rating: { en: 'Highest Rated', bn: 'সেরা রেটিং' },
+  shop_products_found: { en: 'products found', bn: 'টি পণ্য পাওয়া গেছে' },
+  shop_loading: { en: 'Loading products...', bn: 'পণ্য লোড হচ্ছে...' },
+  shop_no_results: {
+    en: 'No products found matching your criteria.',
+    bn: 'আপনার অনুসন্ধানের সাথে কোনো পণ্য মেলেনি।',
+  },
+  shop_clear_filters: { en: 'Clear Filters', bn: 'ফিল্টার মুছুন' },
+
+  // Product Card
+  btn_out_of_stock: { en: 'Out of Stock', bn: 'স্টক শেষ' },
+  btn_added: { en: 'Added!', bn: 'যুক্ত হয়েছে!' },
+  btn_add_more: { en: 'Add More', bn: 'আরও যোগ করুন' },
+  btn_add_to_cart: { en: 'Add to Cart', bn: 'কার্টে যোগ করুন' },
+  aria_out_of_stock: { en: 'Out of stock', bn: 'স্টক নেই' },
+  // Product Quick View
+  aria_close_modal: { en: 'Close modal', bn: 'বন্ধ করুন' },
+  label_reviews: { en: 'reviews', bn: 'রিভিউ' },
+  label_weight: { en: 'Weight:', bn: 'ওজন:' },
+  btn_added_full: { en: 'Added to Cart', bn: 'কার্টে যুক্ত হয়েছে' },
+  text_in_cart: { en: 'in Cart', bn: 'টি আছে' },
+  btn_view_full_details: { en: 'View Full Details', bn: 'বিস্তারিত দেখুন' },
 };
 
 interface LanguageContextType {

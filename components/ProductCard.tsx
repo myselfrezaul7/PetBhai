@@ -4,6 +4,7 @@ import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon, EyeIcon } from './icons';
 import StockBadge from './StockBadge';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ProductCardProps {
   product: Product;
@@ -11,6 +12,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
+  const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
   const [isAdding, setIsAdding] = useState(false);
 
@@ -139,7 +141,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
         <button
           onClick={handleAddToCart}
           disabled={isAdding || isOutOfStock}
-          aria-label={isOutOfStock ? 'Out of stock' : `Add ${product.name} to cart`}
+          aria-label={
+            isOutOfStock ? t('aria_out_of_stock') : `${t('aria_add_to_cart')} ${product.name}`
+          }
           className={`w-full flex items-center justify-center space-x-1.5 py-1.5 sm:py-2.5 rounded-lg text-[10px] sm:text-sm font-bold transition-all duration-200 touch-manipulation
             ${
               isOutOfStock
@@ -152,12 +156,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           <ShoppingCartIcon className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>
             {isOutOfStock
-              ? 'Out of Stock'
+              ? t('btn_out_of_stock')
               : isAdding
-                ? 'Added!'
+                ? t('btn_added')
                 : quantityInCart > 0
-                  ? `Add More (${quantityInCart})`
-                  : 'Add to Cart'}
+                  ? `${t('btn_add_more')} (${quantityInCart})`
+                  : t('btn_add_to_cart')}
           </span>
         </button>
       </div>

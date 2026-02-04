@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PawIcon } from '../components/icons';
+import DhakaHero from '../components/DhakaHero';
 
 const HomePage: React.FC = () => {
   const { products, loading } = useProducts();
@@ -29,44 +30,7 @@ const HomePage: React.FC = () => {
         className="container mx-auto px-4 md:px-6 pt-6 md:pt-12 pb-8 md:pb-12"
         aria-label="Hero banner"
       >
-        <div className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl group">
-          <picture>
-            {/* WebP for modern browsers - mobile first */}
-            <source
-              srcSet="/landing-hero-mobile.webp"
-              type="image/webp"
-              media="(max-width: 768px)"
-            />
-            <source srcSet="/landing-hero.webp" type="image/webp" />
-            {/* PNG fallback */}
-            <img
-              src="/landing-hero.png"
-              alt="PetBhai - Your Pet's Partner"
-              className="w-full h-auto object-cover"
-              width="1200"
-              height="630"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
-          </picture>
-
-          {/* Overlay Buttons */}
-          <div className="absolute bottom-4 sm:bottom-6 md:bottom-12 left-0 right-0 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 px-4 z-10">
-            <Link
-              to="/adopt"
-              className="w-full sm:w-auto inline-block bg-orange-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-orange-600 transition-all transform hover:scale-105 active:scale-95 duration-300 shadow-xl shadow-orange-500/30 backdrop-blur-sm bg-opacity-90 text-center touch-manipulation"
-            >
-              {t('btn_adopt')}
-            </Link>
-            <Link
-              to="/shop"
-              className="w-full sm:w-auto inline-block bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-white dark:hover:bg-slate-700 transition-all transform hover:scale-105 active:scale-95 duration-300 shadow-lg backdrop-blur-sm text-center touch-manipulation"
-            >
-              {t('btn_shop')}
-            </Link>
-          </div>
-        </div>
+        <DhakaHero />
       </section>
 
       {/* Best Sellers Section */}
