@@ -605,7 +605,7 @@ export const MOCK_POSTS: Post[] = [
     },
     content:
       'Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand?',
-    imageUrl: 'https://picsum.photos/seed/post1/600/400',
+    imageUrl: './images/blog/blog_thumb_cat_nutrition_1770248170156.png',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     likes: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     comments: MOCK_COMMENTS,
@@ -619,7 +619,7 @@ export const MOCK_POSTS: Post[] = [
     },
     content:
       '🐕 Pro tip for new dog owners: Consistency is key in training! Start with basic commands like "sit" and "stay" and practice daily. My German Shepherd learned these in just 2 weeks. What training tips do you have?',
-    imageUrl: 'https://picsum.photos/seed/post2/600/400',
+    imageUrl: './images/blog/blog_thumb_dog_training_1770248187283.png',
     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     likes: [1, 3, 5, 7],
     comments: [],

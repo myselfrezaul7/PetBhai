@@ -627,24 +627,24 @@
         }
       }
 
-      /* Refined Glassmorphism - iOS 17.2 Style */
+      /* Refined Glassmorphism - iOS 17.2 Styled Premium Glass */
       .glass-card {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.65);
         -webkit-backdrop-filter: saturate(180%) blur(20px);
         backdrop-filter: saturate(180%) blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.4);
         border-radius: 1.25rem;
         box-shadow:
-          0 8px 32px rgba(0, 0, 0, 0.08),
-          0 2px 8px rgba(0, 0, 0, 0.04),
+          0 8px 32px rgba(0, 0, 0, 0.05),
+          0 2px 8px rgba(0, 0, 0, 0.02),
           inset 0 1px 0 rgba(255, 255, 255, 0.6);
         transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
       }
       .glass-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         box-shadow:
-          0 20px 48px rgba(0, 0, 0, 0.12),
-          0 8px 24px rgba(0, 0, 0, 0.08),
+          0 20px 48px rgba(0, 0, 0, 0.1),
+          0 8px 24px rgba(0, 0, 0, 0.06),
           inset 0 1px 0 rgba(255, 255, 255, 0.8);
       }
       @media (min-width: 768px) {
@@ -653,64 +653,67 @@
         }
       }
 
-      /* iOS 17.2 Enhanced Glass Card */
+      /* Ultra Premium iOS 17.2 Style Glass */
       .glass-card-ios {
-        background: rgba(255, 255, 255, 0.72);
-        -webkit-backdrop-filter: saturate(200%) blur(24px);
-        backdrop-filter: saturate(200%) blur(24px);
-        border: 0.5px solid rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.75);
+        -webkit-backdrop-filter: saturate(200%) blur(30px);
+        backdrop-filter: saturate(200%) blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
         border-radius: 1.5rem;
         box-shadow:
-          0 4px 30px rgba(0, 0, 0, 0.06),
-          0 1px 3px rgba(0, 0, 0, 0.04),
-          inset 0 1px 0 rgba(255, 255, 255, 0.8),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.02);
-        transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+          0 10px 40px rgba(0, 0, 0, 0.08),
+          0 4px 12px rgba(0, 0, 0, 0.04),
+          inset 0 1.5px 0.5px rgba(255, 255, 255, 0.9),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.05); /* Subtle depth at bottom */
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy transition */
       }
       .glass-card-ios:hover {
-        transform: translateY(-4px) scale(1.01);
+        transform: translateY(-5px) scale(1.01);
+        background: rgba(255, 255, 255, 0.85);
         box-shadow:
-          0 24px 64px rgba(0, 0, 0, 0.12),
-          0 8px 32px rgba(0, 0, 0, 0.08),
-          inset 0 1px 0 rgba(255, 255, 255, 0.9),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+          0 30px 60px rgba(0, 0, 0, 0.12),
+          0 12px 24px rgba(0, 0, 0, 0.08),
+          inset 0 1.5px 0.5px rgba(255, 255, 255, 1);
       }
 
+      /* Dark Mode Glass - Refined for better contrast */
       html.dark .glass-card {
-        background: rgba(30, 41, 59, 0.75);
-        border-color: rgba(71, 85, 105, 0.4);
+        background: rgba(15, 23, 42, 0.65); /* Richer dark blue */
+        border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow:
-          0 8px 32px rgba(0, 0, 0, 0.3),
-          0 2px 8px rgba(0, 0, 0, 0.2),
+          0 8px 32px rgba(0, 0, 0, 0.4),
+          0 4px 16px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
       html.dark .glass-card:hover {
+        background: rgba(15, 23, 42, 0.75);
         box-shadow:
-          0 20px 48px rgba(0, 0, 0, 0.4),
-          0 8px 24px rgba(0, 0, 0, 0.3),
+          0 20px 48px rgba(0, 0, 0, 0.5),
+          0 8px 24px rgba(0, 0, 0, 0.4),
           inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        border-color: rgba(249, 115, 22, 0.25);
+        border-color: rgba(249, 115, 22, 0.3); /* Orange glow on hover */
       }
 
       html.dark .glass-card-ios {
-        background: rgba(30, 41, 59, 0.8);
-        border-color: rgba(71, 85, 105, 0.3);
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         box-shadow:
-          0 4px 30px rgba(0, 0, 0, 0.25),
-          0 1px 3px rgba(0, 0, 0, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.04),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+          0 10px 40px rgba(0, 0, 0, 0.4),
+          0 4px 12px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
       html.dark .glass-card-ios:hover {
+        background: rgba(30, 41, 59, 0.8);
         box-shadow:
-          0 24px 64px rgba(0, 0, 0, 0.35),
-          0 8px 32px rgba(0, 0, 0, 0.25),
-          inset 0 1px 0 rgba(255, 255, 255, 0.06),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-        border-color: rgba(249, 115, 22, 0.2);
+          0 30px 60px rgba(0, 0, 0, 0.6),
+          0 12px 24px rgba(0, 0, 0, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border-color: rgba(249, 115, 22, 0.35);
+        transform: translateY(-5px) scale(1.01);
       }
+
 
       /* Animation Delay Utilities */
       .animation-delay-2000 {
@@ -724,27 +727,33 @@
       html.dark {
         color-scheme: dark;
       }
+      
+      html.dark body {
+        color: #f1f5f9; /* Slate 100 for better readability */
+      }
 
       /* Improved input styles for dark mode */
       html.dark input,
       html.dark textarea,
       html.dark select {
         color-scheme: dark;
-        background-color: rgba(30, 41, 59, 0.8);
-        color: #e2e8f0;
+        background-color: rgba(15, 23, 42, 0.6) !important; /* Ensure background is dark */
+        color: #f8fafc !important; /* Extremely light text */
+        border-color: rgba(255, 255, 255, 0.1);
       }
 
       html.dark input::placeholder,
       html.dark textarea::placeholder {
-        color: #94a3b8;
+        color: #94a3b8; /* Slate 400 */
       }
 
       /* Better focus states in dark mode */
       html.dark input:focus,
       html.dark textarea:focus,
       html.dark select:focus {
-        border-color: #f97316;
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        border-color: #f97316 !important;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+        background-color: rgba(15, 23, 42, 0.9) !important;
         outline: none;
       }
 
@@ -752,6 +761,19 @@
       html.dark .btn-secondary {
         background-color: rgba(51, 65, 85, 0.8);
         border-color: rgba(71, 85, 105, 0.6);
+        color: #f1f5f9;
+      }
+      
+      html.dark .text-slate-600 { /* Fix for hardcoded slate-600 text becoming invisible */
+          color: #cbd5e1; /* slate-300 */
+      }
+      
+      html.dark .text-slate-700 {
+          color: #e2e8f0; /* slate-200 */
+      }
+      
+      html.dark .text-slate-800 {
+          color: #f8fafc; /* slate-50 */
       }
 
       /* Subtle glow effect for dark mode cards */
@@ -770,6 +792,20 @@
       html.dark select:hover {
         border-color: #f97316;
       }
+      
+      /* Fix for white backgrounds in dark mode that shouldn't be white */
+      html.dark .bg-white {
+          background-color: rgba(30, 41, 59, 0.95); /* slate-800 with slight transparency */
+          color: white;
+      }
+      
+      html.dark .bg-slate-50 {
+           background-color: #0f172a; /* slate-900 */
+      }
+      
+      html.dark .bg-slate-100 {
+           background-color: #1e293b; /* slate-800 */
+      }
 
       /* Dark mode link styles */
       html.dark a:not(.text-orange-500):not(.text-orange-600):hover {
@@ -780,16 +816,19 @@
       html.dark .badge-success {
         background-color: rgba(34, 197, 94, 0.2);
         color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
       }
 
       html.dark .badge-warning {
         background-color: rgba(234, 179, 8, 0.2);
         color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
       }
 
       html.dark .badge-error {
         background-color: rgba(239, 68, 68, 0.2);
         color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
       }
 
       /* Improved disabled states in dark mode */
@@ -798,6 +837,7 @@
       html.dark select:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        background-color: rgba(15, 23, 42, 0.5) !important;
       }
 
       /* Dark mode table styles */
