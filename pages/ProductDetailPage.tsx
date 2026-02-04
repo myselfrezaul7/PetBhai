@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard';
 import type { Review } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { sanitizeInput } from '../lib/security';
+import SEO from '../components/SEO';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -191,6 +192,16 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
+      <SEO
+        title={`${product.name} - Shop`}
+        description={product.description}
+        image={product.imageUrl}
+        type="product"
+        price={product.price}
+        currency="BDT"
+        availability={product.stockStatus === 'in-stock' ? 'in stock' : 'out of stock'}
+        brand={brand?.name}
+      />
       <article className="glass-card overflow-hidden lg:flex">
         <div className="lg:w-1/2 p-4">
           <img

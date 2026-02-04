@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useVets } from '../contexts/VetContext';
 import { MapPinIcon, VideoCameraIcon, PawIcon } from '../components/icons';
 import VetBookingModal from '../components/VetBookingModal';
+import SEO from '../components/SEO';
 
 const StarRating = memo(({ rating }: { rating: number }) => (
   <div className="flex items-center" aria-label={`Rating: ${rating} out of 5 stars`}>
@@ -76,6 +77,31 @@ const VetDetailPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 py-8 sm:py-12 animate-fade-in">
+      <SEO
+        title={`${vet.name} - ${vet.specialization}`}
+        description={`${vet.bio.substring(0, 150)}...`}
+        image={vet.imageUrl}
+        type="website"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'VeterinaryCare',
+          name: vet.clinicName,
+          image: vet.imageUrl,
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: vet.address,
+            addressCountry: 'BD',
+          },
+          telephone: vet.phone,
+          description: vet.bio,
+          employee: {
+            '@type': 'Person',
+            name: vet.name,
+            jobTitle: vet.specialization,
+            description: vet.bio,
+          },
+        }}
+      />
       <div className="max-w-4xl mx-auto">
         {/* Header section */}
         <header className="glass-card p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 sm:gap-8">

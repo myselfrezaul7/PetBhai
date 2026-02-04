@@ -5,6 +5,7 @@ import { generateImageFromPrompt } from '../services/geminiService';
 import { ImageIcon, PawIcon } from '../components/icons';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useLanguage } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -87,6 +88,15 @@ const ArticleDetailPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 md:px-6 py-8 md:py-12 animate-fade-in">
+      <SEO
+        title={article.title}
+        description={article.content.substring(0, 150)}
+        image={article.imageUrl}
+        type="article"
+        author={article.author}
+        publishedTime={article.date}
+        section="Blog"
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Main Article Content */}
         <article className="lg:col-span-2">

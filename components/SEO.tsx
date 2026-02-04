@@ -23,6 +23,8 @@ interface SEOProps {
   // Twitter specific
   twitterCard?: 'summary' | 'summary_large_image' | 'player';
   twitterCreator?: string;
+  // Custom Structured Data
+  structuredData?: Record<string, any>;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -50,6 +52,7 @@ const SEO: React.FC<SEOProps> = ({
   tags,
   twitterCard = 'summary_large_image',
   twitterCreator = '@petbhai_bd',
+  structuredData,
 }) => {
   const siteTitle = 'PetBhai';
   // Always use production URL for canonical tags to avoid duplicate indexing issues
@@ -202,7 +205,9 @@ const SEO: React.FC<SEOProps> = ({
       {type === 'product' && brand && <meta property="product:brand" content={brand} />}
 
       {/* Structured Data */}
-      <script type="application/ld+json">{JSON.stringify(getStructuredData())}</script>
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData || getStructuredData())}
+      </script>
 
       {/* Organization Schema */}
       <script type="application/ld+json">

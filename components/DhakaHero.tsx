@@ -8,14 +8,14 @@ const DhakaHero: React.FC = () => {
   return (
     <div className="relative w-full h-[400px] md:h-[500px] bg-gradient-to-b from-sky-300 via-orange-100 to-amber-50 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm group">
       {/* 1. SUN / MOON */}
-      <div className="absolute top-10 right-10 w-20 h-20 bg-orange-400 rounded-full blur-xl opacity-80 animate-pulse" />
+      <div className="absolute top-10 right-10 w-20 h-20 bg-orange-400 rounded-full blur-xl opacity-80" />
       <div className="absolute top-12 right-12 w-16 h-16 bg-yellow-300 rounded-full shadow-[0_0_40px_rgba(255,200,0,0.6)]" />
 
       {/* 2. BACKGROUND CLOUDS */}
-      <div className="absolute top-20 left-10 opacity-60 animate-[float_20s_ease-in-out_infinite]">
+      <div className="absolute top-20 left-10 opacity-60">
         <CloudIcon className="w-24 h-12 text-white" />
       </div>
-      <div className="absolute top-32 right-1/4 opacity-40 animate-[float_25s_ease-in-out_infinite_reverse]">
+      <div className="absolute top-32 right-1/4 opacity-40">
         <CloudIcon className="w-32 h-16 text-white" />
       </div>
 
@@ -61,20 +61,20 @@ const DhakaHero: React.FC = () => {
         <div className="absolute top-1/2 w-full h-0 border-t-2 border-dashed border-yellow-400 opacity-50"></div>
       </div>
 
-      {/* 6. ANIMATED ELEMENTS */}
+      {/* 6. STATIC ELEMENTS */}
 
-      {/* Rickshaw (Moving Right to Left) */}
-      <div className="absolute bottom-[20px] right-[-200px] animate-[rickshawMove_15s_linear_infinite]">
+      {/* Rickshaw (Parked) */}
+      <div className="absolute bottom-[20px] right-[20%] transform scale-x-[-1]">
         <RickshawIcon className="w-48 h-32" />
       </div>
 
       {/* Stray Dog (Waiting) */}
-      <div className="absolute bottom-[25px] left-[15%] text-amber-700 animate-bounce-slow">
+      <div className="absolute bottom-[25px] left-[15%] text-amber-700">
         <DogIcon className="w-12 h-12 transform -scale-x-100" />
       </div>
 
       {/* Stray Cat (Walking) */}
-      <div className="absolute bottom-[25px] left-[40%] text-orange-600 animate-[walk_10s_linear_infinite]">
+      <div className="absolute bottom-[25px] left-[40%] text-orange-600">
         <CatIcon className="w-8 h-8" />
       </div>
 
@@ -104,35 +104,10 @@ const DhakaHero: React.FC = () => {
         </div>
       </div>
 
-      {/* CSS Animations */}
+      {/* CSS Styles */}
       <style>{`
-        @keyframes start {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes rickshawMove {
-          0% { transform: translateX(100vw); }
-          100% { transform: translateX(-100vw); }
-        }
-        @keyframes walk {
-          0% { transform: translateX(0); }
-          50% { transform: translateX(100px); }
-          50.1% { transform: translateX(100px) scaleX(-1); }
-          100% { transform: translateX(0) scaleX(-1); }
-        }
         .polygon-triangle {
           clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        }
-        .animate-bounce-slow {
-          animation: bounce 3s infinite;
-        }
-        @keyframes bounce {
-           0%, 100% { transform: translateY(0); }
-           50% { transform: translateY(-5px); }
         }
       `}</style>
     </div>
@@ -175,23 +150,9 @@ const RickshawIcon = ({ className }: { className?: string }) => (
     className={className}
   >
     {/* Wheels */}
-    <circle
-      cx="20"
-      cy="50"
-      r="8"
-      className="animate-[spin_2s_linear_infinite]"
-      stroke="black"
-      fill="transparent"
-    />
+    <circle cx="20" cy="50" r="8" stroke="black" fill="transparent" />
     <circle cx="20" cy="50" r="2" fill="black" />
-    <circle
-      cx="70"
-      cy="50"
-      r="8"
-      className="animate-[spin_2s_linear_infinite]"
-      stroke="black"
-      fill="transparent"
-    />
+    <circle cx="70" cy="50" r="8" stroke="black" fill="transparent" />
     <circle cx="70" cy="50" r="2" fill="black" />
 
     {/* Body */}
