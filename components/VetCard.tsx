@@ -17,11 +17,11 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   return (
     <Link
       to={`/vet/${vet.id}`}
-      className="glass-card flex flex-col text-center items-center p-3 sm:p-6 group transition-transform transform hover:-translate-y-2 h-full"
+      className="glass-card-ios flex flex-col text-center items-center p-3 sm:p-6 group transition-all duration-500 ease-out transform hover:-translate-y-2 hover:shadow-2xl h-full"
     >
       <div className="relative">
         <img
-          className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-orange-500/20"
+          className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-orange-500/30 transition-all duration-500 group-hover:ring-orange-500/50 group-hover:scale-105"
           src={vet.imageUrl}
           alt={`Dr. ${vet.name}`}
           loading="lazy"
@@ -74,8 +74,8 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
         {vet.bio}
       </p>
 
-      <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-white/20 dark:border-slate-700/50">
-        <span className="w-full block bg-orange-500 text-white font-bold py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-lg text-[10px] sm:text-base group-hover:bg-orange-600 transition-colors">
+      <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-white/30 dark:border-slate-700/50">
+        <span className="w-full block bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[10px] sm:text-base group-hover:from-orange-600 group-hover:to-orange-700 transition-all duration-500 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25">
           Profile
         </span>
       </div>

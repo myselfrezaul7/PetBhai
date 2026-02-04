@@ -107,7 +107,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-2xl z-50 transform transition-transform duration-300 cubic-bezier(0.4, 0, 0.2, 1) ${
+        className={`fixed top-0 right-0 h-full w-full max-w-md glass-card-ios shadow-2xl z-50 transform transition-all duration-500 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
@@ -116,7 +116,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <header className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
+          <header className="flex items-center justify-between p-5 border-b border-white/30 dark:border-slate-700/50">
             <h2
               id="cart-heading"
               className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"
@@ -132,7 +132,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             <button
               ref={closeButtonRef}
               onClick={onClose}
-              className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors touch-manipulation active:scale-95"
+              className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-300 touch-manipulation active:scale-95"
               aria-label="Close cart"
             >
               <CloseIcon className="w-6 h-6" />
@@ -162,7 +162,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                 {cartItems.map((item) => (
                   <li
                     key={item.id}
-                    className="flex items-center space-x-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700"
+                    className="flex items-center space-x-4 glass-card-ios p-4 rounded-2xl border border-white/30 dark:border-slate-700/50"
                   >
                     <img
                       src={item.imageUrl}

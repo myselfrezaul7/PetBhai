@@ -306,12 +306,15 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-white/60 dark:bg-slate-900/60 shadow-lg sticky top-0 z-40 backdrop-blur-md border-b border-white/20 dark:border-slate-700/50 transition-colors duration-300">
+      <header
+        className="glass-card-ios sticky top-0 z-40 border-b-0 rounded-none transition-all duration-500"
+        style={{ borderRadius: 0 }}
+      >
         <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
           <NavLink
             to="/"
             onClick={handleLogoClick}
-            className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}
+            className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}
           >
             <Logo className="w-10 h-10 text-orange-500" />
             <span className="sm:inline tracking-tight">PetBhai</span>

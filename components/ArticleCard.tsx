@@ -13,7 +13,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
   const { t } = useLanguage();
   return (
     <div
-      className={`glass-card group overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full ${isFeatured ? 'col-span-2' : ''}`}
+      className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl h-full ${isFeatured ? 'col-span-2' : ''}`}
     >
       <Link to={`/blog/${article.id}`} className="flex flex-col h-full">
         <div
@@ -23,7 +23,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             <img
               src={article.imageUrl}
               alt={article.title}
-              className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-105"
+              className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
               loading="lazy"
               decoding="async"
             />
@@ -32,10 +32,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               <ImageIcon className="w-12 h-12 md:w-16 md:h-16 text-slate-400 dark:text-slate-500" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
 
           {isFeatured && (
-            <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg backdrop-blur-sm">
+            <span className="absolute top-3 left-3 md:top-4 md:left-4 glass-card-ios bg-orange-500/90 text-white text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg">
               {t('blog_latest_post')}
             </span>
           )}
@@ -45,7 +45,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             {article.readTime} {t('blog_min_read')}
           </div>
           <h3
-            className={`font-bold text-slate-800 dark:text-white leading-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors break-words line-clamp-2 ${isFeatured ? 'text-lg sm:text-2xl mb-2 sm:mb-3' : 'text-xs sm:text-lg mb-1 sm:mb-2'}`}
+            className={`font-bold text-slate-800 dark:text-white leading-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300 break-words line-clamp-2 ${isFeatured ? 'text-lg sm:text-2xl mb-2 sm:mb-3' : 'text-xs sm:text-lg mb-1 sm:mb-2'}`}
           >
             {article.title}
           </h3>
@@ -55,7 +55,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           >
             {article.content.split('\n')[0]}
           </p>
-          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between text-[9px] sm:text-sm text-slate-500 dark:text-slate-400">
+          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/30 dark:border-slate-700/50 flex items-center justify-between text-[9px] sm:text-sm text-slate-500 dark:text-slate-400">
             <span className="font-medium truncate mr-2">{article.author}</span>
             <span className="whitespace-nowrap">{new Date(article.date).toLocaleDateString()}</span>
           </div>

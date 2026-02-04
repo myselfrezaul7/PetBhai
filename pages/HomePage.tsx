@@ -82,12 +82,12 @@ const HomePage: React.FC = () => {
         aria-labelledby="services-heading"
       >
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
-          <div className="glass-card p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
-            <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full">
+          <div className="glass-card-ios p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
+            <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full overflow-hidden">
               <img
                 src="https://picsum.photos/seed/services-cta/800/600"
                 alt="Professional Pet Services"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                 loading="lazy"
               />
             </div>
@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
               </p>
               <Link
                 to="/services"
-                className="mt-4 sm:mt-6 md:mt-8 inline-flex items-center space-x-2 bg-orange-500 text-white font-bold py-2 px-5 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-full text-sm sm:text-base md:text-lg hover:bg-orange-600 transition-all transform hover:scale-105 active:scale-95 duration-300 shadow-lg touch-manipulation"
+                className="mt-4 sm:mt-6 md:mt-8 inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-2 px-5 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-full text-sm sm:text-base md:text-lg hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 active:scale-95 duration-500 shadow-lg hover:shadow-xl hover:shadow-orange-500/25 touch-manipulation"
               >
                 <span>{t('btn_explore_services')}</span>
                 <svg
@@ -164,7 +164,7 @@ const HomePage: React.FC = () => {
 
       {/* New Arrivals Section */}
       <section
-        className="py-8 md:py-20 bg-white/50 dark:bg-black/20 backdrop-blur-sm animate-fade-in"
+        className="py-8 md:py-20 glass-card-ios animate-fade-in"
         style={{ animationDelay: '400ms' }}
         aria-labelledby="new-arrivals-heading"
       >
@@ -188,7 +188,7 @@ const HomePage: React.FC = () => {
           <div className="mt-8 md:mt-16">
             <Link
               to="/shop"
-              className="inline-block border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold py-2 px-6 sm:py-2.5 sm:px-8 md:py-3 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-orange-500 hover:text-white transition-all transform hover:scale-105 active:scale-95 duration-300 touch-manipulation"
+              className="inline-block border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold py-2 px-6 sm:py-2.5 sm:px-8 md:py-3 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-600 hover:text-white hover:border-transparent transition-all transform hover:scale-105 active:scale-95 duration-500 touch-manipulation shadow-lg hover:shadow-xl hover:shadow-orange-500/25"
             >
               {t('btn_explore_shop')}
             </Link>
@@ -203,7 +203,7 @@ const HomePage: React.FC = () => {
         aria-labelledby="plus-membership-heading"
       >
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
-          <div className="glass-card text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/50 to-orange-100/50 dark:from-yellow-900/20 dark:to-orange-900/20 border-orange-200 dark:border-orange-800/30">
+          <div className="glass-card-ios text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/50 to-orange-100/50 dark:from-yellow-900/20 dark:to-orange-900/20 border-orange-200 dark:border-orange-800/30">
             <h2
               id="plus-membership-heading"
               className="text-xl sm:text-2xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-3 md:mb-6"
@@ -215,7 +215,7 @@ const HomePage: React.FC = () => {
             </p>
             <Link
               to="/plus-membership"
-              className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-12 rounded-full text-sm sm:text-base md:text-lg hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 active:scale-95 duration-300 shadow-xl touch-manipulation"
+              className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-12 rounded-full text-sm sm:text-base md:text-lg hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 active:scale-95 duration-500 shadow-xl hover:shadow-2xl hover:shadow-orange-500/30 touch-manipulation"
             >
               {t('btn_join_plus')}
             </Link>

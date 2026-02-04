@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
   );
   return (
     <footer
-      className="bg-white/40 dark:bg-slate-900/50 backdrop-blur-lg border-t border-white/30 dark:border-slate-700/40 text-slate-700 dark:text-slate-200 pt-12 mt-auto"
+      className="glass-card-ios border-t border-white/30 dark:border-slate-700/40 text-slate-700 dark:text-slate-200 pt-12 mt-auto"
       role="contentinfo"
       aria-label="Site footer"
     >

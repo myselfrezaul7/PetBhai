@@ -1,269 +1,251 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
-import AnimalCard from '../components/AnimalCard';
-import { useAnimals } from '../contexts/AnimalContext';
-import type { AnimalAge, AnimalStatus } from '../types';
-import { PawIcon } from '../components/icons';
+import React, { useState } from 'react';
+import { HeartIcon, PawIcon } from '../components/icons';
 
-type AnimalTypeFilter = 'All' | 'Dog' | 'Cat';
-type GenderFilter = 'All' | 'Male' | 'Female';
-type AgeFilter = 'All' | AnimalAge;
-type StatusFilter = 'All' | AnimalStatus;
-
-// Memoized filter button component for better performance
-const FilterButton = memo<{
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-  ariaLabel?: string;
-}>(({ label, isActive, onClick, ariaLabel }) => (
-  <button
-    onClick={onClick}
-    className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-200 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
-      isActive
-        ? 'bg-orange-500 text-white shadow-md'
-        : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
-    }`}
-    aria-pressed={isActive ? 'true' : 'false'}
-    aria-label={ariaLabel || `Filter by ${label}`}
+// Cat Icon SVG Component
+const CatIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
   >
-    {label}
-  </button>
-));
+    <path d="M20.5 2.5L18 5.5l-2-1v3l-4 2-4-2v-3l-2 1L3.5 2.5 5 8l-2 3v4c0 2.21 1.79 4 4 4h1v3h2v-3h4v3h2v-3h1c2.21 0 4-1.79 4-4v-4l-2-3 1.5-5.5zM16 11c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zM8 11c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm6.5 4h-5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h5c.28 0 .5.22.5.5s-.22.5-.5.5z" />
+  </svg>
+);
 
-FilterButton.displayName = 'FilterButton';
+// Dog Icon SVG Component
+const DogIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M18 4c-1.21 0-2.25.72-2.72 1.76L13 4.72V3c0-.55-.45-1-1-1s-1 .45-1 1v1.72l-2.28 1.04C8.25 4.72 7.21 4 6 4 4.34 4 3 5.34 3 7v6c0 1.1.9 2 2 2v6c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-6c1.1 0 2-.9 2-2V7c0-1.66-1.34-3-3-3zM8.5 10c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm7 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z" />
+  </svg>
+);
+
+interface AdoptionChoice {
+  type: 'cat' | 'dog';
+  name: string;
+  icon: React.FC<{ className?: string }>;
+  url: string;
+  partnerName: string;
+  gradient: string;
+  description: string;
+  emoji: string;
+}
+
+const adoptionChoices: AdoptionChoice[] = [
+  {
+    type: 'cat',
+    name: 'বিড়াল দত্তক নিন',
+    icon: CatIcon,
+    url: 'https://www.catwaala.com/',
+    partnerName: 'CatWaala',
+    gradient: 'from-purple-500 via-pink-500 to-rose-500',
+    description: 'Find your perfect feline companion through our trusted partner',
+    emoji: '🐱',
+  },
+  {
+    type: 'dog',
+    name: 'কুকুর দত্তক নিন',
+    icon: DogIcon,
+    url: 'https://www.kuttawaala.com/',
+    partnerName: 'KuttaWaala',
+    gradient: 'from-amber-500 via-orange-500 to-red-500',
+    description: 'Find your loyal canine friend through our trusted partner',
+    emoji: '🐕',
+  },
+];
 
 const AdoptPage: React.FC = () => {
-  const { animals, loading, error } = useAnimals();
-  const [animalTypeFilter, setAnimalTypeFilter] = useState<AnimalTypeFilter>('All');
-  const [genderFilter, setGenderFilter] = useState<GenderFilter>('All');
-  const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('Available');
+  const [hoveredChoice, setHoveredChoice] = useState<'cat' | 'dog' | null>(null);
+  const [clickedChoice, setClickedChoice] = useState<'cat' | 'dog' | null>(null);
 
-  // Memoized filter handlers
-  const handleAnimalTypeChange = useCallback((type: AnimalTypeFilter) => {
-    setAnimalTypeFilter(type);
-  }, []);
-
-  const handleGenderChange = useCallback((gender: GenderFilter) => {
-    setGenderFilter(gender);
-  }, []);
-
-  const handleAgeChange = useCallback((age: AgeFilter) => {
-    setAgeFilter(age);
-  }, []);
-
-  const handleStatusChange = useCallback((status: StatusFilter) => {
-    setStatusFilter(status);
-  }, []);
-
-  const handleClearFilters = useCallback(() => {
-    setAnimalTypeFilter('All');
-    setGenderFilter('All');
-    setAgeFilter('All');
-    setStatusFilter('Available');
-  }, []);
-
-  const filteredAnimals = useMemo(() => {
-    return animals.filter((animal) => {
-      const typeMatch =
-        animalTypeFilter === 'All' ||
-        (animalTypeFilter === 'Dog' &&
-          (animal.breed.toLowerCase().includes('dog') ||
-            animal.breed.toLowerCase().includes('retriever') ||
-            animal.breed.toLowerCase().includes('shepherd') ||
-            animal.breed.toLowerCase().includes('beagle') ||
-            animal.breed.toLowerCase().includes('labrador'))) ||
-        (animalTypeFilter === 'Cat' &&
-          (animal.breed.toLowerCase().includes('cat') ||
-            animal.breed.toLowerCase().includes('shorthair') ||
-            animal.breed.toLowerCase().includes('siamese')));
-
-      const genderMatch = genderFilter === 'All' || animal.gender === genderFilter;
-      const ageMatch = ageFilter === 'All' || animal.age === ageFilter;
-      const statusMatch = statusFilter === 'All' || animal.status === statusFilter;
-
-      return typeMatch && genderMatch && ageMatch && statusMatch;
-    });
-  }, [animalTypeFilter, genderFilter, ageFilter, statusFilter, animals]);
-
-  // Calculate result count for accessibility
-  const resultCount = filteredAnimals.length;
-
-  if (loading) {
-    return (
-      <div
-        className="flex justify-center items-center h-96"
-        role="status"
-        aria-label="Loading animals"
-      >
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" aria-hidden="true" />
-        <span className="sr-only">Loading animals...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-6 py-16 text-center" role="alert">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Animals</h2>
-        <p className="text-slate-600 dark:text-slate-300">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
+  const handleChoiceClick = (choice: AdoptionChoice) => {
+    setClickedChoice(choice.type);
+    setTimeout(() => {
+      window.open(choice.url, '_blank', 'noopener,noreferrer');
+      setClickedChoice(null);
+    }, 400);
+  };
 
   return (
-    <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
-      <header className="glass-card p-4 sm:p-6 md:p-8 mb-6 md:mb-12 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 dark:text-white mb-3 md:mb-4">
-          Find Your New Best Friend
-        </h1>
-        <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto px-2">
-          These wonderful animals are waiting for a loving family to call their own. Use the filters
-          to find the perfect match for you.
-        </p>
-      </header>
-
-      {/* Filters Section */}
-      <div className="glass-card p-3 sm:p-4 md:p-6 mb-6 md:mb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Species Filter */}
-          <fieldset className="flex flex-col space-y-2">
-            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">
-              Species
-            </legend>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
-              <FilterButton
-                label="All"
-                isActive={animalTypeFilter === 'All'}
-                onClick={() => handleAnimalTypeChange('All')}
-              />
-              <FilterButton
-                label="Dogs"
-                isActive={animalTypeFilter === 'Dog'}
-                onClick={() => handleAnimalTypeChange('Dog')}
-              />
-              <FilterButton
-                label="Cats"
-                isActive={animalTypeFilter === 'Cat'}
-                onClick={() => handleAnimalTypeChange('Cat')}
-              />
-            </div>
-          </fieldset>
-
-          {/* Gender Filter */}
-          <fieldset className="flex flex-col space-y-2">
-            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gender</legend>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
-              <FilterButton
-                label="Any"
-                isActive={genderFilter === 'All'}
-                onClick={() => handleGenderChange('All')}
-              />
-              <FilterButton
-                label="Male"
-                isActive={genderFilter === 'Male'}
-                onClick={() => handleGenderChange('Male')}
-              />
-              <FilterButton
-                label="Female"
-                isActive={genderFilter === 'Female'}
-                onClick={() => handleGenderChange('Female')}
-              />
-            </div>
-          </fieldset>
-
-          {/* Age Filter */}
-          <fieldset className="flex flex-col space-y-2">
-            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">Age</legend>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
-              <FilterButton
-                label="Any"
-                isActive={ageFilter === 'All'}
-                onClick={() => handleAgeChange('All')}
-              />
-              <FilterButton
-                label="Puppy/Kitten"
-                isActive={ageFilter === 'Puppy/Kitten'}
-                onClick={() => handleAgeChange('Puppy/Kitten')}
-              />
-              <FilterButton
-                label="Young"
-                isActive={ageFilter === 'Young'}
-                onClick={() => handleAgeChange('Young')}
-              />
-              <FilterButton
-                label="Adult"
-                isActive={ageFilter === 'Adult'}
-                onClick={() => handleAgeChange('Adult')}
-              />
-              <FilterButton
-                label="Senior"
-                isActive={ageFilter === 'Senior'}
-                onClick={() => handleAgeChange('Senior')}
-              />
-            </div>
-          </fieldset>
-
-          {/* Status Filter */}
-          <fieldset className="flex flex-col space-y-2">
-            <legend className="font-bold text-slate-700 dark:text-slate-200 text-sm">Status</legend>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="group">
-              <FilterButton
-                label="Available"
-                isActive={statusFilter === 'Available'}
-                onClick={() => handleStatusChange('Available')}
-              />
-              <FilterButton
-                label="Pending"
-                isActive={statusFilter === 'Pending'}
-                onClick={() => handleStatusChange('Pending')}
-              />
-              <FilterButton
-                label="Adopted"
-                isActive={statusFilter === 'Adopted'}
-                onClick={() => handleStatusChange('Adopted')}
-              />
-              <FilterButton
-                label="All"
-                isActive={statusFilter === 'All'}
-                onClick={() => handleStatusChange('All')}
-              />
-            </div>
-          </fieldset>
+    <main className="min-h-screen relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div className="absolute inset-0 opacity-40 dark:opacity-20">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-orange-300 dark:bg-orange-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob" />
+          <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob animation-delay-2000" />
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-72 h-72 bg-pink-300 dark:bg-pink-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl animate-blob animation-delay-4000" />
         </div>
       </div>
 
-      {/* Screen reader announcement for results */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {`${resultCount} animals found`}
-      </div>
-
-      {resultCount > 0 ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
-          {filteredAnimals.map((animal) => (
-            <AnimalCard key={animal.id} animal={animal} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-10 glass-card">
-          <p className="text-xl text-slate-700 dark:text-slate-200 mb-4">
-            No animals match your current filters.
+      <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
+        {/* Header Section */}
+        <header className="text-center mb-12 md:mb-16 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 glass-card-ios rounded-3xl shadow-2xl shadow-orange-500/20 mb-6 transform hover:scale-110 transition-all duration-500">
+            <HeartIcon className="w-10 h-10 md:w-12 md:h-12 text-orange-500" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-orange-600 via-rose-500 to-purple-600 dark:from-orange-400 dark:via-rose-400 dark:to-purple-400 bg-clip-text text-transparent mb-4 md:mb-6 leading-tight">
+            Give a Pet a Forever Home
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed px-4">
+            PetBhai partners with trusted nonprofit organizations to help you find your perfect
+            companion. Choose below to start your adoption journey.
           </p>
-          <button
-            onClick={handleClearFilters}
-            className="px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
-          >
-            Clear Filters
-          </button>
+        </header>
+
+        {/* Choice Cards */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-12 max-w-4xl mx-auto mb-16">
+          {adoptionChoices.map((choice, index) => {
+            const Icon = choice.icon;
+            const isHovered = hoveredChoice === choice.type;
+            const isClicked = clickedChoice === choice.type;
+
+            return (
+              <button
+                key={choice.type}
+                onClick={() => handleChoiceClick(choice)}
+                onMouseEnter={() => setHoveredChoice(choice.type)}
+                onMouseLeave={() => setHoveredChoice(null)}
+                className={`
+                  group relative w-full md:w-80 lg:w-96
+                  glass-card-ios p-6 md:p-8
+                  transform transition-all duration-500 ease-out cursor-pointer
+                  ${isClicked ? 'scale-95 opacity-70' : isHovered ? 'scale-105 -translate-y-2' : 'scale-100'}
+                  active:scale-95 touch-manipulation
+                  animate-fade-in
+                `}
+                style={{ animationDelay: `${index * 150}ms` }}
+                aria-label={`${choice.name} through ${choice.partnerName}`}
+              >
+                {/* Gradient Border Effect on Hover */}
+                <div
+                  className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${choice.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none`}
+                />
+
+                {/* Icon Container */}
+                <div
+                  className={`
+                  relative w-24 h-24 md:w-28 md:h-28 mx-auto mb-6
+                  rounded-3xl bg-gradient-to-br ${choice.gradient}
+                  flex items-center justify-center
+                  shadow-xl
+                  transform transition-all duration-500 ease-out
+                  ${isHovered ? 'scale-110 rotate-3 shadow-2xl' : 'scale-100 rotate-0'}
+                `}
+                >
+                  <Icon className="w-12 h-12 md:w-14 md:h-14 text-white drop-shadow-lg" />
+
+                  {/* Floating Emoji Badge */}
+                  <div
+                    className={`absolute -top-2 -right-2 w-10 h-10 rounded-full glass-card-ios flex items-center justify-center shadow-lg transition-all duration-300 ${isHovered ? 'scale-125 -rotate-12' : 'scale-100 rotate-0'}`}
+                  >
+                    <span className="text-xl">{choice.emoji}</span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-2 transition-colors">
+                  {choice.name}
+                </h2>
+                <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 mb-4">
+                  {choice.description}
+                </p>
+
+                {/* Partner Badge */}
+                <div
+                  className={`
+                  inline-flex items-center gap-2 px-4 py-2 rounded-full
+                  glass-card-ios
+                  text-sm font-semibold text-slate-700 dark:text-slate-200
+                  transition-all duration-300
+                  ${isHovered ? 'shadow-lg' : 'shadow-sm'}
+                `}
+                >
+                  <span className="text-xs uppercase tracking-wider opacity-70">via</span>
+                  <span
+                    className={`bg-gradient-to-r ${choice.gradient} bg-clip-text text-transparent font-bold`}
+                  >
+                    {choice.partnerName}
+                  </span>
+                  <svg
+                    className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </div>
+
+                {/* Bottom Accent Line */}
+                <div
+                  className={`
+                  absolute bottom-0 left-1/2 -translate-x-1/2 h-1 rounded-full
+                  bg-gradient-to-r ${choice.gradient}
+                  transform transition-all duration-300
+                  ${isHovered ? 'opacity-100 w-24' : 'opacity-0 w-16'}
+                `}
+                />
+              </button>
+            );
+          })}
         </div>
-      )}
+
+        {/* Info Section */}
+        <section
+          className="glass-card-ios p-6 md:p-10 max-w-3xl mx-auto text-center animate-fade-in"
+          style={{ animationDelay: '400ms' }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <PawIcon className="w-6 h-6 text-orange-500" />
+            <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">
+              Why Adopt Through Partners?
+            </h3>
+            <PawIcon className="w-6 h-6 text-orange-500" />
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+            PetBhai believes in professional pet adoption. Our partner organizations are established
+            nonprofits that ensure every animal is properly vaccinated, health-checked, and ready
+            for their new home. They also provide post-adoption support to ensure a smooth
+            transition.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            {[
+              { icon: '🏥', label: 'Health Checked', desc: 'All pets are vet-verified' },
+              { icon: '💉', label: 'Vaccinated', desc: 'Complete vaccination records' },
+              { icon: '💝', label: 'Support', desc: '24/7 post-adoption care' },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="p-4 rounded-2xl glass-card-ios hover:scale-105 transition-transform duration-300"
+              >
+                <div className="text-3xl mb-2">{item.icon}</div>
+                <div className="font-semibold text-slate-800 dark:text-white text-sm">
+                  {item.label}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Decorative Elements */}
+        <div className="hidden md:block absolute bottom-10 left-10 opacity-10 dark:opacity-5 pointer-events-none">
+          <PawIcon className="w-24 h-24 text-orange-500 transform rotate-12" />
+        </div>
+        <div className="hidden md:block absolute top-40 right-10 opacity-10 dark:opacity-5 pointer-events-none">
+          <PawIcon className="w-16 h-16 text-purple-500 transform -rotate-12" />
+        </div>
+      </div>
     </main>
   );
 };

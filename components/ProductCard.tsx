@@ -50,7 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   );
 
   return (
-    <div className="glass-card group overflow-hidden flex flex-col h-full transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl relative">
+    <div className="glass-card-ios group overflow-hidden flex flex-col h-full transform transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl relative">
       <Link
         to={`/product/${product.id}`}
         className="relative block overflow-hidden aspect-[4/3] sm:aspect-square"
@@ -58,11 +58,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
         <img
           src={product.imageUrl}
           alt=""
-          className={`w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+          className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
           loading="lazy"
           decoding="async"
         />
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-orange-500/90 backdrop-blur-sm text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm z-10">
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 glass-card-ios bg-orange-500/90 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
           {product.category}
         </div>
 
@@ -77,7 +77,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
         {onQuickView && (
           <button
             onClick={handleQuickViewClick}
-            className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 p-1.5 sm:p-2 rounded-full shadow-md opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:text-orange-500 z-10 touch-manipulation active:scale-95"
+            className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios text-slate-700 dark:text-slate-200 p-1.5 sm:p-2 rounded-full shadow-lg opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:text-orange-500 z-10 touch-manipulation active:scale-95"
             title="Quick View"
             aria-label={`Quick view ${product.name}`}
           >
@@ -87,7 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
 
         {/* In Cart Badge */}
         {quantityInCart > 0 && (
-          <div className="absolute bottom-2 left-2 bg-green-600/95 backdrop-blur-md text-white text-[9px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md shadow-lg z-10 flex items-center gap-1 animate-scale-in">
+          <div className="absolute bottom-2 left-2 glass-card-ios bg-green-500/90 text-white text-[9px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg shadow-lg z-10 flex items-center gap-1 animate-scale-in">
             <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full animate-pulse"></span>
             <span className="hidden sm:inline">In Cart:</span> {quantityInCart}
           </div>
@@ -95,7 +95,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
 
         {/* Discount Badge */}
         {product.discount && product.discount > 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500/90 backdrop-blur-sm text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm z-10 animate-pulse">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios bg-red-500/90 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
             -{product.discount}%
           </div>
         )}
@@ -137,20 +137,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           )}
         </div>
       </div>
-      <div className="p-2 sm:p-4 bg-white/50 dark:bg-black/20 mt-auto flex flex-col gap-2 border-t border-white/20 dark:border-slate-700/30">
+      <div className="p-2 sm:p-4 glass-card-ios mt-auto flex flex-col gap-2 border-t border-white/30 dark:border-slate-700/30">
         <button
           onClick={handleAddToCart}
           disabled={isAdding || isOutOfStock}
           aria-label={
             isOutOfStock ? t('aria_out_of_stock') : `${t('aria_add_to_cart')} ${product.name}`
           }
-          className={`w-full flex items-center justify-center space-x-1.5 py-1.5 sm:py-2.5 rounded-lg text-[10px] sm:text-sm font-bold transition-all duration-200 touch-manipulation
+          className={`w-full flex items-center justify-center space-x-1.5 py-1.5 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-500 ease-out touch-manipulation
             ${
               isOutOfStock
-                ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                 : isAdding
                   ? 'bg-green-500 text-white cursor-default scale-95'
-                  : 'bg-orange-500 text-white hover:bg-orange-600 shadow-md hover:shadow-lg active:scale-95'
+                  : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl hover:shadow-orange-500/25 active:scale-95'
             }`}
         >
           <ShoppingCartIcon className="w-3 h-3 sm:w-4 sm:h-4" />
