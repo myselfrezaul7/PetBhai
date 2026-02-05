@@ -11,6 +11,8 @@ interface ArticleCardProps {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }) => {
   const { t } = useLanguage();
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
   return (
     <div
       className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl h-full ${isFeatured ? 'col-span-2' : ''}`}
@@ -23,12 +25,14 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             <img
               src={article.imageUrl}
               alt={article.title}
-              className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
+              className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
               loading="lazy"
               decoding="async"
+              onLoad={() => setIsLoaded(true)}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/blog-images/blog-placeholder.png';
+                setIsLoaded(true);
               }}
             />
           ) : (

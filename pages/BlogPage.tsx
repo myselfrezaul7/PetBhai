@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import ArticleCard from '../components/ArticleCard';
+import { ArticleGridSkeleton } from '../components/Skeletons';
 import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PawIcon } from '../components/icons';
@@ -42,17 +43,19 @@ const BlogPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // ... inside component ...
+
   if (loading) {
     return (
-      <div
-        className="flex justify-center items-center h-96"
-        role="status"
-        aria-label="Loading blog articles"
-      >
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" aria-hidden="true" />
-        <span className="sr-only">Loading articles...</span>
-      </div>
+      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+        <BlogHero />
+        <div className="space-y-8">
+          {/* Simulate Featured Article Loading */}
+          <div className="mb-12 h-80 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
+          {/* Grid Loading */}
+          <ArticleGridSkeleton count={itemsPerPage} />
+        </div>
+      </main>
     );
   }
 
@@ -100,8 +103,8 @@ const BlogPage: React.FC = () => {
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                      : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
+                    : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                     }`}
                 >
                   Previous
@@ -126,8 +129,8 @@ const BlogPage: React.FC = () => {
                         <button
                           onClick={() => handlePageChange(page)}
                           className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
-                              ? 'bg-orange-500 text-white shadow-md transform scale-105'
-                              : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                            ? 'bg-orange-500 text-white shadow-md transform scale-105'
+                            : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                             }`}
                         >
                           {page}
@@ -140,8 +143,8 @@ const BlogPage: React.FC = () => {
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalOtherPages}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalOtherPages
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                      : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
+                    : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                     }`}
                 >
                   Next
