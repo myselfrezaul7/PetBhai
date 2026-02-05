@@ -9,18 +9,18 @@ const router = express.Router();
 // Async error wrapper to catch unhandled promise rejections
 const asyncHandler =
   (fn: express.RequestHandler): express.RequestHandler =>
-  (req, res, next) =>
-    Promise.resolve(fn(req, res, next)).catch((error) => {
-      console.error('AI Route Error:', error);
-      // Don't crash - return a friendly error
-      if (!res.headersSent) {
-        res.status(500).json({
-          error: 'AI service temporarily unavailable',
-          message:
-            process.env.NODE_ENV === 'development' ? error.message : 'Please try again later',
-        });
-      }
-    });
+    (req, res, next) =>
+      Promise.resolve(fn(req, res, next)).catch((error) => {
+        console.error('AI Route Error:', error);
+        // Don't crash - return a friendly error
+        if (!res.headersSent) {
+          res.status(500).json({
+            error: 'AI service temporarily unavailable',
+            message:
+              process.env.NODE_ENV === 'development' ? error.message : 'Please try again later',
+          });
+        }
+      });
 
 // Initialize Gemini AI with error handling
 const getAiInstance = () => {
@@ -341,6 +341,13 @@ router.post(
 
     // Process articles sequentially
     for (const article of articles) {
+      // Skip if image already exists and looks valid (not empty)
+      if (article.imageUrl && article.imageUrl.length > 5) {
+        console.log(`Skipping article ${article.id} - Image already exists: ${article.imageUrl}`);
+        results.push({ id: article.id, title: article.title, success: true, error: 'Skipped - Image exists' });
+        continue;
+      }
+
       try {
         console.log(`Generating image for article: ${article.title}`);
 

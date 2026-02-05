@@ -4,6 +4,8 @@ import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PawIcon } from '../components/icons';
 
+import BlogHero from '../components/BlogHero';
+
 const BlogPage: React.FC = () => {
   const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
@@ -13,8 +15,32 @@ const BlogPage: React.FC = () => {
     return [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [articles]);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 9;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sortedArticles.length / itemsPerPage);
+  const indexOfLastArticle = currentPage * itemsPerPage;
+  const indexOfFirstArticle = indexOfLastArticle - itemsPerPage;
+
+  // Get current articles (Featured article is always separate if on first page, or maybe just part of the flow? 
+  // Let's keep the design: Featured + Grid. 
+  // If we have a featured article (index 0), then pagination applies to the REST.
+
   const latestArticle = sortedArticles[0];
-  const otherArticles = sortedArticles.slice(1);
+  const allOtherArticles = sortedArticles.slice(1);
+
+  const totalOtherPages = Math.ceil(allOtherArticles.length / itemsPerPage);
+  const currentArticles = allOtherArticles.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (loading) {
     return (
@@ -47,26 +73,81 @@ const BlogPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
-      <header className="text-center mb-8 md:mb-12 max-w-3xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-slate-50">
-          {t('blog_page_title')}
-        </h1>
-        <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-100 mt-2 md:mt-4 px-2">
-          {t('blog_page_subtitle')}
-        </p>
-      </header>
+      <BlogHero />
 
       {/* Articles Section */}
       {sortedArticles.length > 0 ? (
         <section aria-label="Blog articles">
-          <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3 md:gap-8">
-            {/* Featured Latest Article */}
-            {latestArticle && <ArticleCard article={latestArticle} isFeatured={true} />}
+          <div className="space-y-8">
+            {/* Featured Latest Article - Only on first page */}
+            {currentPage === 1 && latestArticle && (
+              <div className="mb-12">
+                <ArticleCard article={latestArticle} isFeatured={true} />
+              </div>
+            )}
 
-            {/* Other Articles */}
-            {otherArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+            {/* Other Articles Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+              {currentArticles.map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalOtherPages > 1 && (
+              <div className="flex justify-center items-center space-x-2 mt-12">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
+                      : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                    }`}
+                >
+                  Previous
+                </button>
+
+                {Array.from({ length: totalOtherPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    // Show first, last, current, and pages around current
+                    return (
+                      page === 1 ||
+                      page === totalOtherPages ||
+                      Math.abs(page - currentPage) <= 1
+                    );
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipses
+                    const showEllipsisStart = index > 0 && page - array[index - 1] > 1;
+
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsisStart && <span className="text-slate-400">...</span>}
+                        <button
+                          onClick={() => handlePageChange(page)}
+                          className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
+                              ? 'bg-orange-500 text-white shadow-md transform scale-105'
+                              : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalOtherPages}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalOtherPages
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
+                      : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                    }`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </section>
       ) : (
