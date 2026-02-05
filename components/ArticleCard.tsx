@@ -26,11 +26,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
               loading="lazy"
               decoding="async"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/blog-images/blog-placeholder.png';
+              }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <ImageIcon className="w-12 h-12 md:w-16 md:h-16 text-slate-400 dark:text-slate-500" />
-            </div>
+            <img
+              src="/blog-images/blog-placeholder.png"
+              alt={article.title}
+              className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
+              loading="lazy"
+              decoding="async"
+            />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
 
