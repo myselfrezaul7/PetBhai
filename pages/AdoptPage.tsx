@@ -97,6 +97,37 @@ const AdoptPage: React.FC = () => {
           </p>
         </header>
 
+        {/* Quiz CTA Section */}
+        <div className="max-w-4xl mx-auto mb-16 animate-fade-in" style={{ animationDelay: '200ms' }}>
+          <div className="glass-card-ios p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+            {/* Background Gradient Blob */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200 dark:bg-orange-800 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/4 group-hover:scale-110 transition-transform duration-700"></div>
+
+            <div className="flex-1 text-center md:text-left z-10">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 font-bold text-sm mb-4">
+                ✨ First time owner?
+              </span>
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-3">
+                Not sure if you're ready?
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-0">
+                Take our 2-minute lifestyle quiz to find out if you're ready for a furry friend and
+                which pet suits you best!
+              </p>
+            </div>
+
+            <a
+              href="/#/adopt/quiz"
+              className="flex-shrink-0 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 z-10"
+            >
+              <span>Take the Quiz</span>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
         {/* Choice Cards */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-12 max-w-4xl mx-auto mb-16">
           {adoptionChoices.map((choice, index) => {

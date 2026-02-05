@@ -8,127 +8,30 @@ type ServiceFilter = 'all' | ServiceType;
 type AvailabilityFilter = 'all' | VetAvailability;
 
 const ConsultVetPage: React.FC = () => {
-  const { vets, loading, error } = useVets();
-  const [serviceFilter, setServiceFilter] = useState<ServiceFilter>('all');
-  const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>('all');
-
-  const filteredVets = useMemo(() => {
-    return vets.filter((vet) => {
-      const serviceMatch =
-        serviceFilter === 'all' || vet.services.some((s) => s.type === serviceFilter);
-      const availabilityMatch =
-        availabilityFilter === 'all' || vet.availability === availabilityFilter;
-      return serviceMatch && availabilityMatch;
-    });
-  }, [serviceFilter, availabilityFilter, vets]);
-
-  const FilterButton: React.FC<{
-    label: string;
-    isActive: boolean;
-    onClick: () => void;
-  }> = ({ label, isActive, onClick }) => (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full font-semibold transition-colors text-sm whitespace-nowrap ${
-        isActive
-          ? 'bg-orange-500 text-white shadow-md'
-          : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
-      }`}
-    >
-      {label}
-    </button>
-  );
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-        <PawIcon className="absolute w-8 h-8 text-orange-500 animate-pulse" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-6 py-16 text-center">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Vets</h2>
-        <p className="text-slate-600 dark:text-slate-300">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <>
-      <div className="container mx-auto px-3 md:px-6 py-16 animate-fade-in">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">
-            Consult a Veterinarian
-          </h1>
-          <p className="text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto mt-4">
-            Instantly connect with trusted vets. Book an in-clinic appointment or get expert advice
-            online, right from your home.
-          </p>
-        </div>
+    <main className="container mx-auto px-6 py-20 text-center animate-fade-in min-h-[60vh] flex flex-col items-center justify-center">
+      <div className="glass-card-ios p-12 max-w-2xl relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-0 -mt-10 -ml-10 w-40 h-40 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute bottom-0 right-0 -mb-10 -mr-10 w-40 h-40 bg-orange-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
 
-        {/* Filters Section */}
-        <div className="glass-card p-4 mb-12 space-y-4">
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-200 mr-2">
-              Service Type:
-            </span>
-            <FilterButton
-              label="All"
-              isActive={serviceFilter === 'all'}
-              onClick={() => setServiceFilter('all')}
-            />
-            <FilterButton
-              label="Online"
-              isActive={serviceFilter === 'online'}
-              onClick={() => setServiceFilter('online')}
-            />
-            <FilterButton
-              label="In-Clinic"
-              isActive={serviceFilter === 'in-clinic'}
-              onClick={() => setServiceFilter('in-clinic')}
-            />
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-200 mr-2">
-              Availability:
-            </span>
-            <FilterButton
-              label="All"
-              isActive={availabilityFilter === 'all'}
-              onClick={() => setAvailabilityFilter('all')}
-            />
-            <FilterButton
-              label="Available Now"
-              isActive={availabilityFilter === 'Available Now'}
-              onClick={() => setAvailabilityFilter('Available Now')}
-            />
-            <FilterButton
-              label="Available Today"
-              isActive={availabilityFilter === 'Available Today'}
-              onClick={() => setAvailabilityFilter('Available Today')}
-            />
-          </div>
+        <PawIcon className="w-20 h-20 text-blue-500 mb-6 mx-auto animate-pulse" />
+        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4">
+          Online Consultation
+        </h1>
+        <h2 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 mb-6">
+          Coming Soon
+        </h2>
+        <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-lg mx-auto">
+          Get expert veterinary advice from the comfort of your home.
+          Our video consultation platform is almost ready!
+        </p>
+        <div className="inline-flex items-center px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-sm">
+          <span className="w-2 h-2 rounded-full bg-blue-500 mr-2 animate-pulse"></span>
+          Launching Soon
         </div>
-
-        {filteredVets.length > 0 ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
-            {filteredVets.map((vet) => (
-              <VetCard key={vet.id} vet={vet} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 glass-card">
-            <p className="text-xl text-slate-700 dark:text-slate-200">
-              No veterinarians match your current filters.
-            </p>
-          </div>
-        )}
       </div>
-    </>
+    </main>
   );
 };
 

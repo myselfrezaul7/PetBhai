@@ -91,12 +91,15 @@ const ArticleDetailPage: React.FC = () => {
       <SEO
         title={article.title}
         description={article.content.substring(0, 150)}
-        image={article.imageUrl}
+        image={article.imageUrl || `https://petbhai.com/blog-images/blog-placeholder.png`}
         type="article"
         author={article.author}
         publishedTime={article.date}
         section="Blog"
       />
+      {/* Social Sharing Meta Tags Override (Double check via Helmet if SEO component misses these) */}
+      {/* Note: The SEO component above handles this, but ensuring article-specific image logic is robust */}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Main Article Content */}
         <article className="lg:col-span-2">

@@ -66,6 +66,7 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PetDashboardPage = lazy(() => import('./pages/PetDashboardPage'));
 const PetCompatibilityPage = lazy(() => import('./pages/PetCompatibilityPage'));
 const ServicesBookingPage = lazy(() => import('./pages/ServicesBookingPage'));
+const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
 
 const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
@@ -93,11 +94,10 @@ const GlobalCartElements: React.FC = () => {
     <>
       <button
         onClick={openCart}
-        className={`fixed bottom-24 right-5 w-14 h-14 md:w-16 md:h-16 bg-orange-500 rounded-full text-white shadow-xl shadow-orange-500/30 z-30 flex items-center justify-center transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 ${
-          isVisible
-            ? 'translate-y-0 opacity-100 scale-100'
-            : 'translate-y-20 opacity-0 scale-50 pointer-events-none'
-        }`}
+        className={`fixed bottom-24 right-5 w-14 h-14 md:w-16 md:h-16 bg-orange-500 rounded-full text-white shadow-xl shadow-orange-500/30 z-30 flex items-center justify-center transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 ${isVisible
+          ? 'translate-y-0 opacity-100 scale-100'
+          : 'translate-y-20 opacity-0 scale-50 pointer-events-none'
+          }`}
         aria-label={`Open shopping cart with ${cartCount} items`}
       >
         <ShoppingCartIcon className="w-7 h-7 md:w-8 md:h-8" />
@@ -312,6 +312,7 @@ const AppContent: React.FC = () => {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/dashboard" element={<PetDashboardPage />} />
               <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
+              <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
               <Route path="/services/booking" element={<ServicesBookingPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
