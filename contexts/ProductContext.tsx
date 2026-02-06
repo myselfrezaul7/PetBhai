@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Product, Review } from '../types';
 
 // Use relative path for API to leverage Vite proxy in dev and same-origin in prod
@@ -9,6 +9,7 @@ interface ProductContextType {
   loading: boolean;
   error: string | null;
   addProductReview: (productId: number, review: Review) => void;
+  refetch: () => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -18,32 +19,34 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_URL}/products`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-        const data = await response.json();
-        setProducts(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching products:', err);
-        setError('Failed to load products. Please try again later.');
-        // Fallback removed to enforce Real Data Policy
-        setProducts([]);
-      } finally {
-        setLoading(false);
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/products`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
       }
-    };
-
-    fetchProducts();
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid products data received');
+      }
+      setProducts(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products. Please try again later.');
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const addProductReview = (productId: number, review: Review) => {
-    // TODO: Implement API call to add review
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const addProductReview = useCallback((productId: number, review: Review) => {
+    // Optimistic local update
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
@@ -59,14 +62,27 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return product;
       });
     });
-  };
 
-  const value = {
-    products,
-    loading,
-    error,
-    addProductReview,
-  };
+    // Persist to backend (fire-and-forget, optimistic)
+    fetch(`${API_URL}/products/${productId}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(review),
+    }).catch((err) => {
+      console.error('Failed to sync review to backend', err);
+    });
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      products,
+      loading,
+      error,
+      addProductReview,
+      refetch: fetchProducts,
+    }),
+    [products, loading, error, addProductReview, fetchProducts]
+  );
 
   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
 };

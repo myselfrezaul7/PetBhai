@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import type { Product } from '../types';
 
 interface RecentlyViewedContextType {
@@ -56,17 +56,16 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  return (
-    <RecentlyViewedContext.Provider
-      value={{
-        recentlyViewed,
-        addToRecentlyViewed,
-        clearRecentlyViewed,
-      }}
-    >
-      {children}
-    </RecentlyViewedContext.Provider>
+  const value = useMemo(
+    () => ({
+      recentlyViewed,
+      addToRecentlyViewed,
+      clearRecentlyViewed,
+    }),
+    [recentlyViewed, addToRecentlyViewed, clearRecentlyViewed]
   );
+
+  return <RecentlyViewedContext.Provider value={value}>{children}</RecentlyViewedContext.Provider>;
 };
 
 export const useRecentlyViewed = (): RecentlyViewedContextType => {

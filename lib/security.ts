@@ -10,9 +10,7 @@ const HTML_ENTITIES: Record<string, string> = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#x27;',
-  '/': '&#x2F;',
   '`': '&#x60;',
-  '=': '&#x3D;',
 };
 
 /**
@@ -20,7 +18,7 @@ const HTML_ENTITIES: Record<string, string> = {
  */
 export const escapeHtml = (str: string): string => {
   if (typeof str !== 'string') return '';
-  return str.replace(/[&<>"'`=/]/g, (char) => HTML_ENTITIES[char] || char);
+  return str.replace(/[&<>"'`]/g, (char) => HTML_ENTITIES[char] || char);
 };
 
 /**
@@ -65,6 +63,11 @@ export const sanitizeUrl = (url: string): string | null => {
 
   const trimmed = url.trim().toLowerCase();
 
+  // Allow data:image/ for base64 images (common for user uploads)
+  if (trimmed.startsWith('data:image/')) {
+    return url.trim();
+  }
+
   // Block dangerous protocols
   const dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:'];
   if (dangerousProtocols.some((protocol) => trimmed.startsWith(protocol))) {
@@ -77,12 +80,7 @@ export const sanitizeUrl = (url: string): string | null => {
     safeProtocols.some((protocol) => trimmed.startsWith(protocol)) ||
     (!trimmed.includes(':') && !trimmed.startsWith('//'));
 
-  if (!isRelativeOrSafe && !trimmed.startsWith('data:image/')) {
-    return null;
-  }
-
-  // Allow data:image/ for base64 images (common for user uploads)
-  if (trimmed.startsWith('data:') && !trimmed.startsWith('data:image/')) {
+  if (!isRelativeOrSafe) {
     return null;
   }
 

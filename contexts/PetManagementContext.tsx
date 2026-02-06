@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 
 // Types
@@ -491,39 +491,64 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
     [setImpactStats]
   );
 
-  return (
-    <PetManagementContext.Provider
-      value={{
-        pets,
-        addPet,
-        updatePet,
-        deletePet,
-        getPetById,
-        addWeightEntry,
-        medicineReminders,
-        addMedicineReminder,
-        updateMedicineReminder,
-        deleteMedicineReminder,
-        markMedicineGiven,
-        getUpcomingReminders,
-        getOverdueReminders,
-        priceAlerts,
-        addPriceAlert,
-        removePriceAlert,
-        checkPriceAlerts,
-        groupBuys,
-        createGroupBuy,
-        joinGroupBuy,
-        leaveGroupBuy,
-        getActiveGroupBuys,
-        impactStats,
-        incrementImpact,
-        updateImpactStats,
-      }}
-    >
-      {children}
-    </PetManagementContext.Provider>
+  const value = useMemo(
+    () => ({
+      pets,
+      addPet,
+      updatePet,
+      deletePet,
+      getPetById,
+      addWeightEntry,
+      medicineReminders,
+      addMedicineReminder,
+      updateMedicineReminder,
+      deleteMedicineReminder,
+      markMedicineGiven,
+      getUpcomingReminders,
+      getOverdueReminders,
+      priceAlerts,
+      addPriceAlert,
+      removePriceAlert,
+      checkPriceAlerts,
+      groupBuys,
+      createGroupBuy,
+      joinGroupBuy,
+      leaveGroupBuy,
+      getActiveGroupBuys,
+      impactStats,
+      incrementImpact,
+      updateImpactStats,
+    }),
+    [
+      pets,
+      addPet,
+      updatePet,
+      deletePet,
+      getPetById,
+      addWeightEntry,
+      medicineReminders,
+      addMedicineReminder,
+      updateMedicineReminder,
+      deleteMedicineReminder,
+      markMedicineGiven,
+      getUpcomingReminders,
+      getOverdueReminders,
+      priceAlerts,
+      addPriceAlert,
+      removePriceAlert,
+      checkPriceAlerts,
+      groupBuys,
+      createGroupBuy,
+      joinGroupBuy,
+      leaveGroupBuy,
+      getActiveGroupBuys,
+      impactStats,
+      incrementImpact,
+      updateImpactStats,
+    ]
   );
+
+  return <PetManagementContext.Provider value={value}>{children}</PetManagementContext.Provider>;
 };
 
 export const usePetManagement = () => {

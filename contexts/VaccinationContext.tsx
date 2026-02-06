@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { Pet, VaccinationRecord, PetType } from '../types';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import type { Pet, VaccinationRecord } from '../types';
 import { useAuth } from './AuthContext';
 
 const PETS_STORAGE_KEY = 'petbhai_pets';
@@ -157,50 +157,65 @@ export const VaccinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   );
 
   const markVaccinationComplete = useCallback((id: string, nextDueDate?: string) => {
-    setVaccinations((prev) =>
-      prev.map((v) => {
+    setVaccinations((prev) => {
+      const updated = prev.map((v) => {
         if (v.id !== id) return v;
+        return { ...v, isCompleted: true };
+      });
 
-        if (nextDueDate) {
-          // Create a new record for the next due date
+      // If a next due date is specified, create a new record
+      if (nextDueDate) {
+        const original = prev.find((v) => v.id === id);
+        if (original) {
           const newRecord: VaccinationRecord = {
             id: generateId(),
-            petId: v.petId,
-            vaccineName: v.vaccineName,
+            petId: original.petId,
+            vaccineName: original.vaccineName,
             dateGiven: new Date().toISOString(),
             nextDueDate: nextDueDate,
-            vetName: v.vetName,
+            vetName: original.vetName,
             isCompleted: false,
           };
-          // Add the new record
-          setVaccinations((current) => [...current, newRecord]);
+          return [...updated, newRecord];
         }
+      }
 
-        return { ...v, isCompleted: true };
-      })
-    );
+      return updated;
+    });
   }, []);
 
-  return (
-    <VaccinationContext.Provider
-      value={{
-        pets,
-        vaccinations,
-        addPet,
-        updatePet,
-        deletePet,
-        addVaccination,
-        updateVaccination,
-        deleteVaccination,
-        getUpcomingVaccinations,
-        getOverdueVaccinations,
-        getPetVaccinations,
-        markVaccinationComplete,
-      }}
-    >
-      {children}
-    </VaccinationContext.Provider>
+  const value = useMemo(
+    () => ({
+      pets,
+      vaccinations,
+      addPet,
+      updatePet,
+      deletePet,
+      addVaccination,
+      updateVaccination,
+      deleteVaccination,
+      getUpcomingVaccinations,
+      getOverdueVaccinations,
+      getPetVaccinations,
+      markVaccinationComplete,
+    }),
+    [
+      pets,
+      vaccinations,
+      addPet,
+      updatePet,
+      deletePet,
+      addVaccination,
+      updateVaccination,
+      deleteVaccination,
+      getUpcomingVaccinations,
+      getOverdueVaccinations,
+      getPetVaccinations,
+      markVaccinationComplete,
+    ]
   );
+
+  return <VaccinationContext.Provider value={value}>{children}</VaccinationContext.Provider>;
 };
 
 export const useVaccination = (): VaccinationContextType => {

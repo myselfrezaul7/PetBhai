@@ -30,6 +30,26 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+        return;
+      }
+
+      // Focus trapping: cycle through focusable elements
+      if (e.key === 'Tab' && sidebarRef.current) {
+        const focusableElements = sidebarRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length === 0) return;
+
+        const firstEl = focusableElements[0];
+        const lastEl = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl.focus();
+        }
       }
     };
 
@@ -49,7 +69,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   }, [onClose, navigate]);
 
   const handleIncreaseQuantity = useCallback(
-    (itemId: number, currentQuantity: number, itemName: string) => {
+    (itemId: number, currentQuantity: number) => {
       // Limit max quantity to prevent abuse
       if (currentQuantity >= 99) return;
       updateQuantity(itemId, currentQuantity + 1);
@@ -166,7 +186,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                   >
                     <img
                       src={item.imageUrl}
-                      alt=""
+                      alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-slate-200 dark:bg-slate-700"
                       loading="lazy"
                     />
@@ -193,7 +213,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => handleIncreaseQuantity(item.id, item.quantity, item.name)}
+                          onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity >= 99}
                           className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label={`Increase quantity of ${item.name}`}
@@ -244,4 +264,4 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default CartSidebar;
+export default React.memo(CartSidebar);

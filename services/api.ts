@@ -13,6 +13,25 @@ const RETRY_DELAY = 1000; // 1 second
 // Simple in-memory cache for GET requests
 const cache = new Map<string, { data: unknown; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 100;
+
+// Periodic cache cleanup (every 60 seconds)
+let cacheCleanupTimer: ReturnType<typeof setInterval> | null = null;
+const startCacheCleanup = () => {
+  if (cacheCleanupTimer) return;
+  cacheCleanupTimer = setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of cache.entries()) {
+      if (now - value.timestamp >= CACHE_TTL) {
+        cache.delete(key);
+      }
+    }
+    if (cache.size === 0 && cacheCleanupTimer) {
+      clearInterval(cacheCleanupTimer);
+      cacheCleanupTimer = null;
+    }
+  }, 60000);
+};
 
 // Error types
 export class ApiError extends Error {
@@ -108,9 +127,9 @@ export const apiRequest = async <T>(endpoint: string, options: RequestOptions = 
     }
   }
 
-  // Default headers
+  // Default headers — skip Content-Type for FormData (browser sets it with boundary)
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(fetchOptions.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(fetchOptions.headers as Record<string, string>),
   };
 
@@ -148,7 +167,24 @@ export const apiRequest = async <T>(endpoint: string, options: RequestOptions = 
           (errorData as { error?: string })?.error ||
           `Request failed with status ${response.status}`;
 
-        throw new ApiError(message, response.status, errorData);
+        const apiError = new ApiError(message, response.status, errorData);
+
+        // On 401, try refreshing the token once and retry the request
+        if (response.status === 401 && attempt === 0) {
+          const newToken = await attemptTokenRefresh();
+          if (newToken) {
+            headers['Authorization'] = `Bearer ${newToken}`;
+            attempt++; // count as one retry
+            continue;
+          }
+        }
+
+        throw apiError;
+      }
+
+      // Handle 204 No Content (e.g., successful DELETE)
+      if (response.status === 204) {
+        return {} as T;
       }
 
       // Parse response
@@ -156,7 +192,13 @@ export const apiRequest = async <T>(endpoint: string, options: RequestOptions = 
 
       // Cache GET responses
       if (useCache && method === 'GET') {
+        // Evict oldest entries if cache is full
+        if (cache.size >= MAX_CACHE_SIZE) {
+          const oldestKey = cache.keys().next().value;
+          if (oldestKey) cache.delete(oldestKey);
+        }
         cache.set(url, { data, timestamp: Date.now() });
+        startCacheCleanup();
       }
 
       return data as T;
@@ -166,7 +208,7 @@ export const apiRequest = async <T>(endpoint: string, options: RequestOptions = 
       // Check if we should retry
       if (attempt < retries && isRetryable(error)) {
         attempt++;
-        await sleep(RETRY_DELAY * attempt); // Exponential backoff
+        await sleep(RETRY_DELAY * Math.pow(2, attempt - 1)); // Exponential backoff
         continue;
       }
 
@@ -221,10 +263,22 @@ export const api = {
 
 // Token management
 const TOKEN_KEY = 'petbhai_auth_token';
+const REFRESH_TOKEN_KEY = 'petbhai_refresh_token';
+
+// Token refresh state — prevents parallel refresh attempts
+let refreshPromise: Promise<string | null> | null = null;
 
 export const setAuthToken = (token: string): void => {
   try {
     localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // localStorage might be disabled
+  }
+};
+
+export const setRefreshToken = (token: string): void => {
+  try {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
   } catch {
     // localStorage might be disabled
   }
@@ -238,12 +292,59 @@ export const getAuthToken = (): string | null => {
   }
 };
 
+export const getRefreshToken = (): string | null => {
+  try {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+
 export const clearAuthToken = (): void => {
   try {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
   } catch {
     // localStorage might be disabled
   }
+};
+
+/**
+ * Attempt to refresh the access token using the stored refresh token.
+ * Coalesces concurrent calls so only one refresh request is in-flight.
+ */
+const attemptTokenRefresh = async (): Promise<string | null> => {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const url = `${API_URL}/auth/refresh`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      if (data.token) {
+        setAuthToken(data.token);
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
+        return data.token as string;
+      }
+      return null;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 };
 
 // Cache management

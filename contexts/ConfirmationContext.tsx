@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useCallback, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useCallback, useMemo, ReactNode } from 'react';
 
 interface ConfirmationOptions {
   title: string;
@@ -47,7 +47,10 @@ export const ConfirmationProvider: React.FC<{ children: ReactNode }> = ({ childr
     [resolveFunction]
   );
 
-  const value = { confirm, confirmationState, resolveConfirmation };
+  const value = useMemo(
+    () => ({ confirm, confirmationState, resolveConfirmation }),
+    [confirm, confirmationState, resolveConfirmation]
+  );
 
   return <ConfirmationContext.Provider value={value}>{children}</ConfirmationContext.Provider>;
 };

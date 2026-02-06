@@ -134,7 +134,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       openCart: () => setIsCartOpen(true),
       closeCart: () => setIsCartOpen(false),
     };
-  }, [state, isCartOpen]);
+  }, [state.items, isCartOpen]);
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
 };

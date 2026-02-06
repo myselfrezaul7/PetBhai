@@ -13,6 +13,43 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { sanitizeInput } from '../lib/security';
 import { useGlobalSearch, type PageResult } from '../hooks/useGlobalSearch';
 
+// Extracted outside Header to prevent re-creation on every render
+const MobileNavLink: React.FC<{
+  to: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}> = React.memo(({ to, children, className, onClick }) => (
+  <NavLink
+    to={to}
+    onClick={onClick}
+    className={({ isActive }) =>
+      `block py-3 text-xl sm:text-2xl text-center transition-colors touch-manipulation ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium hover:text-orange-500'} ${className || ''}`
+    }
+  >
+    {children}
+  </NavLink>
+));
+MobileNavLink.displayName = 'MobileNavLink';
+
+const DesktopNavLink: React.FC<{
+  to: string;
+  children: React.ReactNode;
+  className?: string;
+}> = React.memo(({ to, children, className }) => (
+  <li>
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `${isActive ? 'text-orange-500 dark:text-orange-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 font-medium transition-colors'} ${className || ''} touch-manipulation`
+      }
+    >
+      {children}
+    </NavLink>
+  </li>
+));
+DesktopNavLink.displayName = 'DesktopNavLink';
+
 const ALL_PAGES: PageResult[] = [
   { name: 'Home', path: '/', keywords: ['home', 'bari', 'বাড়ি', 'নীড়', 'hom'] },
   {
@@ -99,10 +136,6 @@ const Header: React.FC = () => {
     searchQuery.trim().length >= 2 &&
     deferredQuery.trim().length >= 2 &&
     deferredQuery !== searchQuery;
-
-  const activeLinkClass = 'text-orange-500 dark:text-orange-400 font-bold';
-  const inactiveLinkClass =
-    'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 font-medium transition-colors';
 
   const handleLogout = useCallback(() => {
     logout();
@@ -271,45 +304,9 @@ const Header: React.FC = () => {
     setIsProfileMenuOpen((prev) => !prev);
   }, []);
 
-  const MobileNavLink: React.FC<{ to: string; children: React.ReactNode; className?: string }> = ({
-    to,
-    children,
-    className,
-  }) => (
-    <NavLink
-      to={to}
-      onClick={handleMenuClose}
-      className={({ isActive }) =>
-        `block py-3 text-xl sm:text-2xl text-center transition-colors touch-manipulation ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium hover:text-orange-500'} ${className}`
-      }
-    >
-      {children}
-    </NavLink>
-  );
-
-  const DesktopNavLink: React.FC<{ to: string; children: React.ReactNode; className?: string }> = ({
-    to,
-    children,
-    className,
-  }) => (
-    <li>
-      <NavLink
-        to={to}
-        className={({ isActive }) =>
-          `${isActive ? activeLinkClass : inactiveLinkClass} ${className} touch-manipulation`
-        }
-      >
-        {children}
-      </NavLink>
-    </li>
-  );
-
   return (
     <>
-      <header
-        className="glass-card-ios sticky top-0 z-40 border-b-0 rounded-none transition-all duration-500"
-        style={{ borderRadius: 0 }}
-      >
+      <header className="glass-card-ios sticky top-0 z-40 border-b-0 !rounded-none transition-all duration-500">
         <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
           <NavLink
             to="/"
@@ -628,14 +625,27 @@ const Header: React.FC = () => {
         </div>
         <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8 overscroll-contain">
           <nav className="flex flex-col space-y-6 w-full px-8 sm:px-10">
-            <MobileNavLink to="/">{t('nav_home')}</MobileNavLink>
-            <MobileNavLink to="/shop">{t('nav_shop')}</MobileNavLink>
-            <MobileNavLink to="/community">{t('nav_community')}</MobileNavLink>
-            <MobileNavLink to="/adopt">Adopt</MobileNavLink>
-            <MobileNavLink to="/services">{t('nav_services')}</MobileNavLink>
-            <MobileNavLink to="/blog">{t('nav_blog')}</MobileNavLink>
+            <MobileNavLink to="/" onClick={handleMenuClose}>
+              {t('nav_home')}
+            </MobileNavLink>
+            <MobileNavLink to="/shop" onClick={handleMenuClose}>
+              {t('nav_shop')}
+            </MobileNavLink>
+            <MobileNavLink to="/community" onClick={handleMenuClose}>
+              {t('nav_community')}
+            </MobileNavLink>
+            <MobileNavLink to="/adopt" onClick={handleMenuClose}>
+              Adopt
+            </MobileNavLink>
+            <MobileNavLink to="/services" onClick={handleMenuClose}>
+              {t('nav_services')}
+            </MobileNavLink>
+            <MobileNavLink to="/blog" onClick={handleMenuClose}>
+              {t('nav_blog')}
+            </MobileNavLink>
             <MobileNavLink
               to="/plus-membership"
+              onClick={handleMenuClose}
               className="text-yellow-600 dark:text-yellow-400 font-bold"
             >
               {t('nav_plus')}
@@ -690,4 +700,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default React.memo(Header);

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
@@ -15,6 +15,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
   const [isAdding, setIsAdding] = useState(false);
+  const addingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (addingTimerRef.current) clearTimeout(addingTimerRef.current);
+    };
+  }, []);
 
   // Check if item is in cart
   const cartItem = cartItems.find((item) => item.id === product.id);
@@ -33,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
 
       setIsAdding(true);
       addToCart(product);
-      setTimeout(() => setIsAdding(false), 800);
+      addingTimerRef.current = setTimeout(() => setIsAdding(false), 800);
     },
     [addToCart, product, isAdding, isOutOfStock]
   );
@@ -57,7 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
       >
         <img
           src={product.imageUrl}
-          alt=""
+          alt={product.name}
           className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
           loading="lazy"
           decoding="async"

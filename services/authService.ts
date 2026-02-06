@@ -11,31 +11,26 @@ interface SocialUser {
   lastName: string;
   email: string;
   photoUrl?: string;
+  firebaseToken?: string;
 }
 
 export const signInWithGoogle = async (): Promise<SocialUser> => {
-  console.log('signInWithGoogle called');
-  console.log('isFirebaseConfigured:', isFirebaseConfigured());
-  console.log('auth exists:', !!auth);
-  console.log('googleProvider exists:', !!googleProvider);
-
-  // Fallback to Mock if Firebase is not configured
+  // Require Firebase to be properly configured
   if (!isFirebaseConfigured() || !auth || !googleProvider) {
-    console.warn('Firebase not configured. Using Mock Google Sign-In.');
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate delay
-    return {
-      firstName: 'Israt',
-      lastName: 'Jahan',
-      email: 'israt.google@example.com',
-      photoUrl: 'https://picsum.photos/seed/mockuser/200', // Better mock photo
-    };
+    throw new Error('Google Sign-In is not available. Firebase is not configured.');
   }
 
   try {
-    console.log('Attempting Firebase signInWithPopup...');
     const result = await signInWithPopup(auth, googleProvider);
-    console.log('signInWithPopup successful');
     const user = result.user;
+
+    // Get Firebase ID token for backend verification
+    let firebaseToken: string | undefined;
+    try {
+      firebaseToken = await user.getIdToken();
+    } catch {
+      // Token retrieval failed — proceed without it (local session only)
+    }
 
     // Extract name parts
     const displayName = user.displayName || '';
@@ -48,6 +43,7 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
       lastName,
       email: user.email || '',
       photoUrl: user.photoURL || undefined,
+      firebaseToken,
     };
   } catch (error: unknown) {
     console.error('Google Sign-In Error (full):', error);

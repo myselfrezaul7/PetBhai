@@ -229,7 +229,7 @@ const Footer: React.FC = () => {
       {/* Bottom bar */}
       <div className="mt-8 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-t border-slate-200/50 dark:border-slate-800/50">
         <div className="container mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-500">
-          © {new Date().getFullYear()} PetBhai. All rights reserved.
+          © {currentYear} PetBhai. All rights reserved.
         </div>
       </div>
     </footer>

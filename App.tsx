@@ -2,35 +2,19 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import { AuthProvider } from './contexts/AuthContext';
 import MessengerPlugin from './components/MessengerPlugin';
-import { CartProvider, useCart } from './contexts/CartContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { useCart } from './contexts/CartContext';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
-import { ProductProvider } from './contexts/ProductContext';
-import CookieConsentBanner, {
-  CookieConsentProvider,
-  useCookieConsent,
-} from './components/CookieConsentBanner';
-import { ArticleProvider } from './contexts/ArticleContext';
-import { VetProvider } from './contexts/VetContext';
-import { AnimalProvider } from './contexts/AnimalContext';
-import { BrandProvider } from './contexts/BrandContext';
-import { ToastProvider } from './contexts/ToastContext';
+import CookieConsentBanner, { useCookieConsent } from './components/CookieConsentBanner';
 import ToastContainer from './components/ToastContainer';
-import { ConfirmationProvider } from './contexts/ConfirmationContext';
 import ConfirmationModal from './components/ConfirmationModal';
-import { LanguageProvider } from './contexts/LanguageContext';
 import { PawIcon, ShoppingCartIcon, HeartIcon } from './components/icons';
 import CartSidebar from './components/CartSidebar';
 import WhatsAppButton from './components/WhatsAppButton';
-import { VaccinationProvider } from './contexts/VaccinationContext';
 import OfflineIndicator from './components/OfflineIndicator';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
-import { PetManagementProvider } from './contexts/PetManagementContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { HelmetProvider } from 'react-helmet-async';
 import SEO, {
   HomePageSEO,
   ShopPageSEO,
@@ -38,6 +22,7 @@ import SEO, {
   BlogPageSEO,
   ServicesPageSEO,
 } from './components/SEO';
+import AppProviders from './components/AppProviders';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -68,7 +53,7 @@ const PetCompatibilityPage = lazy(() => import('./pages/PetCompatibilityPage'));
 const ServicesBookingPage = lazy(() => import('./pages/ServicesBookingPage'));
 const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
 
-const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
+const PawHeartLoader: React.FC<{ message?: string }> = React.memo(({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
     <div className="relative w-20 h-20 motion-safe:animate-heartbeat motion-reduce:animate-none">
       <HeartIcon className="w-full h-full text-orange-500" />
@@ -78,7 +63,8 @@ const PawHeartLoader: React.FC<{ message?: string }> = ({ message }) => (
       {message || 'Loading...'}
     </p>
   </div>
-);
+));
+PawHeartLoader.displayName = 'PawHeartLoader';
 
 const GlobalCartElements: React.FC = () => {
   const { isCartOpen, closeCart, openCart, cartCount } = useCart();
@@ -335,40 +321,11 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <HelmetProvider>
-      <ThemeProvider>
-        <LanguageProvider>
-          <ConfirmationProvider>
-            <ToastProvider>
-              <ArticleProvider>
-                <ProductProvider>
-                  <VetProvider>
-                    <AnimalProvider>
-                      <BrandProvider>
-                        <AuthProvider>
-                          <VaccinationProvider>
-                            <PetManagementProvider>
-                              <CartProvider>
-                                <CookieConsentProvider>
-                                  <HashRouter>
-                                    <ScrollToTop />
-                                    <AppContent />
-                                  </HashRouter>
-                                </CookieConsentProvider>
-                              </CartProvider>
-                            </PetManagementProvider>
-                          </VaccinationProvider>
-                        </AuthProvider>
-                      </BrandProvider>
-                    </AnimalProvider>
-                  </VetProvider>
-                </ProductProvider>
-              </ArticleProvider>
-            </ToastProvider>
-          </ConfirmationProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </HelmetProvider>
+    <AppProviders>
+      <HashRouter>
+        <AppContent />
+      </HashRouter>
+    </AppProviders>
   );
 }
 

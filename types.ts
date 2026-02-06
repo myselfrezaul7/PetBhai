@@ -66,7 +66,6 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  password?: string;
   profilePictureUrl?: string;
   wishlist: number[]; // Array of product IDs
   orderHistory: Order[];

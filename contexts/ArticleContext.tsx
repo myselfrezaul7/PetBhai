@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Article } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -8,6 +8,7 @@ interface ArticleContextType {
   loading: boolean;
   error: string | null;
   updateArticleImage: (articleId: number, imageUrl: string) => void;
+  refetch: () => void;
 }
 
 const ArticleContext = createContext<ArticleContextType | undefined>(undefined);
@@ -17,41 +18,48 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_URL}/articles`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const data = await response.json();
-        setArticles(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching articles:', err);
-        setError('Failed to load articles. Please try again later.');
-        setArticles([]);
-      } finally {
-        setLoading(false);
+  const fetchArticles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/articles`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch articles');
       }
-    };
-
-    fetchArticles();
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid article data received');
+      }
+      setArticles(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching articles:', err);
+      setError('Failed to load articles. Please try again later.');
+      setArticles([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const updateArticleImage = (articleId: number, imageUrl: string) => {
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  const updateArticleImage = useCallback((articleId: number, imageUrl: string) => {
     setArticles((prevArticles) =>
       prevArticles.map((article) => (article.id === articleId ? { ...article, imageUrl } : article))
     );
-  };
+  }, []);
 
-  const value = {
-    articles,
-    loading,
-    error,
-    updateArticleImage,
-  };
+  const value = useMemo(
+    () => ({
+      articles,
+      loading,
+      error,
+      updateArticleImage,
+      refetch: fetchArticles,
+    }),
+    [articles, loading, error, updateArticleImage, fetchArticles]
+  );
 
   return <ArticleContext.Provider value={value}>{children}</ArticleContext.Provider>;
 };

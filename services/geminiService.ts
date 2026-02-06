@@ -51,10 +51,14 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
     console.error('Error in getVetAssistantResponse:', error);
 
     if (error instanceof Error && error.name === 'AbortError') {
-      return 'The request took too long. Please try again with a simpler question.';
+      throw new Error('The request took too long. Please try again with a simpler question.');
     }
 
-    return "I'm sorry, but I'm having trouble connecting to my knowledge base right now. Please try again later.";
+    throw error instanceof Error
+      ? error
+      : new Error(
+          "I'm sorry, but I'm having trouble connecting to my knowledge base right now. Please try again later."
+        );
   }
 };
 

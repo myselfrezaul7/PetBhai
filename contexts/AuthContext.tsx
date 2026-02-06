@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import type { User, Order } from '../types';
 import { sanitizeInput, validateId } from '../lib/security';
 
@@ -66,6 +66,7 @@ interface AuthContextType {
     lastName: string;
     email: string;
     photoUrl?: string;
+    firebaseToken?: string;
   }) => Promise<User>;
   updateProfile: (updatedData: { name?: string; profilePictureUrl?: string }) => Promise<User>;
   addToWishlist: (productId: number) => void;
@@ -126,9 +127,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser(data.user);
 
         return data.user;
-      } catch (error: any) {
-        console.error('Login error:', error);
-        throw new Error(error.message || 'Failed to login');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to login';
+        console.error('Login error:', message);
+        throw new Error(message);
       }
     },
     []
@@ -176,9 +178,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser(data.user);
 
         return data.user;
-      } catch (error: any) {
-        console.error('Signup error:', error);
-        throw new Error(error.message || 'Failed to signup');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to signup';
+        console.error('Signup error:', message);
+        throw new Error(message);
       }
     },
     []
@@ -190,11 +193,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastName: string;
       email: string;
       photoUrl?: string;
+      firebaseToken?: string;
     }): Promise<User> => {
-      // For now, allow social login to just set the user in state for the session
-      // In a real app, this should exchange the social token for a callback to backend
-      console.warn('Social login backend integration pending');
+      // If a Firebase token is available, exchange it with the backend for a PetBhai JWT
+      if (socialUser.firebaseToken) {
+        try {
+          const response = await fetch(`${API_URL}/auth/social`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
+              email: socialUser.email,
+              photoUrl: socialUser.photoUrl,
+              firebaseToken: socialUser.firebaseToken,
+            }),
+          });
 
+          if (response.ok) {
+            const data: AuthResponse = await response.json();
+            window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+            setCurrentUser(data.user);
+            return data.user;
+          }
+          // Fall through to local-only if backend social endpoint isn't ready
+          console.warn('Backend social login returned non-OK, falling back to local session');
+        } catch (err) {
+          console.warn('Backend social login failed, falling back to local session', err);
+        }
+      }
+
+      // Fallback: create a local-only session (no backend persistence)
       const newUser: User = {
         id: Date.now(),
         name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
@@ -383,7 +411,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser]);
 
   const addOrderToHistory = useCallback(
-    (order: Order) => {
+    async (order: Order) => {
       if (!currentUser) return;
       if (!order || !order.orderId) return;
 
@@ -395,25 +423,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         orderHistory: [order, ...limitedHistory],
       };
       setCurrentUser(updatedUser);
+
+      // Persist to backend
+      try {
+        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+        await fetch(`${API_URL}/auth/${currentUser.id}/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+          body: JSON.stringify(order),
+        });
+      } catch (err) {
+        // Order is still recorded locally even if backend sync fails.
+        // This ensures the user sees their order immediately.
+        console.error('Failed to sync order to backend', err);
+      }
     },
     [currentUser]
   );
 
-  const value = {
-    currentUser,
-    isAuthenticated: !!currentUser,
-    login,
-    logout,
-    signup,
-    socialLogin,
-    updateProfile,
-    addToWishlist,
-    removeFromWishlist,
-    addOrderToHistory,
-    favoritePet,
-    unfavoritePet,
-    subscribeToPlus,
-  };
+  const value = useMemo(
+    () => ({
+      currentUser,
+      isAuthenticated: !!currentUser,
+      login,
+      logout,
+      signup,
+      socialLogin,
+      updateProfile,
+      addToWishlist,
+      removeFromWishlist,
+      addOrderToHistory,
+      favoritePet,
+      unfavoritePet,
+      subscribeToPlus,
+    }),
+    [
+      currentUser,
+      login,
+      logout,
+      signup,
+      socialLogin,
+      updateProfile,
+      addToWishlist,
+      removeFromWishlist,
+      addOrderToHistory,
+      favoritePet,
+      unfavoritePet,
+      subscribeToPlus,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
