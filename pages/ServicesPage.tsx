@@ -1,10 +1,6 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { BANGLADESH_DISTRICTS } from '../constants';
-import { useVets } from '../contexts/VetContext';
-import VetCard from '../components/VetCard';
-import type { Vet } from '../types';
-import { PawIcon } from '../components/icons';
 
 type ServiceTab = 'Vets' | 'Groomers' | 'Trainers' | 'Sitters';
 
@@ -44,7 +40,6 @@ const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => vo
 TabButton.displayName = 'TabButton';
 
 const ServicesPage: React.FC = () => {
-  const { vets, loading: vetsLoading, error: vetsError } = useVets();
   const [activeTab, setActiveTab] = useState<ServiceTab>('Vets');
   const [locationFilter, setLocationFilter] = useState<string>('All');
 
@@ -57,26 +52,8 @@ const ServicesPage: React.FC = () => {
     setLocationFilter(e.target.value);
   }, []);
 
-  const handleClearFilter = useCallback(() => {
-    setLocationFilter('All');
-  }, []);
-
-  const professionals = useMemo(() => {
-    if (activeTab === 'Vets') {
-      if (locationFilter === 'All') {
-        return vets;
-      }
-      return vets.filter((p) => p.address.includes(locationFilter));
-    }
-    // For Groomers, Trainers, Sitters - return empty (Coming Soon)
-    return [];
-  }, [activeTab, locationFilter, vets]);
-
-  // Check if current tab is "Coming Soon"
-  const isComingSoon = activeTab !== 'Vets';
-
-  // Count results for accessibility
-  const resultCount = professionals.length;
+  // All services are currently in "Coming Soon" state
+  const isComingSoon = true;
 
   return (
     <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
@@ -131,32 +108,7 @@ const ServicesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Screen reader announcement */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {!vetsLoading && `${resultCount} ${activeTab.toLowerCase()} found`}
-      </div>
-
-      {activeTab === 'Vets' && vetsLoading ? (
-        <div
-          className="flex justify-center items-center h-64"
-          role="status"
-          aria-label="Loading veterinarians"
-        >
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-orange-500"></div>
-          <PawIcon className="absolute w-6 h-6 text-orange-500 animate-pulse" aria-hidden="true" />
-          <span className="sr-only">Loading...</span>
-        </div>
-      ) : activeTab === 'Vets' && vetsError ? (
-        <div className="text-center py-12" role="alert">
-          <p className="text-red-500 mb-4">{vetsError}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
-          >
-            Try Again
-          </button>
-        </div>
-      ) : isComingSoon ? (
+      {isComingSoon ? (
         <div className="text-center py-16 glass-card-ios">
           <div className="text-6xl mb-6">🚧</div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-4">
@@ -166,40 +118,6 @@ const ServicesPage: React.FC = () => {
             We're working hard to bring you the best {activeTab.toLowerCase()} in Bangladesh. Stay
             tuned!
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <button
-              onClick={() => handleTabChange('Vets')}
-              className="px-6 py-3 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
-            >
-              Browse Vets Instead
-            </button>
-          </div>
-        </div>
-      ) : resultCount > 0 ? (
-        <section
-          id={`${activeTab.toLowerCase()}-panel`}
-          role="tabpanel"
-          aria-label={`${activeTab} listings`}
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
-            {professionals.map((p) => (
-              <VetCard key={`vet-${p.id}`} vet={p as Vet} />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <div className="text-center py-10 glass-card-ios">
-          <p className="text-xl text-slate-700 dark:text-slate-200 mb-4">
-            No {activeTab.toLowerCase()} found for "{locationFilter}".
-          </p>
-          {locationFilter !== 'All' && (
-            <button
-              onClick={handleClearFilter}
-              className="px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
-            >
-              Clear Filter
-            </button>
-          )}
         </div>
       )}
 

@@ -538,7 +538,7 @@ const PostCard: React.FC<PostCardProps> = ({
             className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation disabled:opacity-50 ${
               hasLikedPost
                 ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
-                : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-slate-700/50'
+                : 'text-slate-700 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <ThumbsUpIcon
@@ -558,7 +558,7 @@ const PostCard: React.FC<PostCardProps> = ({
             className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation ${
               showComments
                 ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-slate-700/50'
+                : 'text-slate-700 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <ChatBubbleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -573,7 +573,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={handleShare}
             aria-label="Share post"
-            className="flex items-center space-x-1 sm:space-x-2 text-slate-600 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50 active:scale-95 touch-manipulation"
+            className="flex items-center space-x-1 sm:space-x-2 text-slate-700 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50 active:scale-95 touch-manipulation"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5"

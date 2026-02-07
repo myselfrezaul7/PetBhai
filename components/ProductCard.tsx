@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
         {onQuickView && (
           <button
             onClick={handleQuickViewClick}
-            className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios text-slate-700 dark:text-slate-200 p-1.5 sm:p-2 rounded-full shadow-lg opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:text-orange-500 z-10 touch-manipulation active:scale-95"
+            className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios text-slate-800 dark:text-slate-200 p-1.5 sm:p-2 rounded-full shadow-lg opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:text-orange-500 z-10 touch-manipulation active:scale-95"
             title="Quick View"
             aria-label={`Quick view ${product.name}`}
           >
@@ -155,7 +155,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           className={`w-full flex items-center justify-center space-x-1.5 py-1.5 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-500 ease-out touch-manipulation
             ${
               isOutOfStock
-                ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 cursor-not-allowed'
                 : isAdding
                   ? 'bg-green-500 text-white cursor-default scale-95'
                   : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl hover:shadow-orange-500/25 active:scale-95'
