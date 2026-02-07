@@ -173,7 +173,8 @@ const ProductDetailPage: React.FC = () => {
               onClick={() => setNewRating(starValue)}
               className="text-3xl transition-transform transform hover:scale-125 touch-manipulation active:scale-95"
               aria-label={`Rate ${starValue} star${starValue > 1 ? 's' : ''}`}
-              aria-pressed={newRating === starValue}
+              aria-pressed="false"
+              data-pressed={newRating === starValue}
             >
               <svg
                 className={`w-8 h-8 transition-colors ${starValue <= (hoverRating || newRating) ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
@@ -274,7 +275,8 @@ const ProductDetailPage: React.FC = () => {
                           : 'bg-transparent border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-red-500/10 hover:border-red-500/20'
                       }`}
               aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              aria-pressed={isWishlisted}
+              aria-pressed="false"
+              data-pressed={isWishlisted}
             >
               <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </button>

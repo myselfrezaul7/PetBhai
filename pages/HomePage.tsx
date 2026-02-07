@@ -35,8 +35,7 @@ const HomePage: React.FC = () => {
 
       {/* Best Sellers Section */}
       <section
-        className="py-8 md:py-20 animate-fade-in"
-        style={{ animationDelay: '100ms' }}
+        className="py-8 md:py-20 animate-fade-in animation-delay-100"
         aria-labelledby="best-sellers-heading"
       >
         <div className="container mx-auto px-3 md:px-6">
@@ -77,8 +76,7 @@ const HomePage: React.FC = () => {
 
       {/* Vet Consultation CTA -> Services CTA */}
       <section
-        className="py-8 md:py-20 animate-fade-in"
-        style={{ animationDelay: '200ms' }}
+        className="py-8 md:py-20 animate-fade-in animation-delay-200"
         aria-labelledby="services-heading"
       >
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
@@ -127,8 +125,7 @@ const HomePage: React.FC = () => {
 
       {/* Shop by Brand Section */}
       <section
-        className="py-8 md:py-16 animate-fade-in"
-        style={{ animationDelay: '300ms' }}
+        className="py-8 md:py-16 animate-fade-in animation-delay-300"
         aria-labelledby="brands-heading"
       >
         <div className="container mx-auto px-4 md:px-6 text-center">
@@ -164,8 +161,7 @@ const HomePage: React.FC = () => {
 
       {/* New Arrivals Section */}
       <section
-        className="py-8 md:py-20 glass-card-ios animate-fade-in"
-        style={{ animationDelay: '400ms' }}
+        className="py-8 md:py-20 glass-card-ios animate-fade-in animation-delay-400"
         aria-labelledby="new-arrivals-heading"
       >
         <div className="container mx-auto px-3 md:px-6 text-center">
@@ -198,8 +194,7 @@ const HomePage: React.FC = () => {
 
       {/* PetBhai+ CTA */}
       <section
-        className="py-8 md:py-20 animate-fade-in"
-        style={{ animationDelay: '500ms' }}
+        className="py-8 md:py-20 animate-fade-in animation-delay-500"
         aria-labelledby="plus-membership-heading"
       >
         <div className="container mx-auto px-3 sm:px-4 md:px-6">

@@ -304,6 +304,21 @@ const Header: React.FC = () => {
     setIsProfileMenuOpen((prev) => !prev);
   }, []);
 
+  const desktopLinks = [
+    { to: '/', label: t('nav_home') },
+    { to: '/shop', label: t('nav_shop') },
+    { to: '/community', label: t('nav_community') },
+    { to: '/adopt', label: 'Adopt' },
+    { to: '/services', label: t('nav_services') },
+    { to: '/blog', label: t('nav_blog') },
+    {
+      to: '/plus-membership',
+      label: t('nav_plus'),
+      className:
+        'text-yellow-600 dark:text-yellow-400 font-bold hover:text-yellow-700 dark:hover:text-yellow-300',
+    },
+  ];
+
   return (
     <>
       <header className="glass-card-ios sticky top-0 z-40 border-b-0 !rounded-none transition-all duration-500">
@@ -320,18 +335,11 @@ const Header: React.FC = () => {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-8">
             <ul className="flex items-center space-x-8 text-[15px]">
-              <DesktopNavLink to="/">{t('nav_home')}</DesktopNavLink>
-              <DesktopNavLink to="/shop">{t('nav_shop')}</DesktopNavLink>
-              <DesktopNavLink to="/community">{t('nav_community')}</DesktopNavLink>
-              <DesktopNavLink to="/adopt">Adopt</DesktopNavLink>
-              <DesktopNavLink to="/services">{t('nav_services')}</DesktopNavLink>
-              <DesktopNavLink to="/blog">{t('nav_blog')}</DesktopNavLink>
-              <DesktopNavLink
-                to="/plus-membership"
-                className="text-yellow-600 dark:text-yellow-400 font-bold hover:text-yellow-700 dark:hover:text-yellow-300"
-              >
-                {t('nav_plus')}
-              </DesktopNavLink>
+              {desktopLinks.map((link) => (
+                <DesktopNavLink key={link.to} to={link.to} className={link.className}>
+                  {link.label}
+                </DesktopNavLink>
+              ))}
             </ul>
           </div>
           {/* Search Bar & Profile */}
@@ -355,7 +363,8 @@ const Header: React.FC = () => {
                 aria-haspopup="listbox"
                 aria-autocomplete="list"
                 aria-controls="search-results-desktop"
-                aria-expanded={isSearchActive && searchQuery.length >= 2 ? 'true' : 'false'}
+                aria-expanded="false"
+                data-expanded={isSearchActive && searchQuery.length >= 2}
               />
 
               <span className="sr-only" aria-live="polite">
@@ -421,7 +430,8 @@ const Header: React.FC = () => {
                   onClick={handleProfileMenuToggle}
                   className="relative flex items-center space-x-2 focus:outline-none group touch-manipulation"
                   aria-label="User menu"
-                  aria-expanded={isProfileMenuOpen ? 'true' : 'false'}
+                  aria-expanded="false"
+                  data-expanded={isProfileMenuOpen}
                   aria-haspopup="true"
                 >
                   <div className="ring-2 ring-transparent group-hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
@@ -519,7 +529,8 @@ const Header: React.FC = () => {
                     aria-haspopup="listbox"
                     aria-autocomplete="list"
                     aria-controls="search-results-mobile"
-                    aria-expanded={isSearchActive && searchQuery.length >= 2 ? 'true' : 'false'}
+                    aria-expanded="false"
+                    data-expanded={isSearchActive && searchQuery.length >= 2}
                   />
 
                   <span className="sr-only" aria-live="polite">

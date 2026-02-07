@@ -144,7 +144,8 @@ const ShopPage: React.FC = () => {
               ? 'bg-orange-500 text-white shadow-lg transform scale-105'
               : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
           }`}
-          aria-pressed={activeCategory === filter ? 'true' : 'false'}
+          aria-pressed="false"
+          data-pressed={activeCategory === filter}
           aria-label={`Filter by ${label}`}
         >
           {label}
