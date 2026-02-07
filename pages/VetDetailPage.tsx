@@ -57,7 +57,7 @@ const VetDetailPage: React.FC = () => {
   if (!vet) {
     return (
       <main className="text-center py-16 sm:py-20 animate-fade-in container mx-auto px-4 sm:px-6">
-        <div className="glass-card p-8 sm:p-12">
+        <div className="glass-card-ios p-8 sm:p-12">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
             Veterinarian not found!
           </h1>
@@ -104,7 +104,7 @@ const VetDetailPage: React.FC = () => {
       />
       <div className="max-w-4xl mx-auto">
         {/* Header section */}
-        <header className="glass-card p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 sm:gap-8">
+        <header className="glass-card-ios p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 sm:gap-8">
           <img
             src={vet.imageUrl}
             alt={vet.name}
@@ -136,7 +136,7 @@ const VetDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mt-6 sm:mt-8">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
-            <section className="glass-card p-6 sm:p-8">
+            <section className="glass-card-ios p-6 sm:p-8">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-4">
                 About Dr. {vet.name.split(' ').pop()}
               </h2>
@@ -144,7 +144,7 @@ const VetDetailPage: React.FC = () => {
                 {vet.bio}
               </p>
             </section>
-            <section className="glass-card p-6 sm:p-8" aria-labelledby="services-heading">
+            <section className="glass-card-ios p-6 sm:p-8" aria-labelledby="services-heading">
               <h2
                 id="services-heading"
                 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-4"
@@ -174,7 +174,7 @@ const VetDetailPage: React.FC = () => {
                 ))}
               </ul>
             </section>
-            <section className="glass-card p-6 sm:p-8" aria-labelledby="reviews-heading">
+            <section className="glass-card-ios p-6 sm:p-8" aria-labelledby="reviews-heading">
               <h2
                 id="reviews-heading"
                 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6"
@@ -215,7 +215,7 @@ const VetDetailPage: React.FC = () => {
 
           {/* Right column */}
           <aside className="lg:col-span-1">
-            <div className="glass-card p-6 sticky top-24">
+            <div className="glass-card-ios p-6 sticky top-24">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-4 text-center">
                 Book a Consultation
               </h2>

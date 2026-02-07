@@ -98,7 +98,7 @@ const AdoptPage: React.FC = () => {
         </header>
 
         {/* Quiz CTA Section */}
-        <div className="max-w-4xl mx-auto mb-16 animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <div className="max-w-4xl mx-auto mb-16 animate-fade-in animation-delay-200">
           <div className="glass-card-ios p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
             {/* Background Gradient Blob */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200 dark:bg-orange-800 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/4 group-hover:scale-110 transition-transform duration-700"></div>
@@ -122,7 +122,12 @@ const AdoptPage: React.FC = () => {
             >
               <span>Take the Quiz</span>
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
               </svg>
             </a>
           </div>
@@ -147,9 +152,8 @@ const AdoptPage: React.FC = () => {
                   transform transition-all duration-500 ease-out cursor-pointer
                   ${isClicked ? 'scale-95 opacity-70' : isHovered ? 'scale-105 -translate-y-2' : 'scale-100'}
                   active:scale-95 touch-manipulation
-                  animate-fade-in
+                  animate-fade-in ${index === 0 ? 'animation-delay-100' : 'animation-delay-200'}
                 `}
-                style={{ animationDelay: `${index * 150}ms` }}
                 aria-label={`${choice.name} through ${choice.partnerName}`}
               >
                 {/* Gradient Border Effect on Hover */}
@@ -232,10 +236,7 @@ const AdoptPage: React.FC = () => {
         </div>
 
         {/* Info Section */}
-        <section
-          className="glass-card-ios p-6 md:p-10 max-w-3xl mx-auto text-center animate-fade-in"
-          style={{ animationDelay: '400ms' }}
-        >
+        <section className="glass-card-ios p-6 md:p-10 max-w-3xl mx-auto text-center animate-fade-in animation-delay-400">
           <div className="flex items-center justify-center gap-3 mb-4">
             <PawIcon className="w-6 h-6 text-orange-500" />
             <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">

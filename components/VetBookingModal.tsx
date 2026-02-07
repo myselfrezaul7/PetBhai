@@ -46,7 +46,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
       onClick={handleClose}
     >
       <div
-        className="glass-card w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="glass-card-ios w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-8">

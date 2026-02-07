@@ -59,7 +59,7 @@ const AnimalDetailPage: React.FC = () => {
   if (!animal) {
     return (
       <main className="text-center py-16 sm:py-20 animate-fade-in container mx-auto px-4 sm:px-6">
-        <div className="glass-card p-8 sm:p-12">
+        <div className="glass-card-ios p-8 sm:p-12">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
             Animal not found!
           </h1>
@@ -79,7 +79,7 @@ const AnimalDetailPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
-      <article className="glass-card overflow-hidden md:flex">
+      <article className="glass-card-ios overflow-hidden md:flex">
         <figure className="md:w-1/2">
           <img
             src={animal.imageUrl}
@@ -110,7 +110,7 @@ const AnimalDetailPage: React.FC = () => {
                 &bull;
               </span>
               <span
-                className={`px-2 py-0.5 text-xs sm:text-sm rounded-full ${animal.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                className={`px-2.5 py-1 text-xs sm:text-sm rounded-full ${animal.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
               >
                 {animal.status}
               </span>
@@ -138,7 +138,8 @@ const AnimalDetailPage: React.FC = () => {
                           : 'bg-transparent border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-red-500/10 hover:border-red-500/20'
                       }`}
               aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              aria-pressed={isFavorited}
+              aria-pressed="false"
+              data-pressed={isFavorited}
             >
               <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </button>

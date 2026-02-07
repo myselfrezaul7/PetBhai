@@ -303,7 +303,8 @@ export const ShareDropdown: React.FC<Omit<ShareButtonsProps, 'showLabel'>> = (pr
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
         aria-label="Share"
-        aria-expanded={isOpen ? 'true' : 'false'}
+        aria-expanded={isOpen}
+        data-expanded={isOpen}
         aria-haspopup="true"
       >
         <svg

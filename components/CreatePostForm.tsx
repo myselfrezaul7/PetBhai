@@ -186,7 +186,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
   const isNearLimit = remainingChars < 200;
 
   return (
-    <div className="glass-card p-4 sm:p-6 mb-6 sm:mb-8">
+    <div className="glass-card-ios p-4 sm:p-6 mb-6 sm:mb-8">
       <form onSubmit={handleSubmit}>
         <div className="flex items-start space-x-3 sm:space-x-4">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden">

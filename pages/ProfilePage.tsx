@@ -199,8 +199,7 @@ const ProfilePage: React.FC = () => {
     <button
       onClick={() => handleTabChange(tabId)}
       className={`px-3 sm:px-4 py-2 font-semibold rounded-t-lg transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap touch-manipulation active:scale-95 ${activeTab === tabId ? 'bg-white/30 dark:bg-slate-800/30 border-b-2 border-orange-500 text-orange-600 dark:text-orange-400' : 'text-slate-600 dark:text-slate-300 hover:text-orange-500'}`}
-      aria-selected={activeTab === tabId ? 'true' : 'false'}
-      role="tab"
+      data-selected={activeTab === tabId}
       tabIndex={activeTab === tabId ? 0 : -1}
     >
       {children}
@@ -210,7 +209,7 @@ const ProfilePage: React.FC = () => {
   return (
     <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
       <div className="max-w-4xl mx-auto">
-        <div className="glass-card p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="glass-card-ios p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-4 sm:space-y-0 sm:space-x-6">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-orange-200 dark:ring-orange-500/30">
               {currentUser.profilePictureUrl ? (
@@ -249,10 +248,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <div
-          className="border-b border-slate-300/50 dark:border-slate-600/50 mb-4 sm:mb-6 flex overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
-          role="tablist"
-        >
+        <div className="glass-card-ios p-2 sm:p-3 mb-4 sm:mb-6 flex overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           <TabButton tabId="profile">Edit Profile</TabButton>
           <TabButton tabId="vaccinations">🐾 Vaccinations</TabButton>
           <TabButton tabId="tools">✨ Tools</TabButton>
@@ -261,7 +257,7 @@ const ProfilePage: React.FC = () => {
           <TabButton tabId="reorder">Reorder</TabButton>
         </div>
 
-        <div className="glass-card p-4 sm:p-6 md:p-10" role="tabpanel">
+        <div className="glass-card-ios p-4 sm:p-6 md:p-10">
           {activeTab === 'profile' && (
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div className="flex flex-col items-center space-y-4">
@@ -333,7 +329,8 @@ const ProfilePage: React.FC = () => {
                       ? 'border-red-500 dark:border-red-400'
                       : 'border-slate-300 dark:border-slate-600'
                   }`}
-                  aria-invalid={nameError ? 'true' : 'false'}
+                  aria-invalid="false"
+                  data-invalid={Boolean(nameError)}
                   aria-describedby={nameError ? 'name-error' : undefined}
                 />
                 {nameError && (

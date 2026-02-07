@@ -38,7 +38,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   };
 
   return (
-    <div className="glass-card group overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full">
+    <div className="glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full">
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link to={`/adopt/${animal.id}`} className="block h-full">
           <img

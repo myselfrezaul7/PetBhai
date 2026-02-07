@@ -445,7 +445,7 @@ const CommunityPage: React.FC = () => {
           className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
           aria-label="Community statistics"
         >
-          <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
+          <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
             <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-500">
               {communityStats.totalPosts}
             </p>
@@ -453,7 +453,7 @@ const CommunityPage: React.FC = () => {
               Posts
             </p>
           </div>
-          <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
+          <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
             <p className="text-lg sm:text-xl md:text-2xl font-bold text-blue-500">
               {communityStats.totalComments}
             </p>
@@ -461,7 +461,7 @@ const CommunityPage: React.FC = () => {
               Comments
             </p>
           </div>
-          <div className="glass-card p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
+          <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
             <p className="text-lg sm:text-xl md:text-2xl font-bold text-pink-500">
               {communityStats.totalLikes}
             </p>
@@ -475,7 +475,7 @@ const CommunityPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:mb-8">
           {/* Trending Topics */}
           {trendingTopics.length > 0 && (
-            <div className="glass-card p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/30">
+            <div className="glass-card-ios p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/30">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
                 <span className="text-lg">🔥</span>
                 Trending Topics
@@ -496,7 +496,7 @@ const CommunityPage: React.FC = () => {
           )}
 
           {/* Leaderboard Toggle */}
-          <div className="glass-card p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-100 dark:border-yellow-800/30">
+          <div className="glass-card-ios p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-100 dark:border-yellow-800/30">
             <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
               <span className="text-lg">👑</span>
               Top Contributors
@@ -544,7 +544,7 @@ const CommunityPage: React.FC = () => {
             onClick={() => setShowLeaderboard(false)}
           >
             <div
-              className="glass-card p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+              className="glass-card-ios p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -605,7 +605,7 @@ const CommunityPage: React.FC = () => {
 
         {/* Community Guidelines */}
         <aside
-          className="glass-card p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-100 dark:border-blue-900/30"
+          className="glass-card-ios p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-100 dark:border-blue-900/30"
           aria-label="Community guidelines"
         >
           <div className="flex items-start gap-2.5 sm:gap-3">
@@ -628,7 +628,7 @@ const CommunityPage: React.FC = () => {
         {isAuthenticated ? (
           <CreatePostForm onAddPost={handleAddPost} />
         ) : (
-          <div className="glass-card p-8 mb-8 text-center bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-slate-800/50">
+          <div className="glass-card-ios p-8 mb-8 text-center bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-slate-800/50">
             <div className="flex justify-center gap-2 mb-4">
               <span className="text-3xl">🐕</span>
               <span className="text-3xl">🐈</span>
@@ -740,7 +740,7 @@ const CommunityPage: React.FC = () => {
             >
               <span className="sr-only">Loading posts...</span>
               {[1, 2, 3].map((i) => (
-                <div key={i} className="glass-card p-4 sm:p-6 animate-pulse" aria-hidden="true">
+                <div key={i} className="glass-card-ios p-4 sm:p-6 animate-pulse" aria-hidden="true">
                   <div className="flex items-center space-x-3 mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
                     <div className="flex-1">
@@ -757,7 +757,7 @@ const CommunityPage: React.FC = () => {
               ))}
             </div>
           ) : error ? (
-            <div className="glass-card p-8 text-center" role="alert">
+            <div className="glass-card-ios p-8 text-center" role="alert">
               <div className="flex justify-center mb-4">
                 <PawIcon className="w-12 h-12 text-orange-400" aria-hidden="true" />
               </div>
@@ -773,7 +773,7 @@ const CommunityPage: React.FC = () => {
               </button>
             </div>
           ) : displayedPosts.length === 0 ? (
-            <div className="glass-card p-12 text-center" role="status">
+            <div className="glass-card-ios p-12 text-center" role="status">
               <div className="flex justify-center mb-4">
                 <ChatBubbleIcon
                   className="w-12 h-12 text-slate-300 dark:text-slate-600"

@@ -21,12 +21,8 @@ const BlogPage: React.FC = () => {
   const itemsPerPage = 9;
 
   // Calculate pagination
-  const totalPages = Math.ceil(sortedArticles.length / itemsPerPage);
-  const indexOfLastArticle = currentPage * itemsPerPage;
-  const indexOfFirstArticle = indexOfLastArticle - itemsPerPage;
-
-  // Get current articles (Featured article is always separate if on first page, or maybe just part of the flow? 
-  // Let's keep the design: Featured + Grid. 
+  // Get current articles (Featured article is always separate if on first page, or maybe just part of the flow?
+  // Let's keep the design: Featured + Grid.
   // If we have a featured article (index 0), then pagination applies to the REST.
 
   const latestArticle = sortedArticles[0];
@@ -98,57 +94,60 @@ const BlogPage: React.FC = () => {
 
             {/* Pagination Controls */}
             {totalOtherPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mt-12">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                    : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+              <div className="flex justify-center mt-12">
+                <div className="glass-card-ios px-4 py-3 flex items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === 1
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
+                        : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                     }`}
-                >
-                  Previous
-                </button>
+                  >
+                    Previous
+                  </button>
 
-                {Array.from({ length: totalOtherPages }, (_, i) => i + 1)
-                  .filter(page => {
-                    // Show first, last, current, and pages around current
-                    return (
-                      page === 1 ||
-                      page === totalOtherPages ||
-                      Math.abs(page - currentPage) <= 1
-                    );
-                  })
-                  .map((page, index, array) => {
-                    // Add ellipses
-                    const showEllipsisStart = index > 0 && page - array[index - 1] > 1;
+                  {Array.from({ length: totalOtherPages }, (_, i) => i + 1)
+                    .filter((page) => {
+                      // Show first, last, current, and pages around current
+                      return (
+                        page === 1 || page === totalOtherPages || Math.abs(page - currentPage) <= 1
+                      );
+                    })
+                    .map((page, index, array) => {
+                      // Add ellipses
+                      const showEllipsisStart = index > 0 && page - array[index - 1] > 1;
 
-                    return (
-                      <React.Fragment key={page}>
-                        {showEllipsisStart && <span className="text-slate-400">...</span>}
-                        <button
-                          onClick={() => handlePageChange(page)}
-                          className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
-                            ? 'bg-orange-500 text-white shadow-md transform scale-105'
-                            : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsisStart && <span className="text-slate-400">...</span>}
+                          <button
+                            onClick={() => handlePageChange(page)}
+                            className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                              currentPage === page
+                                ? 'bg-orange-500 text-white shadow-md transform scale-105'
+                                : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                             }`}
-                        >
-                          {page}
-                        </button>
-                      </React.Fragment>
-                    );
-                  })}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
 
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalOtherPages}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalOtherPages
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                    : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalOtherPages}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === totalOtherPages
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
+                        : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                     }`}
-                >
-                  Next
-                </button>
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>

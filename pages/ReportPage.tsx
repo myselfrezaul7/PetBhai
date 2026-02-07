@@ -118,7 +118,7 @@ const ReportPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 py-8 sm:py-12 flex-grow flex items-center justify-center animate-fade-in">
-      <div className="w-full max-w-2xl glass-card p-5 sm:p-8 md:p-12">
+      <div className="w-full max-w-2xl glass-card-ios p-5 sm:p-8 md:p-12">
         <header className="text-center mb-6 sm:mb-10">
           <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 dark:text-white mb-2 sm:mb-4">
             Report a Rescue
@@ -276,7 +276,7 @@ const ReportPage: React.FC = () => {
           <div>
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white font-bold py-3 sm:py-4 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors transform hover:scale-105 active:scale-95 touch-manipulation"
+              className="w-full bg-orange-500 text-white font-bold py-3 sm:py-4 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation"
             >
               Submit Rescue Report
             </button>

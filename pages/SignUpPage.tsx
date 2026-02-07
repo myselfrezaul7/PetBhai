@@ -152,7 +152,7 @@ const SignUpPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow flex items-center justify-center animate-fade-in">
-      <div className="w-full max-w-md glass-card p-6 sm:p-8 md:p-10">
+      <div className="w-full max-w-md glass-card-ios p-6 sm:p-8 md:p-10">
         <header className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
             Join Our Community

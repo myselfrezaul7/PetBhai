@@ -67,7 +67,7 @@ const ProductDetailPage: React.FC = () => {
   if (!product) {
     return (
       <main className="text-center py-16 sm:py-20 animate-fade-in container mx-auto px-4 sm:px-6">
-        <div className="glass-card p-8 sm:p-12">
+        <div className="glass-card-ios p-8 sm:p-12">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
             Product not found!
           </h1>
@@ -203,7 +203,7 @@ const ProductDetailPage: React.FC = () => {
         availability={product.stockStatus === 'in-stock' ? 'in stock' : 'out of stock'}
         brand={brand?.name}
       />
-      <article className="glass-card overflow-hidden lg:flex">
+      <article className="glass-card-ios overflow-hidden lg:flex">
         <div className="lg:w-1/2 p-4">
           <img
             src={product.imageUrl}
@@ -285,7 +285,10 @@ const ProductDetailPage: React.FC = () => {
       </article>
 
       {/* Reviews Section */}
-      <section className="glass-card mt-8 sm:mt-12 p-6 sm:p-8" aria-labelledby="reviews-heading">
+      <section
+        className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8"
+        aria-labelledby="reviews-heading"
+      >
         <h2
           id="reviews-heading"
           className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6"

@@ -50,7 +50,7 @@ const RecentlyViewedItem: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="flex-shrink-0 w-36 sm:w-44 glass-card overflow-hidden group hover:shadow-lg transition-all duration-300"
+      className="flex-shrink-0 w-36 sm:w-44 glass-card-ios overflow-hidden group hover:shadow-lg transition-all duration-300"
     >
       <div className="relative aspect-square overflow-hidden">
         <img

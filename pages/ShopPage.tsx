@@ -171,7 +171,7 @@ const ShopPage: React.FC = () => {
         </header>
 
         {/* Filters & Sorting */}
-        <div className="glass-card p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6">
+        <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6">
           {/* Search Bar */}
           <div className="relative max-w-lg mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
@@ -293,7 +293,7 @@ const ShopPage: React.FC = () => {
             <span className="sr-only">{t('shop_loading')}</span>
           </div>
         ) : resultCount === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16 glass-card-ios">
             <p className="text-lg text-slate-600 dark:text-slate-400">{t('shop_no_results')}</p>
             <button
               onClick={() => {

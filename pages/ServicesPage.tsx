@@ -90,7 +90,7 @@ const ServicesPage: React.FC = () => {
       </header>
 
       {/* Tabs & Filters */}
-      <div className="glass-card p-3 sm:p-4 mb-8 md:mb-12">
+      <div className="glass-card-ios p-3 sm:p-4 mb-8 md:mb-12">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="border-b border-slate-300/50 dark:border-slate-600/50 w-full overflow-x-auto scrollbar-hide">
             <div
@@ -157,7 +157,7 @@ const ServicesPage: React.FC = () => {
           </button>
         </div>
       ) : isComingSoon ? (
-        <div className="text-center py-16 glass-card">
+        <div className="text-center py-16 glass-card-ios">
           <div className="text-6xl mb-6">🚧</div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-4">
             Coming Soon!
@@ -188,7 +188,7 @@ const ServicesPage: React.FC = () => {
           </div>
         </section>
       ) : (
-        <div className="text-center py-10 glass-card">
+        <div className="text-center py-10 glass-card-ios">
           <p className="text-xl text-slate-700 dark:text-slate-200 mb-4">
             No {activeTab.toLowerCase()} found for "{locationFilter}".
           </p>

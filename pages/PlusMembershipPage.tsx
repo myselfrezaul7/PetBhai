@@ -134,7 +134,7 @@ const PlusMembershipPage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {/* Benefits Section */}
           <section
-            className="glass-card p-6 sm:p-8 md:p-10 mb-8 sm:mb-12"
+            className="glass-card-ios p-6 sm:p-8 md:p-10 mb-8 sm:mb-12"
             aria-labelledby="benefits-heading"
           >
             <h2
@@ -151,7 +151,7 @@ const PlusMembershipPage: React.FC = () => {
           </section>
 
           {/* Pricing/Subscription Section */}
-          <section className="glass-card p-6 sm:p-8 md:p-10 text-center">
+          <section className="glass-card-ios p-6 sm:p-8 md:p-10 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white mb-4">
               Join Today!
             </h2>
@@ -171,7 +171,8 @@ const PlusMembershipPage: React.FC = () => {
                     ? 'border-orange-500 ring-4 ring-orange-500/20'
                     : 'border-slate-300/50 dark:border-slate-600/50 hover:border-orange-400 dark:hover:border-orange-500'
                 }`}
-                aria-pressed={selectedPlan === 'monthly' ? 'true' : 'false'}
+                aria-pressed="false"
+                data-pressed={selectedPlan === 'monthly'}
               >
                 <h3 className="text-lg sm:text-xl font-semibold text-slate-700 dark:text-slate-200">
                   Monthly
@@ -188,7 +189,8 @@ const PlusMembershipPage: React.FC = () => {
                     ? 'border-orange-500 ring-4 ring-orange-500/20'
                     : 'border-slate-300/50 dark:border-slate-600/50 hover:border-orange-400 dark:hover:border-orange-500'
                 }`}
-                aria-pressed={selectedPlan === 'yearly' ? 'true' : 'false'}
+                aria-pressed="false"
+                data-pressed={selectedPlan === 'yearly'}
               >
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                   BEST VALUE
@@ -235,7 +237,7 @@ const PlusMembershipPage: React.FC = () => {
           onClick={() => setShowWaitlistForm(false)}
         >
           <div
-            className="glass-card w-full max-w-md p-8 relative"
+            className="glass-card-ios w-full max-w-md p-8 relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button

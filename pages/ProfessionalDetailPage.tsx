@@ -7,7 +7,7 @@ const ProfessionalDetailPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow flex items-center justify-center text-center animate-fade-in">
-      <article className="glass-card p-8 sm:p-12">
+      <article className="glass-card-ios p-8 sm:p-12">
         <PawIcon
           className="w-16 h-16 sm:w-24 sm:h-24 text-orange-500 mx-auto mb-4 sm:mb-6 opacity-50"
           aria-hidden="true"

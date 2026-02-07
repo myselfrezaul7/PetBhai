@@ -14,7 +14,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className = '', animate = tr
 
 // Product card skeleton
 export const ProductCardSkeleton: React.FC = () => (
-  <div className="glass-card overflow-hidden flex flex-col h-full">
+  <div className="glass-card-ios overflow-hidden flex flex-col h-full">
     {/* Image placeholder */}
     <div className="relative aspect-[4/3] sm:aspect-square">
       <Skeleton className="w-full h-full rounded-none" />
@@ -38,7 +38,7 @@ export const ProductCardSkeleton: React.FC = () => (
 
 // Article card skeleton
 export const ArticleCardSkeleton: React.FC = () => (
-  <div className="glass-card overflow-hidden flex flex-col h-full">
+  <div className="glass-card-ios overflow-hidden flex flex-col h-full">
     <Skeleton className="w-full h-48 rounded-none" />
     <div className="p-5 flex flex-col flex-grow">
       <Skeleton className="h-3 w-1/4 mb-3" />
@@ -56,7 +56,7 @@ export const ArticleCardSkeleton: React.FC = () => (
 
 // Vet card skeleton
 export const VetCardSkeleton: React.FC = () => (
-  <div className="glass-card overflow-hidden flex flex-col h-full">
+  <div className="glass-card-ios overflow-hidden flex flex-col h-full">
     <div className="p-5 flex items-start gap-4">
       <Skeleton className="w-20 h-20 rounded-full flex-shrink-0" />
       <div className="flex-grow">
@@ -77,7 +77,7 @@ export const VetCardSkeleton: React.FC = () => (
 
 // Animal card skeleton (for adoption)
 export const AnimalCardSkeleton: React.FC = () => (
-  <div className="glass-card overflow-hidden flex flex-col h-full">
+  <div className="glass-card-ios overflow-hidden flex flex-col h-full">
     <Skeleton className="w-full aspect-square rounded-none" />
     <div className="p-4 flex flex-col flex-grow">
       <div className="flex justify-between items-start mb-2">
@@ -123,7 +123,7 @@ export const TableRowSkeleton: React.FC<{ columns?: number }> = ({ columns = 5 }
 
 // Profile skeleton
 export const ProfileSkeleton: React.FC = () => (
-  <div className="glass-card p-6">
+  <div className="glass-card-ios p-6">
     <div className="flex items-center gap-6 mb-6">
       <Skeleton className="w-24 h-24 rounded-full" />
       <div className="flex-grow">
@@ -142,7 +142,7 @@ export const ProfileSkeleton: React.FC = () => (
 
 // Order item skeleton
 export const OrderItemSkeleton: React.FC = () => (
-  <div className="glass-card p-4">
+  <div className="glass-card-ios p-4">
     <div className="flex justify-between items-center mb-4">
       <Skeleton className="h-5 w-32" />
       <Skeleton className="h-5 w-24 rounded-full" />
@@ -179,7 +179,7 @@ export const CommentSkeleton: React.FC = () => (
 
 // Post skeleton (for community page)
 export const PostSkeleton: React.FC = () => (
-  <div className="glass-card overflow-hidden">
+  <div className="glass-card-ios overflow-hidden">
     {/* Header */}
     <div className="p-4 flex items-center gap-3">
       <Skeleton className="w-12 h-12 rounded-full" />
@@ -213,13 +213,13 @@ export const PageLoadingSkeleton: React.FC<{ message?: string }> = ({ message })
       <Skeleton className="h-10 w-1/3 mx-auto mb-4" />
       <Skeleton className="h-5 w-2/3 mx-auto mb-8" />
       {/* Content sections */}
-      <div className="glass-card p-6 mb-6">
+      <div className="glass-card-ios p-6 mb-6">
         <Skeleton className="h-6 w-1/4 mb-4" />
         <Skeleton className="h-4 w-full mb-2" />
         <Skeleton className="h-4 w-full mb-2" />
         <Skeleton className="h-4 w-3/4" />
       </div>
-      <div className="glass-card p-6">
+      <div className="glass-card-ios p-6">
         <Skeleton className="h-6 w-1/4 mb-4" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Skeleton className="h-32 rounded-lg" />
@@ -284,7 +284,7 @@ export const Spinner: React.FC<{ size?: 'sm' | 'md' | 'lg'; className?: string }
 // Loading overlay for async operations
 export const LoadingOverlay: React.FC<{ message?: string }> = ({ message = 'Loading...' }) => (
   <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-    <div className="glass-card p-8 flex flex-col items-center gap-4">
+    <div className="glass-card-ios p-8 flex flex-col items-center gap-4">
       <Spinner size="lg" className="text-orange-500" />
       <p className="text-slate-700 dark:text-slate-200 font-medium">{message}</p>
     </div>

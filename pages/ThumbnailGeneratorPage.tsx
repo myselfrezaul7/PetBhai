@@ -45,7 +45,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Form Section */}
-          <div className="glass-card p-8 h-fit">
+          <div className="glass-card-ios p-8 h-fit">
             <form onSubmit={handleGenerate} className="space-y-6">
               <div>
                 <label className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2">
@@ -109,7 +109,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
           </div>
 
           {/* Preview Section */}
-          <div className="glass-card p-8 flex flex-col items-center justify-center min-h-[300px] bg-slate-100/50 dark:bg-slate-800/50 relative overflow-hidden">
+          <div className="glass-card-ios p-8 flex flex-col items-center justify-center min-h-[300px] bg-slate-100/50 dark:bg-slate-800/50 relative overflow-hidden">
             {generatedImage ? (
               <div className="w-full flex flex-col items-center animate-fade-in">
                 <div className="relative group w-full aspect-video shadow-2xl rounded-lg overflow-hidden">

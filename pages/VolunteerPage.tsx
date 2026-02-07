@@ -102,7 +102,10 @@ ${formData.experience}
             make a direct impact on the lives of animals.
           </p>
         </header>
-        <section className="glass-card p-5 sm:p-8 md:p-12" aria-label="Volunteer application form">
+        <section
+          className="glass-card-ios p-5 sm:p-8 md:p-12"
+          aria-label="Volunteer application form"
+        >
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
@@ -241,7 +244,7 @@ ${formData.experience}
             <div>
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white font-bold py-3 sm:py-4 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors transform hover:scale-105 active:scale-95 touch-manipulation"
+                className="w-full bg-orange-500 text-white font-bold py-3 sm:py-4 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation"
               >
                 Send Application via Email
               </button>

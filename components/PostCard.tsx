@@ -393,7 +393,7 @@ const PostCard: React.FC<PostCardProps> = ({
   return (
     <>
       <div
-        className={`glass-card overflow-hidden transition-all duration-300 hover:shadow-xl ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+        className={`glass-card-ios overflow-hidden transition-all duration-300 hover:shadow-xl ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <div className="p-4 sm:p-6">
           <div className="flex items-start justify-between mb-3 sm:mb-4">
@@ -534,6 +534,7 @@ const PostCard: React.FC<PostCardProps> = ({
             disabled={isLiking || !currentUser}
             aria-label={hasLikedPost ? 'Unlike post' : 'Like post'}
             aria-pressed={hasLikedPost}
+            data-pressed={hasLikedPost}
             className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation disabled:opacity-50 ${
               hasLikedPost
                 ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
@@ -552,6 +553,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={() => setShowComments(!showComments)}
             aria-expanded={showComments}
+            data-expanded={showComments}
             aria-label={`${showComments ? 'Hide' : 'Show'} comments`}
             className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation ${
               showComments

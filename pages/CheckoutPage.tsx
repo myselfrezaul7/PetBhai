@@ -249,7 +249,7 @@ const CheckoutPage: React.FC = () => {
       </header>
       <div className="flex flex-col-reverse lg:flex-row gap-8 lg:gap-12 max-w-5xl mx-auto">
         {/* Customer Form */}
-        <section className="glass-card p-5 sm:p-8 lg:w-[58%]" aria-label="Shipping and payment">
+        <section className="glass-card-ios p-5 sm:p-8 lg:w-[58%]" aria-label="Shipping and payment">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-2">
             {isAuthenticated ? 'Confirm Shipping Details' : 'Guest Checkout'}
           </h2>
@@ -301,7 +301,8 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={100}
                 autoComplete="name"
-                aria-invalid={!!formErrors.name}
+                aria-invalid={Boolean(formErrors.name)}
+                data-invalid={Boolean(formErrors.name)}
                 aria-describedby={formErrors.name ? 'name-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.name
@@ -332,7 +333,8 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={20}
                 autoComplete="tel"
-                aria-invalid={!!formErrors.phone}
+                aria-invalid={Boolean(formErrors.phone)}
+                data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.phone
@@ -363,7 +365,8 @@ const CheckoutPage: React.FC = () => {
                 maxLength={500}
                 autoComplete="street-address"
                 placeholder="e.g. House No, Road No, Area, District"
-                aria-invalid={!!formErrors.address}
+                aria-invalid={Boolean(formErrors.address)}
+                data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation resize-none ${
                   formErrors.address
@@ -395,7 +398,8 @@ const CheckoutPage: React.FC = () => {
                 onBlur={handleInputBlur}
                 maxLength={255}
                 autoComplete="email"
-                aria-invalid={!!formErrors.email}
+                aria-invalid={Boolean(formErrors.email)}
+                data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.email
@@ -512,7 +516,10 @@ const CheckoutPage: React.FC = () => {
         </section>
 
         {/* Order Summary */}
-        <aside className="glass-card p-5 sm:p-8 h-fit lg:w-[42%]" aria-label="Order summary">
+        <aside
+          className="glass-card-ios p-5 sm:p-8 h-fit lg:w-[42%] lg:sticky lg:top-24"
+          aria-label="Order summary"
+        >
           <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6">
             Order Summary
           </h2>

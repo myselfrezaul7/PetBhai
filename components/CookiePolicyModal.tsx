@@ -18,7 +18,7 @@ const CookiePolicyModal: React.FC<CookiePolicyModalProps> = ({ isOpen, onClose }
       aria-labelledby="cookie-policy-title"
     >
       <div
-        className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="glass-card-ios w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-8">

@@ -185,7 +185,7 @@ const AIAssistantPage: React.FC = () => {
       </div>
 
       {isWarningVisible && (
-        <div className="animate-fade-in glass-card p-4 mb-4 flex items-start space-x-4 bg-orange-100/50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-500/30">
+        <div className="animate-fade-in glass-card-ios p-4 mb-4 flex items-start space-x-4 bg-orange-100/50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-500/30">
           <div className="flex-shrink-0 text-orange-500 mt-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -220,7 +220,7 @@ const AIAssistantPage: React.FC = () => {
         </div>
       )}
 
-      <div className="glass-card flex-grow flex flex-col overflow-hidden">
+      <div className="glass-card-ios flex-grow flex flex-col overflow-hidden">
         {!aiAvailable && (
           <div className="mb-4 p-3 rounded-md bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-100">
             <strong>AI Assistant is unavailable for this deployment.</strong> The AI feature

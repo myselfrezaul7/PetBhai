@@ -17,9 +17,13 @@ const FAQItem: React.FC<FAQItemProps> = memo(({ question, answer, isOpen, onClic
         onClick={onClick}
         className="w-full flex justify-between items-center text-left py-4 sm:py-5 px-4 sm:px-6 touch-manipulation active:bg-slate-100/50 dark:active:bg-slate-700/50 transition-colors"
         aria-expanded={isOpen}
+        data-expanded={isOpen}
         aria-controls={id}
       >
-        <h3 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-white pr-4">
+        <h3
+          id={`faq-question-${id}`}
+          className="text-base sm:text-lg font-semibold text-slate-800 dark:text-white pr-4"
+        >
           {question}
         </h3>
         <span
@@ -147,7 +151,10 @@ const FAQPage: React.FC = () => {
           and how you can help.
         </p>
       </header>
-      <section className="max-w-3xl mx-auto glass-card overflow-hidden" aria-label="FAQ accordion">
+      <section
+        className="max-w-3xl mx-auto glass-card-ios overflow-hidden"
+        aria-label="FAQ accordion"
+      >
         {faqs.map((faq, index) => (
           <FAQItem
             key={faq.id}

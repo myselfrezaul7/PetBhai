@@ -105,7 +105,7 @@ const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose, onAdd }) => 
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="glass-card p-6 w-full max-w-md animate-scale-in">
+      <div className="glass-card-ios p-6 w-full max-w-md animate-scale-in">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">Add Your Pet</h3>
           <button
@@ -277,7 +277,7 @@ const AddVaccinationModal: React.FC<AddVaccinationModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="glass-card p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in">
+      <div className="glass-card-ios p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">
             Add Vaccination Record
@@ -457,7 +457,7 @@ const VaccinationReminder: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="glass-card p-6 text-center">
+      <div className="glass-card-ios p-6 text-center">
         <SyringeIcon className="w-16 h-16 mx-auto text-orange-500 mb-4" />
         <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
           Vaccination Reminders
@@ -682,7 +682,7 @@ const VaccinationReminder: React.FC = () => {
           {pets.map((pet) => {
             const petVaccinations = getPetVaccinations(pet.id);
             return (
-              <div key={pet.id} className="glass-card p-4">
+              <div key={pet.id} className="glass-card-ios p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span className="text-4xl">{PET_TYPE_LABELS[pet.type].emoji}</span>

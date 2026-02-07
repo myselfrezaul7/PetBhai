@@ -308,7 +308,7 @@ const DeliveryAreaChecker: React.FC<DeliveryAreaCheckerProps> = ({
   }
 
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card-ios p-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
           <TruckIcon className="w-6 h-6 text-orange-500" />

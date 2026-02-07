@@ -66,7 +66,7 @@ Please contact the customer to confirm the booking.
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4">
+    <div className="min-h-screen app-shell py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-10">
           <h1 className="text-4xl font-bold text-slate-800 dark:text-white mb-2">
@@ -77,14 +77,14 @@ Please contact the customer to confirm the booking.
           </p>
         </header>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="flex border-b border-slate-200 dark:border-slate-700">
+        <div className="glass-card-ios overflow-hidden">
+          <div className="flex border-b border-white/30 dark:border-white/10 bg-white/40 dark:bg-slate-900/30">
             <button
               onClick={() => setActiveTab('transport')}
               className={`flex-1 py-4 text-center font-bold text-lg transition-colors ${
                 activeTab === 'transport'
                   ? 'bg-orange-500 text-white'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
               }`}
             >
               🚚 Pet Taxi & Transport
@@ -94,7 +94,7 @@ Please contact the customer to confirm the booking.
               className={`flex-1 py-4 text-center font-bold text-lg transition-colors ${
                 activeTab === 'photography'
                   ? 'bg-pink-500 text-white'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
               }`}
             >
               📸 Pet Photography
@@ -134,7 +134,7 @@ Please contact the customer to confirm the booking.
                         required
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
@@ -145,14 +145,14 @@ Please contact the customer to confirm the booking.
                         type="email"
                         name="email"
                         placeholder="your@email.com"
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-bold mb-1">Pickup Location</label>
                       <select
                         name="pickupLocation"
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       >
                         {BANGLADESH_DISTRICTS.map((d) => (
                           <option key={d}>{d}</option>
@@ -163,7 +163,7 @@ Please contact the customer to confirm the booking.
                       <label className="block text-sm font-bold mb-1">Destination Type</label>
                       <select
                         name="destinationType"
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       >
                         <option>Veterinary Clinic</option>
                         <option>Boarding Center</option>
@@ -178,13 +178,13 @@ Please contact the customer to confirm the booking.
                         type="datetime-local"
                         name="datetime"
                         required
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg transition-colors"
+                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg transition-colors touch-manipulation active:scale-95"
                     >
                       {isSubmitting ? 'Sending...' : 'Book Pet Taxi'}
                     </button>
@@ -219,7 +219,7 @@ Please contact the customer to confirm the booking.
                         required
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
@@ -230,13 +230,13 @@ Please contact the customer to confirm the booking.
                         type="email"
                         name="email"
                         placeholder="your@email.com"
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-bold mb-1">Package Type</label>
                       <div className="space-y-2">
-                        <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700">
+                        <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-white/60 dark:hover:bg-slate-800/60">
                           <input
                             type="radio"
                             name="package"
@@ -285,13 +285,13 @@ Please contact the customer to confirm the booking.
                         type="date"
                         name="date"
                         required
-                        className="w-full p-2 rounded border dark:bg-slate-700 dark:border-slate-600"
+                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg transition-colors"
+                      className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg transition-colors touch-manipulation active:scale-95"
                     >
                       {isSubmitting ? 'Sending...' : 'Book Photoshoot'}
                     </button>
