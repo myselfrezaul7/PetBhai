@@ -1,11 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useVets } from '../contexts/VetContext';
-import VetCard from '../components/VetCard';
-import type { ServiceType, VetAvailability } from '../types';
+import React from 'react';
 import { PawIcon } from '../components/icons';
-
-type ServiceFilter = 'all' | ServiceType;
-type AvailabilityFilter = 'all' | VetAvailability;
 
 const ConsultVetPage: React.FC = () => {
   return (
@@ -23,8 +17,8 @@ const ConsultVetPage: React.FC = () => {
           Coming Soon
         </h2>
         <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-lg mx-auto">
-          Get expert veterinary advice from the comfort of your home.
-          Our video consultation platform is almost ready!
+          Get expert veterinary advice from the comfort of your home. Our video consultation
+          platform is almost ready!
         </p>
         <div className="inline-flex items-center px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-sm">
           <span className="w-2 h-2 rounded-full bg-blue-500 mr-2 animate-pulse"></span>

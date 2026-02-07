@@ -13,8 +13,20 @@ const SERVICE_TABS: ServiceTab[] = ['Vets', 'Groomers', 'Trainers', 'Sitters'];
 
 // Memoized tab button component
 const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => void }>(
-  ({ label, isActive, onClick }) => (
-    <li role="presentation">
+  ({ label, isActive, onClick }) => {
+    const labelContent =
+      label === 'Vets' ? (
+        <span className="flex items-center gap-2">
+          <span>{label}</span>
+          <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
+            Coming Soon
+          </span>
+        </span>
+      ) : (
+        label
+      );
+
+    return (
       <button
         onClick={onClick}
         className={`px-3 sm:px-4 py-2 sm:py-3 font-bold text-sm sm:text-lg rounded-t-lg transition-all duration-200 border-b-4 whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
@@ -22,15 +34,11 @@ const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => vo
             ? 'border-orange-500 text-orange-600 dark:text-orange-400'
             : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
         }`}
-        aria-selected={isActive}
-        role="tab"
-        tabIndex={isActive ? 0 : -1}
-        aria-controls={`${label.toLowerCase()}-panel`}
       >
-        {label}
+        {labelContent}
       </button>
-    </li>
-  )
+    );
+  }
 );
 
 TabButton.displayName = 'TabButton';
@@ -85,9 +93,8 @@ const ServicesPage: React.FC = () => {
       <div className="glass-card p-3 sm:p-4 mb-8 md:mb-12">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="border-b border-slate-300/50 dark:border-slate-600/50 w-full overflow-x-auto scrollbar-hide">
-            <ul
-              className="flex space-x-1 sm:space-x-2 min-w-max pb-px list-none m-0 p-0"
-              role="tablist"
+            <div
+              className="flex space-x-1 sm:space-x-2 min-w-max pb-px"
               aria-label="Service categories"
             >
               {SERVICE_TABS.map((tab) => (
@@ -98,7 +105,7 @@ const ServicesPage: React.FC = () => {
                   onClick={() => handleTabChange(tab)}
                 />
               ))}
-            </ul>
+            </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
             <label
