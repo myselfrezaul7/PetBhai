@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
-// reCAPTCHA Site Key - stored in environment variable for security
+// reCAPTCHA v2 Site Key - stored in environment variable for security
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '';
 
 // Declare global grecaptcha type
@@ -105,7 +105,7 @@ export const ReCaptcha: React.FC<ReCaptchaProps> = ({
         size,
       });
       setIsLoading(false);
-    } catch (err) {
+    } catch {
       setError('Failed to render reCAPTCHA');
       setIsLoading(false);
     }
@@ -132,13 +132,6 @@ export const ReCaptcha: React.FC<ReCaptchaProps> = ({
       }
     };
   }, [renderWidget]);
-
-  // Reset method exposed for external use
-  const reset = useCallback(() => {
-    if (widgetIdRef.current !== null && window.grecaptcha) {
-      window.grecaptcha.reset(widgetIdRef.current);
-    }
-  }, []);
 
   if (error) {
     return (

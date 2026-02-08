@@ -125,36 +125,42 @@ const HomePage: React.FC = () => {
 
       {/* Shop by Brand Section */}
       <section
-        className="py-8 md:py-16 animate-fade-in animation-delay-300"
+        className="py-8 md:py-16 bg-gray-100 dark:bg-slate-800/50 animate-fade-in animation-delay-300"
         aria-labelledby="brands-heading"
       >
         <div className="container mx-auto px-4 md:px-6 text-center">
           <h2
             id="brands-heading"
-            className="text-sm sm:text-lg md:text-2xl font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 md:mb-10"
+            className="text-lg sm:text-xl md:text-3xl font-extrabold text-slate-800 dark:text-white uppercase tracking-wider mb-2 md:mb-3"
           >
             {t('section_brands')}
           </h2>
+          <div className="w-12 h-1 bg-blue-600 mx-auto mb-6 md:mb-10 rounded-full" />
           <nav
-            className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-12 opacity-80 hover:opacity-100 transition-opacity"
+            className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 sm:gap-4 md:gap-5"
             aria-label="Shop by brand"
           >
-            {brands.map((brand) => (
-              <Link
-                key={brand.id}
-                to="/shop"
-                state={{ brand: brand.name }}
-                className="grayscale hover:grayscale-0 transition-all duration-300 transform hover:scale-110 active:scale-95 touch-manipulation"
-                aria-label={`Shop ${brand.name} products`}
-              >
-                <img
-                  src={brand.logoUrl}
-                  alt={brand.name}
-                  className="h-6 sm:h-8 md:h-14 w-auto object-contain"
-                  loading="lazy"
-                />
-              </Link>
-            ))}
+            {brands
+              .filter((b) => ![8, 11, 12, 13, 16].includes(b.id))
+              .map((brand) => (
+                <Link
+                  key={brand.id}
+                  to="/shop"
+                  state={{ brand: brand.name }}
+                  className="group flex flex-col items-center justify-center bg-white dark:bg-slate-700 rounded-lg p-2 sm:p-3 md:p-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation"
+                  aria-label={`Shop ${brand.name} products`}
+                >
+                  <img
+                    src={brand.logoUrl}
+                    alt={brand.name}
+                    className="h-7 sm:h-9 md:h-11 w-auto max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                    loading="lazy"
+                  />
+                  <span className="mt-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate max-w-full">
+                    {brand.name}
+                  </span>
+                </Link>
+              ))}
           </nav>
         </div>
       </section>

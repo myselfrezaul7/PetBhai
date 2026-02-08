@@ -108,7 +108,7 @@ const ServicesPage: React.FC = () => {
         </div>
       </div>
 
-      {isComingSoon ? (
+      {isComingSoon && (
         <div className="text-center py-16 glass-card-ios">
           <div className="text-6xl mb-6">🚧</div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-4">

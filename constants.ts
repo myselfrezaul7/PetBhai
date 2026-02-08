@@ -12,69 +12,181 @@ import type {
 } from './types';
 
 export const MOCK_BRANDS: Brand[] = [
-  { id: 1, name: 'Royal Canin', logoUrl: 'https://placehold.co/200x200?text=Royal+Canin' },
-  { id: 2, name: 'Pedigree', logoUrl: 'https://placehold.co/200x200?text=Pedigree' },
-  { id: 3, name: 'Drools', logoUrl: 'https://placehold.co/200x200?text=Drools' },
-  { id: 4, name: 'Me-O', logoUrl: 'https://placehold.co/200x200?text=Me-O' },
+  // Row 1
   {
-    id: 5,
-    name: 'Whiskas',
-    logoUrl: 'https://placehold.co/200x200?text=Whiskas',
-  },
-  {
-    id: 6,
-    name: 'SmartHeart',
-    logoUrl: 'https://placehold.co/200x200?text=SmartHeart',
+    id: 3,
+    name: 'Drools',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/1a3a8f?text=drools&font=montserrat',
   },
   {
     id: 7,
     name: 'Lara',
-    logoUrl: 'https://placehold.co/200x200?text=Lara',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/e3232c?text=Lara&font=montserrat',
   },
   {
-    id: 8,
-    name: 'Kaniva',
-    logoUrl: 'https://placehold.co/200x200?text=Kaniva',
+    id: 4,
+    name: 'Me-O',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/e8642c?text=Me-O&font=montserrat',
   },
   {
     id: 9,
     name: 'Reflex Plus',
-    logoUrl: 'https://placehold.co/200x200?text=Reflex+Plus',
-  },
-  {
-    id: 10,
-    name: 'Spectrum',
-    logoUrl: 'https://placehold.co/200x200?text=Spectrum',
-  },
-  {
-    id: 11,
-    name: 'Trendline',
-    logoUrl: 'https://placehold.co/200x200?text=Trendline',
-  },
-  {
-    id: 12,
-    name: 'Harvest Luck',
-    logoUrl: 'https://placehold.co/200x200?text=Harvest+Luck',
-  },
-  {
-    id: 13,
-    name: 'Bonnie',
-    logoUrl: 'https://placehold.co/200x200?text=Bonnie',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/4a9f3f?text=Reflex&font=montserrat',
   },
   {
     id: 14,
     name: 'Reflex',
-    logoUrl: 'https://placehold.co/200x200?text=Reflex',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/c83232?text=Reflex&font=montserrat',
+  },
+  {
+    id: 1,
+    name: 'Royal Canin',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/e3000b?text=Royal+Canin&font=montserrat',
+  },
+  {
+    id: 6,
+    name: 'SmartHeart',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/d41920?text=SmartHeart&font=montserrat',
+  },
+  // Row 2
+  {
+    id: 17,
+    name: 'Versele-Laga',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/006838?text=Versele-Laga&font=montserrat',
+  },
+  {
+    id: 5,
+    name: 'Whiskas',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/5b2d8e?text=Whiskas&font=montserrat',
+  },
+  {
+    id: 18,
+    name: 'BonaCibo',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/c41230?text=BonaCibo&font=montserrat',
+  },
+  {
+    id: 19,
+    name: 'Bunny',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/f7941e?text=Bunny&font=montserrat',
+  },
+  {
+    id: 20,
+    name: 'Classic Pets',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/2e6930?text=Classic+Pets&font=montserrat',
+  },
+  {
+    id: 21,
+    name: 'Friskies',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/cc0000?text=Friskies&font=montserrat',
+  },
+  {
+    id: 22,
+    name: 'Golden Kat Litter',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/c8a415?text=Golden+Kat&font=montserrat',
+  },
+  // Row 3
+  {
+    id: 23,
+    name: 'Goodies',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/1a1a1a?text=Goodies&font=montserrat',
   },
   {
     id: 15,
     name: 'JerHigh',
-    logoUrl: 'https://placehold.co/200x200?text=JerHigh',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/e31e24?text=JerHigh&font=montserrat',
+  },
+  {
+    id: 24,
+    name: 'Lazy Lady',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/666666?text=Lazy+Lady&font=montserrat',
+  },
+  {
+    id: 25,
+    name: 'Meat Up',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/1a1a1a?text=Meat+Up&font=montserrat',
+  },
+  {
+    id: 26,
+    name: 'Inaba',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/d41920?text=Inaba&font=montserrat',
+  },
+  {
+    id: 27,
+    name: 'Micho',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/8dc63f?text=micho&font=montserrat',
+  },
+  {
+    id: 28,
+    name: 'Nekko',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/1a1a1a?text=Nekko&font=montserrat',
+  },
+  // Row 4
+  {
+    id: 29,
+    name: 'Paws',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/00b0c8?text=PAWS&font=montserrat',
+  },
+  {
+    id: 2,
+    name: 'Pedigree',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/ffc107?text=Pedigree&font=montserrat',
+  },
+  {
+    id: 30,
+    name: 'ProDiet',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/1a1a1a?text=ProDiet&font=montserrat',
+  },
+  {
+    id: 31,
+    name: 'Purina',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/cc0000?text=Purina&font=montserrat',
+  },
+  {
+    id: 32,
+    name: 'Sheba',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/c89632?text=Sheba&font=montserrat',
+  },
+  {
+    id: 10,
+    name: 'Spectrum',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/333333?text=SPECTRUM&font=montserrat',
+  },
+  {
+    id: 33,
+    name: 'Temptations',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/f5a623?text=Temptations&font=montserrat',
+  },
+  // Row 5
+  {
+    id: 34,
+    name: 'Toro Toro',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/0088cc?text=Toro+Toro&font=montserrat',
+  },
+  // Hidden brands (kept for backward compatibility with existing products)
+  {
+    id: 8,
+    name: 'Kaniva',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/333333?text=Kaniva&font=montserrat',
+  },
+  {
+    id: 11,
+    name: 'Trendline',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/333333?text=Trendline&font=montserrat',
+  },
+  {
+    id: 12,
+    name: 'Harvest Luck',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/333333?text=Harvest+Luck&font=montserrat',
+  },
+  {
+    id: 13,
+    name: 'Bonnie',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/333333?text=Bonnie&font=montserrat',
   },
   {
     id: 16,
     name: 'PetBhai Essentials',
-    logoUrl: 'https://placehold.co/200x200?text=PetBhai+Essentials',
+    logoUrl: 'https://placehold.co/200x100/FFFFFF/333333?text=PetBhai+Essentials&font=montserrat',
   },
 ];
 
