@@ -136,11 +136,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
             )}
           </div>
           {product.rating > 0 && (
-            <div className="flex items-center space-x-0.5 sm:space-x-1 bg-yellow-100 dark:bg-yellow-900/30 px-1 sm:px-2 py-0.5 rounded-md">
-              <span className="text-yellow-500 text-[10px] sm:text-sm">★</span>
-              <span className="font-bold text-slate-700 dark:text-slate-200 text-[10px] sm:text-sm tabular-nums">
-                {product.rating.toFixed(1)}
-              </span>
+            <div className="flex flex-col items-end gap-0.5">
+              <div className="flex items-center space-x-0.5 sm:space-x-1 bg-yellow-100 dark:bg-yellow-900/30 px-1.5 sm:px-2 py-0.5 rounded-md">
+                <span className="flex items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={`text-[8px] sm:text-xs ${
+                        star <= Math.round(product.rating)
+                          ? 'text-yellow-500'
+                          : 'text-slate-300 dark:text-slate-600'
+                      }`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </span>
+                <span className="font-bold text-slate-700 dark:text-slate-200 text-[10px] sm:text-sm tabular-nums">
+                  {product.rating.toFixed(1)}
+                </span>
+              </div>
+              {product.reviews && product.reviews.length > 0 && (
+                <span className="text-[8px] sm:text-[10px] text-slate-400 dark:text-slate-500 tabular-nums">
+                  ({product.reviews.length} {product.reviews.length === 1 ? 'review' : 'reviews'})
+                </span>
+              )}
             </div>
           )}
         </div>

@@ -15,8 +15,9 @@ type CategoryFilter =
   | 'Cat Food'
   | 'Dog Supplies'
   | 'Cat Supplies'
-  | 'Grooming';
-type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating-desc';
+  | 'Grooming'
+  | 'Accessories';
+type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating-desc' | 'top-sold';
 
 // Category options for DRY principle
 const CATEGORY_OPTIONS: CategoryFilter[] = [
@@ -26,7 +27,11 @@ const CATEGORY_OPTIONS: CategoryFilter[] = [
   'Dog Supplies',
   'Cat Supplies',
   'Grooming',
+  'Accessories',
 ];
+
+const PRICE_MIN = 10;
+const PRICE_MAX = 20000;
 
 const ShopPage: React.FC = () => {
   const { t } = useLanguage();
@@ -36,11 +41,41 @@ const ShopPage: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Advanced filter states
+  const [priceRange, setPriceRange] = useState<[number, number]>([PRICE_MIN, PRICE_MAX]);
+  const [activeWeight, setActiveWeight] = useState<string>('All');
+  const [minRating, setMinRating] = useState<number>(0);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { products: allProducts, loading } = useProducts();
   const { brands } = useBrands();
+
+  // Extract unique weight values from products
+  const weightOptions = useMemo(() => {
+    const weights = new Set(allProducts.map((p) => p.weight).filter(Boolean));
+    return Array.from(weights).sort((a, b) => {
+      // Try to parse numeric part for sorting
+      const numA = parseFloat(a);
+      const numB = parseFloat(b);
+      if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      return a.localeCompare(b);
+    });
+  }, [allProducts]);
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (activeCategory !== 'All') count++;
+    if (activeBrand !== 'All') count++;
+    if (activeWeight !== 'All') count++;
+    if (priceRange[0] > PRICE_MIN || priceRange[1] < PRICE_MAX) count++;
+    if (minRating > 0) count++;
+    if (searchQuery.trim() !== '') count++;
+    return count;
+  }, [activeCategory, activeBrand, activeWeight, priceRange, minRating, searchQuery]);
 
   // Reset brand filter when coming from external navigation
   useEffect(() => {
@@ -104,7 +139,22 @@ const ShopPage: React.FC = () => {
       }
     }
 
-    // 4. Sort - use stable sort for consistent results
+    // 4. Filter by price range
+    if (priceRange[0] > PRICE_MIN || priceRange[1] < PRICE_MAX) {
+      products = products.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    }
+
+    // 5. Filter by weight/size
+    if (activeWeight !== 'All') {
+      products = products.filter((p) => p.weight === activeWeight);
+    }
+
+    // 6. Filter by minimum rating
+    if (minRating > 0) {
+      products = products.filter((p) => p.rating >= minRating);
+    }
+
+    // 7. Sort - use stable sort for consistent results
     switch (sortOption) {
       case 'price-asc':
         products.sort((a, b) => a.price - b.price);
@@ -115,13 +165,30 @@ const ShopPage: React.FC = () => {
       case 'rating-desc':
         products.sort((a, b) => b.rating - a.rating);
         break;
+      case 'top-sold':
+        // Sort by review count (proxy for sales) then by rating
+        products.sort((a, b) => {
+          const soldDiff = (b.reviews?.length || 0) - (a.reviews?.length || 0);
+          return soldDiff !== 0 ? soldDiff : b.rating - a.rating;
+        });
+        break;
       default:
-        // Default sort (e.g., by ID or as is)
         break;
     }
 
     return products;
-  }, [activeCategory, activeBrand, sortOption, searchQuery, allProducts, brands, loading]);
+  }, [
+    activeCategory,
+    activeBrand,
+    sortOption,
+    searchQuery,
+    allProducts,
+    brands,
+    loading,
+    priceRange,
+    activeWeight,
+    minRating,
+  ]);
 
   // Memoized category button component
   const CategoryFilterButton: React.FC<{ filter: CategoryFilter }> = useCallback(
@@ -134,6 +201,7 @@ const ShopPage: React.FC = () => {
           'Dog Supplies': t('cat_dog_supplies'),
           'Cat Supplies': t('cat_cat_supplies'),
           Grooming: t('cat_grooming'),
+          Accessories: 'Accessories',
         }[filter] || filter;
 
       return (
@@ -202,7 +270,7 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Brand & Sort Filters */}
+          {/* Brand, Sort & Advanced Filters Toggle */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
               <label
@@ -258,6 +326,7 @@ const ShopPage: React.FC = () => {
                   <option value="price-asc">{t('filter_sort_price_asc')}</option>
                   <option value="price-desc">{t('filter_sort_price_desc')}</option>
                   <option value="rating-desc">{t('filter_sort_rating')}</option>
+                  <option value="top-sold">{t('filter_sort_top_sold')}</option>
                 </select>
                 <div
                   className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700 dark:text-slate-300"
@@ -274,7 +343,236 @@ const ShopPage: React.FC = () => {
                 </div>
               </div>
             </div>
+            {/* Advanced Filters Toggle */}
+            <button
+              onClick={() => setShowAdvancedFilters((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 touch-manipulation active:scale-95 ${
+                showAdvancedFilters || activeFiltersCount > 0
+                  ? 'bg-orange-500 text-white shadow-lg'
+                  : 'bg-white/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-200 hover:bg-orange-100/50 dark:hover:bg-slate-600/50'
+              }`}
+              aria-expanded={showAdvancedFilters ? 'true' : 'false'}
+              aria-controls="advanced-filters"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                />
+              </svg>
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="bg-white text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
           </div>
+
+          {/* Advanced Filters Panel */}
+          <div
+            id="advanced-filters"
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${
+              showAdvancedFilters ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700/50 space-y-5">
+              {/* Price Range Slider */}
+              <div className="space-y-3">
+                <label className="font-semibold text-slate-700 dark:text-slate-200 text-sm flex items-center gap-2">
+                  {t('filter_price_range')}
+                  <span className="text-orange-500 font-bold tabular-nums">
+                    ৳{priceRange[0].toLocaleString('en-BD')} – ৳
+                    {priceRange[1].toLocaleString('en-BD')}
+                  </span>
+                </label>
+                <div className="flex items-center gap-3 sm:gap-4 max-w-xl">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
+                    ৳{PRICE_MIN}
+                  </span>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor="min-price"
+                        className="text-[10px] text-slate-500 dark:text-slate-400"
+                      >
+                        Min
+                      </label>
+                      <input
+                        id="min-price"
+                        type="range"
+                        min={PRICE_MIN}
+                        max={PRICE_MAX}
+                        step={10}
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setPriceRange((prev) => [Math.min(val, prev[1] - 10), prev[1]]);
+                        }}
+                        className="w-full h-2 bg-slate-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                        aria-label="Minimum price"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor="max-price"
+                        className="text-[10px] text-slate-500 dark:text-slate-400"
+                      >
+                        Max
+                      </label>
+                      <input
+                        id="max-price"
+                        type="range"
+                        min={PRICE_MIN}
+                        max={PRICE_MAX}
+                        step={10}
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setPriceRange((prev) => [prev[0], Math.max(val, prev[0] + 10)]);
+                        }}
+                        className="w-full h-2 bg-slate-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                        aria-label="Maximum price"
+                      />
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
+                    ৳{PRICE_MAX.toLocaleString('en-BD')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Weight/Size & Min Rating Row */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Weight/Size Filter */}
+                <div className="flex items-center gap-2 flex-1">
+                  <label
+                    htmlFor="weight-filter"
+                    className="font-semibold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap"
+                  >
+                    {t('filter_weight')}
+                  </label>
+                  <div className="relative flex-1 sm:flex-none">
+                    <select
+                      id="weight-filter"
+                      value={activeWeight}
+                      onChange={(e) => setActiveWeight(e.target.value)}
+                      className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                    >
+                      <option value="All">{t('filter_weight_all')}</option>
+                      {weightOptions.map((w) => (
+                        <option key={w} value={w}>
+                          {w}
+                        </option>
+                      ))}
+                    </select>
+                    <div
+                      className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700 dark:text-slate-300"
+                      aria-hidden="true"
+                    >
+                      <svg
+                        className="fill-current h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
+                      >
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Minimum Rating Filter */}
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="font-semibold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap">
+                    {t('filter_min_rating')}
+                  </label>
+                  <div className="flex items-center gap-1">
+                    {[0, 1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setMinRating(star)}
+                        className={`p-1 rounded transition-all duration-200 touch-manipulation active:scale-90 ${
+                          minRating === star
+                            ? 'bg-orange-100 dark:bg-orange-900/30 ring-2 ring-orange-500'
+                            : 'hover:bg-slate-100 dark:hover:bg-slate-700/50'
+                        }`}
+                        aria-label={star === 0 ? 'All ratings' : `${star} stars and up`}
+                        title={star === 0 ? 'All' : `${star}★+`}
+                      >
+                        {star === 0 ? (
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-1">
+                            {t('filter_min_rating_all')}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-0.5">
+                            <span className="text-yellow-500 text-sm">{'★'.repeat(star)}</span>
+                            <span className="text-slate-300 dark:text-slate-600 text-sm">
+                              {'★'.repeat(5 - star)}
+                            </span>
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Clear All Filters */}
+              {activeFiltersCount > 0 && (
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setActiveCategory('All');
+                      setActiveBrand('All');
+                      setActiveWeight('All');
+                      setPriceRange([PRICE_MIN, PRICE_MAX]);
+                      setMinRating(0);
+                      setSortOption('default');
+                    }}
+                    className="text-sm text-orange-500 hover:text-orange-600 font-semibold underline underline-offset-2 transition-colors touch-manipulation"
+                  >
+                    {t('shop_clear_filters')} ({activeFiltersCount})
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Visible Result Count + Active Filter Chips */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          {!loading && (
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              <span className="font-bold text-slate-700 dark:text-slate-200">{resultCount}</span>{' '}
+              {t('shop_products_found')}
+            </p>
+          )}
+          {activeFiltersCount > 0 && !showAdvancedFilters && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setActiveCategory('All');
+                setActiveBrand('All');
+                setActiveWeight('All');
+                setPriceRange([PRICE_MIN, PRICE_MAX]);
+                setMinRating(0);
+                setSortOption('default');
+              }}
+              className="text-xs text-orange-500 hover:text-orange-600 font-semibold underline underline-offset-2 transition-colors touch-manipulation"
+            >
+              {t('shop_clear_filters')} ({activeFiltersCount})
+            </button>
+          )}
         </div>
 
         {/* Results Count - Screen reader announcement */}
@@ -300,6 +598,10 @@ const ShopPage: React.FC = () => {
                 setSearchQuery('');
                 setActiveCategory('All');
                 setActiveBrand('All');
+                setActiveWeight('All');
+                setPriceRange([PRICE_MIN, PRICE_MAX]);
+                setMinRating(0);
+                setSortOption('default');
               }}
               className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
             >

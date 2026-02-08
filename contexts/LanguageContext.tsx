@@ -169,6 +169,13 @@ const translations: Translations = {
   filter_sort_price_asc: { en: 'Price: Low to High', bn: 'দাম: কম থেকে বেশি' },
   filter_sort_price_desc: { en: 'Price: High to Low', bn: 'দাম: বেশি থেকে কম' },
   filter_sort_rating: { en: 'Highest Rated', bn: 'সেরা রেটিং' },
+  filter_sort_top_sold: { en: 'Top Sold', bn: 'সর্বাধিক বিক্রিত' },
+  filter_price_range: { en: 'Price Range (BDT):', bn: 'মূল্য সীমা (টাকা):' },
+  filter_weight: { en: 'Size/Weight:', bn: 'সাইজ/ওজন:' },
+  filter_weight_all: { en: 'All Sizes', bn: 'সব সাইজ' },
+  filter_min_rating: { en: 'Min Rating:', bn: 'ন্যূনতম রেটিং:' },
+  filter_min_rating_all: { en: 'All Ratings', bn: 'সব রেটিং' },
+  filter_active_count: { en: 'Active Filters', bn: 'সক্রিয় ফিল্টার' },
   shop_products_found: { en: 'products found', bn: 'টি পণ্য পাওয়া গেছে' },
   shop_loading: { en: 'Loading products...', bn: 'পণ্য লোড হচ্ছে...' },
   shop_no_results: {
