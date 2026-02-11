@@ -44,6 +44,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
             <button
               onClick={onClose}
               className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              aria-label="Close adoption form"
             >
               <CloseIcon className="w-7 h-7" />
             </button>
@@ -67,7 +68,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     type="text"
                     id="fullName"
                     required
-                    className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
+                    className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -83,7 +84,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     pattern="(\+8801|01)[3-9]\d{8}"
                     placeholder="+8801..."
                     required
-                    className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
+                    className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -98,7 +99,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   type="email"
                   id="email"
                   required
-                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                 />
               </div>
               <div className="mt-4">
@@ -112,7 +113,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   id="address"
                   rows={3}
                   required
-                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                 ></textarea>
               </div>
             </fieldset>
@@ -127,7 +128,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   Type of Residence
                 </label>
                 <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-                  <label className="flex items-center">
+                  <label className="flex items-center text-slate-700 dark:text-slate-200">
                     <input
                       type="radio"
                       name="residence"
@@ -136,7 +137,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     />{' '}
                     Apartment
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center text-slate-700 dark:text-slate-200">
                     <input
                       type="radio"
                       name="residence"
@@ -145,7 +146,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     />{' '}
                     House
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center text-slate-700 dark:text-slate-200">
                     <input
                       type="radio"
                       name="residence"
@@ -161,7 +162,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   Do you own or rent your home?
                 </label>
                 <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-                  <label className="flex items-center">
+                  <label className="flex items-center text-slate-700 dark:text-slate-200">
                     <input
                       type="radio"
                       name="ownRent"
@@ -170,7 +171,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     />{' '}
                     Own
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center text-slate-700 dark:text-slate-200">
                     <input
                       type="radio"
                       name="ownRent"
@@ -181,7 +182,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   </label>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                 If you rent, please be prepared to show proof of landlord's permission for pets.
               </p>
             </fieldset>
@@ -203,7 +204,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   rows={4}
                   required
                   placeholder="Have you owned pets before? What kind? For how long?"
-                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                 ></textarea>
               </div>
             </fieldset>

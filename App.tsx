@@ -291,6 +291,7 @@ const AppContent: React.FC = () => {
               <Route path="/blog/:id" element={<ArticleDetailPage />} />
               <Route path="/plus-membership" element={<PlusMembershipPage />} />
               <Route path="/adopt" element={<AdoptPage />} />
+              <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
               <Route path="/adopt/:id" element={<AnimalDetailPage />} />
               <Route path="/report" element={<ReportPage />} />
               <Route path="/volunteer" element={<VolunteerPage />} />
@@ -299,7 +300,6 @@ const AppContent: React.FC = () => {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/dashboard" element={<PetDashboardPage />} />
               <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
-              <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
               <Route path="/services/booking" element={<ServicesBookingPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

@@ -110,7 +110,7 @@ const AnimalDetailPage: React.FC = () => {
                 &bull;
               </span>
               <span
-                className={`px-2.5 py-1 text-xs sm:text-sm rounded-full ${animal.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                className={`px-2.5 py-1 text-xs sm:text-sm rounded-full ${animal.status === 'Available' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300'}`}
               >
                 {animal.status}
               </span>
@@ -138,8 +138,7 @@ const AnimalDetailPage: React.FC = () => {
                           : 'bg-transparent border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-red-500/10 hover:border-red-500/20'
                       }`}
               aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              aria-pressed="false"
-              data-pressed={isFavorited}
+              aria-pressed={isFavorited ? 'true' : 'false'}
             >
               <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </button>
