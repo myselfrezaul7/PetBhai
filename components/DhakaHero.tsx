@@ -9,7 +9,7 @@ const DhakaHero: React.FC = () => {
     <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm group">
       {/* Background Image - Dhaka Atmosphere */}
       <img
-        src="/landing-hero-dhaka.png"
+        src="/landing-hero-dhaka.jpg"
         alt="2D illustration of old Dhaka – a boy and girl holding a stray kitten and puppy"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
