@@ -128,8 +128,7 @@ const AdoptPage: React.FC = () => {
 
             <Link
               to="/adopt/quiz"
-              style={{ color: '#fff', backgroundImage: 'linear-gradient(to right, #f97316, #f59e0b)' }}
-              className="flex-shrink-0 hover:from-orange-600 hover:to-amber-600 font-bold py-3.5 px-7 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2.5 z-10 text-sm md:text-base"
+              className="flex-shrink-0 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3.5 px-7 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2.5 z-10 text-sm md:text-base"
             >
               <span>Take the Quiz</span>
               <svg

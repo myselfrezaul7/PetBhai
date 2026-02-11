@@ -1,2 +1,1 @@
-/* Tailwind v4 proper import - includes preflight, theme variables, and utilities */
-@import "tailwindcss";
+/* Custom styles only - Tailwind utilities are loaded via CDN in index.html */
