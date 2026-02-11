@@ -150,10 +150,21 @@ const FAQPage: React.FC = () => {
             id: 'adoption-fee',
             question: 'Is there an adoption fee?',
             answer: (
-              <p>
-                Most adoptions have a small fee (typically ৳500–2000) that covers vaccinations,
-                deworming, and spaying/neutering. This ensures pets go to committed, loving homes.
-              </p>
+              <div>
+                <p>
+                  <strong>PetBhai does not charge any adoption fee.</strong> We believe every animal
+                  deserves a loving home, not a price tag. However, adopters are expected to:
+                </p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Keep vaccinations up to date</li>
+                  <li>Spay or neuter the adopted pet</li>
+                  <li>Provide a safe and caring environment</li>
+                </ul>
+                <p className="mt-2 font-semibold text-orange-500">
+                  We proudly promote <span className="font-black">#AdoptDontShop</span>. PetBhai
+                  does not support buying, selling, or breeding of animals.
+                </p>
+              </div>
             ),
           },
           {
@@ -303,13 +314,6 @@ const FAQPage: React.FC = () => {
           Still Have Questions?
         </h2>
         <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm sm:text-base">
-          <Link
-            to="/ai-assistant"
-            className="text-orange-500 hover:text-orange-600 font-semibold hover:underline"
-          >
-            Ask AI Assistant
-          </Link>
-          <span className="text-slate-400">•</span>
           <Link
             to="/community"
             className="text-orange-500 hover:text-orange-600 font-semibold hover:underline"

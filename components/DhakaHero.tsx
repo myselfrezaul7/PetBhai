@@ -10,7 +10,7 @@ const DhakaHero: React.FC = () => {
       {/* Background Image - Dhaka Atmosphere */}
       <img
         src="/landing-hero-dhaka.png"
-        alt="Dhaka Street Atmosphere with Strays"
+        alt="2D illustration of old Dhaka – a boy and girl holding a stray kitten and puppy"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />

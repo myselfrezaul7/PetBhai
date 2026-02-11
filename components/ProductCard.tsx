@@ -165,7 +165,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           )}
         </div>
       </div>
-      <div className="p-2 sm:p-4 mt-auto flex flex-col gap-2 border-t border-slate-200/40 dark:border-slate-700/30 bg-white/60 dark:bg-slate-800/40">
+      <div className="p-2 sm:p-4 mt-auto flex flex-col gap-2 border-t border-white/20 dark:border-white/5 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
         <button
           onClick={handleAddToCart}
           disabled={isAdding || isOutOfStock}
