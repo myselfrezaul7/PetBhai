@@ -255,7 +255,8 @@ const ProductDetailPage: React.FC = () => {
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              className="w-full bg-orange-500 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-all duration-300 flex items-center justify-center space-x-2 sm:space-x-3 disabled:bg-green-500 touch-manipulation active:scale-95"
+              style={{ color: '#fff', backgroundColor: '#f97316' }}
+              className="w-full font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-all duration-300 flex items-center justify-center space-x-2 sm:space-x-3 disabled:bg-green-500 touch-manipulation active:scale-95"
             >
               <ShoppingCartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
               <span>

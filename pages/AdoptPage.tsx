@@ -120,7 +120,7 @@ const AdoptPage: React.FC = () => {
               <h3 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">
                 Not sure if you&apos;re ready?
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-0">
+              <p className="text-slate-700 dark:text-slate-400 mb-0">
                 Take our 2-minute lifestyle quiz to find out if you&apos;re ready for a furry friend
                 and which pet suits you best!
               </p>
@@ -128,7 +128,8 @@ const AdoptPage: React.FC = () => {
 
             <Link
               to="/adopt/quiz"
-              className="flex-shrink-0 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3.5 px-7 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2.5 z-10 text-sm md:text-base"
+              style={{ color: '#fff', backgroundImage: 'linear-gradient(to right, #f97316, #f59e0b)' }}
+              className="flex-shrink-0 hover:from-orange-600 hover:to-amber-600 font-bold py-3.5 px-7 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2.5 z-10 text-sm md:text-base"
             >
               <span>Take the Quiz</span>
               <svg
