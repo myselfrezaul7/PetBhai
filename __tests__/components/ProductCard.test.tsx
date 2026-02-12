@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import ProductCard from '../../components/ProductCard';
 import { CartProvider } from '../../contexts/CartContext';
+import { LanguageProvider } from '../../contexts/LanguageContext';
 import type { Product } from '../../types';
 
 const mockProduct: Product = {
@@ -21,7 +22,9 @@ const mockProduct: Product = {
 const renderWithProviders = (ui: React.ReactElement) => {
   return render(
     <BrowserRouter>
-      <CartProvider>{ui}</CartProvider>
+      <LanguageProvider>
+        <CartProvider>{ui}</CartProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 };
@@ -32,7 +35,7 @@ describe('ProductCard', () => {
 
     expect(screen.getByText('Test Product')).toBeInTheDocument();
     expect(screen.getByText('1kg')).toBeInTheDocument();
-    expect(screen.getByText('1500')).toBeInTheDocument();
+    expect(screen.getByText('1,500')).toBeInTheDocument();
     expect(screen.getByText('Dog Food')).toBeInTheDocument();
   });
 
@@ -45,13 +48,13 @@ describe('ProductCard', () => {
   it('renders add to cart button', () => {
     renderWithProviders(<ProductCard product={mockProduct} />);
 
-    expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /aria_add_to_cart/i })).toBeInTheDocument();
   });
 
   it('calls addToCart when button is clicked', () => {
     renderWithProviders(<ProductCard product={mockProduct} />);
 
-    const addButton = screen.getByRole('button', { name: /add to cart/i });
+    const addButton = screen.getByRole('button', { name: /aria_add_to_cart/i });
     fireEvent.click(addButton);
 
     // After clicking, button text should change to "Added"

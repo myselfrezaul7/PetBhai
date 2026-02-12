@@ -48,8 +48,6 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
     <button
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       disabled={disabled || loading}
-      aria-busy={loading ? 'true' : undefined}
-      aria-disabled={disabled || loading ? 'true' : undefined}
       {...props}
     >
       {loading ? (
@@ -321,8 +319,16 @@ export const LiveRegion: React.FC<{
   message: string;
   priority?: 'polite' | 'assertive';
 }> = ({ message, priority = 'polite' }) => {
+  if (priority === 'assertive') {
+    return (
+      <div aria-live="assertive" aria-atomic="true" className="sr-only">
+        {message}
+      </div>
+    );
+  }
+
   return (
-    <div aria-live={priority} aria-atomic="true" className="sr-only">
+    <div aria-live="polite" aria-atomic="true" className="sr-only">
       {message}
     </div>
   );
@@ -344,6 +350,13 @@ export const Tooltip: React.FC<{
     right: 'left-full top-1/2 -translate-y-1/2 ml-2',
   };
 
+  const arrowClasses = {
+    top: 'top-full left-1/2 -translate-x-1/2 -mt-1',
+    bottom: 'bottom-full left-1/2 -translate-x-1/2 -mb-1',
+    left: 'left-full top-1/2 -translate-y-1/2 -ml-1',
+    right: 'right-full top-1/2 -translate-y-1/2 -mr-1',
+  };
+
   return (
     <div className="relative inline-block">
       {React.cloneElement(children, {
@@ -361,23 +374,8 @@ export const Tooltip: React.FC<{
         >
           {content}
           <span
-            className="absolute w-2 h-2 bg-slate-900 rotate-45"
+            className={`absolute w-2 h-2 bg-slate-900 rotate-45 ${arrowClasses[position]}`}
             aria-hidden="true"
-            style={{
-              [position === 'top'
-                ? 'bottom'
-                : position === 'bottom'
-                  ? 'top'
-                  : position === 'left'
-                    ? 'right'
-                    : 'left']: '-4px',
-              left: position === 'top' || position === 'bottom' ? '50%' : undefined,
-              top: position === 'left' || position === 'right' ? '50%' : undefined,
-              transform:
-                position === 'top' || position === 'bottom'
-                  ? 'translateX(-50%)'
-                  : 'translateY(-50%)',
-            }}
           />
         </div>
       )}

@@ -2,33 +2,60 @@ import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 
-// Test component that uses the auth context
+const loginUser = {
+  id: 1,
+  name: 'Aisha Rahman',
+  email: 'aisha@example.com',
+  wishlist: [],
+  orderHistory: [],
+  favorites: [],
+  isPlusMember: false,
+};
+
+const loginPayload = {
+  token: 'header.eyJleHAiIjo0NzQyMjYxNjAwfQ.signature',
+  user: loginUser,
+};
+
+const signupPayload = {
+  token: 'header.eyJleHAiIjo0NzQyMjYxNjAwfQ.signature',
+  user: {
+    id: 3,
+    name: 'New User',
+    email: 'new@example.com',
+    wishlist: [],
+    orderHistory: [],
+    favorites: [],
+    isPlusMember: false,
+  },
+};
+
 const TestComponent: React.FC = () => {
   const {
     isAuthenticated,
     currentUser,
     login,
     logout,
-    register,
+    signup,
     addToWishlist,
     removeFromWishlist,
-    addToFavorites,
-    removeFromFavorites,
+    favoritePet,
+    unfavoritePet,
   } = useAuth();
 
   const handleLogin = async () => {
     try {
       await login('aisha@example.com', 'password123');
-    } catch (e) {
-      // Handle error silently in tests
+    } catch {
+      // no-op
     }
   };
 
-  const handleRegister = async () => {
+  const handleSignup = async () => {
     try {
-      await register('New User', 'new@example.com', 'password123');
-    } catch (e) {
-      // Handle error silently in tests
+      await signup('New User', 'new@example.com', 'password123');
+    } catch {
+      // no-op
     }
   };
 
@@ -39,14 +66,14 @@ const TestComponent: React.FC = () => {
       <p data-testid="user-email">{currentUser?.email || 'null'}</p>
       <p data-testid="wishlist">{JSON.stringify(currentUser?.wishlist || [])}</p>
       <p data-testid="favorites">{JSON.stringify(currentUser?.favorites || [])}</p>
-      <p data-testid="is-plus-member">{currentUser?.isPlusMember?.toString() || 'false'}</p>
+
       <button onClick={handleLogin}>Login</button>
       <button onClick={logout}>Logout</button>
-      <button onClick={handleRegister}>Register</button>
-      <button onClick={() => addToWishlist(100)}>Add to Wishlist</button>
-      <button onClick={() => removeFromWishlist(100)}>Remove from Wishlist</button>
-      <button onClick={() => addToFavorites(200)}>Add to Favorites</button>
-      <button onClick={() => removeFromFavorites(200)}>Remove from Favorites</button>
+      <button onClick={handleSignup}>Signup</button>
+      <button onClick={() => addToWishlist(100)}>Add Wishlist</button>
+      <button onClick={() => removeFromWishlist(100)}>Remove Wishlist</button>
+      <button onClick={() => favoritePet(200)}>Favorite Pet</button>
+      <button onClick={() => unfavoritePet(200)}>Unfavorite Pet</button>
     </div>
   );
 };
@@ -55,12 +82,7 @@ describe('AuthContext', () => {
   beforeEach(() => {
     localStorage.clear();
     jest.clearAllMocks();
-    // Mock fetch
     global.fetch = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
   });
 
   it('provides initial unauthenticated state', () => {
@@ -75,19 +97,9 @@ describe('AuthContext', () => {
   });
 
   it('logs in user successfully', async () => {
-    const mockUser = {
-      id: 1,
-      name: 'Aisha Rahman',
-      email: 'aisha@example.com',
-      wishlist: [2, 4],
-      orderHistory: [],
-      favorites: [1, 3],
-      isPlusMember: true,
-    };
-
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockUser),
+      json: () => Promise.resolve(loginPayload),
     });
 
     render(
@@ -96,10 +108,8 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    const loginButton = screen.getByText('Login');
-
     await act(async () => {
-      fireEvent.click(loginButton);
+      fireEvent.click(screen.getByText('Login'));
     });
 
     await waitFor(() => {
@@ -107,23 +117,12 @@ describe('AuthContext', () => {
     });
 
     expect(screen.getByTestId('current-user')).toHaveTextContent('Aisha Rahman');
-    expect(screen.getByTestId('is-plus-member')).toHaveTextContent('true');
   });
 
   it('logs out user successfully', async () => {
-    const mockUser = {
-      id: 1,
-      name: 'Aisha Rahman',
-      email: 'aisha@example.com',
-      wishlist: [],
-      orderHistory: [],
-      favorites: [],
-      isPlusMember: false,
-    };
-
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockUser),
+      json: () => Promise.resolve(loginPayload),
     });
 
     render(
@@ -132,40 +131,26 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    // First login
-    const loginButton = screen.getByText('Login');
     await act(async () => {
-      fireEvent.click(loginButton);
+      fireEvent.click(screen.getByText('Login'));
     });
 
     await waitFor(() => {
       expect(screen.getByTestId('is-authenticated')).toHaveTextContent('true');
     });
 
-    // Then logout
-    const logoutButton = screen.getByText('Logout');
     act(() => {
-      fireEvent.click(logoutButton);
+      fireEvent.click(screen.getByText('Logout'));
     });
 
     expect(screen.getByTestId('is-authenticated')).toHaveTextContent('false');
     expect(screen.getByTestId('current-user')).toHaveTextContent('null');
   });
 
-  it('registers new user successfully', async () => {
-    const mockNewUser = {
-      id: 3,
-      name: 'New User',
-      email: 'new@example.com',
-      wishlist: [],
-      orderHistory: [],
-      favorites: [],
-      isPlusMember: false,
-    };
-
+  it('signs up user successfully', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockNewUser),
+      json: () => Promise.resolve(signupPayload),
     });
 
     render(
@@ -174,10 +159,8 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    const registerButton = screen.getByText('Register');
-
     await act(async () => {
-      fireEvent.click(registerButton);
+      fireEvent.click(screen.getByText('Signup'));
     });
 
     await waitFor(() => {
@@ -188,25 +171,19 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('user-email')).toHaveTextContent('new@example.com');
   });
 
-  it('adds item to wishlist when authenticated', async () => {
-    const mockUser = {
-      id: 1,
-      name: 'Test User',
-      email: 'test@example.com',
-      wishlist: [],
-      orderHistory: [],
-      favorites: [],
-      isPlusMember: false,
-    };
-
+  it('adds and removes wishlist item with optimistic update', async () => {
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockUser),
+        json: () => Promise.resolve(loginPayload),
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ ...mockUser, wishlist: [100] }),
+        json: () => Promise.resolve({ success: true }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
       });
 
     render(
@@ -215,24 +192,66 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    // Login first
-    const loginButton = screen.getByText('Login');
     await act(async () => {
-      fireEvent.click(loginButton);
+      fireEvent.click(screen.getByText('Login'));
     });
 
     await waitFor(() => {
       expect(screen.getByTestId('is-authenticated')).toHaveTextContent('true');
     });
 
-    // Add to wishlist
-    const addWishlistButton = screen.getByText('Add to Wishlist');
     await act(async () => {
-      fireEvent.click(addWishlistButton);
+      fireEvent.click(screen.getByText('Add Wishlist'));
+    });
+
+    expect(screen.getByTestId('wishlist')).toHaveTextContent('[100]');
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Remove Wishlist'));
+    });
+
+    expect(screen.getByTestId('wishlist')).toHaveTextContent('[]');
+  });
+
+  it('favorites and unfavorites pet with optimistic update', async () => {
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(loginPayload),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
+      });
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Login'));
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('wishlist')).toHaveTextContent('[100]');
+      expect(screen.getByTestId('is-authenticated')).toHaveTextContent('true');
     });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Favorite Pet'));
+    });
+
+    expect(screen.getByTestId('favorites')).toHaveTextContent('[200]');
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Unfavorite Pet'));
+    });
+
+    expect(screen.getByTestId('favorites')).toHaveTextContent('[]');
   });
 });

@@ -16,11 +16,18 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock localStorage
+const storage: Record<string, string> = {};
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: jest.fn((key: string) => (key in storage ? storage[key] : null)),
+  setItem: jest.fn((key: string, value: string) => {
+    storage[key] = String(value);
+  }),
+  removeItem: jest.fn((key: string) => {
+    delete storage[key];
+  }),
+  clear: jest.fn(() => {
+    Object.keys(storage).forEach((key) => delete storage[key]);
+  }),
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 

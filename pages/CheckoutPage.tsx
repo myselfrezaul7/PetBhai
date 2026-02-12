@@ -387,7 +387,6 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={100}
                 autoComplete="name"
-                aria-invalid={formErrors.name ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.name)}
                 aria-describedby={formErrors.name ? 'name-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
@@ -419,7 +418,6 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={20}
                 autoComplete="tel"
-                aria-invalid={formErrors.phone ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
@@ -451,7 +449,6 @@ const CheckoutPage: React.FC = () => {
                 maxLength={500}
                 autoComplete="street-address"
                 placeholder="e.g. House No, Road No, Area, District"
-                aria-invalid={formErrors.address ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation resize-none ${
@@ -484,7 +481,6 @@ const CheckoutPage: React.FC = () => {
                 onBlur={handleInputBlur}
                 maxLength={255}
                 autoComplete="email"
-                aria-invalid={formErrors.email ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${

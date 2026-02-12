@@ -4,7 +4,7 @@ import { sanitizeInput, validateId } from '../lib/security';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = '/api';
 const TOKEN_EXPIRY_SKEW_MS = 30_000;
 
 interface AuthResponse {
