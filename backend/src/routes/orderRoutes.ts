@@ -155,28 +155,73 @@ router.post('/', orderLimiter, (req, res) => {
       !item ||
       typeof item !== 'object' ||
       typeof item.id !== 'number' ||
+      typeof item.price !== 'number' ||
+      !Number.isFinite(item.price) ||
+      item.price <= 0 ||
       typeof item.quantity !== 'number' ||
-      item.quantity <= 0
+      !Number.isInteger(item.quantity) ||
+      item.quantity <= 0 ||
+      item.quantity > 99
   );
 
   if (invalidItems) {
     return res.status(400).json({ message: 'Invalid item data in order' });
   }
 
-  // Calculate total if not provided
-  const calculatedTotal = orderData.items.reduce(
-    (sum: number, item: any) => sum + (item.price || 0) * item.quantity,
+  let validatedItems: any[] = [];
+  try {
+    // Validate against latest product state and recalculate total on server
+    validatedItems = orderData.items.map((item: any) => {
+      const product = db.products.find((p) => p.id === item.id) as any;
+
+      if (!product) {
+        throw new Error(`Product with ID ${item.id} no longer exists`);
+      }
+
+      if (product.stockStatus === 'out-of-stock') {
+        throw new Error(`${product.name || 'Product'} is out of stock`);
+      }
+
+      if (typeof product.stockQuantity === 'number' && item.quantity > product.stockQuantity) {
+        throw new Error(
+          `Only ${product.stockQuantity} unit(s) available for ${product.name || 'product'}`
+        );
+      }
+
+      const serverPrice =
+        typeof product.price === 'number' && Number.isFinite(product.price) && product.price > 0
+          ? product.price
+          : item.price;
+
+      return {
+        ...item,
+        price: serverPrice,
+      };
+    });
+  } catch (inventoryError) {
+    return res.status(400).json({
+      message: inventoryError instanceof Error ? inventoryError.message : 'Invalid order items',
+    });
+  }
+
+  const calculatedTotal = validatedItems.reduce(
+    (sum: number, item: any) => sum + item.price * item.quantity,
     0
   );
+
+  if (!Number.isFinite(calculatedTotal) || calculatedTotal <= 0) {
+    return res.status(400).json({ message: 'Invalid order total' });
+  }
 
   const orderId = generateOrderId();
   const now = new Date().toISOString();
 
   const newOrder: ExtendedOrder = {
     ...orderData,
+    items: validatedItems,
     orderId,
     date: now,
-    total: orderData.total || calculatedTotal,
+    total: calculatedTotal,
     status: 'pending',
     statusHistory: [
       {
@@ -200,6 +245,8 @@ router.post('/', orderLimiter, (req, res) => {
       user.orderHistory.unshift(newOrder);
     }
   }
+
+  db.write();
 
   // Send email notification asynchronously
   sendOrderEmail(newOrder).catch((err) => console.error('Failed to trigger email:', err));
@@ -320,6 +367,8 @@ router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, r
     }
   }
 
+  db.write();
+
   res.json({
     message: 'Order status updated',
     order,
@@ -355,6 +404,8 @@ router.post('/:orderId/cancel', (req, res) => {
   });
 
   db.orders[orderIndex] = order;
+
+  db.write();
 
   res.json({
     message: 'Order cancelled successfully',

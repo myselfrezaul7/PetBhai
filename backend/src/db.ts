@@ -138,22 +138,50 @@ class Database {
     }
 
     for (let attempt = 1; attempt <= retries; attempt++) {
+      const timestamp = `${Date.now()}-${attempt}`;
+      const tempPath = `${DB_PATH}.tmp.${timestamp}`;
+      const backupPath = `${DB_PATH}.bak`;
+
       try {
         const dir = path.dirname(DB_PATH);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
-        const tempPath = `${DB_PATH}.tmp.${Date.now()}`;
+
         fs.writeFileSync(tempPath, JSON.stringify(data, null, 2));
 
-        // Atomic rename
+        // Replace DB file with rollback backup if replacement fails
+        let hadBackup = false;
         if (fs.existsSync(DB_PATH)) {
-          fs.unlinkSync(DB_PATH);
+          fs.renameSync(DB_PATH, backupPath);
+          hadBackup = true;
         }
-        fs.renameSync(tempPath, DB_PATH);
+
+        try {
+          fs.renameSync(tempPath, DB_PATH);
+          if (hadBackup && fs.existsSync(backupPath)) {
+            fs.unlinkSync(backupPath);
+          }
+        } catch (replaceError) {
+          if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+          }
+          if (hadBackup && fs.existsSync(backupPath)) {
+            fs.renameSync(backupPath, DB_PATH);
+          }
+          throw replaceError;
+        }
+
         return true;
       } catch (e) {
         console.error(`Failed to save DB (attempt ${attempt}/${retries}):`, e);
+        try {
+          if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+          }
+        } catch {
+          // best effort cleanup
+        }
         if (attempt < retries) {
           // Wait briefly before retry
           const waitMs = attempt * 100;

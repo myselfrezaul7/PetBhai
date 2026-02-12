@@ -36,7 +36,7 @@ interface FormErrors {
 }
 
 const CheckoutPage: React.FC = () => {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, clearCart } = useCart();
   const { isAuthenticated, currentUser, socialLogin, addOrderToHistory } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
@@ -140,6 +140,12 @@ const CheckoutPage: React.FC = () => {
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
+      if (cartItems.length === 0) {
+        toast.error('Your cart is empty. Please add items before checkout.');
+        navigate('/shop');
+        return;
+      }
+
       if (!validateForm()) {
         toast.error('Please fix the errors in the form');
         return;
@@ -157,22 +163,98 @@ const CheckoutPage: React.FC = () => {
           email: sanitizeInput(formData.email.trim()),
         };
 
+        const normalizedCartItems = cartItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          quantity: Math.min(Math.max(1, Math.floor(item.quantity)), 99),
+          imageUrl: item.imageUrl,
+          price: Number.isFinite(item.price) && item.price >= 0 ? item.price : 0,
+        }));
+
+        if (normalizedCartItems.some((item) => item.price <= 0)) {
+          throw new Error(
+            'One or more cart items has an invalid price. Please refresh and try again.'
+          );
+        }
+
+        // Use relative path for API
+        const API_URL = import.meta.env.VITE_API_URL || '/api';
+        const productController = new AbortController();
+        const productTimeoutId = setTimeout(() => productController.abort(), 15000);
+        let cartPriceAdjusted = false;
+
+        try {
+          const productsResponse = await fetch(`${API_URL}/products`, {
+            signal: productController.signal,
+          });
+          if (productsResponse.ok) {
+            const latestProducts = await productsResponse.json();
+            if (Array.isArray(latestProducts)) {
+              const latestById = new Map<number, any>(
+                latestProducts
+                  .filter((product) => product && typeof product.id === 'number')
+                  .map((product) => [product.id, product])
+              );
+
+              normalizedCartItems.forEach((item) => {
+                const latest = latestById.get(item.id);
+                if (!latest) {
+                  throw new Error(`\"${item.name}\" is no longer available.`);
+                }
+
+                if (latest.stockStatus === 'out-of-stock') {
+                  throw new Error(`\"${item.name}\" is currently out of stock.`);
+                }
+
+                if (
+                  typeof latest.stockQuantity === 'number' &&
+                  item.quantity > latest.stockQuantity
+                ) {
+                  throw new Error(
+                    `Only ${latest.stockQuantity} unit(s) of \"${item.name}\" are available right now.`
+                  );
+                }
+
+                if (
+                  typeof latest.price === 'number' &&
+                  Number.isFinite(latest.price) &&
+                  latest.price > 0
+                ) {
+                  if (item.price !== latest.price) {
+                    cartPriceAdjusted = true;
+                    item.price = latest.price;
+                  }
+                }
+              });
+            }
+          }
+        } finally {
+          clearTimeout(productTimeoutId);
+        }
+
+        const computedTotal = normalizedCartItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+
+        if (!Number.isFinite(computedTotal) || computedTotal <= 0) {
+          throw new Error('Order total is invalid. Please review your cart and try again.');
+        }
+
         const orderData = {
-          items: cartItems.map((item) => ({
+          items: normalizedCartItems.map((item) => ({
             id: item.id,
             name: item.name,
             price: item.price,
-            quantity: Math.min(Math.max(1, item.quantity), 99), // Clamp quantity
+            quantity: item.quantity,
             imageUrl: item.imageUrl,
           })),
-          total: cartTotal,
+          total: computedTotal,
           userId: currentUser?.id,
           shippingAddress: sanitizedFormData,
           paymentMethod,
         };
 
-        // Use relative path for API
-        const API_URL = import.meta.env.VITE_API_URL || '/api';
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
 
@@ -190,13 +272,18 @@ const CheckoutPage: React.FC = () => {
           throw new Error(errorData.message || 'Failed to place order');
         }
 
-        const newOrder = await response.json();
+        const responsePayload = await response.json();
+        const newOrder = responsePayload?.order ?? responsePayload;
 
         if (isAuthenticated) {
           addOrderToHistory(newOrder);
         }
 
-        toast.success('Thank you for your order! It has been placed successfully.');
+        toast.success(
+          cartPriceAdjusted
+            ? 'Order placed successfully. Some item prices were updated to current values.'
+            : 'Thank you for your order! It has been placed successfully.'
+        );
         clearCart();
         navigate('/');
       } catch (error) {
@@ -217,7 +304,6 @@ const CheckoutPage: React.FC = () => {
       isSubmitting,
       formData,
       cartItems,
-      cartTotal,
       currentUser,
       paymentMethod,
       isAuthenticated,
@@ -301,7 +387,7 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={100}
                 autoComplete="name"
-                aria-invalid={Boolean(formErrors.name)}
+                aria-invalid={formErrors.name ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.name)}
                 aria-describedby={formErrors.name ? 'name-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
@@ -333,7 +419,7 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={20}
                 autoComplete="tel"
-                aria-invalid={Boolean(formErrors.phone)}
+                aria-invalid={formErrors.phone ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
@@ -365,7 +451,7 @@ const CheckoutPage: React.FC = () => {
                 maxLength={500}
                 autoComplete="street-address"
                 placeholder="e.g. House No, Road No, Area, District"
-                aria-invalid={Boolean(formErrors.address)}
+                aria-invalid={formErrors.address ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation resize-none ${
@@ -398,7 +484,7 @@ const CheckoutPage: React.FC = () => {
                 onBlur={handleInputBlur}
                 maxLength={255}
                 autoComplete="email"
-                aria-invalid={Boolean(formErrors.email)}
+                aria-invalid={formErrors.email ? 'true' : 'false'}
                 data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${

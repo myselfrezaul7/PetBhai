@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Vet } from '../types';
 import { CloseIcon } from './icons';
 
@@ -12,6 +12,8 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   const [step, setStep] = useState(1);
   const [selectedTime, setSelectedTime] = useState('');
   const [issue, setIssue] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!isOpen) return null;
 
@@ -40,19 +42,63 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   // Mock available time slots for today
   const timeSlots = ['10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'];
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 transition-opacity duration-300 animate-fade-in"
       onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="vet-booking-title"
     >
       <div
+        ref={modalRef}
         className="glass-card-ios w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-8">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-3xl font-bold text-slate-800 dark:text-white">
+              <h2
+                id="vet-booking-title"
+                className="text-3xl font-bold text-slate-800 dark:text-white"
+              >
                 Book Online Consultation
               </h2>
               <p className="text-slate-700 dark:text-slate-200 text-lg mt-1">
@@ -60,8 +106,11 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
               </p>
             </div>
             <button
+              ref={closeButtonRef}
+              type="button"
               onClick={handleClose}
               className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              aria-label="Close booking modal"
             >
               <CloseIcon className="w-7 h-7" />
             </button>
@@ -77,6 +126,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                 {timeSlots.map((time) => (
                   <button
                     key={time}
+                    type="button"
                     onClick={() => handleTimeSelect(time)}
                     className="p-3 text-center font-semibold bg-orange-100/50 dark:bg-orange-500/20 text-orange-700 dark:text-orange-200 rounded-lg hover:bg-orange-500 hover:text-white transition-colors"
                   >
@@ -155,6 +205,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                 demo).
               </p>
               <button
+                type="button"
                 onClick={handleClose}
                 className="mt-6 bg-orange-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-orange-600"
               >

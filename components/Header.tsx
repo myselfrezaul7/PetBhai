@@ -391,6 +391,7 @@ const Header: React.FC = () => {
                         {recentSearches.map((s, i) => (
                           <button
                             key={i}
+                            type="button"
                             onClick={() => setSearchQuery(s)}
                             className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2"
                           >
@@ -399,6 +400,7 @@ const Header: React.FC = () => {
                           </button>
                         ))}
                         <button
+                          type="button"
                           onClick={() => {
                             setRecentSearches([]);
                             localStorage.removeItem('petbhai_recent_searches');
@@ -416,8 +418,10 @@ const Header: React.FC = () => {
 
             <div className="flex items-center space-x-3">
               <button
+                type="button"
                 onClick={toggleLanguage}
                 className="px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200 active:scale-95"
+                aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
               >
                 {language === 'en' ? 'BN' : 'EN'}
               </button>
@@ -427,10 +431,10 @@ const Header: React.FC = () => {
             {isAuthenticated && currentUser ? (
               <div className="relative" ref={profileMenuRef}>
                 <button
+                  type="button"
                   onClick={handleProfileMenuToggle}
                   className="relative flex items-center space-x-2 focus:outline-none group touch-manipulation"
                   aria-label="User menu"
-                  aria-expanded="false"
                   data-expanded={isProfileMenuOpen}
                   aria-haspopup="true"
                 >
@@ -479,6 +483,7 @@ const Header: React.FC = () => {
                       {t('nav_profile')}
                     </Link>
                     <button
+                      type="button"
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                     >
@@ -557,6 +562,7 @@ const Header: React.FC = () => {
                             {recentSearches.map((s, i) => (
                               <button
                                 key={i}
+                                type="button"
                                 onClick={() => setSearchQuery(s)}
                                 className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2"
                               >
@@ -571,6 +577,7 @@ const Header: React.FC = () => {
                   )}
                 </div>
                 <button
+                  type="button"
                   onClick={handleCloseMobileSearch}
                   className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 ml-2 p-1"
                   aria-label="Close search"
@@ -581,6 +588,7 @@ const Header: React.FC = () => {
             ) : (
               <div className="flex items-center space-x-4">
                 <button
+                  type="button"
                   onClick={handleOpenMobileSearch}
                   className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                   aria-label="Open search"
@@ -588,6 +596,7 @@ const Header: React.FC = () => {
                   <SearchIcon className="w-7 h-7" />
                 </button>
                 <button
+                  type="button"
                   onClick={handleMenuOpen}
                   className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                   aria-label="Open menu"
@@ -618,6 +627,7 @@ const Header: React.FC = () => {
           </NavLink>
           <div className="flex items-center space-x-4">
             <button
+              type="button"
               onClick={toggleLanguage}
               className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform touch-manipulation"
               aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
@@ -626,6 +636,7 @@ const Header: React.FC = () => {
             </button>
             <ThemeToggle />
             <button
+              type="button"
               onClick={handleMenuClose}
               className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform touch-manipulation"
               aria-label="Close menu"
@@ -680,6 +691,7 @@ const Header: React.FC = () => {
                   {t('nav_profile')}
                 </Link>
                 <button
+                  type="button"
                   onClick={handleLogout}
                   className="w-full text-center py-3 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-lg"
                 >

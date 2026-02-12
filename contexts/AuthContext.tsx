@@ -5,6 +5,7 @@ import { sanitizeInput, validateId } from '../lib/security';
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 const API_URL = import.meta.env.VITE_API_URL || '/api';
+const TOKEN_EXPIRY_SKEW_MS = 30_000;
 
 interface AuthResponse {
   user: User;
@@ -23,6 +24,43 @@ const validatePassword = (password: string): boolean => {
 
 const validateName = (name: string): boolean => {
   return name.trim().length >= 2 && name.trim().length <= 100;
+};
+
+const clearAuthStorage = () => {
+  try {
+    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+  } catch {
+    // localStorage might be disabled
+  }
+};
+
+const getStoredToken = (): string | null => {
+  try {
+    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const decodeJwtPayload = (token: string): { exp?: number } | null => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+    const payload = window.atob(padded);
+    return JSON.parse(payload);
+  } catch {
+    return null;
+  }
+};
+
+const isTokenExpired = (token: string): boolean => {
+  const payload = decodeJwtPayload(token);
+  if (!payload?.exp) return false;
+  const expiryMs = payload.exp * 1000;
+  return expiryMs <= Date.now() + TOKEN_EXPIRY_SKEW_MS;
 };
 
 const getInitialCurrentUser = (): User | null => {
@@ -82,6 +120,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(getInitialCurrentUser);
 
+  const clearSession = useCallback(() => {
+    setCurrentUser(null);
+    clearAuthStorage();
+  }, []);
+
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token || isTokenExpired(token)) {
+      clearSession();
+    }
+  }, [clearSession]);
+
   useEffect(() => {
     try {
       if (currentUser) {
@@ -123,6 +173,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data: AuthResponse = await response.json();
 
         // Save token
+        if (!data?.token || !data?.user) {
+          throw new Error('Invalid login response');
+        }
+
         window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
         setCurrentUser(data.user);
 
@@ -137,10 +191,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const logout = useCallback(() => {
-    setCurrentUser(null);
-    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
-    window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
-  }, []);
+    clearSession();
+  }, [clearSession]);
+
+  const protectedFetch = useCallback(
+    async (url: string, options: RequestInit = {}): Promise<Response> => {
+      const token = getStoredToken();
+      if (!token || isTokenExpired(token)) {
+        clearSession();
+        throw new Error('Session expired. Please sign in again.');
+      }
+
+      const mergedHeaders = {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await fetch(url, {
+        ...options,
+        headers: mergedHeaders,
+      });
+
+      if (response.status === 401) {
+        clearSession();
+        throw new Error('Session expired. Please sign in again.');
+      }
+
+      return response;
+    },
+    [clearSession]
+  );
 
   const signup = useCallback(
     async (
@@ -174,6 +254,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         const data: AuthResponse = await response.json();
+        if (!data?.token || !data?.user) {
+          throw new Error('Invalid signup response');
+        }
         window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
         setCurrentUser(data.user);
 
@@ -245,13 +328,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser) throw new Error('No user logged in');
 
       try {
-        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-        // Note: Backend might require token in header
-        const response = await fetch(`${API_URL}/auth/${currentUser.id}`, {
+        const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
           },
           body: JSON.stringify(updatedData),
         });
@@ -281,15 +361,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser({ ...oldUser, wishlist: [...oldUser.wishlist, productId] });
 
         try {
-          const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-          await fetch(`${API_URL}/auth/${currentUser.id}/wishlist`, {
+          const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/wishlist`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: token ? `Bearer ${token}` : '',
             },
             body: JSON.stringify({ productId }),
           });
+
+          if (!response.ok) {
+            throw new Error('Failed to sync wishlist');
+          }
         } catch (err) {
           console.error('Failed to sync wishlist', err);
           setCurrentUser(oldUser);
@@ -308,13 +390,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser({ ...oldUser, wishlist: oldUser.wishlist.filter((id) => id !== productId) });
 
         try {
-          const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-          await fetch(`${API_URL}/auth/${currentUser.id}/wishlist/${productId}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: token ? `Bearer ${token}` : '',
-            },
-          });
+          const response = await protectedFetch(
+            `${API_URL}/auth/${currentUser.id}/wishlist/${productId}`,
+            {
+              method: 'DELETE',
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to sync wishlist removal');
+          }
         } catch (err) {
           console.error('Failed to sync wishlist removal', err);
           setCurrentUser(oldUser);
@@ -341,15 +426,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(updatedUser);
 
       try {
-        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-        await fetch(`${API_URL}/auth/${currentUser.id}/favorites`, {
+        const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/favorites`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
           },
           body: JSON.stringify({ animalId }),
         });
+        if (!response.ok) {
+          throw new Error('Failed to sync favorite');
+        }
       } catch (err) {
         console.error('Failed to sync favorite', err);
         setCurrentUser(oldUser);
@@ -371,13 +457,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(updatedUser);
 
       try {
-        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-        await fetch(`${API_URL}/auth/${currentUser.id}/favorites/${animalId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-          },
-        });
+        const response = await protectedFetch(
+          `${API_URL}/auth/${currentUser.id}/favorites/${animalId}`,
+          {
+            method: 'DELETE',
+          }
+        );
+        if (!response.ok) {
+          throw new Error('Failed to sync unfavorite');
+        }
       } catch (err) {
         console.error('Failed to sync unfavorite', err);
         setCurrentUser(oldUser);
@@ -397,13 +485,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(updatedUser);
 
     try {
-      const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-      await fetch(`${API_URL}/auth/${currentUser.id}/subscribe`, {
+      const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/subscribe`, {
         method: 'POST',
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-        },
       });
+      if (!response.ok) {
+        throw new Error('Failed to sync subscription');
+      }
     } catch (err) {
       console.error('Failed to sync subscription', err);
       setCurrentUser(oldUser);
@@ -426,28 +513,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Persist to backend
       try {
-        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-        await fetch(`${API_URL}/auth/${currentUser.id}/orders`, {
+        const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/orders`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
           },
           body: JSON.stringify(order),
         });
+        if (!response.ok) {
+          throw new Error('Failed to sync order history');
+        }
       } catch (err) {
         // Order is still recorded locally even if backend sync fails.
         // This ensures the user sees their order immediately.
         console.error('Failed to sync order to backend', err);
       }
     },
-    [currentUser]
+    [currentUser, protectedFetch]
   );
 
   const value = useMemo(
     () => ({
       currentUser,
-      isAuthenticated: !!currentUser,
+      isAuthenticated: !!currentUser && !!getStoredToken(),
       login,
       logout,
       signup,

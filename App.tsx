@@ -2,7 +2,6 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import MessengerPlugin from './components/MessengerPlugin';
 import { useCart } from './contexts/CartContext';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
@@ -11,7 +10,6 @@ import ToastContainer from './components/ToastContainer';
 import ConfirmationModal from './components/ConfirmationModal';
 import { PawIcon, ShoppingCartIcon, HeartIcon } from './components/icons';
 import CartSidebar from './components/CartSidebar';
-import WhatsAppButton from './components/WhatsAppButton';
 import OfflineIndicator from './components/OfflineIndicator';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -52,6 +50,8 @@ const PetDashboardPage = lazy(() => import('./pages/PetDashboardPage'));
 const PetCompatibilityPage = lazy(() => import('./pages/PetCompatibilityPage'));
 const ServicesBookingPage = lazy(() => import('./pages/ServicesBookingPage'));
 const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
+const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'));
+const MessengerPlugin = lazy(() => import('./components/MessengerPlugin'));
 
 const PawHeartLoader: React.FC<{ message?: string }> = React.memo(({ message }) => (
   <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
@@ -307,8 +307,10 @@ const AppContent: React.FC = () => {
         </SwipeNavigationProvider>
       </main>
       <GlobalCartElements />
-      <WhatsAppButton />
-      {consent === 'all' && <MessengerPlugin />}
+      <Suspense fallback={null}>
+        <WhatsAppButton />
+        {consent === 'all' && <MessengerPlugin />}
+      </Suspense>
       <ScrollToTop />
       <ScrollToTopOnNavigate />
       <Footer />

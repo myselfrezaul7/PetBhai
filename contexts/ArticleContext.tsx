@@ -19,11 +19,15 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
 
   const fetchArticles = useCallback(async () => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/articles`);
+      const response = await fetch(`${API_URL}/articles`, { signal: controller.signal });
       if (!response.ok) {
-        throw new Error('Failed to fetch articles');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch articles');
       }
       const data = await response.json();
       if (!Array.isArray(data)) {
@@ -33,9 +37,14 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);
-      setError('Failed to load articles. Please try again later.');
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Articles request timed out. Please try again.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to load articles. Please try again.');
+      }
       setArticles([]);
     } finally {
+      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, []);

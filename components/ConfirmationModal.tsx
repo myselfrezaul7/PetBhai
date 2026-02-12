@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import { CloseIcon, ExclamationIcon } from './icons';
 
 const ConfirmationModal: React.FC = () => {
   const { confirmationState, resolveConfirmation } = useConfirmation();
+  const modalRef = useRef<HTMLDivElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!confirmationState.isOpen) {
     return null;
@@ -25,6 +27,41 @@ const ConfirmationModal: React.FC = () => {
     confirmText.toLowerCase().includes('reset') ||
     confirmText.toLowerCase().includes('remove');
 
+  useEffect(() => {
+    cancelButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCancel();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex justify-center items-center p-4 transition-all duration-500 animate-fade-in"
@@ -35,6 +72,7 @@ const ConfirmationModal: React.FC = () => {
       aria-describedby="confirmation-message"
     >
       <div
+        ref={modalRef}
         className="glass-card-ios w-full max-w-md transform transition-all duration-500 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -61,12 +99,15 @@ const ConfirmationModal: React.FC = () => {
           </p>
           <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row justify-center gap-3 sm:space-x-4 sm:gap-0">
             <button
+              ref={cancelButtonRef}
+              type="button"
               onClick={handleCancel}
               className="px-6 sm:px-8 py-2.5 rounded-xl font-semibold text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-700/50 hover:bg-white/70 dark:hover:bg-slate-600/50 border border-white/50 dark:border-slate-600/50 transition-all duration-300 active:scale-95 touch-manipulation backdrop-blur-sm"
             >
               {cancelText}
             </button>
             <button
+              type="button"
               onClick={handleConfirm}
               className={`px-6 sm:px-8 py-2.5 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation shadow-lg ${
                 isDestructive

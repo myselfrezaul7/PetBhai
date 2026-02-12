@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
@@ -14,6 +14,8 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
   const [isAdding, setIsAdding] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!product) return null;
 
@@ -26,6 +28,41 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
     addToCart(product);
     setTimeout(() => setIsAdding(false), 800);
   };
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   const StarRatingDisplay: React.FC<{ rating: number }> = ({ rating }) => (
     <div className="flex items-center">
@@ -46,12 +83,18 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center p-4 transition-opacity duration-300 animate-fade-in"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quick-view-title"
     >
       <div
+        ref={modalRef}
         className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[90vh] animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button
+          ref={closeButtonRef}
+          type="button"
           onClick={onClose}
           className="absolute top-4 right-4 z-20 bg-white/80 dark:bg-black/50 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm backdrop-blur-md"
           aria-label={t('aria_close_modal')}
@@ -74,7 +117,10 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
         {/* Details Section - Scrollable content */}
         <div className="w-full md:w-1/2 flex flex-col p-6 md:p-10 overflow-y-auto">
           <div className="flex-grow">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight mb-2 pr-8">
+            <h2
+              id="quick-view-title"
+              className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight mb-2 pr-8"
+            >
               {product.name}
             </h2>
             <div className="flex items-center space-x-3 mb-6">
@@ -100,6 +146,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
 
           <div className="pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-4 mt-auto">
             <button
+              type="button"
               onClick={handleAddToCart}
               disabled={isAdding}
               className={`w-full py-3.5 rounded-xl font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg

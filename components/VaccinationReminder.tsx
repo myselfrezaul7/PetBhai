@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useVaccination } from '../contexts/VaccinationContext';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -81,6 +81,8 @@ const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose, onAdd }) => 
   const [type, setType] = useState<PetType>('dog');
   const [breed, setBreed] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,12 +105,65 @@ const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose, onAdd }) => 
 
   if (!isOpen) return null;
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="glass-card-ios p-6 w-full max-w-md animate-scale-in">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-pet-modal-title"
+    >
+      <div ref={modalRef} className="glass-card-ios p-6 w-full max-w-md animate-scale-in">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white">Add Your Pet</h3>
+          <h3 id="add-pet-modal-title" className="text-xl font-bold text-slate-800 dark:text-white">
+            Add Your Pet
+          </h3>
           <button
+            ref={closeButtonRef}
+            type="button"
             onClick={onClose}
             className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             aria-label="Close add pet modal"
@@ -217,6 +272,8 @@ const AddVaccinationModal: React.FC<AddVaccinationModalProps> = ({
   const [nextDueDate, setNextDueDate] = useState('');
   const [vetName, setVetName] = useState('');
   const [notes, setNotes] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   // Get selected pet type for filtering vaccines
   const selectedPet = pets.find((p) => p.id === petId);
@@ -275,14 +332,71 @@ const AddVaccinationModal: React.FC<AddVaccinationModalProps> = ({
 
   if (!isOpen) return null;
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="glass-card-ios p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-vaccination-modal-title"
+    >
+      <div
+        ref={modalRef}
+        className="glass-card-ios p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in"
+      >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+          <h3
+            id="add-vaccination-modal-title"
+            className="text-xl font-bold text-slate-800 dark:text-white"
+          >
             Add Vaccination Record
           </h3>
           <button
+            ref={closeButtonRef}
+            type="button"
             onClick={onClose}
             className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             aria-label="Close add vaccination modal"

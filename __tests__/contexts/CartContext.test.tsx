@@ -60,6 +60,8 @@ const TestComponent: React.FC = () => {
       <button onClick={() => addToCart(mockProduct2)}>Add Product 2</button>
       <button onClick={() => removeFromCart(mockProduct.id)}>Remove Product 1</button>
       <button onClick={() => updateQuantity(mockProduct.id, 5)}>Set Qty to 5</button>
+      <button onClick={() => updateQuantity(mockProduct.id, 120)}>Set Qty to 120</button>
+      <button onClick={() => updateQuantity(mockProduct.id, 0)}>Set Qty to 0</button>
       <button onClick={() => clearCart()}>Clear Cart</button>
       <button onClick={() => openCart()}>Open Cart</button>
       <button onClick={() => closeCart()}>Close Cart</button>
@@ -234,5 +236,30 @@ describe('CartContext', () => {
     });
 
     expect(screen.getByTestId('cart-open')).toHaveTextContent('false');
+  });
+
+  it('clamps quantity to max and min bounds', () => {
+    render(
+      <CartProvider>
+        <TestComponent />
+      </CartProvider>
+    );
+
+    const addButton = screen.getByText('Add Product 1');
+    const setHighQuantityButton = screen.getByText('Set Qty to 120');
+    const setZeroQuantityButton = screen.getByText('Set Qty to 0');
+
+    act(() => {
+      fireEvent.click(addButton);
+      fireEvent.click(setHighQuantityButton);
+    });
+
+    expect(screen.getByTestId('cart-count')).toHaveTextContent('99');
+
+    act(() => {
+      fireEvent.click(setZeroQuantityButton);
+    });
+
+    expect(screen.getByTestId('cart-count')).toHaveTextContent('1');
   });
 });

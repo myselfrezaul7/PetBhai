@@ -13,22 +13,36 @@ type CartAction =
 
 const CART_STORAGE_KEY = 'petbhai_cart_items';
 
+const clampQuantity = (quantity: number): number => {
+  if (!Number.isFinite(quantity)) return 1;
+  return Math.min(99, Math.max(1, Math.floor(quantity)));
+};
+
 const getInitialState = (): CartState => {
   try {
     const storedItems = window.localStorage.getItem(CART_STORAGE_KEY);
     if (storedItems) {
       const parsed = JSON.parse(storedItems);
-      if (
-        Array.isArray(parsed) &&
-        parsed.every(
-          (item) =>
-            typeof item === 'object' &&
-            item !== null &&
-            typeof item.id === 'number' &&
-            typeof item.quantity === 'number'
-        )
-      ) {
-        return { items: parsed };
+      if (Array.isArray(parsed)) {
+        const sanitizedItems = parsed
+          .filter(
+            (item) =>
+              typeof item === 'object' &&
+              item !== null &&
+              typeof item.id === 'number' &&
+              typeof item.price === 'number' &&
+              Number.isFinite(item.price) &&
+              item.price >= 0 &&
+              typeof item.quantity === 'number'
+          )
+          .map((item) => ({
+            ...item,
+            quantity: clampQuantity(item.quantity),
+          }));
+
+        if (sanitizedItems.length > 0 || parsed.length === 0) {
+          return { items: sanitizedItems };
+        }
       }
       // Clear invalid data structure
       window.localStorage.removeItem(CART_STORAGE_KEY);
@@ -52,7 +66,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         return {
           ...state,
           items: state.items.map((item) =>
-            item.id === action.payload.id ? { ...item, quantity: item.quantity + 1 } : item
+            item.id === action.payload.id
+              ? { ...item, quantity: clampQuantity(item.quantity + 1) }
+              : item
           ),
         };
       }
@@ -66,7 +82,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         ...state,
         items: state.items
           .map((item) =>
-            item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item
+            item.id === action.payload.id
+              ? { ...item, quantity: clampQuantity(action.payload.quantity) }
+              : item
           )
           .filter((item) => item.quantity > 0), // Remove if quantity is 0
       };

@@ -20,11 +20,15 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/products`);
+      const response = await fetch(`${API_URL}/products`, { signal: controller.signal });
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch products');
       }
       const data = await response.json();
       if (!Array.isArray(data)) {
@@ -34,9 +38,14 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError('Failed to load products. Please try again later.');
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Products request timed out. Please try again.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to load products. Please try again.');
+      }
       setProducts([]);
     } finally {
+      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, []);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CloseIcon } from './icons';
 
 interface CookiePolicyModalProps {
@@ -7,17 +7,64 @@ interface CookiePolicyModalProps {
 }
 
 const CookiePolicyModal: React.FC<CookiePolicyModalProps> = ({ isOpen, onClose }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
+
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center p-4 transition-opacity duration-300 animate-fade-in"
-      onClick={onClose}
+      onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="cookie-policy-title"
     >
       <div
+        ref={modalRef}
         className="glass-card-ios w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -30,6 +77,8 @@ const CookiePolicyModal: React.FC<CookiePolicyModalProps> = ({ isOpen, onClose }
               About Cookies on PetBhai
             </h2>
             <button
+              ref={closeButtonRef}
+              type="button"
               onClick={onClose}
               className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
               aria-label="Close cookie policy modal"
@@ -88,6 +137,7 @@ const CookiePolicyModal: React.FC<CookiePolicyModalProps> = ({ isOpen, onClose }
             </ul>
             <div className="mt-8 text-center">
               <button
+                type="button"
                 onClick={onClose}
                 className="bg-orange-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-orange-600 transition-colors"
               >

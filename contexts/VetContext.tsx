@@ -18,11 +18,15 @@ export const VetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [error, setError] = useState<string | null>(null);
 
   const fetchVets = useCallback(async () => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/vets`);
+      const response = await fetch(`${API_URL}/vets`, { signal: controller.signal });
       if (!response.ok) {
-        throw new Error('Failed to fetch vets');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch vets');
       }
       const data = await response.json();
       if (!Array.isArray(data)) {
@@ -32,9 +36,16 @@ export const VetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setError(null);
     } catch (err) {
       console.error('Error fetching vets:', err);
-      setError('Failed to load veterinarians. Please try again later.');
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Vets request timed out. Please try again.');
+      } else {
+        setError(
+          err instanceof Error ? err.message : 'Failed to load veterinarians. Please try again.'
+        );
+      }
       setVets([]);
     } finally {
+      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, []);

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { db } from '../db';
 import type { User } from '../types';
-import { generateToken } from '../middleware/auth';
+import { AuthRequest, generateToken, requireAuth } from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
 
@@ -54,6 +54,17 @@ const sanitizeUser = (user: User): Omit<User, 'password'> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _p, ...userWithoutPassword } = user;
   return userWithoutPassword;
+};
+
+const canAccessUser = (req: AuthRequest, userId: number): boolean => {
+  if (!req.user) return false;
+  const requesterId = Number(req.user.id);
+  return requesterId === userId || !!req.user.isAdmin;
+};
+
+const persistChanges = (res: any): boolean => {
+  db.write();
+  return true;
 };
 
 // Login
@@ -161,6 +172,7 @@ router.post('/signup', authLimiter, async (req, res) => {
     };
 
     db.users.push(newUser);
+    persistChanges(res);
 
     // Generate JWT token
     const token = generateToken({
@@ -183,12 +195,16 @@ router.post('/signup', authLimiter, async (req, res) => {
 });
 
 // Update Profile
-router.put('/:id', (req, res) => {
+router.put('/:id', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const { name, profilePictureUrl } = req.body;
 
   if (isNaN(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   const userIndex = db.users.findIndex((u) => u.id === userId);
@@ -209,18 +225,23 @@ router.put('/:id', (req, res) => {
   }
 
   db.users[userIndex] = updatedUser;
+  persistChanges(res);
 
   auditLog('PROFILE_UPDATE', userId, { fields: Object.keys(req.body) });
   res.json(sanitizeUser(updatedUser));
 });
 
 // Add to Wishlist
-router.post('/:id/wishlist', (req, res) => {
+router.post('/:id/wishlist', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const { productId } = req.body;
 
   if (isNaN(userId) || typeof productId !== 'number') {
     return res.status(400).json({ message: 'Invalid user ID or product ID' });
+  }
+
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   const user = db.users.find((u) => u.id === userId);
@@ -230,6 +251,7 @@ router.post('/:id/wishlist', (req, res) => {
     if (!user.wishlist) user.wishlist = [];
     if (!user.wishlist.includes(productId)) {
       user.wishlist.push(productId);
+      persistChanges(res);
     }
     res.json(sanitizeUser(user));
   } else {
@@ -238,12 +260,16 @@ router.post('/:id/wishlist', (req, res) => {
 });
 
 // Remove from Wishlist
-router.delete('/:id/wishlist/:productId', (req, res) => {
+router.delete('/:id/wishlist/:productId', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const productId = parseInt(req.params.productId);
 
   if (isNaN(userId) || isNaN(productId)) {
     return res.status(400).json({ message: 'Invalid user ID or product ID' });
+  }
+
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   const user = db.users.find((u) => u.id === userId);
@@ -252,6 +278,7 @@ router.delete('/:id/wishlist/:productId', (req, res) => {
     // Initialize wishlist if not exists
     if (!user.wishlist) user.wishlist = [];
     user.wishlist = user.wishlist.filter((id) => id !== productId);
+    persistChanges(res);
     res.json(sanitizeUser(user));
   } else {
     res.status(404).json({ message: 'User not found' });
@@ -259,12 +286,16 @@ router.delete('/:id/wishlist/:productId', (req, res) => {
 });
 
 // Add to Favorites (Animals)
-router.post('/:id/favorites', (req, res) => {
+router.post('/:id/favorites', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const { animalId } = req.body;
 
   if (isNaN(userId) || typeof animalId !== 'number') {
     return res.status(400).json({ message: 'Invalid user ID or animal ID' });
+  }
+
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   const user = db.users.find((u) => u.id === userId);
@@ -274,6 +305,7 @@ router.post('/:id/favorites', (req, res) => {
     if (!user.favorites) user.favorites = [];
     if (!user.favorites.includes(animalId)) {
       user.favorites.push(animalId);
+      persistChanges(res);
     }
     res.json(sanitizeUser(user));
   } else {
@@ -282,12 +314,16 @@ router.post('/:id/favorites', (req, res) => {
 });
 
 // Remove from Favorites
-router.delete('/:id/favorites/:animalId', (req, res) => {
+router.delete('/:id/favorites/:animalId', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const animalId = parseInt(req.params.animalId);
 
   if (isNaN(userId) || isNaN(animalId)) {
     return res.status(400).json({ message: 'Invalid user ID or animal ID' });
+  }
+
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   const user = db.users.find((u) => u.id === userId);
@@ -296,6 +332,7 @@ router.delete('/:id/favorites/:animalId', (req, res) => {
     // Initialize favorites if not exists
     if (!user.favorites) user.favorites = [];
     user.favorites = user.favorites.filter((id) => id !== animalId);
+    persistChanges(res);
     res.json(sanitizeUser(user));
   } else {
     res.status(404).json({ message: 'User not found' });
@@ -303,17 +340,22 @@ router.delete('/:id/favorites/:animalId', (req, res) => {
 });
 
 // Subscribe to Plus
-router.post('/:id/subscribe', (req, res) => {
+router.post('/:id/subscribe', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
 
   if (isNaN(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
 
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+
   const user = db.users.find((u) => u.id === userId);
 
   if (user) {
     user.isPlusMember = true;
+    persistChanges(res);
     auditLog('PLUS_SUBSCRIPTION', userId, { status: 'subscribed' });
     res.json(sanitizeUser(user));
   } else {
@@ -321,14 +363,58 @@ router.post('/:id/subscribe', (req, res) => {
   }
 });
 
+// Add to Order History
+router.post('/:id/orders', requireAuth, (req: AuthRequest, res) => {
+  const userId = parseInt(req.params.id);
+  const order = req.body;
+
+  if (isNaN(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  if (!canAccessUser(req, userId)) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+
+  if (!order || typeof order !== 'object' || !order.orderId) {
+    return res.status(400).json({ message: 'Invalid order payload' });
+  }
+
+  const user = db.users.find((u) => u.id === userId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (!user.orderHistory) {
+    user.orderHistory = [];
+  }
+
+  const alreadyExists = user.orderHistory.some(
+    (existingOrder) => existingOrder.orderId === order.orderId
+  );
+  if (!alreadyExists) {
+    user.orderHistory.unshift(order);
+    if (user.orderHistory.length > 100) {
+      user.orderHistory = user.orderHistory.slice(0, 100);
+    }
+    persistChanges(res);
+  }
+
+  res.status(201).json(sanitizeUser(user));
+});
+
 // Change Password
-router.post('/:id/change-password', authLimiter, async (req, res) => {
+router.post('/:id/change-password', requireAuth, authLimiter, async (req: AuthRequest, res) => {
   try {
     const userId = parseInt(req.params.id);
     const { currentPassword, newPassword } = req.body;
 
     if (isNaN(userId)) {
       return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    if (!canAccessUser(req, userId)) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
     if (!currentPassword || !newPassword) {
@@ -359,6 +445,7 @@ router.post('/:id/change-password', authLimiter, async (req, res) => {
 
     // Hash and save new password
     user.password = await hashPassword(newPassword);
+    persistChanges(res);
 
     auditLog('PASSWORD_CHANGED', userId, {});
     res.json({ message: 'Password changed successfully' });

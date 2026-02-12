@@ -151,6 +151,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             </h2>
             <button
               ref={closeButtonRef}
+              type="button"
               onClick={onClose}
               className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-300 touch-manipulation active:scale-95"
               aria-label="Close cart"
@@ -171,6 +172,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                   Looks like you haven't added any treats for your furry friend yet.
                 </p>
                 <button
+                  type="button"
                   onClick={onClose}
                   className="mt-6 text-orange-600 font-bold hover:underline touch-manipulation active:scale-95"
                 >
@@ -199,6 +201,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                       </p>
                       <div className="flex items-center space-x-3 mt-3">
                         <button
+                          type="button"
                           onClick={() => handleDecreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity <= 1}
                           className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -213,6 +216,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                           {item.quantity}
                         </span>
                         <button
+                          type="button"
                           onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity >= 99}
                           className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -223,6 +227,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => handleRemoveItem(item.id, item.name)}
                       className="p-2 text-slate-400 hover:text-red-500 transition-colors self-start touch-manipulation active:scale-95"
                       aria-label={`Remove ${item.name} from cart`}
@@ -240,17 +245,19 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             <footer className="p-5 sm:p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
               <div className="flex justify-between items-center text-lg sm:text-xl font-bold mb-4 sm:mb-6">
                 <span className="text-slate-600 dark:text-slate-300">Subtotal</span>
-                <span className="text-slate-800 dark:text-white tabular-nums">
+                <span className="text-slate-800 dark:text-white tabular-nums" aria-live="polite">
                   ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <button
+                type="button"
                 onClick={handleCheckout}
                 className="w-full bg-orange-500 text-white font-bold py-3.5 sm:py-4 px-4 rounded-xl text-base sm:text-lg hover:bg-orange-600 transition-colors shadow-lg touch-manipulation active:scale-[0.98] transform duration-150 focus:outline-none focus:ring-4 focus:ring-orange-300"
               >
                 Proceed to Checkout
               </button>
               <button
+                type="button"
                 onClick={handleClearCart}
                 className="w-full text-center mt-4 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors touch-manipulation active:scale-95"
               >
