@@ -6,7 +6,7 @@ interface ProductContextType {
   products: Product[];
   loading: boolean;
   error: string | null;
-  addProductReview: (productId: number, review: Review) => void;
+  addProductReview: (productId: number, review: Review) => Promise<void>;
   refetch: () => void;
 }
 
@@ -39,31 +39,35 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetchProducts();
   }, [fetchProducts]);
 
-  const addProductReview = useCallback((productId: number, review: Review) => {
-    // Optimistic local update
+  const addProductReview = useCallback(async (productId: number, review: Review) => {
+    const token = window.localStorage.getItem('petbhai_token');
+    const response = await apiRequest<{ review: Review; rating: number }>(
+      `/products/${productId}/reviews`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          rating: review.rating,
+          comment: review.comment,
+        }),
+      }
+    );
+
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
-          const updatedReviews = [review, ...product.reviews];
-          const newAverageRating =
-            updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length;
+          const updatedReviews = [response.review, ...(product.reviews || [])];
           return {
             ...product,
             reviews: updatedReviews,
-            rating: newAverageRating,
+            rating: response.rating,
           };
         }
         return product;
       });
-    });
-
-    // Persist to backend (fire-and-forget, optimistic)
-    apiRequest(`/products/${productId}/reviews`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(review),
-    }).catch((err) => {
-      console.error('Failed to sync review to backend', err);
     });
   }, []);
 

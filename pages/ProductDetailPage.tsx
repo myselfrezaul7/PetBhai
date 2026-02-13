@@ -1,14 +1,15 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBrands } from '../contexts/BrandContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { HeartIcon, ShoppingCartIcon } from '../components/icons';
 import ProductCard from '../components/ProductCard';
-import type { Review } from '../types';
+import type { BundleOffer, Review } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { sanitizeInput } from '../lib/security';
 import SEO from '../components/SEO';
+import { fetchBundleOffer } from '../services/ecommerceService';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,8 @@ const ProductDetailPage: React.FC = () => {
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [reviewError, setReviewError] = useState('');
+  const [bundleOffer, setBundleOffer] = useState<BundleOffer | null>(null);
+  const [bundleLoading, setBundleLoading] = useState(false);
 
   const brand = useMemo(() => {
     return brands.find((b) => b.id === product?.brandId);
@@ -104,7 +107,7 @@ const ProductDetailPage: React.FC = () => {
   }, [isAuthenticated, isWishlisted, navigate, removeFromWishlist, addToWishlist, product?.id]);
 
   const handleReviewSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
       if (newRating === 0) {
         setReviewError('Please select a star rating.');
@@ -128,7 +131,12 @@ const ProductDetailPage: React.FC = () => {
         date: new Date().toISOString(),
       };
 
-      addProductReview(product.id, newReview);
+      try {
+        await addProductReview(product.id, newReview);
+      } catch {
+        setReviewError('Failed to submit review. Please try again.');
+        return;
+      }
 
       // Reset form
       setNewRating(0);
@@ -137,6 +145,46 @@ const ProductDetailPage: React.FC = () => {
     },
     [newRating, newComment, currentUser, addProductReview, product?.id]
   );
+
+  useEffect(() => {
+    if (!product) {
+      setBundleOffer(null);
+      return;
+    }
+
+    let mounted = true;
+    setBundleLoading(true);
+    fetchBundleOffer(product.id)
+      .then((offer) => {
+        if (mounted) {
+          setBundleOffer(offer);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch bundle offer', error);
+        if (mounted) {
+          setBundleOffer(null);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setBundleLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [product]);
+
+  const handleAddBundleToCart = useCallback(() => {
+    if (!product || !bundleOffer?.items?.length) {
+      return;
+    }
+
+    addToCart(product);
+    bundleOffer.items.forEach((bundleItem) => addToCart(bundleItem));
+  }, [addToCart, bundleOffer, product]);
 
   const StarRatingDisplay = memo(
     ({ rating, className = 'w-5 h-5' }: { rating: number; className?: string }) => (
@@ -285,6 +333,55 @@ const ProductDetailPage: React.FC = () => {
       </article>
 
       {/* Reviews Section */}
+      {(bundleLoading || (bundleOffer && bundleOffer.items.length > 0)) && (
+        <section
+          className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8"
+          aria-labelledby="bundle-heading"
+        >
+          <h2
+            id="bundle-heading"
+            className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-4"
+          >
+            Bundle & Save
+          </h2>
+
+          {bundleLoading ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">Loading bundle offer...</p>
+          ) : (
+            bundleOffer &&
+            bundleOffer.items.length > 0 && (
+              <>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-4">
+                  Buy this item with recommended essentials and save {bundleOffer.discountPercent}%
+                  on the bundle total.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                  {[product, ...bundleOffer.items].map((bundleItem) => (
+                    <ProductCard key={`bundle-${bundleItem.id}`} product={bundleItem} />
+                  ))}
+                </div>
+                <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200">
+                    <span className="line-through text-slate-400 dark:text-slate-500 mr-2">
+                      ৳{bundleOffer.originalTotal.toLocaleString('en-BD')}
+                    </span>
+                    <span className="font-bold text-orange-600 dark:text-orange-400">
+                      ৳{bundleOffer.bundleTotal.toLocaleString('en-BD')}
+                    </span>
+                  </p>
+                  <button
+                    onClick={handleAddBundleToCart}
+                    className="bg-orange-500 text-white font-bold py-2.5 px-6 rounded-full hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
+                  >
+                    Add Bundle to Cart
+                  </button>
+                </div>
+              </>
+            )
+          )}
+        </section>
+      )}
+
       <section
         className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8"
         aria-labelledby="reviews-heading"
@@ -366,6 +463,11 @@ const ProductDetailPage: React.FC = () => {
                   <p className="ml-3 font-bold text-sm sm:text-base text-slate-700 dark:text-slate-200">
                     {review.author}
                   </p>
+                  {review.verifiedPurchase && (
+                    <span className="ml-2 inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 text-[10px] sm:text-xs font-semibold">
+                      Verified Purchase
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">
                   <time dateTime={review.date}>{new Date(review.date).toLocaleDateString()}</time>

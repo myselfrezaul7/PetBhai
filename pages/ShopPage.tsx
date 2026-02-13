@@ -3,11 +3,13 @@ import { useLocation } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useBrands } from '../contexts/BrandContext';
 import { SearchIcon } from '../components/icons';
-import type { Product } from '../types';
+import type { Product, ReorderSuggestion } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import ProductQuickViewModal from '../components/ProductQuickViewModal';
 import { sanitizeInput } from '../lib/security';
+import { useAuth } from '../contexts/AuthContext';
+import { fetchReorderSuggestions } from '../services/ecommerceService';
 
 type CategoryFilter =
   | 'All'
@@ -52,6 +54,9 @@ const ShopPage: React.FC = () => {
 
   const { products: allProducts, loading } = useProducts();
   const { brands } = useBrands();
+  const { isAuthenticated } = useAuth();
+  const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]);
+  const [reorderLoading, setReorderLoading] = useState(false);
 
   // Extract unique weight values from products
   const weightOptions = useMemo(() => {
@@ -83,6 +88,38 @@ const ShopPage: React.FC = () => {
       setActiveBrand(location.state.brand);
     }
   }, [location.state?.brand]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setReorderSuggestions([]);
+      return;
+    }
+
+    let mounted = true;
+    setReorderLoading(true);
+
+    fetchReorderSuggestions()
+      .then((data) => {
+        if (mounted) {
+          setReorderSuggestions(Array.isArray(data) ? data : []);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch reorder suggestions', error);
+        if (mounted) {
+          setReorderSuggestions([]);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setReorderLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAuthenticated]);
 
   // Memoized handlers using useCallback
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,6 +274,43 @@ const ShopPage: React.FC = () => {
             {t('shop_subtitle')}
           </p>
         </header>
+
+        {isAuthenticated && (reorderLoading || reorderSuggestions.length > 0) && (
+          <section
+            className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12"
+            aria-label="Smart reorder suggestions"
+          >
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h2 className="text-lg sm:text-2xl font-bold text-slate-800 dark:text-white">
+                Smart Reorder
+              </h2>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Based on your order cycle
+              </span>
+            </div>
+
+            {reorderLoading ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Loading your reorder picks...
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+                  {reorderSuggestions.map((suggestion) => (
+                    <ProductCard
+                      key={`reorder-${suggestion.product.id}`}
+                      product={suggestion.product}
+                      onQuickView={handleQuickView}
+                    />
+                  ))}
+                </div>
+                <p className="mt-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                  Recommended quantities are pre-calculated from your recent purchases.
+                </p>
+              </>
+            )}
+          </section>
+        )}
 
         {/* Filters & Sorting */}
         <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6">

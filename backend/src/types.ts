@@ -4,6 +4,7 @@ export interface Review {
   rating: number; // 1-5 stars
   comment: string;
   date: string; // ISO string
+  verifiedPurchase?: boolean;
 }
 
 export interface Brand {

@@ -6,6 +6,7 @@ export interface Review {
   rating: number; // 1-5 stars
   comment: string;
   date: string; // ISO string
+  verifiedPurchase?: boolean;
 }
 
 export interface Brand {
@@ -162,6 +163,22 @@ export interface Product {
   stockQuantity?: number;
   originalPrice?: number; // For showing discounts
   discount?: number; // Percentage discount
+}
+
+export interface BundleOffer {
+  title: string;
+  baseProductId: number;
+  items: Product[];
+  discountPercent: number;
+  originalTotal: number;
+  bundleTotal: number;
+}
+
+export interface ReorderSuggestion {
+  product: Product;
+  suggestedQuantity: number;
+  lastOrderedAt: string;
+  reason: string;
 }
 
 export interface CartItem extends Product {

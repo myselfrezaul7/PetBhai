@@ -75,6 +75,15 @@ interface ExtendedOrder extends Order {
   };
 }
 
+const reorderCadenceDaysByCategory: Record<string, number> = {
+  'Dog Food': 30,
+  'Cat Food': 30,
+  'Dog Supplies': 45,
+  'Cat Supplies': 45,
+  Grooming: 60,
+  Accessories: 75,
+};
+
 // Generate unique order ID
 const generateOrderId = (): string => {
   const timestamp = Date.now();
@@ -326,6 +335,102 @@ router.get('/', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => 
       totalPages: Math.ceil(orders.length / limitNum),
     },
   });
+});
+
+// Smart reorder suggestions (authenticated user only)
+router.get('/reorder-suggestions', requireAuth, (req: AuthRequest, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const requesterId = Number(req.user.id);
+  if (!Number.isFinite(requesterId)) {
+    return res.status(400).json({ message: 'Invalid user context' });
+  }
+
+  const user = db.users.find((u) => Number(u.id) === requesterId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const productStats = new Map<
+    number,
+    {
+      quantityTotal: number;
+      orderCount: number;
+      lastOrderedAt: string;
+    }
+  >();
+
+  for (const order of user.orderHistory || []) {
+    if (order.status === 'cancelled' || order.status === 'refunded') {
+      continue;
+    }
+
+    for (const item of order.items) {
+      const current = productStats.get(item.id);
+      if (!current) {
+        productStats.set(item.id, {
+          quantityTotal: item.quantity,
+          orderCount: 1,
+          lastOrderedAt: order.date,
+        });
+        continue;
+      }
+
+      current.quantityTotal += item.quantity;
+      current.orderCount += 1;
+      if (new Date(order.date).getTime() > new Date(current.lastOrderedAt).getTime()) {
+        current.lastOrderedAt = order.date;
+      }
+    }
+  }
+
+  const now = Date.now();
+  const suggestions = Array.from(productStats.entries())
+    .map(([productId, stat]) => {
+      const product = db.products.find((p) => p.id === productId);
+      if (!product || product.stockStatus === 'out-of-stock') {
+        return null;
+      }
+
+      const cadenceDays = reorderCadenceDaysByCategory[product.category] || 45;
+      const lastOrderTime = new Date(stat.lastOrderedAt).getTime();
+      if (!Number.isFinite(lastOrderTime)) {
+        return null;
+      }
+
+      const daysSinceOrder = Math.max(0, (now - lastOrderTime) / (1000 * 60 * 60 * 24));
+      const readinessRatio = daysSinceOrder / cadenceDays;
+      const reorderScore = readinessRatio + Math.min(0.5, Math.log(stat.quantityTotal + 1) * 0.1);
+
+      return {
+        product,
+        suggestedQuantity: Math.max(1, Math.round(stat.quantityTotal / stat.orderCount)),
+        lastOrderedAt: stat.lastOrderedAt,
+        reason:
+          readinessRatio >= 1
+            ? `Usually reordered every ~${cadenceDays} days`
+            : `Likely needed soon (typical cycle: ~${cadenceDays} days)`,
+        reorderScore,
+      };
+    })
+    .filter(
+      (
+        item
+      ): item is {
+        product: Product;
+        suggestedQuantity: number;
+        lastOrderedAt: string;
+        reason: string;
+        reorderScore: number;
+      } => item !== null && item.reorderScore >= 0.6
+    )
+    .sort((a, b) => b.reorderScore - a.reorderScore)
+    .slice(0, 8)
+    .map(({ reorderScore: _score, ...rest }) => rest);
+
+  return res.json(suggestions);
 });
 
 // Get order by ID
