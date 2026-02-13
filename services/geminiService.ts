@@ -1,7 +1,7 @@
 // This service now delegates all AI operations to the backend API
 // to protect API keys and centralize logic.
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { apiRequest, ApiRequestError } from './apiClient';
 
 export const isAiConfigured = (): boolean => {
   // In the full-stack architecture, we assume the backend is configured.
@@ -18,39 +18,21 @@ export const getVetAssistantResponse = async (prompt: string): Promise<string> =
     return 'Please provide a question for me to answer.';
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
   try {
-    const response = await fetch(`${API_URL}/ai/chat`, {
+    const data = await apiRequest<{ text?: string }>('/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: prompt.trim() }),
-      signal: controller.signal,
+      timeoutMs: 30000,
     });
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      let errorMessage = 'Failed to get response from AI service';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        // Response body might not be JSON
-      }
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
     return (
       data.text || "I received your question but couldn't generate a response. Please try again."
     );
   } catch (error) {
-    clearTimeout(timeoutId);
     console.error('Error in getVetAssistantResponse:', error);
 
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof ApiRequestError && error.statusCode === 408) {
       throw new Error('The request took too long. Please try again with a simpler question.');
     }
 
@@ -71,39 +53,21 @@ export const generateImageFromPrompt = async (prompt: string): Promise<string> =
     throw new Error('Prompt is too long. Please use 2000 characters or less.');
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
-
   try {
-    const response = await fetch(`${API_URL}/ai/generate-image`, {
+    const data = await apiRequest<{ imageUrl?: string }>('/ai/generate-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: prompt.trim() }),
-      signal: controller.signal,
+      timeoutMs: 60000,
     });
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      let errorMessage = 'Failed to generate image';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        // Response might not be JSON
-      }
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
     if (!data.imageUrl) {
       throw new Error('No image was generated. Please try a different prompt.');
     }
     return data.imageUrl;
   } catch (error) {
-    clearTimeout(timeoutId);
     console.error('Error generating image:', error);
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof ApiRequestError && error.statusCode === 408) {
       throw new Error('Image generation timed out. Please try again.');
     }
     if (error instanceof Error) {
@@ -129,11 +93,8 @@ export const generateVlogThumbnail = async (
     throw new Error('Please provide a mood/style for the thumbnail.');
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
-
   try {
-    const response = await fetch(`${API_URL}/ai/generate-thumbnail`, {
+    const data = await apiRequest<{ imageUrl?: string }>('/ai/generate-thumbnail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -141,31 +102,16 @@ export const generateVlogThumbnail = async (
         subject: subject.trim(),
         mood: mood.trim(),
       }),
-      signal: controller.signal,
+      timeoutMs: 60000,
     });
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      let errorMessage = 'Failed to generate thumbnail';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        // Response might not be JSON
-      }
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
     if (!data.imageUrl) {
       throw new Error('No thumbnail was generated. Please try different parameters.');
     }
     return data.imageUrl;
   } catch (error) {
-    clearTimeout(timeoutId);
     console.error('Error generating thumbnail:', error);
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof ApiRequestError && error.statusCode === 408) {
       throw new Error('Thumbnail generation timed out. Please try again.');
     }
     throw error;
@@ -213,37 +159,20 @@ export const analyzeRescueImage = async (
     const base64String = base64Data.substring(commaIndex + 1);
     const mimeType = imageFile.type;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout for image analysis
-
-    const response = await fetch(`${API_URL}/ai/analyze-image`, {
+    const result = await apiRequest<{ type?: string; condition?: string }>('/ai/analyze-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mimeType, data: base64String }),
-      signal: controller.signal,
+      timeoutMs: 60000,
     });
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      let errorMessage = 'Failed to analyze image';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        // Response might not be JSON
-      }
-      throw new Error(errorMessage);
-    }
-
-    const result = await response.json();
     return {
       type: result.type || 'Unknown',
       condition: result.condition || 'Unable to determine condition',
     };
   } catch (error) {
     console.error('Error analyzing image:', error);
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof ApiRequestError && error.statusCode === 408) {
       throw new Error('Image analysis timed out. Please try again.');
     }
     throw error;

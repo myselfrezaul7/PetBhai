@@ -176,8 +176,8 @@ const AIAssistantPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-72px)] container mx-auto p-4 max-w-3xl animate-fade-in">
-      <div className="text-center mb-6 pt-4">
+    <div className="flex flex-col h-[calc(100vh-72px)] min-h-[calc(100dvh-72px)] container mx-auto p-3 sm:p-4 max-w-3xl animate-fade-in">
+      <div className="text-center mb-4 sm:mb-6 pt-3 sm:pt-4">
         <h1 className="text-4xl font-bold text-slate-800 dark:text-white">AI Vet</h1>
         <p className="text-lg text-slate-700 dark:text-slate-200">
           Ask general questions about pet health and care.

@@ -57,6 +57,17 @@ export const orderLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiter for social/community mutations
+export const postMutationLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 40, // Limit each IP to 40 mutation requests per minute
+  message: {
+    error: 'Too many post actions, please slow down and try again.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Custom rate limiter that can be configured per route
 export const createRateLimiter = (
   windowMs: number,

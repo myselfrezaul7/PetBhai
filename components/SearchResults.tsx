@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product, Article, Vet, Animal } from '../types';
 import {
@@ -46,12 +46,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 }) => {
   const { cartItems } = useCart();
   const { t } = useLanguage();
-  const hasResults =
-    results.products.length > 0 ||
-    results.pages.length > 0 ||
-    results.articles.length > 0 ||
-    results.vets.length > 0 ||
-    results.animals.length > 0;
+  const hasResults = useMemo(
+    () =>
+      results.products.length > 0 ||
+      results.pages.length > 0 ||
+      results.articles.length > 0 ||
+      results.vets.length > 0 ||
+      results.animals.length > 0,
+    [results]
+  );
 
   const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -83,7 +86,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   return (
     <div
       id={id}
-      className="absolute top-full mt-2 w-full md:w-[500px] bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden border border-slate-200 dark:border-slate-700 transform origin-top motion-safe:animate-scale-in motion-reduce:animate-none"
+      className="absolute top-full left-0 lg:left-auto lg:right-0 mt-2 w-full md:w-[min(32rem,calc(100vw-2rem))] max-w-[calc(100vw-1rem)] bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden border border-slate-200 dark:border-slate-700 transform origin-top motion-safe:animate-scale-in motion-reduce:animate-none"
       aria-label="Search results"
     >
       <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -169,6 +172,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           <img
                             src={product.imageUrl}
                             alt={product.name}
+                            loading="lazy"
+                            decoding="async"
                             className="w-12 h-12 object-cover rounded-lg shadow-sm"
                           />
                           {product.discount && (
@@ -228,6 +233,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                         <img
                           src={vet.imageUrl}
                           alt={vet.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-12 h-12 object-cover rounded-full border-2 border-white dark:border-slate-700 shadow-sm"
                         />
                         <div className="flex-grow min-w-0">
@@ -273,6 +280,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                         <img
                           src={animal.imageUrl}
                           alt={animal.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-12 h-12 object-cover rounded-lg shadow-sm"
                         />
                         <div className="flex-grow min-w-0">
@@ -379,4 +388,4 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   );
 };
 
-export default SearchResults;
+export default React.memo(SearchResults);

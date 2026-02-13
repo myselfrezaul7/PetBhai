@@ -34,6 +34,9 @@ if (!dbStatus.loaded) {
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Needed for accurate client IPs/rate-limiting behind proxies (Vercel, Nginx, etc.)
+app.set('trust proxy', 1);
+
 // Compression middleware - should be early for performance
 app.use(
   compression({
@@ -132,7 +135,14 @@ app.use(
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'X-Session-Id',
+      'X-CSRF-Token',
+      'X-Recaptcha-Token',
+    ],
     credentials: true,
     maxAge: 86400, // 24 hours
   })

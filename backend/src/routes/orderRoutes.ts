@@ -1,12 +1,48 @@
 import { Router, Response } from 'express';
 import nodemailer from 'nodemailer';
+import { z } from 'zod';
 import { db } from '../db';
-import type { Order } from '../types';
-import { AuthRequest, requireAuth, requireAdmin } from '../middleware/auth';
-import { validate, schemas } from '../middleware/validation';
+import type { CartItem, Order, Product } from '../types';
+import { AuthRequest, optionalAuth, requireAuth, requireAdmin } from '../middleware/auth';
 import { orderLimiter } from '../middleware/rateLimiter';
+import { securityLog } from '../middleware/logger';
 
 const router = Router();
+
+const orderCreateSchema = z
+  .object({
+    items: z
+      .array(
+        z.object({
+          id: z.number().int().positive(),
+          name: z.string().min(1).max(250),
+          quantity: z.number().int().min(1).max(99),
+          imageUrl: z.string().max(3000).optional(),
+          price: z.number().positive().finite(),
+        })
+      )
+      .min(1)
+      .max(100),
+    total: z.number().positive().finite().optional(),
+    userId: z.number().int().positive().optional(),
+    shippingAddress: z.object({
+      name: z.string().min(2).max(100),
+      phone: z.string().min(7).max(30),
+      address: z.string().min(5).max(500),
+      email: z.string().email().optional(),
+      city: z.string().min(2).max(100).optional(),
+      district: z.string().min(2).max(100).optional(),
+      postalCode: z.string().max(20).optional(),
+    }),
+    paymentMethod: z.string().min(2).max(40),
+  })
+  .strict();
+
+const orderCancelSchema = z
+  .object({
+    reason: z.string().min(2).max(500).optional(),
+  })
+  .strict();
 
 // Order status types
 type OrderStatus =
@@ -20,6 +56,7 @@ type OrderStatus =
 
 // Extended order type with tracking
 interface ExtendedOrder extends Order {
+  userId?: number;
   status: OrderStatus;
   statusHistory: Array<{
     status: OrderStatus;
@@ -32,8 +69,8 @@ interface ExtendedOrder extends Order {
     name: string;
     phone: string;
     address: string;
-    city: string;
-    district: string;
+    city?: string;
+    district?: string;
     postalCode?: string;
   };
 }
@@ -138,41 +175,42 @@ async function sendOrderEmail(order: ExtendedOrder) {
 }
 
 // Create Order
-router.post('/', orderLimiter, (req, res) => {
-  const orderData = req.body;
-
-  if (!orderData || typeof orderData !== 'object') {
-    return res.status(400).json({ message: 'Invalid order data' });
+router.post('/', orderLimiter, optionalAuth, (req: AuthRequest, res) => {
+  const parseResult = orderCreateSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: 'Invalid order data',
+      details: parseResult.error.errors.map((e) => ({
+        field: e.path.join('.'),
+        message: e.message,
+      })),
+    });
   }
 
-  if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
-    return res.status(400).json({ message: 'Order must contain at least one item' });
+  const orderData = parseResult.data;
+  const requesterId = req.user ? Number(req.user.id) : null;
+  const hasRequester = requesterId !== null && Number.isFinite(requesterId) && requesterId > 0;
+
+  if (typeof orderData.userId === 'number') {
+    if (!hasRequester || requesterId !== orderData.userId) {
+      securityLog('ORDER_USER_ID_MISMATCH', req, {
+        requesterId,
+        payloadUserId: orderData.userId,
+      });
+      return res.status(403).json({
+        message: 'Invalid user association for this order',
+      });
+    }
   }
+
+  const resolvedUserId = hasRequester ? requesterId : undefined;
 
   // Validate each item has required fields
-  const invalidItems = orderData.items.some(
-    (item: any) =>
-      !item ||
-      typeof item !== 'object' ||
-      typeof item.id !== 'number' ||
-      typeof item.price !== 'number' ||
-      !Number.isFinite(item.price) ||
-      item.price <= 0 ||
-      typeof item.quantity !== 'number' ||
-      !Number.isInteger(item.quantity) ||
-      item.quantity <= 0 ||
-      item.quantity > 99
-  );
-
-  if (invalidItems) {
-    return res.status(400).json({ message: 'Invalid item data in order' });
-  }
-
-  let validatedItems: any[] = [];
+  let validatedItems: CartItem[] = [];
   try {
     // Validate against latest product state and recalculate total on server
-    validatedItems = orderData.items.map((item: any) => {
-      const product = db.products.find((p) => p.id === item.id) as any;
+    validatedItems = orderData.items.map((item) => {
+      const product = db.products.find((p) => p.id === item.id) as Product | undefined;
 
       if (!product) {
         throw new Error(`Product with ID ${item.id} no longer exists`);
@@ -182,10 +220,9 @@ router.post('/', orderLimiter, (req, res) => {
         throw new Error(`${product.name || 'Product'} is out of stock`);
       }
 
-      if (typeof product.stockQuantity === 'number' && item.quantity > product.stockQuantity) {
-        throw new Error(
-          `Only ${product.stockQuantity} unit(s) available for ${product.name || 'product'}`
-        );
+      const stockQuantity = (product as Product & { stockQuantity?: number }).stockQuantity;
+      if (typeof stockQuantity === 'number' && item.quantity > stockQuantity) {
+        throw new Error(`Only ${stockQuantity} unit(s) available for ${product.name || 'product'}`);
       }
 
       const serverPrice =
@@ -194,8 +231,11 @@ router.post('/', orderLimiter, (req, res) => {
           : item.price;
 
       return {
-        ...item,
+        ...product,
+        name: item.name || product.name,
+        imageUrl: item.imageUrl || product.imageUrl,
         price: serverPrice,
+        quantity: item.quantity,
       };
     });
   } catch (inventoryError) {
@@ -218,6 +258,7 @@ router.post('/', orderLimiter, (req, res) => {
 
   const newOrder: ExtendedOrder = {
     ...orderData,
+    userId: resolvedUserId,
     items: validatedItems,
     orderId,
     date: now,
@@ -237,8 +278,8 @@ router.post('/', orderLimiter, (req, res) => {
   db.orders.push(newOrder);
 
   // If userId is provided, add to user's history
-  if (orderData.userId) {
-    const user = db.users.find((u) => u.id === orderData.userId);
+  if (resolvedUserId) {
+    const user = db.users.find((u) => Number(u.id) === resolvedUserId);
     if (user) {
       // Initialize orderHistory if not exists
       if (!user.orderHistory) user.orderHistory = [];
@@ -288,20 +329,57 @@ router.get('/', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => 
 });
 
 // Get order by ID
-router.get('/:orderId', (req, res) => {
+router.get('/:orderId', requireAuth, (req: AuthRequest, res) => {
   const { orderId } = req.params;
-  const order = db.orders.find((o) => o.orderId === orderId);
+  const order = db.orders.find((o) => o.orderId === orderId) as
+    | (ExtendedOrder & {
+        userId?: number;
+      })
+    | null;
 
   if (!order) {
     return res.status(404).json({ message: 'Order not found' });
+  }
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const requesterId = Number(req.user.id);
+  const isOwner = Number.isFinite(requesterId) && order.userId === requesterId;
+  if (!isOwner && !req.user.isAdmin) {
+    securityLog('ORDER_READ_FORBIDDEN', req, {
+      requesterId,
+      orderId,
+      ownerId: order.userId,
+    });
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   res.json(order);
 });
 
 // Get User Orders
-router.get('/user/:userId', (req, res) => {
+router.get('/user/:userId', requireAuth, (req: AuthRequest, res) => {
   const userId = parseInt(req.params.userId);
+
+  if (Number.isNaN(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const requesterId = Number(req.user.id);
+  if (!Number.isFinite(requesterId) || (requesterId !== userId && !req.user.isAdmin)) {
+    securityLog('ORDER_HISTORY_FORBIDDEN', req, {
+      requesterId,
+      requestedUserId: userId,
+    });
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+
   const user = db.users.find((u) => u.id === userId);
 
   if (user) {
@@ -376,16 +454,36 @@ router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, r
 });
 
 // Cancel order (user can cancel pending orders)
-router.post('/:orderId/cancel', (req, res) => {
+router.post('/:orderId/cancel', requireAuth, (req: AuthRequest, res) => {
   const { orderId } = req.params;
-  const { reason } = req.body;
+  const parseResult = orderCancelSchema.safeParse(req.body || {});
+  if (!parseResult.success) {
+    return res.status(400).json({ message: 'Invalid cancellation request' });
+  }
+
+  const { reason } = parseResult.data;
 
   const orderIndex = db.orders.findIndex((o) => o.orderId === orderId);
   if (orderIndex === -1) {
     return res.status(404).json({ message: 'Order not found' });
   }
 
-  const order = db.orders[orderIndex] as ExtendedOrder;
+  const order = db.orders[orderIndex] as ExtendedOrder & { userId?: number };
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const requesterId = Number(req.user.id);
+  const isOwner = Number.isFinite(requesterId) && order.userId === requesterId;
+  if (!isOwner && !req.user.isAdmin) {
+    securityLog('ORDER_CANCEL_FORBIDDEN', req, {
+      requesterId,
+      orderId,
+      ownerId: order.userId,
+    });
+    return res.status(403).json({ message: 'Forbidden' });
+  }
 
   // Only allow cancellation of pending or confirmed orders
   if (order.status && !['pending', 'confirmed'].includes(order.status)) {

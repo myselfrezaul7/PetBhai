@@ -3,14 +3,6 @@ import React, { useState, useEffect } from 'react';
 const ScrollToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
-  const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  };
-
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -19,9 +11,32 @@ const ScrollToTop: React.FC = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', toggleVisibility);
+    let frameId: number | null = null;
+
+    const updateVisibility = () => {
+      const shouldBeVisible = window.pageYOffset > 300;
+      setIsVisible((prev) => (prev === shouldBeVisible ? prev : shouldBeVisible));
+    };
+
+    const onScroll = () => {
+      if (frameId !== null) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        updateVisibility();
+        frameId = null;
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    updateVisibility();
+
     return () => {
-      window.removeEventListener('scroll', toggleVisibility);
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener('scroll', onScroll);
     };
   }, []);
 

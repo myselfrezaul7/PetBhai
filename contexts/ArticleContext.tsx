@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Article } from '../types';
-
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 interface ArticleContextType {
   articles: Article[];
@@ -19,17 +18,9 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
 
   const fetchArticles = useCallback(async () => {
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
-
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/articles`, { signal: controller.signal });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to fetch articles');
-      }
-      const data = await response.json();
+      const data = await apiRequest<Article[]>('/articles');
       if (!Array.isArray(data)) {
         throw new Error('Invalid article data received');
       }
@@ -37,14 +28,9 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);
-      if (err instanceof Error && err.name === 'AbortError') {
-        setError('Articles request timed out. Please try again.');
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to load articles. Please try again.');
-      }
+      setError(getErrorMessage(err, 'Failed to load articles. Please try again.'));
       setArticles([]);
     } finally {
-      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, []);

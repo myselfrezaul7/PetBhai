@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Brand } from '../types';
-
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 interface BrandContextType {
   brands: Brand[];
@@ -20,11 +19,7 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const fetchBrands = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/brands`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch brands');
-      }
-      const data = await response.json();
+      const data = await apiRequest<Brand[]>('/brands');
       if (!Array.isArray(data)) {
         throw new Error('Invalid brand data received');
       }
@@ -32,7 +27,7 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setError(null);
     } catch (err) {
       console.error('Error fetching brands:', err);
-      setError('Failed to load brands. Please try again later.');
+      setError(getErrorMessage(err, 'Failed to load brands. Please try again later.'));
       setBrands([]);
     } finally {
       setLoading(false);

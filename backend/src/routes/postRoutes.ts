@@ -1,9 +1,57 @@
 import express from 'express';
+import { z } from 'zod';
 import { db } from '../db';
 import type { Post, Comment, CommentReply } from '../types';
+import { postMutationLimiter } from '../middleware/rateLimiter';
+import { securityLog } from '../middleware/logger';
 
 const router = express.Router();
 
+const authorSchema = z
+  .object({
+    id: z.number().int().positive(),
+    name: z.string().min(1).max(100),
+    profilePictureUrl: z.string().max(3000).optional(),
+  })
+  .strict();
+
+const createPostSchema = z
+  .object({
+    author: authorSchema,
+    content: z.string().min(1).max(5000),
+    imageUrl: z
+      .string()
+      .max(7 * 1024 * 1024)
+      .optional(),
+  })
+  .strict();
+
+const updatePostSchema = z
+  .object({
+    content: z.string().min(1).max(5000),
+    authorId: z.number().int().positive(),
+  })
+  .strict();
+
+const userIdSchema = z
+  .object({
+    userId: z.number().int().positive(),
+  })
+  .strict();
+
+const commentSchema = z
+  .object({
+    author: authorSchema,
+    text: z.string().min(1).max(2000),
+  })
+  .strict();
+
+const replySchema = z
+  .object({
+    author: authorSchema,
+    text: z.string().min(1).max(1000),
+  })
+  .strict();
 // Security: Sanitize text input
 const sanitizeText = (text: unknown, maxLength: number = 5000): string => {
   if (typeof text !== 'string') return '';
@@ -71,9 +119,14 @@ router.get('/:id', (req, res) => {
 });
 
 // Create a new post
-router.post('/', (req, res) => {
+router.post('/', postMutationLimiter, (req, res) => {
   try {
-    const { author, content, imageUrl } = req.body;
+    const parsed = createPostSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid post payload' });
+    }
+
+    const { author, content, imageUrl } = parsed.data;
 
     const validatedAuthor = validateAuthor(author);
     if (!validatedAuthor) {
@@ -121,14 +174,19 @@ router.post('/', (req, res) => {
 });
 
 // Update a post
-router.put('/:id', (req, res) => {
+router.put('/:id', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    const { content, authorId } = req.body;
+    const parsed = updatePostSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid post update payload' });
+    }
+
+    const { content, authorId } = parsed.data;
     const validAuthorId = validateId(authorId);
     if (!validAuthorId) {
       return res.status(400).json({ message: 'Valid author ID is required' });
@@ -146,6 +204,11 @@ router.put('/:id', (req, res) => {
 
     // Check if the user is the author
     if (db.posts[postIndex].author.id !== validAuthorId) {
+      securityLog('POST_EDIT_FORBIDDEN', req, {
+        postId,
+        requesterId: validAuthorId,
+        ownerId: db.posts[postIndex].author.id,
+      });
       return res.status(403).json({ message: 'You can only edit your own posts' });
     }
 
@@ -158,7 +221,7 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete a post
-router.delete('/:id', (req, res) => {
+router.delete('/:id', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -177,6 +240,11 @@ router.delete('/:id', (req, res) => {
 
     // Check if the user is the author
     if (db.posts[postIndex].author.id !== authorId) {
+      securityLog('POST_DELETE_FORBIDDEN', req, {
+        postId,
+        requesterId: authorId,
+        ownerId: db.posts[postIndex].author.id,
+      });
       return res.status(403).json({ message: 'You can only delete your own posts' });
     }
 
@@ -189,14 +257,19 @@ router.delete('/:id', (req, res) => {
 });
 
 // Like/Unlike a post
-router.post('/:id/like', (req, res) => {
+router.post('/:id/like', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    const userId = validateId(req.body.userId);
+    const parsed = userIdSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Valid user ID is required' });
+    }
+
+    const userId = validateId(parsed.data.userId);
     if (!userId) {
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
@@ -221,14 +294,19 @@ router.post('/:id/like', (req, res) => {
 });
 
 // Add a comment to a post
-router.post('/:id/comments', (req, res) => {
+router.post('/:id/comments', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    const { author, text } = req.body;
+    const parsed = commentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid comment payload' });
+    }
+
+    const { author, text } = parsed.data;
     const validatedAuthor = validateAuthor(author);
     if (!validatedAuthor) {
       return res.status(400).json({ message: 'Valid author information is required' });
@@ -262,11 +340,16 @@ router.post('/:id/comments', (req, res) => {
 });
 
 // Like/Unlike a comment
-router.post('/:postId/comments/:commentId/like', (req, res) => {
+router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
-    const userId = validateId(req.body.userId);
+    const parsed = userIdSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Valid user ID is required' });
+    }
+
+    const userId = validateId(parsed.data.userId);
 
     if (!postId || !commentId) {
       return res.status(400).json({ message: 'Invalid post or comment ID' });
@@ -300,7 +383,7 @@ router.post('/:postId/comments/:commentId/like', (req, res) => {
 });
 
 // Add a reply to a comment
-router.post('/:postId/comments/:commentId/replies', (req, res) => {
+router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -309,7 +392,12 @@ router.post('/:postId/comments/:commentId/replies', (req, res) => {
       return res.status(400).json({ message: 'Invalid post or comment ID' });
     }
 
-    const { author, text } = req.body;
+    const parsed = replySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid reply payload' });
+    }
+
+    const { author, text } = parsed.data;
     const validatedAuthor = validateAuthor(author);
     if (!validatedAuthor) {
       return res.status(400).json({ message: 'Valid author information is required' });
@@ -347,47 +435,56 @@ router.post('/:postId/comments/:commentId/replies', (req, res) => {
 });
 
 // Like/Unlike a reply
-router.post('/:postId/comments/:commentId/replies/:replyId/like', (req, res) => {
-  try {
-    const postId = validateId(req.params.postId);
-    const commentId = validateId(req.params.commentId);
-    const replyId = validateId(req.params.replyId);
-    const userId = validateId(req.body.userId);
+router.post(
+  '/:postId/comments/:commentId/replies/:replyId/like',
+  postMutationLimiter,
+  (req, res) => {
+    try {
+      const postId = validateId(req.params.postId);
+      const commentId = validateId(req.params.commentId);
+      const replyId = validateId(req.params.replyId);
+      const parsed = userIdSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: 'Valid user ID is required' });
+      }
 
-    if (!postId || !commentId || !replyId) {
-      return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
-    }
-    if (!userId) {
-      return res.status(400).json({ message: 'Valid user ID is required' });
-    }
+      const userId = validateId(parsed.data.userId);
 
-    const post = db.posts.find((p) => p.id === postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
+      if (!postId || !commentId || !replyId) {
+        return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
+      }
+      if (!userId) {
+        return res.status(400).json({ message: 'Valid user ID is required' });
+      }
 
-    const comment = post.comments.find((c) => c.id === commentId);
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
+      const post = db.posts.find((p) => p.id === postId);
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
 
-    const reply = comment.replies.find((r) => r.id === replyId);
-    if (!reply) {
-      return res.status(404).json({ message: 'Reply not found' });
-    }
+      const comment = post.comments.find((c) => c.id === commentId);
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
 
-    const likeIndex = reply.likes.indexOf(userId);
-    if (likeIndex === -1) {
-      reply.likes.push(userId);
-    } else {
-      reply.likes.splice(likeIndex, 1);
-    }
+      const reply = comment.replies.find((r) => r.id === replyId);
+      if (!reply) {
+        return res.status(404).json({ message: 'Reply not found' });
+      }
 
-    res.json(reply);
-  } catch (error) {
-    console.error('Error toggling reply like:', error);
-    res.status(500).json({ message: 'Failed to toggle like' });
+      const likeIndex = reply.likes.indexOf(userId);
+      if (likeIndex === -1) {
+        reply.likes.push(userId);
+      } else {
+        reply.likes.splice(likeIndex, 1);
+      }
+
+      res.json(reply);
+    } catch (error) {
+      console.error('Error toggling reply like:', error);
+      res.status(500).json({ message: 'Failed to toggle like' });
+    }
   }
-});
+);
 
 export default router;

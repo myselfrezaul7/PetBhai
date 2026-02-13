@@ -1,8 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Product, Review } from '../types';
-
-// Use relative path for API to leverage Vite proxy in dev and same-origin in prod
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 interface ProductContextType {
   products: Product[];
@@ -20,17 +18,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
-
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/products`, { signal: controller.signal });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to fetch products');
-      }
-      const data = await response.json();
+      const data = await apiRequest<Product[]>('/products');
       if (!Array.isArray(data)) {
         throw new Error('Invalid products data received');
       }
@@ -38,14 +28,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
-      if (err instanceof Error && err.name === 'AbortError') {
-        setError('Products request timed out. Please try again.');
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to load products. Please try again.');
-      }
+      setError(getErrorMessage(err, 'Failed to load products. Please try again.'));
       setProducts([]);
     } finally {
-      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, []);
@@ -73,7 +58,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     // Persist to backend (fire-and-forget, optimistic)
-    fetch(`${API_URL}/products/${productId}/reviews`, {
+    apiRequest(`/products/${productId}/reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(review),

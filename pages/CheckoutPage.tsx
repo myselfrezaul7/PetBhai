@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
+import { apiRequest, getErrorMessage } from '../services/apiClient';
 import { useToast } from '../contexts/ToastContext';
 import { sanitizeInput } from '../lib/security';
 
@@ -177,60 +178,49 @@ const CheckoutPage: React.FC = () => {
           );
         }
 
-        // Use relative path for API
-        const API_URL = import.meta.env.VITE_API_URL || '/api';
-        const productController = new AbortController();
-        const productTimeoutId = setTimeout(() => productController.abort(), 15000);
         let cartPriceAdjusted = false;
 
-        try {
-          const productsResponse = await fetch(`${API_URL}/products`, {
-            signal: productController.signal,
-          });
-          if (productsResponse.ok) {
-            const latestProducts = await productsResponse.json();
-            if (Array.isArray(latestProducts)) {
-              const latestById = new Map<number, any>(
-                latestProducts
-                  .filter((product) => product && typeof product.id === 'number')
-                  .map((product) => [product.id, product])
-              );
+        const latestProducts =
+          await apiRequest<
+            Array<{ id: number; price?: number; stockStatus?: string; stockQuantity?: number }>
+          >('/products');
 
-              normalizedCartItems.forEach((item) => {
-                const latest = latestById.get(item.id);
-                if (!latest) {
-                  throw new Error(`\"${item.name}\" is no longer available.`);
-                }
-
-                if (latest.stockStatus === 'out-of-stock') {
-                  throw new Error(`\"${item.name}\" is currently out of stock.`);
-                }
-
-                if (
-                  typeof latest.stockQuantity === 'number' &&
-                  item.quantity > latest.stockQuantity
-                ) {
-                  throw new Error(
-                    `Only ${latest.stockQuantity} unit(s) of \"${item.name}\" are available right now.`
-                  );
-                }
-
-                if (
-                  typeof latest.price === 'number' &&
-                  Number.isFinite(latest.price) &&
-                  latest.price > 0
-                ) {
-                  if (item.price !== latest.price) {
-                    cartPriceAdjusted = true;
-                    item.price = latest.price;
-                  }
-                }
-              });
-            }
-          }
-        } finally {
-          clearTimeout(productTimeoutId);
+        if (!Array.isArray(latestProducts)) {
+          throw new Error('Unable to validate cart items right now. Please try again.');
         }
+
+        const latestById = new Map<number, (typeof latestProducts)[number]>(
+          latestProducts
+            .filter((product) => product && typeof product.id === 'number')
+            .map((product) => [product.id, product])
+        );
+
+        normalizedCartItems.forEach((item) => {
+          const latest = latestById.get(item.id);
+          if (!latest) {
+            throw new Error(`\"${item.name}\" is no longer available.`);
+          }
+
+          if (latest.stockStatus === 'out-of-stock') {
+            throw new Error(`\"${item.name}\" is currently out of stock.`);
+          }
+
+          if (typeof latest.stockQuantity === 'number' && item.quantity > latest.stockQuantity) {
+            throw new Error(
+              `Only ${latest.stockQuantity} unit(s) of \"${item.name}\" are available right now.`
+            );
+          }
+
+          if (
+            typeof latest.price === 'number' &&
+            Number.isFinite(latest.price) &&
+            latest.price > 0 &&
+            item.price !== latest.price
+          ) {
+            cartPriceAdjusted = true;
+            item.price = latest.price;
+          }
+        });
 
         const computedTotal = normalizedCartItems.reduce(
           (sum, item) => sum + item.price * item.quantity,
@@ -255,24 +245,12 @@ const CheckoutPage: React.FC = () => {
           paymentMethod,
         };
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-        const response = await fetch(`${API_URL}/orders`, {
+        const responsePayload = await apiRequest<{ order?: unknown } | unknown>('/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(orderData),
-          signal: controller.signal,
+          timeoutMs: 30000,
         });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Failed to place order');
-        }
-
-        const responsePayload = await response.json();
         const newOrder = responsePayload?.order ?? responsePayload;
 
         if (isAuthenticated) {
@@ -288,13 +266,7 @@ const CheckoutPage: React.FC = () => {
         navigate('/');
       } catch (error) {
         console.error('Order placement error:', error);
-        if (error instanceof Error && error.name === 'AbortError') {
-          toast.error('Request timed out. Please try again.');
-        } else {
-          toast.error(
-            error instanceof Error ? error.message : 'Failed to place order. Please try again.'
-          );
-        }
+        toast.error(getErrorMessage(error, 'Failed to place order. Please try again.'));
       } finally {
         setIsSubmitting(false);
       }

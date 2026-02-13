@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import type { User, Order } from '../types';
 import { sanitizeInput, validateId } from '../lib/security';
+import { apiRequest, ApiRequestError, getErrorMessage } from '../services/apiClient';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
-const API_URL = '/api';
 const TOKEN_EXPIRY_SKEW_MS = 30_000;
 
 interface AuthResponse {
@@ -157,20 +157,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const response = await fetch(`${API_URL}/auth/login`, {
+        const data = await apiRequest<AuthResponse>('/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ email: sanitizedEmail, password, recaptchaToken }),
         });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Login failed');
-        }
-
-        const data: AuthResponse = await response.json();
 
         // Save token
         if (!data?.token || !data?.user) {
@@ -182,7 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         return data.user;
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to login';
+        const message = getErrorMessage(error, 'Failed to login');
         console.error('Login error:', message);
         throw new Error(message);
       }
@@ -194,8 +187,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     clearSession();
   }, [clearSession]);
 
-  const protectedFetch = useCallback(
-    async (url: string, options: RequestInit = {}): Promise<Response> => {
+  const protectedApiRequest = useCallback(
+    async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
       const token = getStoredToken();
       if (!token || isTokenExpired(token)) {
         clearSession();
@@ -207,17 +200,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         Authorization: `Bearer ${token}`,
       };
 
-      const response = await fetch(url, {
-        ...options,
-        headers: mergedHeaders,
-      });
+      try {
+        return await apiRequest<T>(path, {
+          ...options,
+          headers: mergedHeaders,
+        });
+      } catch (error) {
+        if (error instanceof ApiRequestError && error.statusCode === 401) {
+          clearSession();
+          throw new Error('Session expired. Please sign in again.');
+        }
 
-      if (response.status === 401) {
-        clearSession();
-        throw new Error('Session expired. Please sign in again.');
+        throw error;
       }
-
-      return response;
     },
     [clearSession]
   );
@@ -237,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!validatePassword(password)) throw new Error('Password must be 6-128 characters');
 
       try {
-        const response = await fetch(`${API_URL}/auth/signup`, {
+        const data = await apiRequest<AuthResponse>('/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -247,13 +242,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             recaptchaToken,
           }),
         });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Signup failed');
-        }
-
-        const data: AuthResponse = await response.json();
         if (!data?.token || !data?.user) {
           throw new Error('Invalid signup response');
         }
@@ -262,7 +250,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         return data.user;
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to signup';
+        const message = getErrorMessage(error, 'Failed to signup');
         console.error('Signup error:', message);
         throw new Error(message);
       }
@@ -281,7 +269,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // If a Firebase token is available, exchange it with the backend for a PetBhai JWT
       if (socialUser.firebaseToken) {
         try {
-          const response = await fetch(`${API_URL}/auth/social`, {
+          const data = await apiRequest<AuthResponse>('/auth/social', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -292,14 +280,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }),
           });
 
-          if (response.ok) {
-            const data: AuthResponse = await response.json();
-            window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-            setCurrentUser(data.user);
-            return data.user;
+          if (!data?.token || !data?.user) {
+            throw new Error('Invalid social login response');
           }
-          // Fall through to local-only if backend social endpoint isn't ready
-          console.warn('Backend social login returned non-OK, falling back to local session');
+
+          window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+          setCurrentUser(data.user);
+          return data.user;
         } catch (err) {
           console.warn('Backend social login failed, falling back to local session', err);
         }
@@ -328,19 +315,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser) throw new Error('No user logged in');
 
       try {
-        const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}`, {
+        const updatedUser = await protectedApiRequest<User>(`/auth/${currentUser.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(updatedData),
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to update profile');
-        }
-
-        const updatedUser = await response.json();
         setCurrentUser(updatedUser);
         return updatedUser;
       } catch (error) {
@@ -348,7 +329,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
     },
-    [currentUser]
+    [currentUser, protectedApiRequest]
   );
 
   const addToWishlist = useCallback(
@@ -361,24 +342,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser({ ...oldUser, wishlist: [...oldUser.wishlist, productId] });
 
         try {
-          const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/wishlist`, {
+          await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ productId }),
           });
-
-          if (!response.ok) {
-            throw new Error('Failed to sync wishlist');
-          }
         } catch (err) {
           console.error('Failed to sync wishlist', err);
           setCurrentUser(oldUser);
         }
       }
     },
-    [currentUser]
+    [currentUser, protectedApiRequest]
   );
 
   const removeFromWishlist = useCallback(
@@ -390,23 +367,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser({ ...oldUser, wishlist: oldUser.wishlist.filter((id) => id !== productId) });
 
         try {
-          const response = await protectedFetch(
-            `${API_URL}/auth/${currentUser.id}/wishlist/${productId}`,
-            {
-              method: 'DELETE',
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error('Failed to sync wishlist removal');
-          }
+          await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist/${productId}`, {
+            method: 'DELETE',
+          });
         } catch (err) {
           console.error('Failed to sync wishlist removal', err);
           setCurrentUser(oldUser);
         }
       }
     },
-    [currentUser]
+    [currentUser, protectedApiRequest]
   );
 
   const favoritePet = useCallback(
@@ -426,22 +396,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(updatedUser);
 
       try {
-        const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/favorites`, {
+        await protectedApiRequest<unknown>(`/auth/${currentUser.id}/favorites`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ animalId }),
         });
-        if (!response.ok) {
-          throw new Error('Failed to sync favorite');
-        }
       } catch (err) {
         console.error('Failed to sync favorite', err);
         setCurrentUser(oldUser);
       }
     },
-    [currentUser]
+    [currentUser, protectedApiRequest]
   );
 
   const unfavoritePet = useCallback(
@@ -457,21 +424,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(updatedUser);
 
       try {
-        const response = await protectedFetch(
-          `${API_URL}/auth/${currentUser.id}/favorites/${animalId}`,
-          {
-            method: 'DELETE',
-          }
-        );
-        if (!response.ok) {
-          throw new Error('Failed to sync unfavorite');
-        }
+        await protectedApiRequest<unknown>(`/auth/${currentUser.id}/favorites/${animalId}`, {
+          method: 'DELETE',
+        });
       } catch (err) {
         console.error('Failed to sync unfavorite', err);
         setCurrentUser(oldUser);
       }
     },
-    [currentUser]
+    [currentUser, protectedApiRequest]
   );
 
   const subscribeToPlus = useCallback(async () => {
@@ -485,17 +446,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(updatedUser);
 
     try {
-      const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/subscribe`, {
+      await protectedApiRequest<unknown>(`/auth/${currentUser.id}/subscribe`, {
         method: 'POST',
       });
-      if (!response.ok) {
-        throw new Error('Failed to sync subscription');
-      }
     } catch (err) {
       console.error('Failed to sync subscription', err);
       setCurrentUser(oldUser);
     }
-  }, [currentUser]);
+  }, [currentUser, protectedApiRequest]);
 
   const addOrderToHistory = useCallback(
     async (order: Order) => {
@@ -513,23 +471,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Persist to backend
       try {
-        const response = await protectedFetch(`${API_URL}/auth/${currentUser.id}/orders`, {
+        await protectedApiRequest<unknown>(`/auth/${currentUser.id}/orders`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(order),
         });
-        if (!response.ok) {
-          throw new Error('Failed to sync order history');
-        }
       } catch (err) {
         // Order is still recorded locally even if backend sync fails.
         // This ensures the user sees their order immediately.
         console.error('Failed to sync order to backend', err);
       }
     },
-    [currentUser, protectedFetch]
+    [currentUser, protectedApiRequest]
   );
 
   const value = useMemo(

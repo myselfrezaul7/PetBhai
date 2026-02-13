@@ -442,7 +442,7 @@ const CommunityPage: React.FC = () => {
 
         {/* Stats Bar */}
         <section
-          className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
           aria-label="Community statistics"
         >
           <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">

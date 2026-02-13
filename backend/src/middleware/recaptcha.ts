@@ -105,12 +105,13 @@ export const recaptchaMiddleware = async (
     console.error('reCAPTCHA middleware error:', error);
     securityLog('RECAPTCHA_ERROR', req, { error: String(error) });
 
-    // In production, fail open to avoid blocking legitimate users
-    // In a stricter setup, you might want to fail closed
-    if (process.env.NODE_ENV === 'production') {
+    const allowFailOpen =
+      process.env.NODE_ENV !== 'production' || process.env.RECAPTCHA_FAIL_OPEN === 'true';
+
+    if (allowFailOpen) {
       next();
     } else {
-      res.status(500).json({
+      res.status(503).json({
         error: 'reCAPTCHA verification error',
         message: 'Unable to verify reCAPTCHA. Please try again.',
       });

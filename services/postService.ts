@@ -1,6 +1,5 @@
 import type { Post, Comment, CommentReply } from '../types';
-
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { apiRequest, ApiRequestError } from './apiClient';
 
 // Simple rate limiting - tracks timestamps per action type
 const rateLimiters: Record<string, number[]> = {
@@ -50,51 +49,33 @@ const sanitizeText = (text: string, maxLength: number = 5000): string => {
   return text.replace(/\0/g, '').trim().slice(0, maxLength);
 };
 
-// Helper for fetch with timeout and better error handling
-const fetchWithTimeout = async (
-  url: string,
-  options: RequestInit = {},
-  timeout = 15000
-): Promise<Response> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new ApiError('Request timed out. Please check your connection.', 408);
-    }
-    throw new ApiError('Unable to connect. Please check your internet.', 0);
+const toApiError = (error: unknown, fallbackMessage: string): ApiError => {
+  if (error instanceof ApiError) {
+    return error;
   }
+
+  if (error instanceof ApiRequestError) {
+    return new ApiError(error.message, error.statusCode, error.statusCode === 429);
+  }
+
+  if (error instanceof Error) {
+    return new ApiError(error.message);
+  }
+
+  return new ApiError(fallbackMessage);
 };
 
 // Get all posts
 export const fetchPosts = async (): Promise<Post[]> => {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/posts`, { method: 'GET' });
-    if (!response.ok) {
-      throw new ApiError('Failed to fetch posts', response.status);
-    }
-    const posts = await response.json();
+    const posts = await apiRequest<Post[]>('/posts', { method: 'GET' });
     if (!Array.isArray(posts)) {
       throw new ApiError('Invalid response from server');
     }
     return posts;
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error fetching posts:', error);
-    throw new ApiError('Failed to load posts. Please try again.');
+    throw toApiError(error, 'Failed to load posts. Please try again.');
   }
 };
 
@@ -116,8 +97,11 @@ export const createPost = async (
   }
 
   try {
-    const response = await fetchWithTimeout(`${API_URL}/posts`, {
+    return await apiRequest<Post>('/posts', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         author: {
           id: Number(author.id),
@@ -128,16 +112,9 @@ export const createPost = async (
         imageUrl,
       }),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ApiError(errorData.message || 'Failed to create post', response.status);
-    }
-    return response.json();
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error creating post:', error);
-    throw new ApiError('Failed to create post. Please try again.');
+    throw toApiError(error, 'Failed to create post. Please try again.');
   }
 };
 
@@ -153,39 +130,26 @@ export const updatePost = async (
   }
 
   try {
-    const response = await fetchWithTimeout(`${API_URL}/posts/${postId}`, {
+    return await apiRequest<Post>(`/posts/${postId}`, {
       method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ content: sanitizedContent, authorId: Number(authorId) }),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ApiError(errorData.message || 'Failed to update post', response.status);
-    }
-    return response.json();
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error updating post:', error);
-    throw new ApiError('Failed to update post. Please try again.');
+    throw toApiError(error, 'Failed to update post. Please try again.');
   }
 };
 
 // Delete a post
 export const deletePost = async (postId: number, authorId: number): Promise<void> => {
   try {
-    const response = await fetchWithTimeout(
-      `${API_URL}/posts/${postId}?authorId=${Number(authorId)}`,
-      { method: 'DELETE' }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ApiError(errorData.message || 'Failed to delete post', response.status);
-    }
+    await apiRequest<void>(`/posts/${postId}?authorId=${Number(authorId)}`, { method: 'DELETE' });
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error deleting post:', error);
-    throw new ApiError('Failed to delete post. Please try again.');
+    throw toApiError(error, 'Failed to delete post. Please try again.');
   }
 };
 
@@ -196,19 +160,16 @@ export const togglePostLike = async (postId: number, userId: number): Promise<Po
   }
 
   try {
-    const response = await fetchWithTimeout(`${API_URL}/posts/${postId}/like`, {
+    return await apiRequest<Post>(`/posts/${postId}/like`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ userId: Number(userId) }),
     });
-
-    if (!response.ok) {
-      throw new ApiError('Failed to toggle like', response.status);
-    }
-    return response.json();
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error toggling post like:', error);
-    throw new ApiError('Failed to update like. Please try again.');
+    throw toApiError(error, 'Failed to update like. Please try again.');
   }
 };
 
@@ -228,8 +189,11 @@ export const addComment = async (
   }
 
   try {
-    const response = await fetchWithTimeout(`${API_URL}/posts/${postId}/comments`, {
+    return await apiRequest<Comment>(`/posts/${postId}/comments`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         author: {
           id: Number(author.id),
@@ -239,15 +203,9 @@ export const addComment = async (
         text: sanitizedText,
       }),
     });
-
-    if (!response.ok) {
-      throw new ApiError('Failed to add comment', response.status);
-    }
-    return response.json();
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error adding comment:', error);
-    throw new ApiError('Failed to add comment. Please try again.');
+    throw toApiError(error, 'Failed to add comment. Please try again.');
   }
 };
 
@@ -262,22 +220,16 @@ export const toggleCommentLike = async (
   }
 
   try {
-    const response = await fetchWithTimeout(
-      `${API_URL}/posts/${postId}/comments/${commentId}/like`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ userId: Number(userId) }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new ApiError('Failed to toggle comment like', response.status);
-    }
-    return response.json();
+    return await apiRequest<Comment>(`/posts/${postId}/comments/${commentId}/like`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: Number(userId) }),
+    });
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error toggling comment like:', error);
-    throw new ApiError('Failed to update like. Please try again.');
+    throw toApiError(error, 'Failed to update like. Please try again.');
   }
 };
 
@@ -298,29 +250,23 @@ export const addReply = async (
   }
 
   try {
-    const response = await fetchWithTimeout(
-      `${API_URL}/posts/${postId}/comments/${commentId}/replies`,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          author: {
-            id: Number(author.id),
-            name: sanitizeText(author.name, 100),
-            profilePictureUrl: author.profilePictureUrl,
-          },
-          text: sanitizedText,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new ApiError('Failed to add reply', response.status);
-    }
-    return response.json();
+    return await apiRequest<CommentReply>(`/posts/${postId}/comments/${commentId}/replies`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        author: {
+          id: Number(author.id),
+          name: sanitizeText(author.name, 100),
+          profilePictureUrl: author.profilePictureUrl,
+        },
+        text: sanitizedText,
+      }),
+    });
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error adding reply:', error);
-    throw new ApiError('Failed to add reply. Please try again.');
+    throw toApiError(error, 'Failed to add reply. Please try again.');
   }
 };
 
@@ -336,21 +282,18 @@ export const toggleReplyLike = async (
   }
 
   try {
-    const response = await fetchWithTimeout(
-      `${API_URL}/posts/${postId}/comments/${commentId}/replies/${replyId}/like`,
+    return await apiRequest<CommentReply>(
+      `/posts/${postId}/comments/${commentId}/replies/${replyId}/like`,
       {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ userId: Number(userId) }),
       }
     );
-
-    if (!response.ok) {
-      throw new ApiError('Failed to toggle reply like', response.status);
-    }
-    return response.json();
   } catch (error) {
-    if (error instanceof ApiError) throw error;
     console.error('Error toggling reply like:', error);
-    throw new ApiError('Failed to update like. Please try again.');
+    throw toApiError(error, 'Failed to update like. Please try again.');
   }
 };

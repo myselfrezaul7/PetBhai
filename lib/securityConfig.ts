@@ -3,6 +3,8 @@
  * Centralized security settings for the PetBhai application
  */
 
+import { apiRequest } from '../services/apiClient';
+
 // Security headers that should be sent with API requests
 export const securityHeaders = {
   'X-Requested-With': 'XMLHttpRequest',
@@ -31,17 +33,12 @@ export const getCSRFToken = async (): Promise<string> => {
   }
 
   try {
-    const response = await fetch('/api/csrf-token', {
+    const data = await apiRequest<{ csrfToken?: string }>('/csrf-token', {
       headers: {
         'X-Session-Id': getSessionId(),
       },
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to get CSRF token');
-    }
-
-    const data = await response.json();
     csrfToken = data.csrfToken;
     csrfTokenExpiry = Date.now() + CSRF_TOKEN_REFRESH;
     return csrfToken as string;

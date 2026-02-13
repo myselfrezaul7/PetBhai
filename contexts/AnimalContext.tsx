@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Animal } from '../types';
-
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 interface AnimalContextType {
   animals: Animal[];
@@ -20,11 +19,7 @@ export const AnimalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const fetchAnimals = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/animals`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch animals');
-      }
-      const data = await response.json();
+      const data = await apiRequest<Animal[]>('/animals');
       if (!Array.isArray(data)) {
         throw new Error('Invalid animal data received');
       }
@@ -32,7 +27,9 @@ export const AnimalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setError(null);
     } catch (err) {
       console.error('Error fetching animals:', err);
-      setError('Failed to load animals for adoption. Please try again later.');
+      setError(
+        getErrorMessage(err, 'Failed to load animals for adoption. Please try again later.')
+      );
       setAnimals([]);
     } finally {
       setLoading(false);

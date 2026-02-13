@@ -64,6 +64,13 @@ To run the full application with the backend API:
 - Create a production build: `npm run build`
 - Deploy to GitHub Pages: `npm run deploy` (project uses `gh-pages` and has a `CNAME` for `www.petbhai.com`).
 
+## Frontend API Layer (Contributor Note)
+
+- Use `services/apiClient.ts` for frontend API requests.
+- Do not add new direct `fetch` calls in contexts/pages when `apiRequest` can be used.
+- Return backend errors to UI states/toasts instead of introducing mock-data fallbacks.
+- Keep API paths relative (e.g. `/products`, `/orders`) so environment base URL handling remains centralized.
+
 ---
 
 ## CI checks & AI proxy (added by automation)

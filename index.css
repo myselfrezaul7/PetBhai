@@ -1,1 +1,16 @@
 /* Custom styles only - Tailwind utilities are loaded via CDN in index.html */
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+  html,
+  body,
+  #root {
+    overflow-x: clip;
+  }
+}

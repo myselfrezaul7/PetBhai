@@ -41,8 +41,13 @@ export const sanitizeObject = <T extends object>(obj: T, maxDepth = 10): T => {
   if (maxDepth <= 0) return obj;
 
   const sanitized: Record<string, unknown> = {};
+  const blockedKeys = new Set(['__proto__', 'prototype', 'constructor']);
 
   for (const [key, value] of Object.entries(obj)) {
+    if (blockedKeys.has(key)) {
+      continue;
+    }
+
     // Sanitize the key itself
     const sanitizedKey = sanitizeString(key, 100);
 

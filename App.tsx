@@ -53,8 +53,15 @@ const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
 const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'));
 const MessengerPlugin = lazy(() => import('./components/MessengerPlugin'));
 
+const prefetchLikelyRoutes = () => {
+  void import('./pages/ShopPage');
+  void import('./pages/ServicesPage');
+  void import('./pages/BlogPage');
+  void import('./pages/AdoptPage');
+};
+
 const PawHeartLoader: React.FC<{ message?: string }> = React.memo(({ message }) => (
-  <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] w-full">
+  <div className="flex flex-col justify-center items-center h-[calc(100vh-144px)] min-h-[calc(100dvh-144px)] w-full">
     <div className="relative w-20 h-20 motion-safe:animate-heartbeat motion-reduce:animate-none">
       <HeartIcon className="w-full h-full text-orange-500" />
       <PawIcon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-white dark:text-slate-900" />
@@ -264,6 +271,30 @@ const AppContent: React.FC = () => {
     };
 
     registerServiceWorker();
+  }, []);
+
+  useEffect(() => {
+    let timeoutId: number | null = null;
+    let idleId: number | null = null;
+
+    const runPrefetch = () => {
+      prefetchLikelyRoutes();
+    };
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(() => runPrefetch(), { timeout: 2000 });
+    } else {
+      timeoutId = window.setTimeout(runPrefetch, 1200);
+    }
+
+    return () => {
+      if (idleId !== null && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   return (

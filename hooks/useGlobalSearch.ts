@@ -44,16 +44,25 @@ export function useGlobalSearch({
   limits,
 }: UseGlobalSearchArgs): GlobalSearchResults {
   const trimmedQuery = query.trim();
+  const shouldSearch = trimmedQuery.length >= MIN_QUERY_LENGTH;
 
   const limitedArticles = useMemo(() => {
+    if (!shouldSearch) {
+      return [] as Article[];
+    }
+
     // Avoid indexing full article bodies (can be very large); keep a reasonably sized slice.
     return articles.map((a) => ({
       ...a,
       content: a.content.slice(0, 2500),
     }));
-  }, [articles]);
+  }, [articles, shouldSearch]);
 
   const productFuse = useMemo(() => {
+    if (!shouldSearch) {
+      return null;
+    }
+
     return new Fuse(products, {
       includeScore: true,
       threshold: 0.35,
@@ -61,9 +70,13 @@ export function useGlobalSearch({
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'category', 'searchTags'],
     });
-  }, [products]);
+  }, [products, shouldSearch]);
 
   const pageFuse = useMemo(() => {
+    if (!shouldSearch) {
+      return null;
+    }
+
     return new Fuse(pages, {
       includeScore: true,
       threshold: 0.35,
@@ -71,9 +84,13 @@ export function useGlobalSearch({
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'keywords'],
     });
-  }, [pages]);
+  }, [pages, shouldSearch]);
 
   const vetFuse = useMemo(() => {
+    if (!shouldSearch) {
+      return null;
+    }
+
     return new Fuse(vets, {
       includeScore: true,
       threshold: 0.35,
@@ -81,9 +98,13 @@ export function useGlobalSearch({
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'specialization', 'clinicName'],
     });
-  }, [vets]);
+  }, [vets, shouldSearch]);
 
   const articleFuse = useMemo(() => {
+    if (!shouldSearch) {
+      return null;
+    }
+
     return new Fuse(limitedArticles, {
       includeScore: true,
       threshold: 0.35,
@@ -91,9 +112,13 @@ export function useGlobalSearch({
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['title', 'content', 'author'],
     });
-  }, [limitedArticles]);
+  }, [limitedArticles, shouldSearch]);
 
   const animalFuse = useMemo(() => {
+    if (!shouldSearch) {
+      return null;
+    }
+
     return new Fuse(animals, {
       includeScore: true,
       threshold: 0.35,
@@ -101,10 +126,10 @@ export function useGlobalSearch({
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'breed', 'description'],
     });
-  }, [animals]);
+  }, [animals, shouldSearch]);
 
   return useMemo(() => {
-    if (trimmedQuery.length < MIN_QUERY_LENGTH) {
+    if (!shouldSearch || !productFuse || !pageFuse || !vetFuse || !articleFuse || !animalFuse) {
       return { products: [], pages: [], articles: [], vets: [], animals: [] };
     }
 
@@ -131,6 +156,7 @@ export function useGlobalSearch({
         .map((r) => r.item),
     };
   }, [
+    shouldSearch,
     trimmedQuery,
     productFuse,
     pageFuse,
