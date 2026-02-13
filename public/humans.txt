@@ -1,6 +1,6 @@
 /* TEAM */
 Name: PetBhai Team
-Site: https://myselfrezaul7.github.io/PetBhai/
+Site: https://www.petbhai.com/
 Location: Dhaka, Bangladesh
 Twitter: @petbhai
 
