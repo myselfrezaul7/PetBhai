@@ -90,6 +90,12 @@ const SEO: React.FC<SEOProps> = ({
 
   const currentUrl = getCanonicalUrl();
   const resolvedImage = image || defaultImage;
+  const robotsValue = noindex
+    ? 'noindex, nofollow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+  const googleBotValue = noindex
+    ? 'noindex, nofollow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 
   // Schema.org structured data
   const getStructuredData = () => {
@@ -146,7 +152,7 @@ const SEO: React.FC<SEOProps> = ({
       '@type': 'WebSite',
       potentialAction: {
         '@type': 'SearchAction',
-        target: `${productionUrl}#/shop?q={search_term_string}`,
+        target: `${productionUrl}shop/?q={search_term_string}`,
         'query-input': 'required name=search_term_string',
       },
     };
@@ -159,7 +165,10 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords.join(', ')} />
       <link rel="canonical" href={currentUrl} />
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      <meta name="robots" content={robotsValue} />
+      <meta name="googlebot" content={googleBotValue} />
+      <link rel="alternate" hrefLang="en-BD" href={currentUrl} />
+      <link rel="alternate" hrefLang="x-default" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
@@ -167,6 +176,10 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={resolvedImage} />
+      <meta property="og:image:secure_url" content={resolvedImage} />
+      <meta property="og:image:type" content="image/png" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:locale:alternate" content="bn_BD" />
@@ -177,6 +190,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={resolvedImage} />
+      <meta name="twitter:site" content="@petbhai_bd" />
       {twitterCreator && <meta name="twitter:creator" content={twitterCreator} />}
 
       {/* Article specific */}

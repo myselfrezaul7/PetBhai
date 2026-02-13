@@ -70,6 +70,25 @@ export const getErrorMessage = (error: unknown, fallbackMessage: string): string
   return fallbackMessage;
 };
 
+const parseResponseBody = async (response: Response): Promise<unknown> => {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.toLowerCase().includes('application/json')) {
+    return response.json().catch(() => null);
+  }
+
+  const text = await response.text().catch(() => '');
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const { timeoutMs = 15000, headers, ...requestOptions } = options;
   const requestHeaders = new Headers(headers);
@@ -87,8 +106,10 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       signal: controller.signal,
     });
 
+    const payload = await parseResponseBody(response);
+
     if (!response.ok) {
-      const errorPayload = await response.json().catch(() => ({}));
+      const errorPayload = (payload ?? {}) as Record<string, unknown>;
       const message =
         typeof errorPayload?.message === 'string' && errorPayload.message.trim().length > 0
           ? errorPayload.message
@@ -99,11 +120,11 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       throw new ApiRequestError(message, response.status);
     }
 
-    if (response.status === 204) {
+    if (response.status === 204 || payload === null || typeof payload === 'undefined') {
       return undefined as T;
     }
 
-    return (await response.json()) as T;
+    return payload as T;
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw new ApiRequestError('Request timed out. Please try again.', 408);
