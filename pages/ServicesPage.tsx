@@ -10,18 +10,6 @@ const SERVICE_TABS: ServiceTab[] = ['Vets', 'Groomers', 'Trainers', 'Sitters'];
 // Memoized tab button component
 const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => void }>(
   ({ label, isActive, onClick }) => {
-    const labelContent =
-      label === 'Vets' ? (
-        <span className="flex items-center gap-2">
-          <span>{label}</span>
-          <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
-            Coming Soon
-          </span>
-        </span>
-      ) : (
-        label
-      );
-
     return (
       <button
         onClick={onClick}
@@ -31,7 +19,7 @@ const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => vo
             : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
         }`}
       >
-        {labelContent}
+        {label}
       </button>
     );
   }
