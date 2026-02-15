@@ -277,7 +277,10 @@ const ShopPage: React.FC = () => {
   return (
     <>
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
-        <header className="text-center mb-6 md:mb-10">
+        <header className="text-center mb-6 md:mb-10 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/30 backdrop-blur-xl p-5 md:p-8">
+          <span className="inline-flex items-center rounded-full bg-white/65 dark:bg-slate-800/60 border border-white/60 dark:border-white/10 px-3 py-1 text-xs md:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
+            PetBhai Shop
+          </span>
           <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 dark:text-white mb-3 md:mb-4">
             {t('shop_title')}
           </h1>
@@ -288,7 +291,7 @@ const ShopPage: React.FC = () => {
 
         {isAuthenticated && (reorderLoading || reorderSuggestions.length > 0) && (
           <section
-            className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12"
+            className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/30 backdrop-blur-xl"
             aria-label="Smart reorder suggestions"
           >
             <div className="flex items-center justify-between gap-3 mb-4">
@@ -324,7 +327,7 @@ const ShopPage: React.FC = () => {
         )}
 
         {/* Filters & Sorting */}
-        <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6 sticky top-20 z-20">
+        <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6 sticky top-20 z-20 border border-white/35 dark:border-white/10 bg-white/55 dark:bg-slate-900/40 backdrop-blur-xl shadow-xl">
           {/* Search Bar */}
           <div className="relative max-w-lg mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
@@ -345,7 +348,9 @@ const ShopPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Popular:</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Popular:
+            </span>
             {QUICK_SEARCH_TERMS.map((term) => (
               <button
                 key={term}
@@ -369,7 +374,7 @@ const ShopPage: React.FC = () => {
           </div>
 
           {/* Brand, Sort & Advanced Filters Toggle */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700/50">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-white/40 dark:border-slate-700/60">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="brand-filter"
@@ -639,7 +644,7 @@ const ShopPage: React.FC = () => {
         </div>
 
         {/* Visible Result Count + Active Filter Chips */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 glass-card-ios border border-white/30 dark:border-white/10 bg-white/40 dark:bg-slate-900/25 backdrop-blur-lg p-3 md:p-4">
           {!loading && (
             <p className="text-sm text-slate-500 dark:text-slate-400">
               <span className="font-bold text-slate-700 dark:text-slate-200">{resultCount}</span>{' '}

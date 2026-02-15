@@ -67,6 +67,14 @@ const persistChanges = (res: any): boolean => {
   return true;
 };
 
+const getNextUserId = (): number => {
+  const numericIds = db.users
+    .map((user) => Number(user.id))
+    .filter((id) => Number.isFinite(id) && id > 0);
+  const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
+  return maxId + 1;
+};
+
 // Login
 router.post('/login', authLimiter, async (req, res) => {
   try {
@@ -191,6 +199,68 @@ router.post('/signup', authLimiter, async (req, res) => {
   } catch (error) {
     console.error('Signup error:', error);
     return res.status(500).json({ message: 'An error occurred during signup' });
+  }
+});
+
+// Social login (Google/Firebase)
+router.post('/social', authLimiter, (req, res) => {
+  try {
+    const { name, email, photoUrl } = req.body;
+
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const sanitizedEmail = sanitizeString(email).toLowerCase();
+    if (!isValidEmail(sanitizedEmail)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    const sanitizedName =
+      typeof name === 'string' && sanitizeString(name).length >= 2
+        ? sanitizeString(name)
+        : sanitizedEmail.split('@')[0];
+
+    let user = db.users.find((u) => u.email.toLowerCase() === sanitizedEmail);
+
+    if (user) {
+      user.name = sanitizedName;
+      if (typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)) {
+        user.profilePictureUrl = photoUrl.slice(0, 500);
+      }
+      persistChanges(res);
+    } else {
+      user = {
+        id: getNextUserId(),
+        name: sanitizedName,
+        email: sanitizedEmail,
+        profilePictureUrl:
+          typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)
+            ? photoUrl.slice(0, 500)
+            : undefined,
+        wishlist: [],
+        orderHistory: [],
+        favorites: [],
+        isPlusMember: false,
+      };
+
+      db.users.push(user);
+      persistChanges(res);
+      auditLog('USER_SOCIAL_SIGNUP', user.id, { email: sanitizedEmail });
+    }
+
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isPlusMember: user.isPlusMember,
+    });
+
+    auditLog('SOCIAL_LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
+    return res.json({ user: sanitizeUser(user), token });
+  } catch (error) {
+    console.error('Social login error:', error);
+    return res.status(500).json({ message: 'An error occurred during social login' });
   }
 });
 
