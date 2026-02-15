@@ -15,9 +15,6 @@ const DhakaHero: React.FC = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
 
-
-
-
       {/* PetBhai Branding */}
       <div className="absolute inset-0 flex items-center justify-center px-4 text-center z-10">
         <div className="bg-white/85 dark:bg-black/60 backdrop-blur-md p-5 md:p-7 rounded-3xl shadow-2xl border border-white/40 w-full max-w-2xl">
@@ -54,9 +51,15 @@ const DhakaHero: React.FC = () => {
             </Link>
           </div>
           <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs md:text-sm text-slate-600 dark:text-slate-300">
-            <span className="bg-white/70 dark:bg-slate-800/50 px-2.5 py-1 rounded-full">Fast Delivery</span>
-            <span className="bg-white/70 dark:bg-slate-800/50 px-2.5 py-1 rounded-full">Verified Vets</span>
-            <span className="bg-white/70 dark:bg-slate-800/50 px-2.5 py-1 rounded-full">Safe Adoption</span>
+            <span className="bg-white/70 dark:bg-slate-800/50 px-2.5 py-1 rounded-full">
+              Fast Delivery
+            </span>
+            <span className="bg-white/70 dark:bg-slate-800/50 px-2.5 py-1 rounded-full">
+              Verified Vets
+            </span>
+            <span className="bg-white/70 dark:bg-slate-800/50 px-2.5 py-1 rounded-full">
+              Safe Adoption
+            </span>
           </div>
         </div>
       </div>
@@ -72,7 +75,5 @@ const DhakaHero: React.FC = () => {
 };
 
 // --- Sub-Components (SVGs) ---
-
-
 
 export default DhakaHero;
