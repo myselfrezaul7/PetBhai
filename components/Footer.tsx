@@ -83,7 +83,25 @@ const Footer: React.FC = () => {
               &copy; {currentYear} PetBhai. All rights reserved.
             </div>
             <p className="text-xs text-slate-400 dark:text-slate-600 mt-2">
-              A concern of Kuttawaala and Catwaala animal welfare.
+              A concern of{' '}
+              <a
+                href="https://www.kuttawaala.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-orange-500 dark:hover:text-orange-400 underline underline-offset-2 transition-colors"
+              >
+                Kuttawaala
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.catwaala.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-orange-500 dark:hover:text-orange-400 underline underline-offset-2 transition-colors"
+              >
+                Catwaala
+              </a>{' '}
+              animal welfare.
             </p>
           </div>
 

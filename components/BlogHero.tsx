@@ -18,7 +18,7 @@ const BlogHero: React.FC = () => {
       <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent pointer-events-none" />
 
       <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
-        <div className="max-w-3xl mx-auto glass-card-ios px-5 py-6 md:px-8 md:py-9 bg-white/20 dark:bg-slate-900/35 border border-white/30 dark:border-white/10 backdrop-blur-xl">
+        <div className="max-w-3xl mx-auto px-5 py-6 md:px-8 md:py-9 bg-white/20 dark:bg-slate-900/35 border border-white/30 dark:border-white/10 backdrop-blur-xl rounded-2xl md:rounded-3xl">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-white/20 rounded-full backdrop-blur-md border border-white/30">
               <BookIcon className="w-7 h-7 md:w-9 md:h-9 text-white" />
