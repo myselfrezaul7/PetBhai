@@ -15,7 +15,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
 
   return (
     <div
-      className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl h-full ${isFeatured ? 'col-span-2' : ''}`}
+      className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-2xl h-full border border-white/30 dark:border-white/10 ${isFeatured ? 'col-span-2' : ''}`}
     >
       <Link to={`/blog/${article.id}`} className="flex flex-col h-full">
         <div
@@ -44,17 +44,21 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               decoding="async"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent opacity-70 group-hover:opacity-85 transition-opacity duration-500"></div>
+
+          <div className="absolute right-3 bottom-3 md:right-4 md:bottom-4 px-2.5 py-1 rounded-full bg-white/20 text-white text-[10px] md:text-xs border border-white/30 backdrop-blur-md">
+            {article.readTime} {t('blog_min_read')}
+          </div>
 
           {isFeatured && (
-            <span className="absolute top-3 left-3 md:top-4 md:left-4 glass-card-ios bg-orange-500/90 text-white text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg">
+            <span className="absolute top-3 left-3 md:top-4 md:left-4 glass-card-ios bg-orange-500/85 text-white text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg backdrop-blur-md border border-white/20">
               {t('blog_latest_post')}
             </span>
           )}
         </div>
-        <div className="p-3 sm:p-6 flex flex-col flex-grow relative">
-          <div className="mb-1 sm:mb-2 text-[9px] sm:text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
-            {article.readTime} {t('blog_min_read')}
+        <div className="p-3 sm:p-6 flex flex-col flex-grow relative bg-white/35 dark:bg-slate-900/25 backdrop-blur-lg">
+          <div className="mb-2 sm:mb-3 text-[9px] sm:text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+            PetBhai Journal
           </div>
           <h3
             className={`font-bold text-slate-800 dark:text-white leading-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300 break-words line-clamp-2 ${isFeatured ? 'text-lg sm:text-2xl mb-2 sm:mb-3' : 'text-xs sm:text-lg mb-1 sm:mb-2'}`}
@@ -67,9 +71,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           >
             {article.content.split('\n')[0]}
           </p>
-          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/30 dark:border-slate-700/50 flex items-center justify-between text-[9px] sm:text-sm text-slate-500 dark:text-slate-400">
-            <span className="font-medium truncate mr-2">{article.author}</span>
-            <span className="whitespace-nowrap">{new Date(article.date).toLocaleDateString()}</span>
+          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-[9px] sm:text-sm text-slate-500 dark:text-slate-400">
+            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-white/45 dark:bg-slate-800/55">
+              {article.author}
+            </span>
+            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-white/45 dark:bg-slate-800/55">
+              {new Date(article.date).toLocaleDateString()}
+            </span>
           </div>
         </div>
       </Link>

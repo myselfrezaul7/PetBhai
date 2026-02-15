@@ -3,7 +3,6 @@ import ArticleCard from '../components/ArticleCard';
 import { ArticleGridSkeleton } from '../components/Skeletons';
 import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PawIcon } from '../components/icons';
 
 import BlogHero from '../components/BlogHero';
 
@@ -95,14 +94,14 @@ const BlogPage: React.FC = () => {
             {/* Pagination Controls */}
             {totalOtherPages > 1 && (
               <div className="flex justify-center mt-12">
-                <div className="glass-card-ios px-4 py-3 flex items-center space-x-2">
+                <div className="glass-card-ios px-4 py-3 flex items-center space-x-2 border border-white/30 dark:border-white/10 backdrop-blur-xl bg-white/45 dark:bg-slate-900/35">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       currentPage === 1
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                        : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                        : 'bg-white/75 text-slate-700 hover:bg-orange-50 border border-white/60 dark:bg-slate-800/70 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                     }`}
                   >
                     Previous
@@ -127,7 +126,7 @@ const BlogPage: React.FC = () => {
                             className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
                               currentPage === page
                                 ? 'bg-orange-500 text-white shadow-md transform scale-105'
-                                : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                                : 'bg-white/75 text-slate-700 hover:bg-orange-50 border border-white/60 dark:bg-slate-800/70 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                             }`}
                           >
                             {page}
@@ -142,7 +141,7 @@ const BlogPage: React.FC = () => {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       currentPage === totalOtherPages
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                        : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
+                        : 'bg-white/75 text-slate-700 hover:bg-orange-50 border border-white/60 dark:bg-slate-800/70 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700'
                     }`}
                   >
                     Next
