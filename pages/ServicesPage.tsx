@@ -45,7 +45,10 @@ const ServicesPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
-      <header className="text-center mb-8 md:mb-12">
+      <header className="text-center mb-8 md:mb-12 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8">
+        <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
+          Trusted Professionals
+        </span>
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-white">
           Professional Pet Services
         </h1>
@@ -55,7 +58,7 @@ const ServicesPage: React.FC = () => {
       </header>
 
       {/* Tabs & Filters */}
-      <div className="glass-card-ios p-3 sm:p-4 mb-8 md:mb-12">
+      <div className="glass-card-ios p-3 sm:p-4 mb-8 md:mb-12 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl shadow-xl">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="border-b border-slate-300/50 dark:border-slate-600/50 w-full overflow-x-auto scrollbar-hide">
             <div
@@ -97,7 +100,7 @@ const ServicesPage: React.FC = () => {
       </div>
 
       {isComingSoon && (
-        <div className="text-center py-16 glass-card-ios">
+        <div className="text-center py-16 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl">
           <div className="text-6xl mb-6">🚧</div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-4">
             Coming Soon!
@@ -117,13 +120,13 @@ const ServicesPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
             to="/services/booking"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl text-white font-bold shadow-lg hover:shadow-orange-500/25 hover:scale-105 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl text-white font-bold shadow-lg hover:shadow-orange-500/30 hover:scale-105 transition-all"
           >
             <span>🚚 Pet Taxi & Transport</span>
           </Link>
           <Link
             to="/services/booking"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl text-white font-bold shadow-lg hover:shadow-pink-500/25 hover:scale-105 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl text-white font-bold shadow-lg hover:shadow-pink-500/30 hover:scale-105 transition-all"
           >
             <span>📸 Pet Photography</span>
           </Link>

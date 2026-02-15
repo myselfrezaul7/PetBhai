@@ -424,7 +424,7 @@ const CommunityPage: React.FC = () => {
     <main className="min-h-screen">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl animate-fade-in">
         {/* Hero Section */}
-        <header className="text-center mb-6 md:mb-8">
+        <header className="text-center mb-6 md:mb-8 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8">
           <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-lg">
             <UserGroupIcon
               className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-orange-500"
@@ -475,7 +475,7 @@ const CommunityPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:mb-8">
           {/* Trending Topics */}
           {trendingTopics.length > 0 && (
-            <div className="glass-card-ios p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/30">
+            <div className="glass-card-ios p-4 bg-gradient-to-br from-purple-50/70 to-pink-50/70 dark:from-purple-900/25 dark:to-pink-900/25 border border-white/35 dark:border-white/10 backdrop-blur-xl">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
                 <span className="text-lg">🔥</span>
                 Trending Topics
@@ -496,7 +496,7 @@ const CommunityPage: React.FC = () => {
           )}
 
           {/* Leaderboard Toggle */}
-          <div className="glass-card-ios p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-100 dark:border-yellow-800/30">
+          <div className="glass-card-ios p-4 bg-gradient-to-br from-yellow-50/70 to-orange-50/70 dark:from-yellow-900/25 dark:to-orange-900/25 border border-white/35 dark:border-white/10 backdrop-blur-xl">
             <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
               <span className="text-lg">👑</span>
               Top Contributors
@@ -544,7 +544,7 @@ const CommunityPage: React.FC = () => {
             onClick={() => setShowLeaderboard(false)}
           >
             <div
-              className="glass-card-ios p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+              className="glass-card-ios p-6 max-w-md w-full max-h-[80vh] overflow-y-auto border border-white/35 dark:border-white/10 bg-white/65 dark:bg-slate-900/70 backdrop-blur-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -685,7 +685,7 @@ const CommunityPage: React.FC = () => {
           className="flex items-center justify-between mb-4 sm:mb-6"
           aria-label="Post feed filters"
         >
-          <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 sm:p-1.5 rounded-lg sm:rounded-xl">
+          <div className="flex space-x-1 glass-card-ios border border-white/30 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 p-1 sm:p-1.5 rounded-lg sm:rounded-xl backdrop-blur-xl">
             <button
               onClick={() => handleTabChange('feed')}
               data-active={activeTab === 'feed'}

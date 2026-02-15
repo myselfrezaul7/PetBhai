@@ -251,17 +251,20 @@ const ProductDetailPage: React.FC = () => {
         availability={product.stockStatus === 'in-stock' ? 'in stock' : 'out of stock'}
         brand={brand?.name}
       />
-      <article className="glass-card-ios overflow-hidden lg:flex">
-        <div className="lg:w-1/2 p-4">
+      <article className="glass-card-ios overflow-hidden lg:flex border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl shadow-2xl">
+        <div className="lg:w-1/2 p-4 sm:p-6">
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-auto object-cover rounded-lg"
+            className="w-full h-auto object-cover rounded-2xl"
             loading="lazy"
           />
         </div>
         <div className="p-6 sm:p-8 lg:w-1/2 flex flex-col">
           <header>
+            <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-300 mb-3">
+              Premium Pick
+            </span>
             {brand && (
               <img
                 src={brand.logoUrl}
@@ -287,7 +290,7 @@ const ProductDetailPage: React.FC = () => {
             </p>
           </header>
 
-          <div className="mt-6 bg-slate-100/50 dark:bg-slate-800/50 p-4 rounded-lg">
+          <div className="mt-6 glass-card-ios bg-white/45 dark:bg-slate-900/40 border border-white/35 dark:border-white/10 p-4 rounded-2xl">
             <p className="font-bold text-sm sm:text-base text-slate-700 dark:text-slate-200">
               Auto-Ship Subscription
             </p>
@@ -303,7 +306,7 @@ const ProductDetailPage: React.FC = () => {
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              className="w-full bg-orange-500 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-all duration-300 flex items-center justify-center space-x-2 sm:space-x-3 disabled:bg-green-500 touch-manipulation active:scale-95"
+              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl text-base sm:text-lg hover:from-orange-600 hover:to-amber-600 transition-all duration-300 flex items-center justify-center space-x-2 sm:space-x-3 disabled:from-green-500 disabled:to-green-500 touch-manipulation active:scale-95 shadow-lg hover:shadow-orange-500/30"
             >
               <ShoppingCartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
               <span>
@@ -316,7 +319,7 @@ const ProductDetailPage: React.FC = () => {
             </button>
             <button
               onClick={handleWishlistClick}
-              className={`p-3 sm:p-4 rounded-lg transition-colors border-2 touch-manipulation active:scale-95
+              className={`p-3 sm:p-4 rounded-xl transition-colors border-2 touch-manipulation active:scale-95
                       ${
                         isWishlisted
                           ? 'bg-red-500 border-red-500 text-white'
@@ -335,7 +338,7 @@ const ProductDetailPage: React.FC = () => {
       {/* Reviews Section */}
       {(bundleLoading || (bundleOffer && bundleOffer.items.length > 0)) && (
         <section
-          className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8"
+          className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl"
           aria-labelledby="bundle-heading"
         >
           <h2
@@ -383,7 +386,7 @@ const ProductDetailPage: React.FC = () => {
       )}
 
       <section
-        className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8"
+        className="glass-card-ios mt-8 sm:mt-12 p-6 sm:p-8 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl"
         aria-labelledby="reviews-heading"
       >
         <h2
@@ -397,7 +400,7 @@ const ProductDetailPage: React.FC = () => {
         {isAuthenticated && currentUser ? (
           <form
             onSubmit={handleReviewSubmit}
-            className="mb-8 p-4 sm:p-6 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg"
+            className="mb-8 p-4 sm:p-6 bg-white/50 dark:bg-slate-800/55 rounded-2xl border border-white/40 dark:border-white/10"
           >
             <div className="flex items-start space-x-3 sm:space-x-4">
               <img
@@ -437,7 +440,7 @@ const ProductDetailPage: React.FC = () => {
             </div>
           </form>
         ) : (
-          <div className="mb-8 p-4 sm:p-6 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg text-center">
+          <div className="mb-8 p-4 sm:p-6 bg-white/50 dark:bg-slate-800/55 rounded-2xl text-center border border-white/40 dark:border-white/10">
             <p className="font-semibold text-sm sm:text-base text-slate-700 dark:text-slate-200">
               <Link
                 to="/login"

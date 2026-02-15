@@ -302,12 +302,18 @@ const CheckoutPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 py-8 sm:py-12 animate-fade-in">
-      <header className="text-center mb-6 sm:mb-10">
+      <header className="text-center mb-6 sm:mb-10 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8 max-w-5xl mx-auto">
+        <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
+          Secure Checkout
+        </span>
         <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 dark:text-white">Checkout</h1>
       </header>
       <div className="flex flex-col-reverse lg:flex-row gap-8 lg:gap-12 max-w-5xl mx-auto">
         {/* Customer Form */}
-        <section className="glass-card-ios p-5 sm:p-8 lg:w-[58%]" aria-label="Shipping and payment">
+        <section
+          className="glass-card-ios p-5 sm:p-8 lg:w-[58%] border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl"
+          aria-label="Shipping and payment"
+        >
           <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-2">
             {isAuthenticated ? 'Confirm Shipping Details' : 'Guest Checkout'}
           </h2>
@@ -321,7 +327,7 @@ const CheckoutPage: React.FC = () => {
                 <button
                   onClick={handleSocialLogin}
                   disabled={isSocialLoading}
-                  className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
+                  className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-white/60 dark:border-white/10 rounded-xl bg-white/70 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/70 transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
                 >
                   <GoogleIcon className="w-6 h-6" />
                   <span className="font-semibold text-slate-700 dark:text-slate-200">
@@ -473,7 +479,7 @@ const CheckoutPage: React.FC = () => {
               </h2>
               <div className="space-y-3">
                 <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'cod' ? 'border-orange-500 ring-2 ring-orange-500 bg-orange-50/50 dark:bg-orange-900/20' : 'border-slate-300 dark:border-slate-600'}`}
+                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'cod' ? 'border-orange-500 ring-2 ring-orange-500 bg-orange-50/60 dark:bg-orange-900/25' : 'border-white/45 dark:border-white/10 bg-white/55 dark:bg-slate-800/45'}`}
                 >
                   <input
                     type="radio"
@@ -488,7 +494,7 @@ const CheckoutPage: React.FC = () => {
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500 bg-pink-50/50 dark:bg-pink-900/20' : 'border-slate-300 dark:border-slate-600'}`}
+                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500 bg-pink-50/60 dark:bg-pink-900/25' : 'border-white/45 dark:border-white/10 bg-white/55 dark:bg-slate-800/45'}`}
                 >
                   <input
                     type="radio"
@@ -509,7 +515,7 @@ const CheckoutPage: React.FC = () => {
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'nagad' ? 'border-orange-600 ring-2 ring-orange-600 bg-orange-50/50 dark:bg-orange-900/20' : 'border-slate-300 dark:border-slate-600'}`}
+                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'nagad' ? 'border-orange-600 ring-2 ring-orange-600 bg-orange-50/60 dark:bg-orange-900/25' : 'border-white/45 dark:border-white/10 bg-white/55 dark:bg-slate-800/45'}`}
                 >
                   <input
                     type="radio"
@@ -535,7 +541,7 @@ const CheckoutPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-orange-500 text-white font-bold py-3.5 px-4 rounded-lg text-lg hover:bg-orange-600 transition-colors touch-manipulation active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-orange-300"
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3.5 px-4 rounded-xl text-lg hover:from-orange-600 hover:to-amber-600 transition-all touch-manipulation active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-orange-300 shadow-lg hover:shadow-orange-500/30"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
@@ -571,7 +577,7 @@ const CheckoutPage: React.FC = () => {
 
         {/* Order Summary */}
         <aside
-          className="glass-card-ios p-5 sm:p-8 h-fit lg:w-[42%] lg:sticky lg:top-24"
+          className="glass-card-ios p-5 sm:p-8 h-fit lg:w-[42%] lg:sticky lg:top-24 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl"
           aria-label="Order summary"
         >
           <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6">
