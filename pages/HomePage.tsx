@@ -43,7 +43,9 @@ const HomePage: React.FC = () => {
             <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
               Daily Pet Essentials
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Food, toys, grooming and more.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+              Food, toys, grooming and more.
+            </p>
           </Link>
           <Link
             to="/services"
@@ -53,7 +55,9 @@ const HomePage: React.FC = () => {
             <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
               Book Trusted Care
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Vet, grooming, training in one flow.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+              Vet, grooming, training in one flow.
+            </p>
           </Link>
           <Link
             to="/adopt"
@@ -63,7 +67,9 @@ const HomePage: React.FC = () => {
             <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
               Find Your Companion
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Browse verified rescue and adoption listings.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+              Browse verified rescue and adoption listings.
+            </p>
           </Link>
         </div>
       </section>
@@ -239,7 +245,10 @@ const HomePage: React.FC = () => {
         aria-labelledby="plus-membership-heading"
       >
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
-          <div className="glass-card-ios text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/50 to-orange-100/50 dark:from-yellow-900/20 dark:to-orange-900/20 border-orange-200 dark:border-orange-800/30">
+          <div className="glass-card-ios text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/55 via-orange-100/45 to-rose-100/45 dark:from-yellow-900/25 dark:via-orange-900/20 dark:to-rose-900/20 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-2xl">
+            <span className="inline-flex items-center rounded-full bg-white/60 dark:bg-slate-800/60 border border-white/60 dark:border-white/10 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 px-3 py-1 mb-3 md:mb-5">
+              PetBhai+ Premium
+            </span>
             <h2
               id="plus-membership-heading"
               className="text-xl sm:text-2xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-3 md:mb-6"
@@ -251,7 +260,7 @@ const HomePage: React.FC = () => {
             </p>
             <Link
               to="/plus-membership"
-              className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-12 rounded-full text-sm sm:text-base md:text-lg hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 active:scale-95 duration-500 shadow-xl hover:shadow-2xl hover:shadow-orange-500/30 touch-manipulation"
+              className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-12 rounded-full text-sm sm:text-base md:text-lg hover:from-orange-600 hover:to-amber-600 transition-all transform hover:scale-105 active:scale-95 duration-500 shadow-xl hover:shadow-2xl hover:shadow-orange-500/30 touch-manipulation"
             >
               {t('btn_join_plus')}
             </Link>

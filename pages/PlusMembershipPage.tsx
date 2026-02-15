@@ -42,9 +42,9 @@ const BENEFITS: Benefit[] = [
 
 const ComingSoonBadge = memo(() => (
   <div className="my-4 sm:my-6 relative group cursor-default mx-auto w-max">
-    <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-    <div className="relative px-4 sm:px-6 py-1.5 sm:py-2 bg-white dark:bg-slate-800 ring-1 ring-gray-900/5 rounded-lg leading-none flex items-center justify-center">
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-600 font-extrabold text-lg sm:text-xl animate-pulse">
+    <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/60 to-pink-500/60 rounded-xl blur-md opacity-40 group-hover:opacity-70 transition duration-500"></div>
+    <div className="relative px-4 sm:px-6 py-1.5 sm:py-2 bg-white/75 dark:bg-slate-900/65 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-xl leading-none flex items-center justify-center">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-600 font-extrabold text-lg sm:text-xl">
         Coming Soon
       </span>
     </div>
@@ -53,8 +53,11 @@ const ComingSoonBadge = memo(() => (
 ComingSoonBadge.displayName = 'ComingSoonBadge';
 
 const BenefitCard = memo(({ benefit }: { benefit: Benefit }) => (
-  <article className="flex items-start space-x-4">
-    <div className="text-3xl sm:text-4xl" aria-hidden="true">
+  <article className="glass-card-ios p-4 sm:p-5 flex items-start space-x-4 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl">
+    <div
+      className="text-3xl sm:text-4xl w-12 h-12 rounded-2xl bg-white/60 dark:bg-slate-800/60 flex items-center justify-center"
+      aria-hidden="true"
+    >
       {benefit.icon}
     </div>
     <div>
@@ -118,15 +121,22 @@ const PlusMembershipPage: React.FC = () => {
   return (
     <main className="animate-fade-in">
       {/* Hero Section */}
-      <header className="relative bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 text-white py-16 sm:py-24 text-center">
+      <header className="relative py-16 sm:py-24 text-white text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500 via-orange-500 to-rose-500" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" />
         <div className="container mx-auto px-4 sm:px-6">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold drop-shadow-2xl">
-            Become a PetBhai+ Member
-          </h1>
-          <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg">
-            The ultimate care package for your pet. Unlock exclusive benefits and save more with our
-            premium membership plan.
-          </p>
+          <div className="relative z-10 max-w-3xl mx-auto glass-card-ios bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl border border-white/35 dark:border-white/10 p-6 md:p-10">
+            <span className="inline-flex items-center rounded-full bg-white/30 px-3 py-1 text-xs md:text-sm font-semibold border border-white/40 mb-4">
+              Premium Membership
+            </span>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold drop-shadow-2xl">
+              Become a PetBhai+ Member
+            </h1>
+            <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg">
+              The ultimate care package for your pet. Unlock exclusive benefits and save more with
+              our premium membership plan.
+            </p>
+          </div>
         </div>
       </header>
 
@@ -134,7 +144,7 @@ const PlusMembershipPage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {/* Benefits Section */}
           <section
-            className="glass-card-ios p-6 sm:p-8 md:p-10 mb-8 sm:mb-12"
+            className="glass-card-ios p-6 sm:p-8 md:p-10 mb-8 sm:mb-12 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/30 backdrop-blur-xl"
             aria-labelledby="benefits-heading"
           >
             <h2
@@ -151,7 +161,7 @@ const PlusMembershipPage: React.FC = () => {
           </section>
 
           {/* Pricing/Subscription Section */}
-          <section className="glass-card-ios p-6 sm:p-8 md:p-10 text-center">
+          <section className="glass-card-ios p-6 sm:p-8 md:p-10 text-center border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/30 backdrop-blur-xl">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white mb-4">
               Join Today!
             </h2>
@@ -168,8 +178,8 @@ const PlusMembershipPage: React.FC = () => {
                 onClick={handleSelectMonthly}
                 className={`relative border-2 rounded-xl p-4 sm:p-6 w-full sm:w-64 text-center transition-all duration-300 touch-manipulation active:scale-95 ${
                   selectedPlan === 'monthly'
-                    ? 'border-orange-500 ring-4 ring-orange-500/20'
-                    : 'border-slate-300/50 dark:border-slate-600/50 hover:border-orange-400 dark:hover:border-orange-500'
+                    ? 'border-orange-500 ring-4 ring-orange-500/20 bg-white/75 dark:bg-slate-800/70 backdrop-blur-lg'
+                    : 'border-slate-300/50 dark:border-slate-600/50 hover:border-orange-400 dark:hover:border-orange-500 bg-white/55 dark:bg-slate-800/45 backdrop-blur-lg'
                 }`}
                 aria-pressed="false"
                 data-pressed={selectedPlan === 'monthly'}
@@ -186,8 +196,8 @@ const PlusMembershipPage: React.FC = () => {
                 onClick={handleSelectYearly}
                 className={`relative border-2 rounded-xl p-4 sm:p-6 w-full sm:w-64 text-center transition-all duration-300 touch-manipulation active:scale-95 ${
                   selectedPlan === 'yearly'
-                    ? 'border-orange-500 ring-4 ring-orange-500/20'
-                    : 'border-slate-300/50 dark:border-slate-600/50 hover:border-orange-400 dark:hover:border-orange-500'
+                    ? 'border-orange-500 ring-4 ring-orange-500/20 bg-white/75 dark:bg-slate-800/70 backdrop-blur-lg'
+                    : 'border-slate-300/50 dark:border-slate-600/50 hover:border-orange-400 dark:hover:border-orange-500 bg-white/55 dark:bg-slate-800/45 backdrop-blur-lg'
                 }`}
                 aria-pressed="false"
                 data-pressed={selectedPlan === 'yearly'}
@@ -212,7 +222,7 @@ const PlusMembershipPage: React.FC = () => {
               ) : (
                 <button
                   onClick={handleSubscribe}
-                  className="w-full max-w-md bg-slate-800 dark:bg-white text-white dark:text-slate-900 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg text-lg sm:text-xl hover:bg-slate-700 dark:hover:bg-slate-200 transition-all transform hover:scale-105 shadow-xl touch-manipulation active:scale-95"
+                  className="w-full max-w-md bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl text-lg sm:text-xl hover:from-orange-600 hover:to-amber-600 transition-all transform hover:scale-105 shadow-xl hover:shadow-orange-500/30 touch-manipulation active:scale-95"
                 >
                   Join Waitlist
                 </button>
@@ -237,7 +247,7 @@ const PlusMembershipPage: React.FC = () => {
           onClick={() => setShowWaitlistForm(false)}
         >
           <div
-            className="glass-card-ios w-full max-w-md p-8 relative"
+            className="glass-card-ios w-full max-w-md p-8 relative border border-white/35 dark:border-white/10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -263,7 +273,7 @@ const PlusMembershipPage: React.FC = () => {
                   required
                   value={waitlistData.email}
                   onChange={(e) => setWaitlistData({ ...waitlistData, email: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                  className="w-full p-3 rounded-lg border border-white/60 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
                   placeholder="your@email.com"
                 />
               </div>
@@ -276,13 +286,13 @@ const PlusMembershipPage: React.FC = () => {
                   required
                   value={waitlistData.phone}
                   onChange={(e) => setWaitlistData({ ...waitlistData, phone: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                  className="w-full p-3 rounded-lg border border-white/60 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
                   placeholder="01XXXXXXXXX"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition-colors shadow-lg"
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-lg hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg"
               >
                 Submit & Join Waitlist
               </button>
