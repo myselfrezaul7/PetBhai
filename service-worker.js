@@ -1,12 +1,20 @@
-const CACHE_NAME = 'petbhai-cache-v4'; // Incremented version
-const STATIC_CACHE = 'petbhai-static-v4';
-const DYNAMIC_CACHE = 'petbhai-dynamic-v2';
-const IMAGE_CACHE = 'petbhai-images-v2';
+const CACHE_NAME = 'petbhai-cache-v5'; // Incremented version
+const STATIC_CACHE = 'petbhai-static-v5';
+const DYNAMIC_CACHE = 'petbhai-dynamic-v3';
+const IMAGE_CACHE = 'petbhai-images-v3';
 const FONT_CACHE = 'petbhai-fonts-v1';
 const API_CACHE = 'petbhai-api-v1';
 
 // Critical assets to precache
-const urlsToCache = ['/', '/index.html', '/manifest.json', '/icon-192x192.png'];
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json?v=20260215',
+  '/icon-192x192.png?v=20260215',
+  '/icon-512x512.png?v=20260215',
+  '/landing-hero.webp?v=20260215',
+  '/landing-hero-mobile.webp?v=20260215',
+];
 
 // Cache size limits
 const DYNAMIC_CACHE_LIMIT = 75;

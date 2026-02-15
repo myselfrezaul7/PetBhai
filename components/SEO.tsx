@@ -63,7 +63,8 @@ const SEO: React.FC<SEOProps> = ({
       ? `${window.location.origin}${import.meta.env.BASE_URL}`
       : productionUrl);
   const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const defaultImage = new URL('landing-hero.png', productionUrl).toString();
+  const assetVersion = '20260215';
+  const defaultImage = new URL(`landing-hero.png?v=${assetVersion}`, productionUrl).toString();
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
 
   // Generate clean canonical URL without query params or hash fragments
@@ -141,7 +142,7 @@ const SEO: React.FC<SEOProps> = ({
           name: siteTitle,
           logo: {
             '@type': 'ImageObject',
-            url: `${productionUrl}icon-192x192.png`,
+            url: `${productionUrl}icon-192x192.png?v=${assetVersion}`,
           },
         },
       };
@@ -230,7 +231,7 @@ const SEO: React.FC<SEOProps> = ({
           '@type': 'Organization',
           name: 'PetBhai',
           url: normalizedBaseUrl,
-          logo: new URL('icon-192x192.png', normalizedBaseUrl).toString(),
+          logo: new URL(`icon-192x192.png?v=${assetVersion}`, normalizedBaseUrl).toString(),
           sameAs: [
             'https://www.facebook.com/petbhaibd',
             'https://www.instagram.com/petbhai_bd',
