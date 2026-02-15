@@ -33,6 +33,41 @@ const HomePage: React.FC = () => {
         <DhakaHero />
       </section>
 
+      <section className="container mx-auto px-4 md:px-6 pb-4 md:pb-10" aria-label="Quick actions">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5">
+          <Link
+            to="/shop"
+            className="glass-card-ios p-4 md:p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+          >
+            <p className="text-xs uppercase tracking-wide text-orange-500 font-bold">Shop</p>
+            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
+              Daily Pet Essentials
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Food, toys, grooming and more.</p>
+          </Link>
+          <Link
+            to="/services"
+            className="glass-card-ios p-4 md:p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+          >
+            <p className="text-xs uppercase tracking-wide text-sky-500 font-bold">Services</p>
+            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
+              Book Trusted Care
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Vet, grooming, training in one flow.</p>
+          </Link>
+          <Link
+            to="/adopt"
+            className="glass-card-ios p-4 md:p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+          >
+            <p className="text-xs uppercase tracking-wide text-emerald-500 font-bold">Adoption</p>
+            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
+              Find Your Companion
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Browse verified rescue and adoption listings.</p>
+          </Link>
+        </div>
+      </section>
+
       {/* Best Sellers Section */}
       <section
         className="py-8 md:py-20 animate-fade-in animation-delay-100"
@@ -83,7 +118,7 @@ const HomePage: React.FC = () => {
           <div className="glass-card-ios p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
             <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full overflow-hidden">
               <img
-                src="https://picsum.photos/seed/services-cta/800/600"
+                src="/landing-hero-dhaka.jpg"
                 alt="Professional Pet Services"
                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                 loading="lazy"

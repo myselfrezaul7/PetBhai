@@ -34,6 +34,7 @@ const CATEGORY_OPTIONS: CategoryFilter[] = [
 
 const PRICE_MIN = 10;
 const PRICE_MAX = 20000;
+const QUICK_SEARCH_TERMS = ['Royal Canin', 'Kitten Food', 'Dog Treats', 'Cat Litter'];
 
 const ShopPage: React.FC = () => {
   const { t } = useLanguage();
@@ -146,6 +147,16 @@ const ShopPage: React.FC = () => {
 
   const handleCloseQuickView = useCallback(() => {
     setSelectedProduct(null);
+  }, []);
+
+  const resetAllFilters = useCallback(() => {
+    setSearchQuery('');
+    setActiveCategory('All');
+    setActiveBrand('All');
+    setActiveWeight('All');
+    setPriceRange([PRICE_MIN, PRICE_MAX]);
+    setMinRating(0);
+    setSortOption('default');
   }, []);
 
   const sortedAndFilteredProducts = useMemo(() => {
@@ -313,7 +324,7 @@ const ShopPage: React.FC = () => {
         )}
 
         {/* Filters & Sorting */}
-        <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6">
+        <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6 sticky top-20 z-20">
           {/* Search Bar */}
           <div className="relative max-w-lg mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
@@ -331,6 +342,19 @@ const ShopPage: React.FC = () => {
               aria-label={t('shop_search_label')}
               autoComplete="off"
             />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Popular:</span>
+            {QUICK_SEARCH_TERMS.map((term) => (
+              <button
+                key={term}
+                onClick={() => setSearchQuery(term)}
+                className="text-xs px-3 py-1.5 rounded-full bg-white/70 dark:bg-slate-700/60 text-slate-600 dark:text-slate-200 hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
+              >
+                {term}
+              </button>
+            ))}
           </div>
 
           {/* Category Filter Buttons */}
@@ -603,15 +627,7 @@ const ShopPage: React.FC = () => {
               {activeFiltersCount > 0 && (
                 <div className="flex justify-end">
                   <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setActiveCategory('All');
-                      setActiveBrand('All');
-                      setActiveWeight('All');
-                      setPriceRange([PRICE_MIN, PRICE_MAX]);
-                      setMinRating(0);
-                      setSortOption('default');
-                    }}
+                    onClick={resetAllFilters}
                     className="text-sm text-orange-500 hover:text-orange-600 font-semibold underline underline-offset-2 transition-colors touch-manipulation"
                   >
                     {t('shop_clear_filters')} ({activeFiltersCount})
@@ -632,21 +648,43 @@ const ShopPage: React.FC = () => {
           )}
           {activeFiltersCount > 0 && !showAdvancedFilters && (
             <button
-              onClick={() => {
-                setSearchQuery('');
-                setActiveCategory('All');
-                setActiveBrand('All');
-                setActiveWeight('All');
-                setPriceRange([PRICE_MIN, PRICE_MAX]);
-                setMinRating(0);
-                setSortOption('default');
-              }}
+              onClick={resetAllFilters}
               className="text-xs text-orange-500 hover:text-orange-600 font-semibold underline underline-offset-2 transition-colors touch-manipulation"
             >
               {t('shop_clear_filters')} ({activeFiltersCount})
             </button>
           )}
         </div>
+
+        {activeFiltersCount > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-5">
+            {searchQuery.trim() && (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
+                Search: {searchQuery}
+              </span>
+            )}
+            {activeCategory !== 'All' && (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300">
+                Category: {activeCategory}
+              </span>
+            )}
+            {activeBrand !== 'All' && (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                Brand: {activeBrand}
+              </span>
+            )}
+            {activeWeight !== 'All' && (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                Size: {activeWeight}
+              </span>
+            )}
+            {minRating > 0 && (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                Rating: {minRating}★+
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Results Count - Screen reader announcement */}
         <div className="sr-only" aria-live="polite" aria-atomic="true">
@@ -667,15 +705,7 @@ const ShopPage: React.FC = () => {
           <div className="text-center py-16 glass-card-ios">
             <p className="text-lg text-slate-600 dark:text-slate-400">{t('shop_no_results')}</p>
             <button
-              onClick={() => {
-                setSearchQuery('');
-                setActiveCategory('All');
-                setActiveBrand('All');
-                setActiveWeight('All');
-                setPriceRange([PRICE_MIN, PRICE_MAX]);
-                setMinRating(0);
-                setSortOption('default');
-              }}
+              onClick={resetAllFilters}
               className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
             >
               {t('shop_clear_filters')}
