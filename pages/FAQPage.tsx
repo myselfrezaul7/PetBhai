@@ -268,7 +268,7 @@ const FAQPage: React.FC = () => {
   let cumulativeIndex = 0;
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-16 animate-fade-in">
+    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <header className="text-center mb-8 sm:mb-12 max-w-3xl mx-auto">
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">
           Frequently Asked Questions

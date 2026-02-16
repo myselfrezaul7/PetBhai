@@ -276,7 +276,7 @@ const ShopPage: React.FC = () => {
 
   return (
     <>
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
         <header className="text-center mb-6 md:mb-10 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/30 backdrop-blur-xl p-5 md:p-8">
           <span className="inline-flex items-center rounded-full bg-white/65 dark:bg-slate-800/60 border border-white/60 dark:border-white/10 px-3 py-1 text-xs md:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
             PetBhai Shop

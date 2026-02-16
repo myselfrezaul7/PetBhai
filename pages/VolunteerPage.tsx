@@ -91,7 +91,7 @@ ${formData.experience}
   );
 
   return (
-    <main className="container mx-auto px-4 py-8 sm:py-12 flex-grow flex items-center justify-center animate-fade-in">
+    <main className="container mx-auto px-4 py-8 sm:py-12 flex-grow flex items-center justify-center">
       <div className="w-full max-w-3xl">
         <header className="text-center mb-6 sm:mb-10">
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">

@@ -58,7 +58,7 @@ const AnimalDetailPage: React.FC = () => {
 
   if (!animal) {
     return (
-      <main className="text-center py-16 sm:py-20 animate-fade-in container mx-auto px-4 sm:px-6">
+      <main className="text-center py-16 sm:py-20 container mx-auto px-4 sm:px-6">
         <div className="glass-card-ios p-8 sm:p-12">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
             Animal not found!
@@ -78,7 +78,7 @@ const AnimalDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
+    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <article className="glass-card-ios overflow-hidden md:flex">
         <figure className="md:w-1/2">
           <img

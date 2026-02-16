@@ -26,7 +26,7 @@ const ImpactDashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4">
       <div className="container mx-auto max-w-5xl">
-        <header className="text-center mb-12 animate-fade-in">
+        <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-green-600 mb-4">
             Our Collective Impact
           </h1>

@@ -30,7 +30,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12 animate-fade-in">
+    <div className="container mx-auto px-6 py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white flex items-center justify-center gap-3">
@@ -111,7 +111,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
           {/* Preview Section */}
           <div className="glass-card-ios p-8 flex flex-col items-center justify-center min-h-[300px] bg-slate-100/50 dark:bg-slate-800/50 relative overflow-hidden">
             {generatedImage ? (
-              <div className="w-full flex flex-col items-center animate-fade-in">
+              <div className="w-full flex flex-col items-center">
                 <div className="relative group w-full aspect-video shadow-2xl rounded-lg overflow-hidden">
                   <img
                     src={generatedImage}

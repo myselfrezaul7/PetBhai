@@ -4,7 +4,7 @@ import { PawIcon } from '../components/icons';
 
 const NotFoundPage: React.FC = () => {
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow flex items-center justify-center text-center animate-fade-in">
+    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow flex items-center justify-center text-center">
       <article className="max-w-md">
         <PawIcon
           className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-orange-500 mx-auto mb-4 sm:mb-6 opacity-50"

@@ -3,7 +3,7 @@ import AdoptionQuiz from '../components/AdoptionQuiz';
 
 const AdoptionQuizPage: React.FC = () => {
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-12 md:py-16 animate-fade-in">
+    <main className="container mx-auto px-4 sm:px-6 py-12 md:py-16">
       <div className="text-center mb-10 md:mb-14">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4">
           Am I Ready to Adopt?

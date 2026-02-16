@@ -87,14 +87,14 @@ const AdoptPage: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/80 via-rose-50/50 to-purple-50/80 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="absolute inset-0 opacity-30 dark:opacity-15">
           <div className="absolute top-20 left-10 w-80 h-80 bg-orange-200 dark:bg-orange-700 rounded-full filter blur-[80px] animate-blob" />
-          <div className="absolute top-40 right-10 w-80 h-80 bg-purple-200 dark:bg-purple-700 rounded-full filter blur-[80px] animate-blob animation-delay-2000" />
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-pink-200 dark:bg-pink-700 rounded-full filter blur-[80px] animate-blob animation-delay-4000" />
+          <div className="absolute top-40 right-10 w-80 h-80 bg-purple-200 dark:bg-purple-700 rounded-full filter blur-[80px] animate-blob" />
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-pink-200 dark:bg-pink-700 rounded-full filter blur-[80px] animate-blob" />
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
         {/* Header Section */}
-        <header className="text-center mb-12 md:mb-16 animate-fade-in">
+        <header className="text-center mb-12 md:mb-16">
           <div className="inline-flex items-center justify-center w-18 h-18 md:w-22 md:h-22 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-orange-500/10 mb-6 p-4 transition-transform duration-500 hover:scale-105">
             <HeartIcon className="w-10 h-10 md:w-12 md:h-12 text-orange-500" />
           </div>
@@ -108,7 +108,7 @@ const AdoptPage: React.FC = () => {
         </header>
 
         {/* Quiz CTA Section */}
-        <div className="max-w-4xl mx-auto mb-14 animate-fade-in animation-delay-200">
+        <div className="max-w-4xl mx-auto mb-14">
           <div className="relative bg-white/70 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/40 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden shadow-lg shadow-slate-900/5 dark:shadow-black/20 group transition-shadow duration-500 hover:shadow-xl">
             {/* Subtle background accent */}
             <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-orange-100 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/10 rounded-full -translate-y-1/3 translate-x-1/4 opacity-60 group-hover:opacity-80 transition-opacity duration-700 pointer-events-none"></div>
@@ -171,7 +171,7 @@ const AdoptPage: React.FC = () => {
                   transition-all duration-300 ease-out
                   ${isClicked ? 'scale-[0.97] opacity-80' : isHovered ? 'scale-[1.02] -translate-y-1 shadow-xl' : ''}
                   active:scale-[0.97]
-                  animate-fade-in ${index === 0 ? 'animation-delay-100' : 'animation-delay-200'}
+                  
                 `}
                 aria-label={`${choice.name} through ${choice.partnerName}`}
               >
@@ -257,7 +257,7 @@ const AdoptPage: React.FC = () => {
         </div>
 
         {/* Info Section */}
-        <section className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/40 rounded-2xl p-6 md:p-10 max-w-3xl mx-auto text-center shadow-lg shadow-slate-900/5 dark:shadow-black/20 animate-fade-in animation-delay-400">
+        <section className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/40 rounded-2xl p-6 md:p-10 max-w-3xl mx-auto text-center shadow-lg shadow-slate-900/5 dark:shadow-black/20">
           <div className="flex items-center justify-center gap-3 mb-4">
             <PawIcon className="w-5 h-5 text-orange-500" />
             <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">

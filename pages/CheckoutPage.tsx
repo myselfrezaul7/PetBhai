@@ -301,7 +301,7 @@ const CheckoutPage: React.FC = () => {
   }, [socialLogin, toast]);
 
   return (
-    <main className="container mx-auto px-4 py-8 sm:py-12 animate-fade-in">
+    <main className="container mx-auto px-4 py-8 sm:py-12">
       <header className="text-center mb-6 sm:mb-10 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8 max-w-5xl mx-auto">
         <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
           Secure Checkout

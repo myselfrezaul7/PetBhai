@@ -422,7 +422,7 @@ const CommunityPage: React.FC = () => {
 
   return (
     <main className="min-h-screen">
-      <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl animate-fade-in">
+      <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
         {/* Hero Section */}
         <header className="text-center mb-6 md:mb-8 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8">
           <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-lg">

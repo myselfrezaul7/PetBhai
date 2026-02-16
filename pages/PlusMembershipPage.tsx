@@ -119,7 +119,7 @@ const PlusMembershipPage: React.FC = () => {
   const isPlusMember = useMemo(() => currentUser?.isPlusMember, [currentUser]);
 
   return (
-    <main className="animate-fade-in">
+    <main>
       {/* Hero Section */}
       <header className="relative py-16 sm:py-24 text-white text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-yellow-500 via-orange-500 to-rose-500" />
@@ -243,7 +243,7 @@ const PlusMembershipPage: React.FC = () => {
       {/* Waitlist Modal */}
       {showWaitlistForm && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-fade-in"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4"
           onClick={() => setShowWaitlistForm(false)}
         >
           <div

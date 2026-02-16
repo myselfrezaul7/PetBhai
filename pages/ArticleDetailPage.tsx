@@ -67,7 +67,7 @@ const ArticleDetailPage: React.FC = () => {
 
   if (!article) {
     return (
-      <main className="text-center py-16 sm:py-20 animate-fade-in container mx-auto px-4 md:px-6">
+      <main className="text-center py-16 sm:py-20 container mx-auto px-4 md:px-6">
         <div className="glass-card-ios p-6 sm:p-8 md:p-12">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">
             {t('article_not_found')}
@@ -87,7 +87,7 @@ const ArticleDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="container mx-auto px-4 md:px-6 py-8 md:py-12 animate-fade-in">
+    <main className="container mx-auto px-4 md:px-6 py-8 md:py-12">
       <SEO
         title={article.title}
         description={article.content.substring(0, 150)}

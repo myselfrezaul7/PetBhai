@@ -103,7 +103,7 @@ Please contact the customer to confirm the booking.
 
           <div className="p-6 md:p-10">
             {activeTab === 'transport' ? (
-              <div className="animate-fade-in">
+              <div>
                 <div className="flex flex-col md:flex-row gap-8 mb-8">
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-4">Safe Rides for Your Best Friend</h2>
@@ -192,7 +192,7 @@ Please contact the customer to confirm the booking.
                 </div>
               </div>
             ) : (
-              <div className="animate-fade-in">
+              <div>
                 <div className="flex flex-col md:flex-row gap-8 mb-8">
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-4">Capture Precious Moments</h2>

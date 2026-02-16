@@ -75,10 +75,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Best Sellers Section */}
-      <section
-        className="py-8 md:py-20 animate-fade-in animation-delay-100"
-        aria-labelledby="best-sellers-heading"
-      >
+      <section className="py-8 md:py-20" aria-labelledby="best-sellers-heading">
         <div className="container mx-auto px-3 md:px-6">
           <header className="text-center mb-6 md:mb-12">
             <h2
@@ -116,10 +113,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Vet Consultation CTA -> Services CTA */}
-      <section
-        className="py-8 md:py-20 animate-fade-in animation-delay-200"
-        aria-labelledby="services-heading"
-      >
+      <section className="py-8 md:py-20" aria-labelledby="services-heading">
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="glass-card-ios p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
             <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full overflow-hidden">
@@ -166,7 +160,7 @@ const HomePage: React.FC = () => {
 
       {/* Shop by Brand Section */}
       <section
-        className="py-8 md:py-16 bg-gray-100 dark:bg-slate-800/50 animate-fade-in animation-delay-300"
+        className="py-8 md:py-16 bg-gray-100 dark:bg-slate-800/50"
         aria-labelledby="brands-heading"
       >
         <div className="container mx-auto px-4 md:px-6 text-center">
@@ -207,10 +201,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* New Arrivals Section */}
-      <section
-        className="py-8 md:py-20 glass-card-ios animate-fade-in animation-delay-400"
-        aria-labelledby="new-arrivals-heading"
-      >
+      <section className="py-8 md:py-20 glass-card-ios" aria-labelledby="new-arrivals-heading">
         <div className="container mx-auto px-3 md:px-6 text-center">
           <header>
             <h2
@@ -240,10 +231,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* PetBhai+ CTA */}
-      <section
-        className="py-8 md:py-20 animate-fade-in animation-delay-500"
-        aria-labelledby="plus-membership-heading"
-      >
+      <section className="py-8 md:py-20" aria-labelledby="plus-membership-heading">
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="glass-card-ios text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/55 via-orange-100/45 to-rose-100/45 dark:from-yellow-900/25 dark:via-orange-900/20 dark:to-rose-900/20 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-2xl">
             <span className="inline-flex items-center rounded-full bg-white/60 dark:bg-slate-800/60 border border-white/60 dark:border-white/10 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 px-3 py-1 mb-3 md:mb-5">

@@ -42,7 +42,7 @@ const BlogPage: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
         <BlogHero />
         <div className="space-y-8">
           {/* Simulate Featured Article Loading */}
@@ -70,7 +70,7 @@ const BlogPage: React.FC = () => {
   }
 
   return (
-    <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+    <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
       <BlogHero />
 
       {/* Articles Section */}

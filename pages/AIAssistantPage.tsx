@@ -176,7 +176,7 @@ const AIAssistantPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-72px)] min-h-[calc(100dvh-72px)] container mx-auto p-3 sm:p-4 max-w-3xl animate-fade-in">
+    <div className="flex flex-col h-[calc(100vh-72px)] min-h-[calc(100dvh-72px)] container mx-auto p-3 sm:p-4 max-w-3xl">
       <div className="text-center mb-4 sm:mb-6 pt-3 sm:pt-4">
         <h1 className="text-4xl font-bold text-slate-800 dark:text-white">AI Vet</h1>
         <p className="text-lg text-slate-700 dark:text-slate-200">
@@ -185,7 +185,7 @@ const AIAssistantPage: React.FC = () => {
       </div>
 
       {isWarningVisible && (
-        <div className="animate-fade-in glass-card-ios p-4 mb-4 flex items-start space-x-4 bg-orange-100/50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-500/30">
+        <div className="glass-card-ios p-4 mb-4 flex items-start space-x-4 bg-orange-100/50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-500/30">
           <div className="flex-shrink-0 text-orange-500 mt-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"

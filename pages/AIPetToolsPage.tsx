@@ -225,7 +225,7 @@ const AIPetToolsPage: React.FC = () => {
 
               {/* Results Section */}
               {result && (
-                <div className="mt-8 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 animate-fade-in">
+                <div className="mt-8 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6">
                   <h3 className="font-bold text-indigo-900 dark:text-indigo-200 mb-4 flex items-center text-lg">
                     <HeartIcon className="w-6 h-6 mr-2 text-indigo-500" />
                     AI Analysis Result

@@ -180,7 +180,7 @@ const PetCompatibilityPage: React.FC = () => {
         {/* Content */}
         <div className="flex-grow p-8 flex flex-col justify-center">
           {!showResult ? (
-            <div className="animate-fade-in">
+            <div>
               <div className="mb-8">
                 <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
                   <span>

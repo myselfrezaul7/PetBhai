@@ -44,7 +44,7 @@ const ServicesPage: React.FC = () => {
   const isComingSoon = true;
 
   return (
-    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16 animate-fade-in">
+    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16">
       <header className="text-center mb-8 md:mb-12 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8">
         <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
           Trusted Professionals
@@ -113,7 +113,7 @@ const ServicesPage: React.FC = () => {
       )}
 
       {/* Specialized Services CTA */}
-      <div className="mt-16 text-center animate-fade-in">
+      <div className="mt-16 text-center">
         <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">
           Looking for something else?
         </h2>
