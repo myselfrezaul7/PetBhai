@@ -302,7 +302,7 @@ const AppContent: React.FC = () => {
       <RouteSEO />
       <OfflineIndicator />
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow app-main">
         <SwipeNavigationProvider>
           <Suspense fallback={<PawHeartLoader />}>
             <Routes>

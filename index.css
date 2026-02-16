@@ -8,6 +8,10 @@
   --ui-surface-hover: rgba(255, 255, 255, 0.72);
   --ui-input-bg: rgba(255, 255, 255, 0.72);
   --ui-focus-ring: rgba(249, 115, 22, 0.32);
+  --motion-fast: 150ms;
+  --motion-base: 220ms;
+  --motion-slow: 320ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html.dark {
@@ -33,6 +37,12 @@ html {
   overscroll-behavior-x: none;
 }
 
+@supports (scrollbar-gutter: stable) {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
 html.dark {
   color-scheme: dark;
 }
@@ -55,8 +65,8 @@ html.dark {
 body {
   color: var(--ui-text);
   transition:
-    background-color 220ms ease,
-    color 220ms ease;
+    background-color var(--motion-base) var(--motion-ease),
+    color var(--motion-base) var(--motion-ease);
 }
 
 /* Polished theme transitions */
@@ -68,10 +78,35 @@ textarea,
 .glass-card,
 .glass-card-ios {
   transition:
-    background-color 220ms ease,
-    border-color 220ms ease,
-    color 220ms ease,
-    box-shadow 220ms ease;
+    background-color var(--motion-base) var(--motion-ease),
+    border-color var(--motion-base) var(--motion-ease),
+    color var(--motion-base) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease);
+}
+
+/* Keep Tailwind transition-all expressive but cheaper than true "all" */
+.transition-all {
+  transition-property:
+    transform, opacity, background-color, border-color, color, box-shadow, filter;
+  transition-timing-function: var(--motion-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-main > * {
+    animation: page-enter var(--motion-slow) var(--motion-ease);
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Consistent readable text in both themes */

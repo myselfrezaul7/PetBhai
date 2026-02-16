@@ -99,8 +99,8 @@ const FAQPage: React.FC = () => {
             answer: (
               <p>
                 Yes! We guarantee 100% authentic products from verified suppliers. We do not sell
-                counterfeit or expired items. If you receive a product that doesn&apos;t meet quality
-                standards, we&apos;ll replace it.
+                counterfeit or expired items. If you receive a product that doesn&apos;t meet
+                quality standards, we&apos;ll replace it.
               </p>
             ),
           },
@@ -140,9 +140,9 @@ const FAQPage: React.FC = () => {
                 <Link to="/adopt" className="text-orange-500 hover:underline">
                   Adopt page
                 </Link>
-                , browse available pets, fill out the adoption application, and our team will contact
-                you for next steps including an interview, a home check, and a meet-and-greet with
-                the pet.
+                , browse available pets, fill out the adoption application, and our team will
+                contact you for next steps including an interview, a home check, and a
+                meet-and-greet with the pet.
               </p>
             ),
           },
@@ -243,10 +243,7 @@ const FAQPage: React.FC = () => {
                   AI Assistant
                 </Link>{' '}
                 for instant help, or reach us via email at{' '}
-                <a
-                  href="mailto:petbhaibd@gmail.com"
-                  className="text-orange-500 hover:underline"
-                >
+                <a href="mailto:petbhaibd@gmail.com" className="text-orange-500 hover:underline">
                   petbhaibd@gmail.com
                 </a>
                 . We typically respond within 24 hours.
