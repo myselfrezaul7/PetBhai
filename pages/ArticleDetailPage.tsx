@@ -91,7 +91,7 @@ const ArticleDetailPage: React.FC = () => {
       <SEO
         title={article.title}
         description={article.content.substring(0, 150)}
-        image={article.imageUrl || `https://petbhai.com/blog-images/blog-placeholder.png`}
+        image={article.imageUrl || `https://www.petbhai.com/blog-images/blog-placeholder.png`}
         type="article"
         author={article.author}
         publishedTime={article.date}
