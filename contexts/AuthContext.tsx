@@ -27,6 +27,10 @@ const validateName = (name: string): boolean => {
   return name.trim().length >= 2 && name.trim().length <= 100;
 };
 
+const isAdminEmail = (email?: string): boolean => {
+  return typeof email === 'string' && email.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
+};
+
 const clearAuthStorage = () => {
   try {
     window.localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -365,6 +369,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (!data?.token || !data?.user) {
           throw new Error('Invalid social login response');
+        }
+
+        if (isAdminEmail(data.user.email)) {
+          data.user = {
+            ...data.user,
+            role: 'admin',
+          };
         }
 
         window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);

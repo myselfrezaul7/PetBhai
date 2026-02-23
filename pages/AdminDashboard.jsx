@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 
 const TOKEN_STORAGE_KEY = 'petbhai_token';
+const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
 const categoryOptions = [
   'Cat Food',
@@ -67,6 +68,12 @@ const toBoundedInteger = (value, min = 0, max = 100000) => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return min;
   return Math.max(min, Math.min(max, Math.round(parsed)));
+};
+
+const isAdminUser = (user) => {
+  if (!user) return false;
+  const normalizedEmail = typeof user.email === 'string' ? user.email.trim().toLowerCase() : '';
+  return user.role === 'admin' || normalizedEmail === DEFAULT_ADMIN_EMAIL;
 };
 
 const AdminDashboard = () => {
@@ -177,7 +184,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!token || currentUser?.role !== 'admin') {
+    if (!token || !isAdminUser(currentUser)) {
       setIsLiveConnected(false);
       return undefined;
     }
@@ -229,7 +236,7 @@ const AdminDashboard = () => {
       eventSource.removeEventListener('product-created', onRealtimeChange);
       eventSource.close();
     };
-  }, [currentUser?.role, loadDashboardData]);
+  }, [currentUser, loadDashboardData]);
 
   const handleInventoryFieldChange = (id, field, value) => {
     setInventoryRows((prevRows) =>

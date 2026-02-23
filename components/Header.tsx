@@ -79,6 +79,13 @@ const ALL_PAGES: PageResult[] = [
   },
 ];
 
+const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+
+const isAdminUser = (user?: { role?: string; email?: string }): boolean => {
+  if (!user) return false;
+  return user.role === 'admin' || user.email?.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
+};
+
 const Header: React.FC = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
   const { products } = useProducts();
@@ -505,7 +512,7 @@ const Header: React.FC = () => {
                     >
                       {t('nav_profile')}
                     </Link>
-                    {currentUser.role === 'admin' && (
+                    {isAdminUser(currentUser) && (
                       <Link
                         to="/admin-dashboard"
                         onClick={() => setIsProfileMenuOpen(false)}
@@ -722,7 +729,7 @@ const Header: React.FC = () => {
                 >
                   {t('nav_profile')}
                 </Link>
-                {currentUser.role === 'admin' && (
+                {isAdminUser(currentUser) && (
                   <Link
                     to="/admin-dashboard"
                     onClick={() => setIsMenuOpen(false)}

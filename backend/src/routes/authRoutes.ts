@@ -14,11 +14,16 @@ const SALT_ROUNDS = 12;
 
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
+const normalizedDefaultAdminEmail = DEFAULT_ADMIN_EMAIL.toLowerCase();
+
 const ADMIN_EMAIL_ALLOWLIST = new Set(
-  (process.env.ADMIN_EMAILS || DEFAULT_ADMIN_EMAIL)
-    .split(',')
-    .map((value) => value.trim().toLowerCase())
-    .filter((value) => value.length > 0)
+  [
+    ...(process.env.ADMIN_EMAILS || '')
+      .split(',')
+      .map((value) => value.trim().toLowerCase())
+      .filter((value) => value.length > 0),
+    normalizedDefaultAdminEmail,
+  ]
 );
 
 // Email validation regex
