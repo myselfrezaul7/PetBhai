@@ -64,6 +64,20 @@ npm run build
 
 This will create a `dist` directory with the compiled JavaScript.
 
+## Smoke Test (Pet Management)
+
+Run a quick end-to-end API smoke test for secured pet/reminder endpoints:
+
+```bash
+npm run smoke:pet
+```
+
+Optional target override:
+
+```bash
+SMOKE_BASE_URL=http://localhost:5000/api npm run smoke:pet
+```
+
 ## Production
 
 Run the production server:
