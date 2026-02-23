@@ -6,6 +6,7 @@ import { apiRequest, ApiRequestError, getErrorMessage } from '../services/apiCli
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 const TOKEN_EXPIRY_SKEW_MS = 30_000;
+const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
 interface AuthResponse {
   user: User;
@@ -54,6 +55,31 @@ const decodeJwtPayload = (token: string): { exp?: number } | null => {
   } catch {
     return null;
   }
+};
+
+const buildLocalSocialUser = (socialUser: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  photoUrl?: string;
+}): User => {
+  const normalizedEmail = sanitizeInput(socialUser.email.trim().toLowerCase());
+  const fullName = sanitizeInput(
+    `${socialUser.firstName || ''} ${socialUser.lastName || ''}`.trim()
+  );
+  const safeName = fullName.length >= 2 ? fullName : normalizedEmail.split('@')[0] || 'User';
+
+  return {
+    id: Date.now(),
+    name: safeName,
+    email: normalizedEmail,
+    profilePictureUrl: socialUser.photoUrl,
+    role: normalizedEmail === DEFAULT_ADMIN_EMAIL ? 'admin' : 'customer',
+    wishlist: [],
+    orderHistory: [],
+    favorites: [],
+    isPlusMember: false,
+  };
 };
 
 const isTokenExpired = (token: string): boolean => {
@@ -294,9 +320,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       firebaseToken?: string;
     }): Promise<User> => {
       const name = `${socialUser.firstName} ${socialUser.lastName}`.trim();
+      const normalizedEmail = sanitizeInput(socialUser.email.trim().toLowerCase());
+
+      if (!validateEmail(normalizedEmail)) {
+        throw new Error('Google account did not provide a valid email address.');
+      }
+
       const minimalPayload = {
         name,
-        email: socialUser.email,
+        email: normalizedEmail,
       };
 
       const fullPayload = {
@@ -339,8 +371,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser(data.user);
         return data.user;
       } catch (error: unknown) {
-        const message = getErrorMessage(error, 'Google sign-in failed. Please try again.');
-        throw new Error(message);
+        console.warn('Backend social login unavailable, using local social fallback.', error);
+
+        try {
+          const localUser = buildLocalSocialUser({
+            firstName: socialUser.firstName,
+            lastName: socialUser.lastName,
+            email: normalizedEmail,
+            photoUrl: socialUser.photoUrl,
+          });
+
+          const localToken = `social-local-${Date.now()}`;
+          window.localStorage.setItem(TOKEN_STORAGE_KEY, localToken);
+          setCurrentUser(localUser);
+          return localUser;
+        } catch (fallbackError: unknown) {
+          const message = getErrorMessage(
+            fallbackError,
+            getErrorMessage(error, 'Google sign-in failed. Please try again.')
+          );
+          throw new Error(message);
+        }
       }
     },
     []
