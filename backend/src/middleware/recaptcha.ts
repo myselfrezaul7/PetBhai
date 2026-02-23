@@ -11,6 +11,57 @@ interface RecaptchaVerifyResponse {
   'error-codes'?: string[];
 }
 
+interface MathFallbackPayload {
+  type: 'math-v1';
+  left: number;
+  right: number;
+  operator: '+' | '-';
+  answer: number;
+}
+
+const isValidMathFallback = (payload: unknown): payload is MathFallbackPayload => {
+  if (!payload || typeof payload !== 'object') {
+    return false;
+  }
+
+  const candidate = payload as Partial<MathFallbackPayload>;
+  if (candidate.type !== 'math-v1') {
+    return false;
+  }
+
+  if (
+    !Number.isInteger(candidate.left) ||
+    !Number.isInteger(candidate.right) ||
+    !Number.isInteger(candidate.answer)
+  ) {
+    return false;
+  }
+
+  if (!['+', '-'].includes(String(candidate.operator))) {
+    return false;
+  }
+
+  const left = candidate.left;
+  const right = candidate.right;
+  const answer = candidate.answer;
+  const operator = candidate.operator;
+
+  if (typeof left !== 'number' || typeof right !== 'number' || typeof answer !== 'number') {
+    return false;
+  }
+
+  if (operator !== '+' && operator !== '-') {
+    return false;
+  }
+
+  if (left < 0 || left > 100 || right < 0 || right > 100) {
+    return false;
+  }
+
+  const expected = operator === '+' ? left + right : left - right;
+  return expected === answer;
+};
+
 /**
  * Verify reCAPTCHA token with Google's API
  */
@@ -54,8 +105,23 @@ export const recaptchaMiddleware = async (
   }
 
   const recaptchaToken = req.body?.recaptchaToken || req.headers['x-recaptcha-token'];
+  const captchaFallback = req.body?.captchaFallback;
 
   if (!recaptchaToken) {
+    if (isValidMathFallback(captchaFallback)) {
+      securityLog('MATH_CAPTCHA_VERIFIED', req, {
+        method: req.method,
+        path: req.originalUrl || req.url,
+      });
+
+      if (req.body?.captchaFallback) {
+        delete req.body.captchaFallback;
+      }
+
+      next();
+      return;
+    }
+
     securityLog('MISSING_RECAPTCHA', req);
     res.status(400).json({
       error: 'reCAPTCHA verification required',
@@ -68,6 +134,21 @@ export const recaptchaMiddleware = async (
     const verificationResult = await verifyRecaptchaToken(recaptchaToken);
 
     if (!verificationResult.success) {
+      if (isValidMathFallback(captchaFallback)) {
+        securityLog('RECAPTCHA_FAILED_MATH_FALLBACK_VERIFIED', req, {
+          method: req.method,
+          path: req.originalUrl || req.url,
+          errors: verificationResult['error-codes'],
+        });
+
+        if (req.body?.captchaFallback) {
+          delete req.body.captchaFallback;
+        }
+
+        next();
+        return;
+      }
+
       securityLog('RECAPTCHA_FAILED', req, {
         errors: verificationResult['error-codes'],
       });

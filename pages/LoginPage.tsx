@@ -11,7 +11,32 @@ import ForgotPasswordModal from '../components/ForgotPasswordModal';
 interface FormErrors {
   email?: string;
   password?: string;
+  mathAnswer?: string;
 }
+
+interface MathChallenge {
+  left: number;
+  right: number;
+  operator: '+' | '-';
+  expected: number;
+}
+
+const createMathChallenge = (): MathChallenge => {
+  const operator: '+' | '-' = Math.random() > 0.5 ? '+' : '-';
+  let left = Math.floor(Math.random() * 9) + 1;
+  let right = Math.floor(Math.random() * 9) + 1;
+
+  if (operator === '-' && right > left) {
+    [left, right] = [right, left];
+  }
+
+  return {
+    left,
+    right,
+    operator,
+    expected: operator === '+' ? left + right : left - right,
+  };
+};
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -22,6 +47,9 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<boolean>(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showMathFallback, setShowMathFallback] = useState(false);
+  const [mathChallenge, setMathChallenge] = useState<MathChallenge>(createMathChallenge);
+  const [mathAnswer, setMathAnswer] = useState('');
   const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +76,18 @@ const LoginPage: React.FC = () => {
     return undefined;
   }, []);
 
+  const validateMathAnswer = useCallback(
+    (value: string): string | undefined => {
+      if (!showMathFallback) return undefined;
+      if (!value.trim()) return 'Math answer is required';
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return 'Math answer must be a valid number';
+      if (parsed !== mathChallenge.expected) return 'Incorrect math answer. Please try again.';
+      return undefined;
+    },
+    [mathChallenge.expected, showMathFallback]
+  );
+
   // Handle input blur for real-time validation
   const handleEmailBlur = useCallback(() => {
     const error = validateEmail(email);
@@ -58,6 +98,11 @@ const LoginPage: React.FC = () => {
     const error = validatePassword(password);
     setFieldErrors((prev) => ({ ...prev, password: error }));
   }, [password, validatePassword]);
+
+  const handleMathBlur = useCallback(() => {
+    const error = validateMathAnswer(mathAnswer);
+    setFieldErrors((prev) => ({ ...prev, mathAnswer: error }));
+  }, [mathAnswer, validateMathAnswer]);
 
   // Toggle password visibility
   const togglePasswordVisibility = useCallback(() => {
@@ -75,15 +120,16 @@ const LoginPage: React.FC = () => {
       // Validate all fields
       const emailError = validateEmail(sanitizedEmail);
       const passwordError = validatePassword(password);
+      const hasRecaptcha = isVerified && !!recaptchaToken;
+      const shouldUseMathFallback = showMathFallback || !hasRecaptcha;
+      const mathError = shouldUseMathFallback ? validateMathAnswer(mathAnswer) : undefined;
 
-      if (emailError || passwordError) {
-        setFieldErrors({ email: emailError, password: passwordError });
-        return;
-      }
-
-      // Check reCAPTCHA verification
-      if (!isVerified || !recaptchaToken) {
-        setError('Please complete the reCAPTCHA verification');
+      if (emailError || passwordError || mathError) {
+        setFieldErrors({ email: emailError, password: passwordError, mathAnswer: mathError });
+        if (!hasRecaptcha) {
+          setShowMathFallback(true);
+          setError('reCAPTCHA is unavailable. Please solve the math challenge to continue.');
+        }
         return;
       }
 
@@ -91,7 +137,20 @@ const LoginPage: React.FC = () => {
       setIsLoading(true);
 
       try {
-        await login(sanitizedEmail, password, recaptchaToken);
+        await login(
+          sanitizedEmail,
+          password,
+          hasRecaptcha ? recaptchaToken : undefined,
+          hasRecaptcha
+            ? undefined
+            : {
+                type: 'math-v1',
+                left: mathChallenge.left,
+                right: mathChallenge.right,
+                operator: mathChallenge.operator,
+                answer: Number(mathAnswer),
+              }
+        );
         navigate('/community');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -99,7 +158,20 @@ const LoginPage: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [email, password, login, navigate, validateEmail, validatePassword, isVerified, recaptchaToken]
+    [
+      email,
+      password,
+      login,
+      navigate,
+      validateEmail,
+      validatePassword,
+      validateMathAnswer,
+      isVerified,
+      recaptchaToken,
+      showMathFallback,
+      mathAnswer,
+      mathChallenge,
+    ]
   );
 
   const handleSocialLogin = useCallback(async () => {
@@ -191,7 +263,7 @@ const LoginPage: React.FC = () => {
                   : 'border-slate-300 dark:border-slate-600'
               }`}
               aria-required="true"
-              aria-invalid={fieldErrors.email ? 'true' : 'false'}
+              aria-invalid={!!fieldErrors.email}
               aria-describedby={
                 fieldErrors.email ? 'email-error' : error ? 'auth-error' : undefined
               }
@@ -225,7 +297,7 @@ const LoginPage: React.FC = () => {
                     : 'border-slate-300 dark:border-slate-600'
                 }`}
                 aria-required="true"
-                aria-invalid={fieldErrors.password ? 'true' : 'false'}
+                aria-invalid={!!fieldErrors.password}
                 aria-describedby={
                   fieldErrors.password ? 'password-error' : error ? 'auth-error' : undefined
                 }
@@ -264,16 +336,71 @@ const LoginPage: React.FC = () => {
           <div className="flex justify-center">
             <ReCaptcha
               onVerify={handleVerify}
-              onExpire={handleExpire}
+              onExpire={() => {
+                handleExpire();
+                setShowMathFallback(true);
+              }}
+              onError={() => {
+                setShowMathFallback(true);
+                setError('reCAPTCHA failed to load. Use the math challenge below.');
+              }}
               theme="light"
               size="normal"
             />
           </div>
 
+          {showMathFallback && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                  Math verification fallback
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMathChallenge(createMathChallenge());
+                    setMathAnswer('');
+                    setFieldErrors((prev) => ({ ...prev, mathAnswer: undefined }));
+                  }}
+                  className="text-xs font-semibold text-amber-700 underline dark:text-amber-300"
+                >
+                  New challenge
+                </button>
+              </div>
+              <label
+                htmlFor="mathAnswer"
+                className="mt-2 block text-sm text-amber-900 dark:text-amber-100"
+              >
+                Solve: {mathChallenge.left} {mathChallenge.operator} {mathChallenge.right} = ?
+              </label>
+              <input
+                id="mathAnswer"
+                name="mathAnswer"
+                type="number"
+                inputMode="numeric"
+                value={mathAnswer}
+                onChange={(event) => setMathAnswer(event.target.value)}
+                onBlur={handleMathBlur}
+                className={`mt-2 w-full rounded-lg border bg-white px-3 py-2 text-base dark:bg-slate-700/50 ${
+                  fieldErrors.mathAnswer
+                    ? 'border-red-500 dark:border-red-400'
+                    : 'border-amber-300 dark:border-amber-500/40'
+                }`}
+                aria-invalid={!!fieldErrors.mathAnswer}
+                aria-describedby={fieldErrors.mathAnswer ? 'math-error' : undefined}
+              />
+              {fieldErrors.mathAnswer && (
+                <p id="math-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {fieldErrors.mathAnswer}
+                </p>
+              )}
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
-              disabled={isLoading || isSocialLoading || !isVerified}
+              disabled={isLoading || isSocialLoading}
               className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98] flex items-center justify-center gap-2"
               aria-label={isLoading ? 'Logging in, please wait' : 'Login with Email'}
             >

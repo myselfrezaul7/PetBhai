@@ -218,11 +218,13 @@
 
     <!-- DNS Prefetch for Performance -->
     <link rel="dns-prefetch" href="https://esm.sh" />
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
     <!-- Preconnect for Critical Resources (High Priority) -->
     <link rel="preconnect" href="https://esm.sh" crossorigin />
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -524,7 +526,10 @@
     </script>
     -->
 
-    <!-- Tailwind CSS - loaded with fetchpriority for faster processing -->
+    <!-- Tailwind CSS runtime -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+
+    <!-- Tailwind runtime config -->
     <script>
       tailwind.config = {
         darkMode: 'class',

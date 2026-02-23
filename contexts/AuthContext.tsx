@@ -96,7 +96,18 @@ const getInitialCurrentUser = (): User | null => {
 interface AuthContextType {
   currentUser: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, recaptchaToken?: string) => Promise<User>;
+  login: (
+    email: string,
+    password: string,
+    recaptchaToken?: string,
+    captchaFallback?: {
+      type: 'math-v1';
+      left: number;
+      right: number;
+      operator: '+' | '-';
+      answer: number;
+    }
+  ) => Promise<User>;
   logout: () => void;
   signup: (name: string, email: string, password: string, recaptchaToken?: string) => Promise<User>;
   socialLogin: (socialUser: {
@@ -145,7 +156,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser]);
 
   const login = useCallback(
-    async (email: string, password: string, recaptchaToken?: string): Promise<User> => {
+    async (
+      email: string,
+      password: string,
+      recaptchaToken?: string,
+      captchaFallback?: {
+        type: 'math-v1';
+        left: number;
+        right: number;
+        operator: '+' | '-';
+        answer: number;
+      }
+    ): Promise<User> => {
       const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
 
       if (!validateEmail(sanitizedEmail)) {
@@ -162,7 +184,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email: sanitizedEmail, password, recaptchaToken }),
+          body: JSON.stringify({
+            email: sanitizedEmail,
+            password,
+            recaptchaToken,
+            captchaFallback,
+          }),
         });
 
         // Save token
