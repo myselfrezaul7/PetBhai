@@ -32,11 +32,24 @@ const sanitizeString = (str: string): string => {
   return str.trim().slice(0, 500); // Limit length and trim whitespace
 };
 
+const normalizeEmail = (email: unknown): string => {
+  if (typeof email !== 'string') {
+    return '';
+  }
+
+  return sanitizeString(email).toLowerCase();
+};
+
 const getRoleByEmail = (email: string): 'admin' | 'customer' => {
-  return ADMIN_EMAIL_ALLOWLIST.has(email.toLowerCase()) ? 'admin' : 'customer';
+  const normalizedEmail = normalizeEmail(email);
+  return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'admin' : 'customer';
 };
 
 const syncRoleByEmail = (user: User): boolean => {
+  if (typeof user.email !== 'string' || user.email.trim().length === 0) {
+    return false;
+  }
+
   const expectedRole = getRoleByEmail(user.email);
   if (user.role === expectedRole) {
     return false;
@@ -232,7 +245,7 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(400).json({ message: 'Invalid email format' });
     }
 
-    const user = db.users.find((u) => u.email.toLowerCase() === sanitizedEmail);
+    const user = db.users.find((u) => normalizeEmail(u.email) === sanitizedEmail);
 
     if (!user) {
       // Use consistent error message to prevent user enumeration
@@ -305,7 +318,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       return res.status(400).json({ message: passwordCheck.message });
     }
 
-    if (db.users.some((u) => u.email.toLowerCase() === sanitizedEmail)) {
+    if (db.users.some((u) => normalizeEmail(u.email) === sanitizedEmail)) {
       return res.status(409).json({ message: 'User with this email already exists' });
     }
 
@@ -367,7 +380,7 @@ router.post('/social', authLimiter, (req, res) => {
         ? sanitizeString(name)
         : sanitizedEmail.split('@')[0];
 
-    let user = db.users.find((u) => u.email.toLowerCase() === sanitizedEmail);
+    let user = db.users.find((u) => normalizeEmail(u.email) === sanitizedEmail);
 
     if (user) {
       let shouldPersist = false;
