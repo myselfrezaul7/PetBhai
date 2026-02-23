@@ -293,46 +293,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       photoUrl?: string;
       firebaseToken?: string;
     }): Promise<User> => {
-      // If a Firebase token is available, exchange it with the backend for a PetBhai JWT
-      if (socialUser.firebaseToken) {
-        try {
-          const data = await apiRequest<AuthResponse>('/auth/social', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
-              email: socialUser.email,
-              photoUrl: socialUser.photoUrl,
-              firebaseToken: socialUser.firebaseToken,
-            }),
-          });
-
-          if (!data?.token || !data?.user) {
-            throw new Error('Invalid social login response');
-          }
-
-          window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-          setCurrentUser(data.user);
-          return data.user;
-        } catch (err) {
-          console.warn('Backend social login failed, falling back to local session', err);
-        }
+      if (!socialUser.firebaseToken) {
+        throw new Error('Google authentication token missing. Please try again.');
       }
 
-      // Fallback: create a local-only session (no backend persistence)
-      const newUser: User = {
-        id: Date.now(),
-        name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
-        email: socialUser.email,
-        profilePictureUrl: socialUser.photoUrl,
-        wishlist: [],
-        orderHistory: [],
-        favorites: [],
-        isPlusMember: false,
-      };
+      try {
+        const data = await apiRequest<AuthResponse>('/auth/social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
+            email: socialUser.email,
+            photoUrl: socialUser.photoUrl,
+            firebaseToken: socialUser.firebaseToken,
+          }),
+        });
 
-      setCurrentUser(newUser);
-      return newUser;
+        if (!data?.token || !data?.user) {
+          throw new Error('Invalid social login response');
+        }
+
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        setCurrentUser(data.user);
+        return data.user;
+      } catch (error: unknown) {
+        const message = getErrorMessage(error, 'Google sign-in failed. Please try again.');
+        throw new Error(message);
+      }
     },
     []
   );

@@ -505,6 +505,15 @@ const Header: React.FC = () => {
                     >
                       {t('nav_profile')}
                     </Link>
+                    {currentUser.role === 'admin' && (
+                      <Link
+                        to="/admin-dashboard"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -713,6 +722,15 @@ const Header: React.FC = () => {
                 >
                   {t('nav_profile')}
                 </Link>
+                {currentUser.role === 'admin' && (
+                  <Link
+                    to="/admin-dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full text-center py-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold text-lg border-2 border-orange-200 dark:border-orange-800"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}
