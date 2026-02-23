@@ -106,6 +106,20 @@ Optional target override:
 SMOKE_BASE_URL=http://localhost:5000/api npm run smoke:post-stream
 ```
 
+## Smoke Test (Admin Realtime Stream)
+
+Run an authenticated realtime check for `/api/admin/stream` to verify admin SSE connection and order events:
+
+```bash
+npm run smoke:admin-stream
+```
+
+Optional overrides:
+
+```bash
+SMOKE_BASE_URL=http://localhost:5000/api ADMIN_SMOKE_EMAIL=petbhaibd@gmail.com npm run smoke:admin-stream
+```
+
 ## Production
 
 Run the production server:

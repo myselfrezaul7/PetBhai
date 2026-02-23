@@ -11,7 +11,8 @@
     "test:watch": "jest --watch",
     "smoke:pet": "tsx scripts/smoke_pet_management.ts",
     "smoke:admin-order": "tsx scripts/smoke_admin_order_status.ts",
-    "smoke:post-stream": "tsx scripts/smoke_post_stream.ts"
+    "smoke:post-stream": "tsx scripts/smoke_post_stream.ts",
+    "smoke:admin-stream": "tsx scripts/smoke_admin_stream.ts"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
