@@ -44,6 +44,22 @@ const orderCancelSchema = z
   })
   .strict();
 
+const orderStatusUpdateSchema = z
+  .object({
+    status: z.enum([
+      'pending',
+      'confirmed',
+      'processing',
+      'shipped',
+      'delivered',
+      'cancelled',
+      'refunded',
+    ]),
+    note: z.string().trim().min(2).max(500).optional(),
+    trackingNumber: z.string().trim().min(3).max(120).optional(),
+  })
+  .strict();
+
 // Order status types
 type OrderStatus =
   | 'pending'
@@ -497,21 +513,18 @@ router.get('/user/:userId', requireAuth, (req: AuthRequest, res) => {
 // Update order status (admin only)
 router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => {
   const { orderId } = req.params;
-  const { status, note, trackingNumber } = req.body;
-
-  const validStatuses: OrderStatus[] = [
-    'pending',
-    'confirmed',
-    'processing',
-    'shipped',
-    'delivered',
-    'cancelled',
-    'refunded',
-  ];
-
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
+  const parseResult = orderStatusUpdateSchema.safeParse(req.body || {});
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: 'Invalid status update payload',
+      details: parseResult.error.errors.map((error) => ({
+        field: error.path.join('.'),
+        message: error.message,
+      })),
+    });
   }
+
+  const { status, note, trackingNumber } = parseResult.data;
 
   const orderIndex = db.orders.findIndex((o) => o.orderId === orderId);
   if (orderIndex === -1) {
@@ -527,13 +540,19 @@ router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, r
   order.statusHistory.push({
     status,
     timestamp: now,
-    note: note || `Status updated to ${status}`,
+    note: note ?? `Status updated to ${status}`,
   });
 
   // Add tracking number if provided
   if (trackingNumber) {
     order.trackingNumber = trackingNumber;
   }
+
+  securityLog('ORDER_STATUS_UPDATED', req, {
+    orderId,
+    status,
+    hasTrackingNumber: Boolean(trackingNumber),
+  });
 
   db.orders[orderIndex] = order;
 

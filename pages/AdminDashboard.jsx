@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiRequest, getErrorMessage } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
+import { sanitizeInput, sanitizeUrl } from '../lib/security';
 
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 
@@ -62,6 +63,12 @@ const toNumeric = (value, fallback = 0) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const toBoundedInteger = (value, min = 0, max = 100000) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return min;
+  return Math.max(min, Math.min(max, Math.round(parsed)));
+};
+
 const AdminDashboard = () => {
   const { currentUser, logout } = useAuth();
   const [inventoryRows, setInventoryRows] = useState([]);
@@ -72,6 +79,8 @@ const AdminDashboard = () => {
   const [savingId, setSavingId] = useState(null);
   const [savingOrderId, setSavingOrderId] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState({});
+  const [orderNotes, setOrderNotes] = useState({});
+  const [trackingNumbers, setTrackingNumbers] = useState({});
   const [addingProduct, setAddingProduct] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,6 +132,22 @@ const AdminDashboard = () => {
           return acc;
         }, {})
       );
+      setOrderNotes(
+        orders.reduce((acc, order) => {
+          const history = Array.isArray(order.statusHistory) ? order.statusHistory : [];
+          const lastEntry = history.length > 0 ? history[history.length - 1] : null;
+          acc[order.orderId] = lastEntry?.note ? sanitizeInput(String(lastEntry.note), 500) : '';
+          return acc;
+        }, {})
+      );
+      setTrackingNumbers(
+        orders.reduce((acc, order) => {
+          acc[order.orderId] = order.trackingNumber
+            ? sanitizeInput(String(order.trackingNumber), 120, { allowNewlines: false })
+            : '';
+          return acc;
+        }, {})
+      );
       setLastSyncAt(new Date().toISOString());
     } catch (requestError) {
       setError(getErrorMessage(requestError, 'Failed to load admin dashboard data.'));
@@ -155,7 +180,7 @@ const AdminDashboard = () => {
         row.id === id
           ? {
               ...row,
-              [field]: Number(value),
+              [field]: toBoundedInteger(value, 0, 100000),
             }
           : row
       )
@@ -206,6 +231,11 @@ const AdminDashboard = () => {
 
     try {
       const status = selectedStatuses[orderId];
+      const safeNote = sanitizeInput(String(orderNotes[orderId] || ''), 500);
+      const safeTracking = sanitizeInput(String(trackingNumbers[orderId] || ''), 120, {
+        allowNewlines: false,
+      });
+
       const headers = {
         ...getAuthHeaders(),
         'Content-Type': 'application/json',
@@ -216,7 +246,8 @@ const AdminDashboard = () => {
         headers,
         body: JSON.stringify({
           status,
-          note: `Updated from admin dashboard (${currentUser?.email || 'admin'})`,
+          note: safeNote || `Updated from admin dashboard (${currentUser?.email || 'admin'})`,
+          trackingNumber: safeTracking || undefined,
         }),
       });
 
@@ -226,6 +257,7 @@ const AdminDashboard = () => {
             ? {
                 ...order,
                 status: response?.order?.status || status,
+                trackingNumber: response?.order?.trackingNumber || safeTracking || undefined,
               }
             : order
         )
@@ -244,12 +276,12 @@ const AdminDashboard = () => {
 
     try {
       const payload = {
-        name: newProduct.name.trim(),
+        name: sanitizeInput(newProduct.name, 250),
         category: newProduct.category,
         price: Number(newProduct.price),
-        imageUrl: newProduct.imageUrl.trim(),
-        description: newProduct.description.trim(),
-        weight: newProduct.weight.trim(),
+        imageUrl: sanitizeUrl(newProduct.imageUrl) || '',
+        description: sanitizeInput(newProduct.description, 3000),
+        weight: sanitizeInput(newProduct.weight, 50),
         brandId: Number(newProduct.brandId),
         stockQuantity: Number(newProduct.stockQuantity),
         reorderPoint: Number(newProduct.reorderPoint),
@@ -501,7 +533,9 @@ const AdminDashboard = () => {
           <input
             type="text"
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event) =>
+              setSearchTerm(sanitizeInput(event.target.value, 120, { allowNewlines: false }))
+            }
             placeholder="Search SKU, name, category"
             className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
           />
@@ -683,6 +717,32 @@ const AdminDashboard = () => {
                           </option>
                         ))}
                       </select>
+                      <input
+                        type="text"
+                        placeholder="Tracking"
+                        value={trackingNumbers[order.orderId] || ''}
+                        onChange={(event) =>
+                          setTrackingNumbers((prev) => ({
+                            ...prev,
+                            [order.orderId]: sanitizeInput(event.target.value, 120, {
+                              allowNewlines: false,
+                            }),
+                          }))
+                        }
+                        className="w-28 rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Note"
+                        value={orderNotes[order.orderId] || ''}
+                        onChange={(event) =>
+                          setOrderNotes((prev) => ({
+                            ...prev,
+                            [order.orderId]: sanitizeInput(event.target.value, 500),
+                          }))
+                        }
+                        className="w-40 rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
+                      />
                       <button
                         type="button"
                         onClick={() => void handleOrderStatusSave(order.orderId)}
@@ -731,7 +791,9 @@ const AdminDashboard = () => {
           className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
           placeholder="Product Name"
           value={newProduct.name}
-          onChange={(event) => setNewProduct((prev) => ({ ...prev, name: event.target.value }))}
+          onChange={(event) =>
+            setNewProduct((prev) => ({ ...prev, name: sanitizeInput(event.target.value, 250) }))
+          }
           required
         />
         <select
@@ -773,14 +835,21 @@ const AdminDashboard = () => {
           className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 md:col-span-2"
           placeholder="Image URL"
           value={newProduct.imageUrl}
-          onChange={(event) => setNewProduct((prev) => ({ ...prev, imageUrl: event.target.value }))}
+          onChange={(event) =>
+            setNewProduct((prev) => ({
+              ...prev,
+              imageUrl: sanitizeInput(event.target.value, 3000, { allowNewlines: false }),
+            }))
+          }
           required
         />
         <input
           className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
           placeholder="Weight (e.g. 10kg)"
           value={newProduct.weight}
-          onChange={(event) => setNewProduct((prev) => ({ ...prev, weight: event.target.value }))}
+          onChange={(event) =>
+            setNewProduct((prev) => ({ ...prev, weight: sanitizeInput(event.target.value, 50) }))
+          }
           required
         />
         <input
@@ -818,7 +887,7 @@ const AdminDashboard = () => {
           onChange={(event) =>
             setNewProduct((prev) => ({
               ...prev,
-              description: event.target.value,
+              description: sanitizeInput(event.target.value, 3000),
             }))
           }
           required
