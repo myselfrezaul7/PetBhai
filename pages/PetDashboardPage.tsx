@@ -251,7 +251,9 @@ const PetDashboardPage: React.FC = () => {
         gender: profileForm.gender,
         activityLevel: profileForm.activityLevel,
         weight: parsedWeight,
-        birthDate: profileForm.birthDate ? new Date(profileForm.birthDate).toISOString() : undefined,
+        birthDate: profileForm.birthDate
+          ? new Date(profileForm.birthDate).toISOString()
+          : undefined,
       });
     } catch (error) {
       setDashboardError(error instanceof Error ? error.message : 'Failed to update pet profile.');
