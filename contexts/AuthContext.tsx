@@ -293,21 +293,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       photoUrl?: string;
       firebaseToken?: string;
     }): Promise<User> => {
-      if (!socialUser.firebaseToken) {
-        throw new Error('Google authentication token missing. Please try again.');
-      }
+      const name = `${socialUser.firstName} ${socialUser.lastName}`.trim();
+      const minimalPayload = {
+        name,
+        email: socialUser.email,
+      };
+
+      const fullPayload = {
+        ...minimalPayload,
+        photoUrl: socialUser.photoUrl,
+        firebaseToken: socialUser.firebaseToken,
+      };
 
       try {
-        const data = await apiRequest<AuthResponse>('/auth/social', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: `${socialUser.firstName} ${socialUser.lastName}`.trim(),
-            email: socialUser.email,
-            photoUrl: socialUser.photoUrl,
-            firebaseToken: socialUser.firebaseToken,
-          }),
-        });
+        let data: AuthResponse;
+
+        try {
+          data = await apiRequest<AuthResponse>('/auth/social', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fullPayload),
+          });
+        } catch (error) {
+          const shouldRetryMinimal =
+            error instanceof ApiRequestError &&
+            typeof error.statusCode === 'number' &&
+            error.statusCode >= 500;
+
+          if (!shouldRetryMinimal) {
+            throw error;
+          }
+
+          data = await apiRequest<AuthResponse>('/auth/social', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(minimalPayload),
+          });
+        }
 
         if (!data?.token || !data?.user) {
           throw new Error('Invalid social login response');
