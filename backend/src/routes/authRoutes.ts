@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
 import { db } from '../db';
-import type { User } from '../types';
+import type { MedicineReminderRecord, PetProfileRecord, User } from '../types';
 import { AuthRequest, generateToken, requireAuth } from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
@@ -96,6 +97,120 @@ const getNextUserId = (): number => {
     .filter((id) => Number.isFinite(id) && id > 0);
   const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
   return maxId + 1;
+};
+
+const generateRecordId = (): string => {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+};
+
+const petCreateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(80),
+    type: z.enum(['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'other']),
+    gender: z.enum(['male', 'female', 'unknown']),
+    breed: z.string().trim().max(80).optional(),
+    weight: z.number().positive().max(250).optional(),
+    activityLevel: z.enum(['low', 'medium', 'high']),
+    birthDate: z.string().datetime().optional(),
+  })
+  .strict();
+
+const petUpdateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(80).optional(),
+    gender: z.enum(['male', 'female', 'unknown']).optional(),
+    breed: z.string().trim().max(80).optional(),
+    weight: z.number().positive().max(250).optional(),
+    activityLevel: z.enum(['low', 'medium', 'high']).optional(),
+    birthDate: z.string().datetime().optional(),
+  })
+  .strict();
+
+const petWeightSchema = z
+  .object({
+    weight: z.number().positive().max(250),
+  })
+  .strict();
+
+const reminderCreateSchema = z
+  .object({
+    petId: z.string().trim().min(3).max(80),
+    medicineName: z.string().trim().min(2).max(100),
+    dosage: z.string().trim().min(1).max(100),
+    frequency: z.enum(['daily', 'weekly', 'monthly', 'custom']),
+    customDays: z.number().int().min(1).max(90).optional(),
+    startDate: z.string().datetime(),
+    nextDueDate: z.string().datetime(),
+    notes: z.string().trim().max(300).optional(),
+    isActive: z.boolean(),
+    notificationEnabled: z.boolean(),
+  })
+  .strict();
+
+const reminderUpdateSchema = z
+  .object({
+    medicineName: z.string().trim().min(2).max(100).optional(),
+    dosage: z.string().trim().min(1).max(100).optional(),
+    frequency: z.enum(['daily', 'weekly', 'monthly', 'custom']).optional(),
+    customDays: z.number().int().min(1).max(90).optional(),
+    startDate: z.string().datetime().optional(),
+    nextDueDate: z.string().datetime().optional(),
+    notes: z.string().trim().max(300).optional(),
+    isActive: z.boolean().optional(),
+    notificationEnabled: z.boolean().optional(),
+    lastGivenDate: z.string().datetime().optional(),
+  })
+  .strict();
+
+const ensurePetCollections = (user: User): void => {
+  if (!Array.isArray(user.petProfiles)) {
+    user.petProfiles = [];
+  }
+
+  if (!Array.isArray(user.medicineReminders)) {
+    user.medicineReminders = [];
+  }
+};
+
+const parseUserFromParam = (req: AuthRequest, res: any): User | null => {
+  const userId = parseInt(req.params.id, 10);
+  if (Number.isNaN(userId)) {
+    res.status(400).json({ message: 'Invalid user ID' });
+    return null;
+  }
+
+  if (!canAccessUser(req, userId)) {
+    res.status(403).json({ message: 'Forbidden' });
+    return null;
+  }
+
+  const user = db.users.find((record) => Number(record.id) === userId);
+  if (!user) {
+    res.status(404).json({ message: 'User not found' });
+    return null;
+  }
+
+  ensurePetCollections(user);
+  return user;
+};
+
+const calculateNextDueDate = (
+  frequency: MedicineReminderRecord['frequency'],
+  customDays?: number
+): string => {
+  const nextDate = new Date();
+
+  if (frequency === 'daily') {
+    nextDate.setDate(nextDate.getDate() + 1);
+  } else if (frequency === 'weekly') {
+    nextDate.setDate(nextDate.getDate() + 7);
+  } else if (frequency === 'monthly') {
+    nextDate.setMonth(nextDate.getMonth() + 1);
+  } else {
+    nextDate.setDate(nextDate.getDate() + Math.max(1, customDays || 1));
+  }
+
+  return nextDate.toISOString();
 };
 
 // Login
@@ -512,6 +627,341 @@ router.post('/:id/orders', requireAuth, (req: AuthRequest, res) => {
   }
 
   res.status(201).json(sanitizeUser(user));
+});
+
+router.get('/:id/pet-management', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  return res.json({
+    pets: user.petProfiles,
+    medicineReminders: user.medicineReminders,
+  });
+});
+
+router.post('/:id/pets', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const parsed = petCreateSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: 'Invalid pet payload',
+      details: parsed.error.errors.map((error) => ({
+        field: error.path.join('.'),
+        message: error.message,
+      })),
+    });
+  }
+
+  const payload = parsed.data;
+  const now = new Date().toISOString();
+  const weight = typeof payload.weight === 'number' ? Number(payload.weight.toFixed(2)) : undefined;
+
+  const pet: PetProfileRecord = {
+    id: generateRecordId(),
+    name: sanitizeString(payload.name).slice(0, 80),
+    type: payload.type,
+    gender: payload.gender,
+    breed: payload.breed ? sanitizeString(payload.breed).slice(0, 80) : undefined,
+    birthDate: payload.birthDate,
+    weight,
+    weightHistory: typeof weight === 'number' ? [{ date: now, weight }] : [],
+    activityLevel: payload.activityLevel,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  user.petProfiles?.push(pet);
+  persistChanges(res);
+  auditLog('PET_PROFILE_CREATED', user.id, { petId: pet.id });
+
+  return res
+    .status(201)
+    .json({ pet, pets: user.petProfiles, medicineReminders: user.medicineReminders });
+});
+
+router.patch('/:id/pets/:petId', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const parsed = petUpdateSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: 'Invalid pet update payload',
+      details: parsed.error.errors.map((error) => ({
+        field: error.path.join('.'),
+        message: error.message,
+      })),
+    });
+  }
+
+  const petId = sanitizeString(req.params.petId).slice(0, 80);
+  const petIndex = (user.petProfiles || []).findIndex((pet) => pet.id === petId);
+  if (petIndex === -1) {
+    return res.status(404).json({ message: 'Pet not found' });
+  }
+
+  const updates = parsed.data;
+  const currentPet = user.petProfiles![petIndex];
+  const updatedPet: PetProfileRecord = {
+    ...currentPet,
+    name: updates.name ? sanitizeString(updates.name).slice(0, 80) : currentPet.name,
+    breed:
+      typeof updates.breed === 'string'
+        ? sanitizeString(updates.breed).slice(0, 80)
+        : currentPet.breed,
+    gender: updates.gender || currentPet.gender,
+    activityLevel: updates.activityLevel || currentPet.activityLevel,
+    birthDate: updates.birthDate || currentPet.birthDate,
+    weight:
+      typeof updates.weight === 'number' ? Number(updates.weight.toFixed(2)) : currentPet.weight,
+    updatedAt: new Date().toISOString(),
+  };
+
+  user.petProfiles![petIndex] = updatedPet;
+  persistChanges(res);
+  auditLog('PET_PROFILE_UPDATED', user.id, { petId: updatedPet.id });
+
+  return res.json({
+    pet: updatedPet,
+    pets: user.petProfiles,
+    medicineReminders: user.medicineReminders,
+  });
+});
+
+router.post('/:id/pets/:petId/weights', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const parsed = petWeightSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({ message: 'Invalid weight payload' });
+  }
+
+  const petId = sanitizeString(req.params.petId).slice(0, 80);
+  const petIndex = (user.petProfiles || []).findIndex((pet) => pet.id === petId);
+  if (petIndex === -1) {
+    return res.status(404).json({ message: 'Pet not found' });
+  }
+
+  const weight = Number(parsed.data.weight.toFixed(2));
+  const now = new Date().toISOString();
+  const pet = user.petProfiles![petIndex];
+
+  pet.weight = weight;
+  pet.weightHistory = [...(pet.weightHistory || []), { date: now, weight }].slice(-120);
+  pet.updatedAt = now;
+  user.petProfiles![petIndex] = pet;
+
+  persistChanges(res);
+  auditLog('PET_WEIGHT_ADDED', user.id, { petId: pet.id });
+
+  return res
+    .status(201)
+    .json({ pet, pets: user.petProfiles, medicineReminders: user.medicineReminders });
+});
+
+router.delete('/:id/pets/:petId', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const petId = sanitizeString(req.params.petId).slice(0, 80);
+  const beforeCount = (user.petProfiles || []).length;
+  user.petProfiles = (user.petProfiles || []).filter((pet) => pet.id !== petId);
+
+  if (user.petProfiles.length === beforeCount) {
+    return res.status(404).json({ message: 'Pet not found' });
+  }
+
+  user.medicineReminders = (user.medicineReminders || []).filter(
+    (reminder) => reminder.petId !== petId
+  );
+  persistChanges(res);
+  auditLog('PET_PROFILE_DELETED', user.id, { petId });
+
+  return res.json({ pets: user.petProfiles, medicineReminders: user.medicineReminders });
+});
+
+router.post('/:id/reminders', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const parsed = reminderCreateSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: 'Invalid reminder payload',
+      details: parsed.error.errors.map((error) => ({
+        field: error.path.join('.'),
+        message: error.message,
+      })),
+    });
+  }
+
+  const payload = parsed.data;
+  const hasPet = (user.petProfiles || []).some((pet) => pet.id === payload.petId);
+  if (!hasPet) {
+    return res.status(400).json({ message: 'Reminder petId does not belong to this user' });
+  }
+
+  const reminder: MedicineReminderRecord = {
+    id: generateRecordId(),
+    petId: payload.petId,
+    medicineName: sanitizeString(payload.medicineName).slice(0, 100),
+    dosage: sanitizeString(payload.dosage).slice(0, 100),
+    frequency: payload.frequency,
+    customDays: payload.frequency === 'custom' ? payload.customDays || 1 : undefined,
+    startDate: payload.startDate,
+    nextDueDate: payload.nextDueDate,
+    notes: payload.notes ? sanitizeString(payload.notes).slice(0, 300) : undefined,
+    isActive: payload.isActive,
+    notificationEnabled: payload.notificationEnabled,
+  };
+
+  user.medicineReminders?.push(reminder);
+  persistChanges(res);
+  auditLog('MEDICINE_REMINDER_CREATED', user.id, {
+    reminderId: reminder.id,
+    petId: reminder.petId,
+  });
+
+  return res
+    .status(201)
+    .json({ reminder, pets: user.petProfiles, medicineReminders: user.medicineReminders });
+});
+
+router.patch('/:id/reminders/:reminderId', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const parsed = reminderUpdateSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: 'Invalid reminder update payload',
+      details: parsed.error.errors.map((error) => ({
+        field: error.path.join('.'),
+        message: error.message,
+      })),
+    });
+  }
+
+  const reminderId = sanitizeString(req.params.reminderId).slice(0, 80);
+  const reminderIndex = (user.medicineReminders || []).findIndex(
+    (record) => record.id === reminderId
+  );
+  if (reminderIndex === -1) {
+    return res.status(404).json({ message: 'Reminder not found' });
+  }
+
+  const updates = parsed.data;
+  const current = user.medicineReminders![reminderIndex];
+  const updated: MedicineReminderRecord = {
+    ...current,
+    medicineName:
+      typeof updates.medicineName === 'string'
+        ? sanitizeString(updates.medicineName).slice(0, 100)
+        : current.medicineName,
+    dosage:
+      typeof updates.dosage === 'string'
+        ? sanitizeString(updates.dosage).slice(0, 100)
+        : current.dosage,
+    frequency: updates.frequency || current.frequency,
+    customDays:
+      (updates.frequency || current.frequency) === 'custom'
+        ? updates.customDays || current.customDays || 1
+        : undefined,
+    startDate: updates.startDate || current.startDate,
+    nextDueDate: updates.nextDueDate || current.nextDueDate,
+    notes:
+      typeof updates.notes === 'string'
+        ? sanitizeString(updates.notes).slice(0, 300)
+        : current.notes,
+    isActive: typeof updates.isActive === 'boolean' ? updates.isActive : current.isActive,
+    notificationEnabled:
+      typeof updates.notificationEnabled === 'boolean'
+        ? updates.notificationEnabled
+        : current.notificationEnabled,
+    lastGivenDate: updates.lastGivenDate || current.lastGivenDate,
+  };
+
+  user.medicineReminders![reminderIndex] = updated;
+  persistChanges(res);
+  auditLog('MEDICINE_REMINDER_UPDATED', user.id, { reminderId: updated.id });
+
+  return res.json({
+    reminder: updated,
+    pets: user.petProfiles,
+    medicineReminders: user.medicineReminders,
+  });
+});
+
+router.post('/:id/reminders/:reminderId/mark-given', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const reminderId = sanitizeString(req.params.reminderId).slice(0, 80);
+  const reminderIndex = (user.medicineReminders || []).findIndex(
+    (record) => record.id === reminderId
+  );
+  if (reminderIndex === -1) {
+    return res.status(404).json({ message: 'Reminder not found' });
+  }
+
+  const current = user.medicineReminders![reminderIndex];
+  const now = new Date().toISOString();
+  const updated: MedicineReminderRecord = {
+    ...current,
+    lastGivenDate: now,
+    nextDueDate: calculateNextDueDate(current.frequency, current.customDays),
+  };
+
+  user.medicineReminders![reminderIndex] = updated;
+  persistChanges(res);
+  auditLog('MEDICINE_REMINDER_MARKED_GIVEN', user.id, { reminderId: updated.id });
+
+  return res.json({
+    reminder: updated,
+    pets: user.petProfiles,
+    medicineReminders: user.medicineReminders,
+  });
+});
+
+router.delete('/:id/reminders/:reminderId', requireAuth, (req: AuthRequest, res) => {
+  const user = parseUserFromParam(req, res);
+  if (!user) {
+    return;
+  }
+
+  const reminderId = sanitizeString(req.params.reminderId).slice(0, 80);
+  const beforeCount = (user.medicineReminders || []).length;
+  user.medicineReminders = (user.medicineReminders || []).filter(
+    (record) => record.id !== reminderId
+  );
+
+  if (beforeCount === user.medicineReminders.length) {
+    return res.status(404).json({ message: 'Reminder not found' });
+  }
+
+  persistChanges(res);
+  auditLog('MEDICINE_REMINDER_DELETED', user.id, { reminderId });
+
+  return res.json({ pets: user.petProfiles, medicineReminders: user.medicineReminders });
 });
 
 // Change Password

@@ -44,6 +44,53 @@ export interface Order {
     | 'refunded';
 }
 
+export interface PetWeightEntry {
+  date: string;
+  weight: number;
+}
+
+export interface PetProfileRecord {
+  id: string;
+  name: string;
+  type: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'other';
+  breed?: string;
+  birthDate?: string;
+  adoptionDate?: string;
+  gender: 'male' | 'female' | 'unknown';
+  weight?: number;
+  weightHistory: PetWeightEntry[];
+  imageUrl?: string;
+  color?: string;
+  microchipId?: string;
+  isNeutered?: boolean;
+  allergies?: string[];
+  medicalNotes?: string;
+  favoriteFood?: string;
+  activityLevel: 'low' | 'medium' | 'high';
+  feedingSchedule?: {
+    times: string[];
+    portionSize: string;
+    foodType: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MedicineReminderRecord {
+  id: string;
+  petId: string;
+  medicineName: string;
+  dosage: string;
+  frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
+  customDays?: number;
+  startDate: string;
+  nextDueDate: string;
+  notes?: string;
+  isActive: boolean;
+  lastGivenDate?: string;
+  notificationEnabled: boolean;
+}
+
 export type AnimalStatus =
   | 'Available'
   | 'Pending'
@@ -92,6 +139,8 @@ export interface User {
     city: string;
     phone: string;
   };
+  petProfiles?: PetProfileRecord[];
+  medicineReminders?: MedicineReminderRecord[];
 }
 
 export interface CommentReply {

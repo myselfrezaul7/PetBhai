@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 // Types
 export interface MedicineReminder {
@@ -93,18 +94,20 @@ export interface ImpactStats {
 interface PetManagementContextType {
   // Pet Profiles
   pets: PetProfile[];
-  addPet: (pet: Omit<PetProfile, 'id' | 'createdAt' | 'updatedAt' | 'weightHistory'>) => PetProfile;
-  updatePet: (id: string, updates: Partial<PetProfile>) => void;
-  deletePet: (id: string) => void;
+  addPet: (
+    pet: Omit<PetProfile, 'id' | 'createdAt' | 'updatedAt' | 'weightHistory'>
+  ) => Promise<PetProfile>;
+  updatePet: (id: string, updates: Partial<PetProfile>) => Promise<void>;
+  deletePet: (id: string) => Promise<void>;
   getPetById: (id: string) => PetProfile | undefined;
-  addWeightEntry: (petId: string, weight: number) => void;
+  addWeightEntry: (petId: string, weight: number) => Promise<void>;
 
   // Medicine Reminders
   medicineReminders: MedicineReminder[];
-  addMedicineReminder: (reminder: Omit<MedicineReminder, 'id'>) => MedicineReminder;
-  updateMedicineReminder: (id: string, updates: Partial<MedicineReminder>) => void;
-  deleteMedicineReminder: (id: string) => void;
-  markMedicineGiven: (id: string) => void;
+  addMedicineReminder: (reminder: Omit<MedicineReminder, 'id'>) => Promise<MedicineReminder>;
+  updateMedicineReminder: (id: string, updates: Partial<MedicineReminder>) => Promise<void>;
+  deleteMedicineReminder: (id: string) => Promise<void>;
+  markMedicineGiven: (id: string) => Promise<void>;
   getUpcomingReminders: (daysAhead?: number) => MedicineReminder[];
   getOverdueReminders: () => MedicineReminder[];
 
@@ -131,11 +134,10 @@ interface PetManagementContextType {
 
 const PetManagementContext = createContext<PetManagementContextType | undefined>(undefined);
 
-const PETS_KEY = 'petbhai_pet_profiles';
-const REMINDERS_KEY = 'petbhai_medicine_reminders';
 const PRICE_ALERTS_KEY = 'petbhai_price_alerts';
 const GROUP_BUYS_KEY = 'petbhai_group_buys';
 const IMPACT_KEY = 'petbhai_impact_stats';
+const TOKEN_STORAGE_KEY = 'petbhai_token';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -161,28 +163,74 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   const [groupBuys, setGroupBuys] = useState<GroupBuyItem[]>([]);
   const [impactStats, setImpactStats] = useState<ImpactStats>(DEFAULT_IMPACT_STATS);
 
-  // Load data on user change
-  useEffect(() => {
-    if (currentUser?.id) {
-      try {
-        const storedPets = localStorage.getItem(`${PETS_KEY}_${currentUser.id}`);
-        setPets(storedPets ? JSON.parse(storedPets) : []);
+  const getAuthHeaders = useCallback((): Record<string, string> => {
+    const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!token) {
+      throw new Error('Session expired. Please sign in again.');
+    }
 
-        const storedReminders = localStorage.getItem(`${REMINDERS_KEY}_${currentUser.id}`);
-        setMedicineReminders(storedReminders ? JSON.parse(storedReminders) : []);
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+  }, []);
 
-        const storedAlerts = localStorage.getItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`);
-        setPriceAlerts(storedAlerts ? JSON.parse(storedAlerts) : []);
-      } catch {
-        setPets([]);
-        setMedicineReminders([]);
-        setPriceAlerts([]);
-      }
-    } else {
+  const syncPetManagementFromServer = useCallback(async () => {
+    if (!currentUser?.id) {
       setPets([]);
       setMedicineReminders([]);
-      setPriceAlerts([]);
+      return;
     }
+
+    const payload = await apiRequest<{
+      pets?: PetProfile[];
+      medicineReminders?: MedicineReminder[];
+    }>(`/auth/${currentUser.id}/pet-management`, {
+      headers: getAuthHeaders(),
+    });
+
+    setPets(Array.isArray(payload?.pets) ? payload.pets : []);
+    setMedicineReminders(
+      Array.isArray(payload?.medicineReminders) ? payload.medicineReminders : []
+    );
+  }, [currentUser?.id, getAuthHeaders]);
+
+  // Load data on user change
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPetData = async () => {
+      if (currentUser?.id) {
+        try {
+          await syncPetManagementFromServer();
+        } catch (error) {
+          if (isMounted) {
+            setPets([]);
+            setMedicineReminders([]);
+          }
+          console.error(getErrorMessage(error, 'Failed to load pet dashboard data.'));
+        }
+
+        try {
+          const storedAlerts = localStorage.getItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`);
+          if (isMounted) {
+            setPriceAlerts(storedAlerts ? JSON.parse(storedAlerts) : []);
+          }
+        } catch {
+          if (isMounted) {
+            setPriceAlerts([]);
+          }
+        }
+      } else {
+        if (isMounted) {
+          setPets([]);
+          setMedicineReminders([]);
+          setPriceAlerts([]);
+        }
+      }
+    };
+
+    void loadPetData();
 
     // Load global data
     try {
@@ -195,21 +243,11 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
       setGroupBuys([]);
       setImpactStats(DEFAULT_IMPACT_STATS);
     }
-  }, [currentUser?.id]);
 
-  // Save pets
-  useEffect(() => {
-    if (currentUser?.id && pets.length >= 0) {
-      localStorage.setItem(`${PETS_KEY}_${currentUser.id}`, JSON.stringify(pets));
-    }
-  }, [pets, currentUser?.id]);
-
-  // Save reminders
-  useEffect(() => {
-    if (currentUser?.id && medicineReminders.length >= 0) {
-      localStorage.setItem(`${REMINDERS_KEY}_${currentUser.id}`, JSON.stringify(medicineReminders));
-    }
-  }, [medicineReminders, currentUser?.id]);
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser?.id, syncPetManagementFromServer]);
 
   // Save price alerts
   useEffect(() => {
@@ -230,103 +268,196 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Pet Profile Methods
   const addPet = useCallback(
-    (petData: Omit<PetProfile, 'id' | 'createdAt' | 'updatedAt' | 'weightHistory'>): PetProfile => {
-      const now = new Date().toISOString();
-      const newPet: PetProfile = {
-        ...petData,
-        id: generateId(),
-        weightHistory: petData.weight ? [{ date: now, weight: petData.weight }] : [],
-        createdAt: now,
-        updatedAt: now,
-      };
-      setPets((prev) => [...prev, newPet]);
-      return newPet;
+    async (
+      petData: Omit<PetProfile, 'id' | 'createdAt' | 'updatedAt' | 'weightHistory'>
+    ): Promise<PetProfile> => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to add pets.');
+      }
+
+      const response = await apiRequest<{
+        pet: PetProfile;
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/pets`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(petData),
+      });
+
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+
+      return response.pet;
     },
-    []
+    [currentUser?.id, getAuthHeaders]
   );
 
-  const updatePet = useCallback((id: string, updates: Partial<PetProfile>) => {
-    setPets((prev) =>
-      prev.map((pet) =>
-        pet.id === id ? { ...pet, ...updates, updatedAt: new Date().toISOString() } : pet
-      )
-    );
-  }, []);
+  const updatePet = useCallback(
+    async (id: string, updates: Partial<PetProfile>) => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to update pets.');
+      }
 
-  const deletePet = useCallback((id: string) => {
-    setPets((prev) => prev.filter((pet) => pet.id !== id));
-    setMedicineReminders((prev) => prev.filter((r) => r.petId !== id));
-  }, []);
+      const response = await apiRequest<{
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+    },
+    [currentUser?.id, getAuthHeaders]
+  );
+
+  const deletePet = useCallback(
+    async (id: string) => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to delete pets.');
+      }
+
+      const response = await apiRequest<{
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+    },
+    [currentUser?.id, getAuthHeaders]
+  );
 
   const getPetById = useCallback((id: string) => pets.find((p) => p.id === id), [pets]);
 
-  const addWeightEntry = useCallback((petId: string, weight: number) => {
-    setPets((prev) =>
-      prev.map((pet) =>
-        pet.id === petId
-          ? {
-              ...pet,
-              weight,
-              weightHistory: [...pet.weightHistory, { date: new Date().toISOString(), weight }],
-              updatedAt: new Date().toISOString(),
-            }
-          : pet
-      )
-    );
-  }, []);
+  const addWeightEntry = useCallback(
+    async (petId: string, weight: number) => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to update weight entries.');
+      }
+
+      const response = await apiRequest<{
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(petId)}/weights`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ weight }),
+      });
+
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+    },
+    [currentUser?.id, getAuthHeaders]
+  );
 
   // Medicine Reminder Methods
   const addMedicineReminder = useCallback(
-    (reminderData: Omit<MedicineReminder, 'id'>): MedicineReminder => {
-      const newReminder: MedicineReminder = {
-        ...reminderData,
-        id: generateId(),
-      };
-      setMedicineReminders((prev) => [...prev, newReminder]);
-      return newReminder;
+    async (reminderData: Omit<MedicineReminder, 'id'>): Promise<MedicineReminder> => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to add reminders.');
+      }
+
+      const response = await apiRequest<{
+        reminder: MedicineReminder;
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/reminders`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(reminderData),
+      });
+
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+
+      return response.reminder;
     },
-    []
+    [currentUser?.id, getAuthHeaders]
   );
 
-  const updateMedicineReminder = useCallback((id: string, updates: Partial<MedicineReminder>) => {
-    setMedicineReminders((prev) => prev.map((r) => (r.id === id ? { ...r, ...updates } : r)));
-  }, []);
+  const updateMedicineReminder = useCallback(
+    async (id: string, updates: Partial<MedicineReminder>) => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to update reminders.');
+      }
 
-  const deleteMedicineReminder = useCallback((id: string) => {
-    setMedicineReminders((prev) => prev.filter((r) => r.id !== id));
-  }, []);
+      const response = await apiRequest<{
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/reminders/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
 
-  const markMedicineGiven = useCallback((id: string) => {
-    setMedicineReminders((prev) =>
-      prev.map((r) => {
-        if (r.id !== id) return r;
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+    },
+    [currentUser?.id, getAuthHeaders]
+  );
 
-        const now = new Date();
-        let nextDue = new Date();
+  const deleteMedicineReminder = useCallback(
+    async (id: string) => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to delete reminders.');
+      }
 
-        switch (r.frequency) {
-          case 'daily':
-            nextDue.setDate(nextDue.getDate() + 1);
-            break;
-          case 'weekly':
-            nextDue.setDate(nextDue.getDate() + 7);
-            break;
-          case 'monthly':
-            nextDue.setMonth(nextDue.getMonth() + 1);
-            break;
-          case 'custom':
-            nextDue.setDate(nextDue.getDate() + (r.customDays || 1));
-            break;
-        }
+      const response = await apiRequest<{
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/reminders/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
 
-        return {
-          ...r,
-          lastGivenDate: now.toISOString(),
-          nextDueDate: nextDue.toISOString(),
-        };
-      })
-    );
-  }, []);
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+    },
+    [currentUser?.id, getAuthHeaders]
+  );
+
+  const markMedicineGiven = useCallback(
+    async (id: string) => {
+      if (!currentUser?.id) {
+        throw new Error('Please sign in to update reminders.');
+      }
+
+      const response = await apiRequest<{
+        pets: PetProfile[];
+        medicineReminders: MedicineReminder[];
+      }>(`/auth/${currentUser.id}/reminders/${encodeURIComponent(id)}/mark-given`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+
+      setPets(Array.isArray(response?.pets) ? response.pets : []);
+      setMedicineReminders(
+        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+      );
+    },
+    [currentUser?.id, getAuthHeaders]
+  );
 
   const getUpcomingReminders = useCallback(
     (daysAhead: number = 7): MedicineReminder[] => {

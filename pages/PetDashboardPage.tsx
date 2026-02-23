@@ -144,9 +144,7 @@ const PetDashboardPage: React.FC = () => {
     if (!selectedPet) return [];
     return medicineReminders
       .filter((reminder) => reminder.petId === selectedPet.id)
-      .sort(
-        (a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime()
-      );
+      .sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime());
   }, [medicineReminders, selectedPet]);
 
   const upcomingReminders = getUpcomingReminders(7);
@@ -167,9 +165,8 @@ const PetDashboardPage: React.FC = () => {
     const avgWeight =
       pets.length > 0
         ? (
-            pets
-              .map((pet) => pet.weight || 0)
-              .reduce((total, weight) => total + weight, 0) / pets.length
+            pets.map((pet) => pet.weight || 0).reduce((total, weight) => total + weight, 0) /
+            pets.length
           ).toFixed(1)
         : '0.0';
 
@@ -179,7 +176,7 @@ const PetDashboardPage: React.FC = () => {
   const weightHistory = selectedPet?.weightHistory || [];
   const maxWeight = Math.max(1, ...weightHistory.map((item) => item.weight));
 
-  const handleAddPet = (event: React.FormEvent) => {
+  const handleAddPet = async (event: React.FormEvent) => {
     event.preventDefault();
     setDashboardError('');
 
@@ -197,29 +194,33 @@ const PetDashboardPage: React.FC = () => {
       return;
     }
 
-    addPet({
-      name: safeName,
-      type: petForm.type,
-      gender: petForm.gender,
-      breed: safeBreed || undefined,
-      weight: parsedWeight || undefined,
-      activityLevel: petForm.activityLevel,
-      birthDate: petForm.birthDate ? new Date(petForm.birthDate).toISOString() : undefined,
-    });
+    try {
+      await addPet({
+        name: safeName,
+        type: petForm.type,
+        gender: petForm.gender,
+        breed: safeBreed || undefined,
+        weight: parsedWeight || undefined,
+        activityLevel: petForm.activityLevel,
+        birthDate: petForm.birthDate ? new Date(petForm.birthDate).toISOString() : undefined,
+      });
 
-    setPetForm({
-      name: '',
-      type: 'dog',
-      gender: 'male',
-      breed: '',
-      weight: '',
-      activityLevel: 'medium',
-      birthDate: '',
-    });
-    setActiveTab('overview');
+      setPetForm({
+        name: '',
+        type: 'dog',
+        gender: 'male',
+        breed: '',
+        weight: '',
+        activityLevel: 'medium',
+        birthDate: '',
+      });
+      setActiveTab('overview');
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Failed to add pet profile.');
+    }
   };
 
-  const handleUpdatePet = (event: React.FormEvent) => {
+  const handleUpdatePet = async (event: React.FormEvent) => {
     event.preventDefault();
     setDashboardError('');
 
@@ -243,17 +244,21 @@ const PetDashboardPage: React.FC = () => {
 
     const parsedWeight = parsedWeightRaw === null ? undefined : parsedWeightRaw;
 
-    updatePet(selectedPet.id, {
-      name: safeName,
-      breed: safeBreed || undefined,
-      gender: profileForm.gender,
-      activityLevel: profileForm.activityLevel,
-      weight: parsedWeight,
-      birthDate: profileForm.birthDate ? new Date(profileForm.birthDate).toISOString() : undefined,
-    });
+    try {
+      await updatePet(selectedPet.id, {
+        name: safeName,
+        breed: safeBreed || undefined,
+        gender: profileForm.gender,
+        activityLevel: profileForm.activityLevel,
+        weight: parsedWeight,
+        birthDate: profileForm.birthDate ? new Date(profileForm.birthDate).toISOString() : undefined,
+      });
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Failed to update pet profile.');
+    }
   };
 
-  const handleDeletePet = () => {
+  const handleDeletePet = async () => {
     if (!selectedPet) return;
 
     const shouldDelete = window.confirm(
@@ -261,12 +266,16 @@ const PetDashboardPage: React.FC = () => {
     );
     if (!shouldDelete) return;
 
-    deletePet(selectedPet.id);
-    setAiInsight('');
-    setNewWeightValue('');
+    try {
+      await deletePet(selectedPet.id);
+      setAiInsight('');
+      setNewWeightValue('');
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Failed to delete pet profile.');
+    }
   };
 
-  const handleAddWeightEntry = () => {
+  const handleAddWeightEntry = async () => {
     if (!selectedPet) return;
     setDashboardError('');
 
@@ -276,11 +285,15 @@ const PetDashboardPage: React.FC = () => {
       return;
     }
 
-    addWeightEntry(selectedPet.id, weight);
-    setNewWeightValue('');
+    try {
+      await addWeightEntry(selectedPet.id, weight);
+      setNewWeightValue('');
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Failed to save weight entry.');
+    }
   };
 
-  const handleAddReminder = (event: React.FormEvent) => {
+  const handleAddReminder = async (event: React.FormEvent) => {
     event.preventDefault();
     setDashboardError('');
 
@@ -312,26 +325,34 @@ const PetDashboardPage: React.FC = () => {
 
     const startDateIso = startDate.toISOString();
 
-    addMedicineReminder({
-      petId: selectedPet.id,
-      medicineName: safeMedicineName,
-      dosage: safeDosage,
-      frequency: reminderForm.frequency,
-      customDays: reminderForm.frequency === 'custom' ? Number(customDays || 1) : undefined,
-      startDate: startDateIso,
-      nextDueDate: computeNextDueDate(reminderForm.frequency, startDateIso, Number(customDays || 1)),
-      notes: safeNotes || undefined,
-      isActive: true,
-      notificationEnabled: true,
-    });
+    try {
+      await addMedicineReminder({
+        petId: selectedPet.id,
+        medicineName: safeMedicineName,
+        dosage: safeDosage,
+        frequency: reminderForm.frequency,
+        customDays: reminderForm.frequency === 'custom' ? Number(customDays || 1) : undefined,
+        startDate: startDateIso,
+        nextDueDate: computeNextDueDate(
+          reminderForm.frequency,
+          startDateIso,
+          Number(customDays || 1)
+        ),
+        notes: safeNotes || undefined,
+        isActive: true,
+        notificationEnabled: true,
+      });
 
-    setReminderForm((previous) => ({
-      ...previous,
-      medicineName: '',
-      dosage: '',
-      notes: '',
-      customDays: '1',
-    }));
+      setReminderForm((previous) => ({
+        ...previous,
+        medicineName: '',
+        dosage: '',
+        notes: '',
+        customDays: '1',
+      }));
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Failed to add reminder.');
+    }
   };
 
   const getAiHealthTip = async () => {
@@ -361,7 +382,9 @@ const PetDashboardPage: React.FC = () => {
       onSubmit={handleAddPet}
       className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2"
     >
-      <h3 className="md:col-span-2 text-lg font-bold text-slate-800 dark:text-white">Add New Pet</h3>
+      <h3 className="md:col-span-2 text-lg font-bold text-slate-800 dark:text-white">
+        Add New Pet
+      </h3>
 
       <input
         type="text"
@@ -553,7 +576,9 @@ const PetDashboardPage: React.FC = () => {
               <div className="mt-3 space-y-2 text-sm">
                 <div className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900">
                   <p className="text-slate-500">Upcoming (7d)</p>
-                  <p className="font-bold text-slate-800 dark:text-white">{upcomingReminders.length}</p>
+                  <p className="font-bold text-slate-800 dark:text-white">
+                    {upcomingReminders.length}
+                  </p>
                 </div>
                 <div className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900">
                   <p className="text-slate-500">Overdue</p>
@@ -608,7 +633,9 @@ const PetDashboardPage: React.FC = () => {
 
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
                     <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-                      <p className="text-xs uppercase tracking-wide text-slate-500">Nutrition Target</p>
+                      <p className="text-xs uppercase tracking-wide text-slate-500">
+                        Nutrition Target
+                      </p>
                       <p className="mt-2 text-3xl font-bold text-slate-800 dark:text-white">
                         {calculateFoodPortion(selectedPet) || '?'}
                         <span className="ml-1 text-base font-medium text-slate-500">kcal/day</span>
@@ -651,7 +678,9 @@ const PetDashboardPage: React.FC = () => {
 
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Weight Timeline</h3>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                      Weight Timeline
+                    </h3>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
@@ -802,7 +831,9 @@ const PetDashboardPage: React.FC = () => {
                 </form>
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">Reminder Queue</h3>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                    Reminder Queue
+                  </h3>
                   <div className="mt-3 space-y-3">
                     {petReminders.length === 0 && (
                       <p className="text-sm text-slate-500">No reminders for this pet yet.</p>
@@ -821,22 +852,41 @@ const PetDashboardPage: React.FC = () => {
                           </span>
                         </div>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
-                          {reminder.dosage} • Next: {new Date(reminder.nextDueDate).toLocaleString()}
+                          {reminder.dosage} • Next:{' '}
+                          {new Date(reminder.nextDueDate).toLocaleString()}
                         </p>
                         {reminder.notes && (
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{reminder.notes}</p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            {reminder.notes}
+                          </p>
                         )}
                         <div className="mt-3 flex gap-2">
                           <button
                             type="button"
-                            onClick={() => markMedicineGiven(reminder.id)}
+                            onClick={() => {
+                              void markMedicineGiven(reminder.id).catch((error) => {
+                                setDashboardError(
+                                  error instanceof Error
+                                    ? error.message
+                                    : 'Failed to update reminder status.'
+                                );
+                              });
+                            }}
                             className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600"
                           >
                             Mark Given
                           </button>
                           <button
                             type="button"
-                            onClick={() => deleteMedicineReminder(reminder.id)}
+                            onClick={() => {
+                              void deleteMedicineReminder(reminder.id).catch((error) => {
+                                setDashboardError(
+                                  error instanceof Error
+                                    ? error.message
+                                    : 'Failed to remove reminder.'
+                                );
+                              });
+                            }}
                             className="rounded-lg bg-rose-100 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-200"
                           >
                             Remove
@@ -862,7 +912,10 @@ const PetDashboardPage: React.FC = () => {
                   type="text"
                   value={profileForm.name}
                   onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, name: sanitizeInput(event.target.value, 80) }))
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      name: sanitizeInput(event.target.value, 80),
+                    }))
                   }
                   placeholder="Pet name"
                   className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
@@ -918,7 +971,9 @@ const PetDashboardPage: React.FC = () => {
                   min="0.1"
                   step="0.1"
                   value={profileForm.weight}
-                  onChange={(event) => setProfileForm((prev) => ({ ...prev, weight: event.target.value }))}
+                  onChange={(event) =>
+                    setProfileForm((prev) => ({ ...prev, weight: event.target.value }))
+                  }
                   placeholder="Weight (kg)"
                   className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
                 />
