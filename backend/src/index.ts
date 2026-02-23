@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
 import aiRoutes from './routes/aiRoutes';
 import postRoutes from './routes/postRoutes';
+import adminRoutes from './routes/adminRoutes';
 import { requestLogger, errorLogger } from './middleware/logger';
 import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -188,6 +189,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Enhanced health check endpoint
 app.get('/api/health', (req, res) => {

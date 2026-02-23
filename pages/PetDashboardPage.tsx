@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   type PetProfile,
   usePetManagement,
@@ -172,6 +172,22 @@ const PetDashboardPage: React.FC = () => {
 
     return { totalPets, activeReminders, dueToday, avgWeight };
   }, [medicineReminders, pets]);
+
+  const profileCompletion = useMemo(() => {
+    if (!selectedPet) return 0;
+
+    const checks = [
+      Boolean(selectedPet.name?.trim()),
+      Boolean(selectedPet.breed?.trim()),
+      Boolean(selectedPet.weight && selectedPet.weight > 0),
+      Boolean(selectedPet.birthDate),
+      Boolean(selectedPet.activityLevel),
+      (selectedPet.weightHistory?.length || 0) > 0,
+    ];
+
+    const completed = checks.filter(Boolean).length;
+    return Math.round((completed / checks.length) * 100);
+  }, [selectedPet]);
 
   const weightHistory = selectedPet?.weightHistory || [];
   const maxWeight = Math.max(1, ...weightHistory.map((item) => item.weight));
@@ -519,6 +535,35 @@ const PetDashboardPage: React.FC = () => {
             <p className="mt-1 text-2xl font-bold">{healthMetrics.avgWeight} kg</p>
           </div>
         </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <Link
+            to="/community"
+            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-center text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+          >
+            Open Community
+          </Link>
+          <Link
+            to="/profile"
+            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-center text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+          >
+            Manage Account
+          </Link>
+          <button
+            type="button"
+            onClick={() => setActiveTab('reminders')}
+            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+          >
+            View Reminders
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('profile')}
+            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+          >
+            Update Pet Profile
+          </button>
+        </div>
       </header>
 
       {dashboardError && (
@@ -588,10 +633,43 @@ const PetDashboardPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Dashboard Shortcuts
+              </h3>
+              <div className="mt-3 space-y-2 text-sm">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('overview')}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  Health Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('reminders')}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  Medication Planner
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('profile')}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  Edit Pet Details
+                </button>
+              </div>
+            </div>
           </aside>
 
           <main className="space-y-5">
-            <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2 dark:border-slate-700">
+            <div
+              className="flex flex-wrap gap-2 border-b border-slate-200 pb-2 dark:border-slate-700"
+              role="tablist"
+              aria-label="Pet dashboard sections"
+            >
               {[
                 { key: 'overview', label: 'Overview' },
                 { key: 'reminders', label: 'Reminders' },
@@ -602,6 +680,7 @@ const PetDashboardPage: React.FC = () => {
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveTab(tab.key as DashboardTab)}
+                  role="tab"
                   className={`rounded-full px-4 py-2 text-sm font-semibold ${
                     activeTab === tab.key
                       ? 'bg-orange-500 text-white'
@@ -631,6 +710,33 @@ const PetDashboardPage: React.FC = () => {
                     <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                       {selectedPet.weight ? `${selectedPet.weight} kg` : 'Weight pending'}
                     </span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                        Profile Completion
+                      </p>
+                      <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
+                        {profileCompletion}%
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                        Weight Entries
+                      </p>
+                      <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
+                        {weightHistory.length}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                        Open Reminders
+                      </p>
+                      <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
+                        {petReminders.filter((item) => item.isActive).length}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">

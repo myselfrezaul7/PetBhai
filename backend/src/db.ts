@@ -61,6 +61,20 @@ interface DatabaseSchema {
   posts: Post[];
 }
 
+const buildPostSignature = (post: Pick<Post, 'author' | 'content'>): string => {
+  return `${post.author.id}|${post.author.name.trim().toLowerCase()}|${post.content.trim().toLowerCase()}`;
+};
+
+const MOCK_POST_SIGNATURES = new Set(MOCK_POSTS.map((post) => buildPostSignature(post)));
+
+const stripLegacyMockPosts = (posts: Post[]): { cleanedPosts: Post[]; removedCount: number } => {
+  const cleanedPosts = posts.filter((post) => !MOCK_POST_SIGNATURES.has(buildPostSignature(post)));
+  return {
+    cleanedPosts,
+    removedCount: posts.length - cleanedPosts.length,
+  };
+};
+
 const INITIAL_DATA: DatabaseSchema = {
   users: [...MOCK_USERS],
   products: [...MOCK_PRODUCTS],
@@ -69,7 +83,7 @@ const INITIAL_DATA: DatabaseSchema = {
   animals: [...MOCK_ANIMALS],
   brands: [...MOCK_BRANDS],
   orders: [],
-  posts: [...MOCK_POSTS],
+  posts: [],
 };
 
 class Database {
@@ -80,6 +94,14 @@ class Database {
   constructor() {
     try {
       this.data = this.loadData();
+
+      const { cleanedPosts, removedCount } = stripLegacyMockPosts(this.data.posts);
+      if (removedCount > 0) {
+        this.data.posts = cleanedPosts;
+        this.saveData(this.data);
+        console.log(`Removed ${removedCount} legacy mock community posts from database`);
+      }
+
       this.isLoaded = true;
       console.log(
         `Database initialized with ${this.data.products.length} products, ${this.data.users.length} users`

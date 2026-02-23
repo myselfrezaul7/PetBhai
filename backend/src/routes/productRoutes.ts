@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '../db';
 import type { Product } from '../types';
 import { AuthRequest, optionalAuth, requireAdmin, requireAuth } from '../middleware/auth';
+import { emitAdminEvent } from '../realtime/adminEvents';
 
 const router = express.Router();
 
@@ -157,6 +158,11 @@ router.post(
 
     db.products.push(newProduct);
     db.write();
+    emitAdminEvent('product-created', {
+      productId: newProduct.id,
+      category: newProduct.category,
+      stockQuantity: newProduct.stockQuantity,
+    });
 
     return res.status(201).json(newProduct);
   })
@@ -200,6 +206,12 @@ router.patch(
 
     db.products[productIndex] = updatedProduct;
     db.write();
+    emitAdminEvent('inventory-updated', {
+      productId: updatedProduct.id,
+      stockQuantity: updatedProduct.stockQuantity,
+      reorderPoint: updatedProduct.reorderPoint,
+      stockStatus: updatedProduct.stockStatus,
+    });
 
     return res.json(updatedProduct);
   })

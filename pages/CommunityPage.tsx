@@ -254,7 +254,10 @@ const CommunityPage: React.FC = () => {
   };
 
   const handleAddComment = async (postId: number, commentText: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      toast.error('Please sign in to comment on posts.');
+      return;
+    }
 
     try {
       const createdComment = await postService.addComment(
@@ -278,7 +281,10 @@ const CommunityPage: React.FC = () => {
   };
 
   const handleAddReply = async (postId: number, commentId: number, replyText: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      toast.error('Please sign in to reply to comments.');
+      return;
+    }
 
     try {
       const createdReply = await postService.addReply(

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { apiRequest, getErrorMessage } from '../services/apiClient';
+import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 
@@ -88,6 +88,7 @@ const AdminDashboard = () => {
   const [sortMode, setSortMode] = useState('risk-desc');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastSyncAt, setLastSyncAt] = useState('');
+  const [isLiveConnected, setIsLiveConnected] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: 'Dog Food',
@@ -167,12 +168,68 @@ const AdminDashboard = () => {
 
     const intervalId = window.setInterval(() => {
       void loadDashboardData();
-    }, 60000);
+    }, 45000);
 
     return () => {
       window.clearInterval(intervalId);
     };
   }, [autoRefresh, loadDashboardData]);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!token || currentUser?.role !== 'admin') {
+      setIsLiveConnected(false);
+      return undefined;
+    }
+
+    const streamUrl = `${API_BASE_URL}/admin/stream?token=${encodeURIComponent(token)}`;
+    const eventSource = new EventSource(streamUrl, { withCredentials: true });
+
+    let refreshTimeout = null;
+    const queueRefresh = () => {
+      if (refreshTimeout) {
+        window.clearTimeout(refreshTimeout);
+      }
+      refreshTimeout = window.setTimeout(() => {
+        void loadDashboardData();
+      }, 400);
+    };
+
+    const onConnected = () => {
+      setIsLiveConnected(true);
+    };
+
+    const onRealtimeChange = () => {
+      setIsLiveConnected(true);
+      queueRefresh();
+    };
+
+    const onError = () => {
+      setIsLiveConnected(false);
+    };
+
+    eventSource.addEventListener('connected', onConnected);
+    eventSource.addEventListener('order-created', onRealtimeChange);
+    eventSource.addEventListener('order-updated', onRealtimeChange);
+    eventSource.addEventListener('order-cancelled', onRealtimeChange);
+    eventSource.addEventListener('inventory-updated', onRealtimeChange);
+    eventSource.addEventListener('product-created', onRealtimeChange);
+    eventSource.onerror = onError;
+
+    return () => {
+      setIsLiveConnected(false);
+      if (refreshTimeout) {
+        window.clearTimeout(refreshTimeout);
+      }
+      eventSource.removeEventListener('connected', onConnected);
+      eventSource.removeEventListener('order-created', onRealtimeChange);
+      eventSource.removeEventListener('order-updated', onRealtimeChange);
+      eventSource.removeEventListener('order-cancelled', onRealtimeChange);
+      eventSource.removeEventListener('inventory-updated', onRealtimeChange);
+      eventSource.removeEventListener('product-created', onRealtimeChange);
+      eventSource.close();
+    };
+  }, [currentUser?.role, loadDashboardData]);
 
   const handleInventoryFieldChange = (id, field, value) => {
     setInventoryRows((prevRows) =>
@@ -984,7 +1041,16 @@ const AdminDashboard = () => {
             </div>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                {autoRefresh ? 'Live Snapshot' : 'Manual Snapshot'}
+                {isLiveConnected ? 'Realtime Connected' : autoRefresh ? 'Auto Refresh' : 'Manual'}
+              </span>
+              <span
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  isLiveConnected
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                {isLiveConnected ? 'SSE Live' : 'Reconnecting'}
               </span>
               <button
                 type="button"

@@ -206,6 +206,11 @@ const PostCard: React.FC<PostCardProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
 
+      if (!currentUser) {
+        toast.error('Please sign in to comment.');
+        return;
+      }
+
       const sanitized = sanitizeInput(commentText);
       if (!validateContentLength(sanitized, MAX_COMMENT_LENGTH)) {
         toast.error(`Comment must be ${MAX_COMMENT_LENGTH} characters or less`);
@@ -223,12 +228,17 @@ const PostCard: React.FC<PostCardProps> = ({
         setIsSubmitting(false);
       }
     },
-    [commentText, onAddComment, post.id, toast]
+    [commentText, currentUser, onAddComment, post.id, toast]
   );
 
   const handleReplySubmit = useCallback(
     async (e: React.FormEvent, commentId: number) => {
       e.preventDefault();
+
+      if (!currentUser) {
+        toast.error('Please sign in to reply.');
+        return;
+      }
 
       const sanitized = sanitizeInput(replyText);
       if (!validateContentLength(sanitized, MAX_REPLY_LENGTH)) {
@@ -248,7 +258,7 @@ const PostCard: React.FC<PostCardProps> = ({
         setLoadingReplyId(null);
       }
     },
-    [replyText, onAddReply, post.id, toast]
+    [currentUser, replyText, onAddReply, post.id, toast]
   );
 
   const handleEditComment = useCallback((commentId: number, currentText: string) => {
@@ -367,6 +377,11 @@ const PostCard: React.FC<PostCardProps> = ({
 
   const handleLikeComment = useCallback(
     async (commentId: number) => {
+      if (!currentUser) {
+        toast.error('Please sign in to react to comments.');
+        return;
+      }
+
       if (loadingCommentId === commentId) return;
 
       try {
@@ -375,11 +390,16 @@ const PostCard: React.FC<PostCardProps> = ({
         toast.error(error instanceof Error ? error.message : 'Failed to like comment');
       }
     },
-    [loadingCommentId, onLikeComment, post.id, toast]
+    [currentUser, loadingCommentId, onLikeComment, post.id, toast]
   );
 
   const handleLikeReply = useCallback(
     async (commentId: number, replyId: number) => {
+      if (!currentUser) {
+        toast.error('Please sign in to react to replies.');
+        return;
+      }
+
       const key = `${commentId}-${replyId}`;
       if (loadingReplyId === key) return;
 
@@ -389,7 +409,7 @@ const PostCard: React.FC<PostCardProps> = ({
         toast.error(error instanceof Error ? error.message : 'Failed to like reply');
       }
     },
-    [loadingReplyId, onLikeReply, post.id, toast]
+    [currentUser, loadingReplyId, onLikeReply, post.id, toast]
   );
 
   const handleShare = useCallback(async () => {
@@ -777,7 +797,7 @@ const PostCard: React.FC<PostCardProps> = ({
                           <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-1.5 ml-2">
                             <button
                               onClick={() => handleLikeComment(comment.id)}
-                              disabled={loadingCommentId === comment.id}
+                              disabled={loadingCommentId === comment.id || !currentUser}
                               aria-label={hasLikedComment ? 'Unlike comment' : 'Like comment'}
                               className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
                                 hasLikedComment
@@ -792,6 +812,7 @@ const PostCard: React.FC<PostCardProps> = ({
                               onClick={() =>
                                 setReplyingTo(replyingTo === comment.id ? null : comment.id)
                               }
+                              disabled={!currentUser}
                               className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
                             >
                               Reply
@@ -888,7 +909,10 @@ const PostCard: React.FC<PostCardProps> = ({
                                   <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-1 ml-2">
                                     <button
                                       onClick={() => handleLikeReply(comment.id, reply.id)}
-                                      disabled={loadingReplyId === `${comment.id}-${reply.id}`}
+                                      disabled={
+                                        loadingReplyId === `${comment.id}-${reply.id}` ||
+                                        !currentUser
+                                      }
                                       aria-label={hasLikedReply ? 'Unlike reply' : 'Like reply'}
                                       className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
                                         hasLikedReply

@@ -6,6 +6,7 @@ import type { CartItem, Order, Product } from '../types';
 import { AuthRequest, optionalAuth, requireAuth, requireAdmin } from '../middleware/auth';
 import { orderLimiter } from '../middleware/rateLimiter';
 import { securityLog } from '../middleware/logger';
+import { emitAdminEvent } from '../realtime/adminEvents';
 
 const router = Router();
 
@@ -313,6 +314,11 @@ router.post('/', orderLimiter, optionalAuth, (req: AuthRequest, res) => {
   }
 
   db.write();
+  emitAdminEvent('order-created', {
+    orderId: newOrder.orderId,
+    status: newOrder.status,
+    total: newOrder.total,
+  });
 
   // Send email notification asynchronously
   sendOrderEmail(newOrder).catch((err) => console.error('Failed to trigger email:', err));
@@ -570,6 +576,11 @@ router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, r
   }
 
   db.write();
+  emitAdminEvent('order-updated', {
+    orderId,
+    status: order.status,
+    trackingNumber: order.trackingNumber,
+  });
 
   res.json({
     message: 'Order status updated',
@@ -628,6 +639,10 @@ router.post('/:orderId/cancel', requireAuth, (req: AuthRequest, res) => {
   db.orders[orderIndex] = order;
 
   db.write();
+  emitAdminEvent('order-cancelled', {
+    orderId,
+    status: order.status,
+  });
 
   res.json({
     message: 'Order cancelled successfully',
