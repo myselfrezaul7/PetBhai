@@ -120,7 +120,10 @@ const run = async (): Promise<void> => {
     }
   );
 
-  assert(streamResponse.status === 200, `Expected 200 from admin stream, got ${streamResponse.status}`);
+  assert(
+    streamResponse.status === 200,
+    `Expected 200 from admin stream, got ${streamResponse.status}`
+  );
   assert(
     streamResponse.headers.get('content-type')?.includes('text/event-stream'),
     `Expected text/event-stream content type, got ${streamResponse.headers.get('content-type')}`
@@ -178,8 +181,7 @@ const run = async (): Promise<void> => {
     const orderCreatedEvent = await waitForStreamChunk(
       reader,
       (text) =>
-        text.includes('event: order-created') &&
-        text.includes(`"orderId":"${String(orderId)}"`),
+        text.includes('event: order-created') && text.includes(`"orderId":"${String(orderId)}"`),
       12000
     );
 
