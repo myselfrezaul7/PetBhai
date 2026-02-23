@@ -9,7 +9,8 @@
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "smoke:pet": "tsx scripts/smoke_pet_management.ts"
+    "smoke:pet": "tsx scripts/smoke_pet_management.ts",
+    "smoke:admin-order": "tsx scripts/smoke_admin_order_status.ts"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",

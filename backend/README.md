@@ -78,6 +78,20 @@ Optional target override:
 SMOKE_BASE_URL=http://localhost:5000/api npm run smoke:pet
 ```
 
+## Smoke Test (Admin Order Status)
+
+Run authorization and payload-hardening checks for admin order status updates:
+
+```bash
+npm run smoke:admin-order
+```
+
+Optional overrides:
+
+```bash
+SMOKE_BASE_URL=http://localhost:5000/api ADMIN_SMOKE_EMAIL=petbhaibd@gmail.com npm run smoke:admin-order
+```
+
 ## Production
 
 Run the production server:
