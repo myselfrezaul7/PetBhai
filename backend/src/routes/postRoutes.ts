@@ -8,6 +8,12 @@ import { securityLog } from '../middleware/logger';
 const router = express.Router();
 const liveClients = new Set<express.Response>();
 
+const ensurePostsCollection = (): void => {
+  if (!Array.isArray(db.data.posts)) {
+    db.data.posts = [];
+  }
+};
+
 const emitPostEvent = (eventType: string, postId?: number): void => {
   const payload = JSON.stringify({
     type: eventType,
@@ -106,6 +112,7 @@ const validateAuthor = (
 // Get all posts
 router.get('/', (_req, res) => {
   try {
+    ensurePostsCollection();
     // Sort by timestamp, newest first
     const sortedPosts = [...db.posts].sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -145,6 +152,7 @@ router.get('/stream', (req, res) => {
 // Get single post
 router.get('/:id', (req, res) => {
   try {
+    ensurePostsCollection();
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
@@ -165,6 +173,7 @@ router.get('/:id', (req, res) => {
 // Create a new post
 router.post('/', postMutationLimiter, (req, res) => {
   try {
+    ensurePostsCollection();
     const parsed = createPostSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ message: 'Invalid post payload' });

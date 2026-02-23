@@ -61,34 +61,14 @@ const decodeJwtPayload = (token: string): { exp?: number } | null => {
   }
 };
 
-const buildLocalSocialUser = (socialUser: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  photoUrl?: string;
-}): User => {
-  const normalizedEmail = sanitizeInput(socialUser.email.trim().toLowerCase());
-  const fullName = sanitizeInput(
-    `${socialUser.firstName || ''} ${socialUser.lastName || ''}`.trim()
-  );
-  const safeName = fullName.length >= 2 ? fullName : normalizedEmail.split('@')[0] || 'User';
-
-  return {
-    id: Date.now(),
-    name: safeName,
-    email: normalizedEmail,
-    profilePictureUrl: socialUser.photoUrl,
-    role: normalizedEmail === DEFAULT_ADMIN_EMAIL ? 'admin' : 'customer',
-    wishlist: [],
-    orderHistory: [],
-    favorites: [],
-    isPlusMember: false,
-  };
+const isLikelyJwt = (token: string): boolean => {
+  return token.split('.').length === 3;
 };
 
 const isTokenExpired = (token: string): boolean => {
+  if (!isLikelyJwt(token)) return true;
   const payload = decodeJwtPayload(token);
-  if (!payload?.exp) return false;
+  if (!payload?.exp) return true;
   const expiryMs = payload.exp * 1000;
   return expiryMs <= Date.now() + TOKEN_EXPIRY_SKEW_MS;
 };
@@ -170,13 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = getStoredToken();
 
     if (!token) {
-      if (currentUser) {
-        try {
-          window.localStorage.setItem(TOKEN_STORAGE_KEY, `session-local-${Date.now()}`);
-        } catch {
-          // localStorage might be disabled
-        }
-      } else {
+      if (!currentUser) {
         clearSession();
       }
       return;
@@ -396,27 +370,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser(data.user);
         return data.user;
       } catch (error: unknown) {
-        console.warn('Backend social login unavailable, using local social fallback.', error);
-
-        try {
-          const localUser = buildLocalSocialUser({
-            firstName: socialUser.firstName,
-            lastName: socialUser.lastName,
-            email: normalizedEmail,
-            photoUrl: socialUser.photoUrl,
-          });
-
-          const localToken = `social-local-${Date.now()}`;
-          window.localStorage.setItem(TOKEN_STORAGE_KEY, localToken);
-          setCurrentUser(localUser);
-          return localUser;
-        } catch (fallbackError: unknown) {
-          const message = getErrorMessage(
-            fallbackError,
-            getErrorMessage(error, 'Google sign-in failed. Please try again.')
-          );
-          throw new Error(message);
-        }
+        const message = getErrorMessage(error, 'Google sign-in failed. Please try again.');
+        throw new Error(message);
       }
     },
     []
@@ -600,9 +555,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const value = useMemo(
-    () => ({
+    () => {
+      const token = getStoredToken();
+      const isAuthenticated = !!currentUser && !!token && !isTokenExpired(token);
+
+      return {
       currentUser,
-      isAuthenticated: !!currentUser,
+      isAuthenticated,
       login,
       logout,
       signup,
@@ -614,7 +573,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       favoritePet,
       unfavoritePet,
       subscribeToPlus,
-    }),
+    };
+    },
     [
       currentUser,
       login,
