@@ -191,15 +191,8 @@
     <!-- Security Headers -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-
-    <!-- Security: Content Security Policy (Enhanced) -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://esm.sh https://cdn.tailwindcss.com https://www.googletagmanager.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.petbhai.com https://petbhai.vercel.app https://esm.sh http://localhost:5000 https://api.petbhai.com https://*.google-analytics.com https://www.google.com/recaptcha/ https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://accounts.google.com; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://accounts.google.com https://*.firebaseapp.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; upgrade-insecure-requests;"
-    />
 
     <!-- PWA & SEO Tags -->
     <!-- Favicons for Google Search and browsers -->
@@ -209,7 +202,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="./icon-512x512.png?v=20260215" />
     <link rel="shortcut icon" href="./favicon.ico?v=20260215" />
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=20260215" />
-    <link rel="manifest" href="./manifest.json?v=20260215" />
+    <link rel="manifest" href="/manifest.json?v=20260215" />
     <meta name="theme-color" content="#f97316" />
     <meta name="msapplication-TileColor" content="#f97316" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -225,13 +218,11 @@
 
     <!-- DNS Prefetch for Performance -->
     <link rel="dns-prefetch" href="https://esm.sh" />
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
     <!-- Preconnect for Critical Resources (High Priority) -->
     <link rel="preconnect" href="https://esm.sh" crossorigin />
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -534,7 +525,6 @@
     -->
 
     <!-- Tailwind CSS - loaded with fetchpriority for faster processing -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',

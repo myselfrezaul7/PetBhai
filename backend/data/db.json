@@ -140,13 +140,7 @@
               "brandId": 4,
               "rating": 4.3,
               "reviews": [],
-              "searchTags": [
-                "litter",
-                "bali",
-                "cat litter",
-                "bathroom",
-                "biral"
-              ],
+              "searchTags": ["litter", "bali", "cat litter", "bathroom", "biral"],
               "quantity": 1
             }
           ],
@@ -163,7 +157,7 @@
     {
       "id": "user_2",
       "name": "Admin User",
-      "email": "admin@petbhai.com",
+      "email": "petbhaibd@gmail.com",
       "role": "admin",
       "orders": []
     }
@@ -195,16 +189,7 @@
           "date": "2026-01-14T19:29:09.188Z"
         }
       ],
-      "searchTags": [
-        "বিড়াল",
-        "খাবার",
-        "ক্যাট ফুড",
-        "cat food",
-        "biral",
-        "khabar",
-        "meo",
-        "tuna"
-      ]
+      "searchTags": ["বিড়াল", "খাবার", "ক্যাট ফুড", "cat food", "biral", "khabar", "meo", "tuna"]
     },
     {
       "id": 2,
@@ -248,14 +233,7 @@
       "brandId": 5,
       "rating": 4.6,
       "reviews": [],
-      "searchTags": [
-        "whiskas",
-        "cat food",
-        "fish",
-        "ocean fish",
-        "biral",
-        "khabar"
-      ]
+      "searchTags": ["whiskas", "cat food", "fish", "ocean fish", "biral", "khabar"]
     },
     {
       "id": 4,
@@ -322,14 +300,7 @@
       "brandId": 6,
       "rating": 4.5,
       "reviews": [],
-      "searchTags": [
-        "smartheart",
-        "cat food",
-        "chicken",
-        "tuna",
-        "biral",
-        "khabar"
-      ]
+      "searchTags": ["smartheart", "cat food", "chicken", "tuna", "biral", "khabar"]
     },
     {
       "id": 7,
@@ -342,14 +313,7 @@
       "brandId": 7,
       "rating": 4.4,
       "reviews": [],
-      "searchTags": [
-        "lara",
-        "cat food",
-        "salmon",
-        "biral",
-        "khabar",
-        "fish"
-      ]
+      "searchTags": ["lara", "cat food", "salmon", "biral", "khabar", "fish"]
     },
     {
       "id": 8,
@@ -362,14 +326,7 @@
       "brandId": 6,
       "rating": 4.7,
       "reviews": [],
-      "searchTags": [
-        "smartheart",
-        "dog food",
-        "puppy",
-        "power pack",
-        "kukur",
-        "khabar"
-      ]
+      "searchTags": ["smartheart", "dog food", "puppy", "power pack", "kukur", "khabar"]
     },
     {
       "id": 9,
@@ -382,13 +339,7 @@
       "brandId": 4,
       "rating": 4.3,
       "reviews": [],
-      "searchTags": [
-        "litter",
-        "bali",
-        "cat litter",
-        "bathroom",
-        "biral"
-      ]
+      "searchTags": ["litter", "bali", "cat litter", "bathroom", "biral"]
     },
     {
       "id": 10,
@@ -401,13 +352,7 @@
       "brandId": 2,
       "rating": 4.6,
       "reviews": [],
-      "searchTags": [
-        "shampoo",
-        "ticks",
-        "fleas",
-        "grooming",
-        "gosol"
-      ]
+      "searchTags": ["shampoo", "ticks", "fleas", "grooming", "gosol"]
     },
     {
       "id": 11,
@@ -420,15 +365,7 @@
       "brandId": 3,
       "rating": 4.9,
       "reviews": [],
-      "searchTags": [
-        "বেল্ট",
-        "রশি",
-        "লিচ",
-        "belt",
-        "leash",
-        "roshi",
-        "walk"
-      ]
+      "searchTags": ["বেল্ট", "রশি", "লিচ", "belt", "leash", "roshi", "walk"]
     },
     {
       "id": 12,
@@ -441,15 +378,7 @@
       "brandId": 4,
       "rating": 4.4,
       "reviews": [],
-      "searchTags": [
-        "খেলনা",
-        "বিড়াল",
-        "খেলনা",
-        "toy",
-        "cat toy",
-        "khelna",
-        "biral"
-      ]
+      "searchTags": ["খেলনা", "বিড়াল", "খেলনা", "toy", "cat toy", "khelna", "biral"]
     },
     {
       "id": 13,
@@ -462,16 +391,7 @@
       "brandId": 3,
       "rating": 4.6,
       "reviews": [],
-      "searchTags": [
-        "খেলনা",
-        "হাড়",
-        "কুকুর",
-        "toy",
-        "bone",
-        "chew",
-        "kukur",
-        "khelna"
-      ]
+      "searchTags": ["খেলনা", "হাড়", "কুকুর", "toy", "bone", "chew", "kukur", "khelna"]
     },
     {
       "id": 14,
@@ -485,14 +405,7 @@
       "stockStatus": "in-stock",
       "rating": 4.5,
       "reviews": [],
-      "searchTags": [
-        "bowl",
-        "barty",
-        "food bowl",
-        "water bowl",
-        "kukur",
-        "biral"
-      ]
+      "searchTags": ["bowl", "barty", "food bowl", "water bowl", "kukur", "biral"]
     },
     {
       "id": 15,
@@ -505,14 +418,7 @@
       "brandId": 5,
       "rating": 4.2,
       "reviews": [],
-      "searchTags": [
-        "whiskas",
-        "cat food",
-        "small",
-        "packet",
-        "biral",
-        "khabar"
-      ]
+      "searchTags": ["whiskas", "cat food", "small", "packet", "biral", "khabar"]
     },
     {
       "id": 16,
@@ -525,14 +431,7 @@
       "brandId": 16,
       "rating": 4.7,
       "reviews": [],
-      "searchTags": [
-        "scratcher",
-        "scratch",
-        "post",
-        "toy",
-        "biral",
-        "khelna"
-      ]
+      "searchTags": ["scratcher", "scratch", "post", "toy", "biral", "khelna"]
     },
     {
       "id": 17,
@@ -545,14 +444,7 @@
       "brandId": 16,
       "rating": 4.8,
       "reviews": [],
-      "searchTags": [
-        "bed",
-        "sleep",
-        "bichana",
-        "cushion",
-        "dog",
-        "cat"
-      ]
+      "searchTags": ["bed", "sleep", "bichana", "cushion", "dog", "cat"]
     },
     {
       "id": 18,
@@ -565,14 +457,7 @@
       "brandId": 9,
       "rating": 4.9,
       "reviews": [],
-      "searchTags": [
-        "reflex",
-        "plus",
-        "cat food",
-        "chicken",
-        "biral",
-        "khabar"
-      ]
+      "searchTags": ["reflex", "plus", "cat food", "chicken", "biral", "khabar"]
     },
     {
       "id": 19,
@@ -585,14 +470,7 @@
       "brandId": 13,
       "rating": 4.4,
       "reviews": [],
-      "searchTags": [
-        "bonnie",
-        "cat food",
-        "chicken",
-        "bulk",
-        "biral",
-        "khabar"
-      ]
+      "searchTags": ["bonnie", "cat food", "chicken", "bulk", "biral", "khabar"]
     },
     {
       "id": 20,
@@ -605,14 +483,7 @@
       "brandId": 6,
       "rating": 4.6,
       "reviews": [],
-      "searchTags": [
-        "smartheart",
-        "dog food",
-        "beef",
-        "roast beef",
-        "kukur",
-        "khabar"
-      ]
+      "searchTags": ["smartheart", "dog food", "beef", "roast beef", "kukur", "khabar"]
     },
     {
       "id": 21,
@@ -625,14 +496,7 @@
       "brandId": 3,
       "rating": 4.5,
       "reviews": [],
-      "searchTags": [
-        "drools",
-        "dog food",
-        "chicken",
-        "egg",
-        "kukur",
-        "khabar"
-      ]
+      "searchTags": ["drools", "dog food", "chicken", "egg", "kukur", "khabar"]
     },
     {
       "id": 22,
@@ -645,14 +509,7 @@
       "brandId": 14,
       "rating": 4.7,
       "reviews": [],
-      "searchTags": [
-        "reflex",
-        "dog food",
-        "lamb",
-        "rice",
-        "kukur",
-        "khabar"
-      ]
+      "searchTags": ["reflex", "dog food", "lamb", "rice", "kukur", "khabar"]
     },
     {
       "id": 23,
@@ -665,14 +522,7 @@
       "brandId": 15,
       "rating": 4.9,
       "reviews": [],
-      "searchTags": [
-        "jerhigh",
-        "dog food",
-        "soft",
-        "treat",
-        "kukur",
-        "khabar"
-      ]
+      "searchTags": ["jerhigh", "dog food", "soft", "treat", "kukur", "khabar"]
     },
     {
       "id": 24,
@@ -685,14 +535,7 @@
       "brandId": 16,
       "rating": 4.3,
       "reviews": [],
-      "searchTags": [
-        "litter",
-        "bali",
-        "cat litter",
-        "lemon",
-        "coffee",
-        "biral"
-      ]
+      "searchTags": ["litter", "bali", "cat litter", "lemon", "coffee", "biral"]
     },
     {
       "id": 25,
@@ -705,14 +548,7 @@
       "brandId": 16,
       "rating": 4.4,
       "reviews": [],
-      "searchTags": [
-        "litter box",
-        "tray",
-        "toilet",
-        "cat",
-        "biral",
-        "box"
-      ]
+      "searchTags": ["litter box", "tray", "toilet", "cat", "biral", "box"]
     },
     {
       "id": 26,
@@ -725,15 +561,7 @@
       "brandId": 16,
       "rating": 4.7,
       "reviews": [],
-      "searchTags": [
-        "brush",
-        "comb",
-        "fur",
-        "grooming",
-        "cat",
-        "dog",
-        "hair"
-      ]
+      "searchTags": ["brush", "comb", "fur", "grooming", "cat", "dog", "hair"]
     },
     {
       "id": 27,
@@ -746,14 +574,7 @@
       "brandId": 16,
       "rating": 4.8,
       "reviews": [],
-      "searchTags": [
-        "carrier",
-        "cage",
-        "travel",
-        "transport",
-        "cat",
-        "dog"
-      ]
+      "searchTags": ["carrier", "cage", "travel", "transport", "cat", "dog"]
     },
     {
       "id": 28,
@@ -766,15 +587,7 @@
       "brandId": 16,
       "rating": 4.5,
       "reviews": [],
-      "searchTags": [
-        "nail",
-        "clipper",
-        "cut",
-        "grooming",
-        "cat",
-        "dog",
-        "nok"
-      ]
+      "searchTags": ["nail", "clipper", "cut", "grooming", "cat", "dog", "nok"]
     },
     {
       "id": 29,
@@ -787,15 +600,7 @@
       "brandId": 16,
       "rating": 4.3,
       "reviews": [],
-      "searchTags": [
-        "collar",
-        "belt",
-        "bell",
-        "ghonti",
-        "cat",
-        "dog",
-        "neck"
-      ]
+      "searchTags": ["collar", "belt", "bell", "ghonti", "cat", "dog", "neck"]
     }
   ],
   "articles": [
@@ -937,10 +742,7 @@
       "imageUrl": "https://picsum.photos/seed/vet1/200/200",
       "availability": "Available Today",
       "bio": "Dr. Fatima Ahmed is a compassionate veterinarian with over 10 years of experience in small animal medicine. She graduated from the Bangladesh Agricultural University and has a special interest in dermatology and internal medicine.",
-      "qualifications": [
-        "DVM, BAU",
-        "Member of BSAVA"
-      ],
+      "qualifications": ["DVM, BAU", "Member of BSAVA"],
       "services": [
         {
           "name": "General Consultation",
@@ -1013,10 +815,7 @@
       "imageUrl": "https://picsum.photos/seed/vet3/200/200",
       "availability": "Available Now",
       "bio": "Dr. Nazia Islam is a dedicated feline practitioner who runs a cats-only clinic to ensure a stress-free environment for her patients. She is an expert in feline nutrition and preventative care.",
-      "qualifications": [
-        "DVM, SYLVET",
-        "Certified Feline Nutritionist"
-      ],
+      "qualifications": ["DVM, SYLVET", "Certified Feline Nutritionist"],
       "services": [
         {
           "name": "Online Feline Consultation",
@@ -1054,10 +853,7 @@
       "imageUrl": "https://picsum.photos/seed/vet4/200/200",
       "availability": "Available Today",
       "bio": "Dr. Noor is one of the few specialists in Bangladesh focusing on birds and exotic pets. Whether you have a parrot, rabbit, or turtle, Dr. Noor offers expert advice on diet, habitat, and health.",
-      "qualifications": [
-        "DVM, BAU",
-        "Masters in Wildlife Medicine"
-      ],
+      "qualifications": ["DVM, BAU", "Masters in Wildlife Medicine"],
       "services": [
         {
           "name": "Online Bird Consultation",
@@ -1087,10 +883,7 @@
       "imageUrl": "https://picsum.photos/seed/vet5/200/200",
       "availability": "Available Now",
       "bio": "Skin issues are very common in our humid climate. Dr. Rebeka Sultana specializes in diagnosing and treating complicated skin conditions, allergies, and fungal infections in dogs and cats.",
-      "qualifications": [
-        "DVM, SAU",
-        "PhD in Veterinary Dermatology"
-      ],
+      "qualifications": ["DVM, SAU", "PhD in Veterinary Dermatology"],
       "services": [
         {
           "name": "Online Skin Consultation",
@@ -1120,10 +913,7 @@
       "imageUrl": "https://picsum.photos/seed/vet6/200/200",
       "availability": "Available Today",
       "bio": "Based in Chittagong, Dr. Imtiaz Ahmed brings 8 years of experience in treating small animals. He is well-known for his calm demeanor and accurate diagnosis. He is now available for online consultations nationwide.",
-      "qualifications": [
-        "DVM, CVASU",
-        "Member of BCVA"
-      ],
+      "qualifications": ["DVM, CVASU", "Member of BCVA"],
       "services": [
         {
           "name": "Telemedicine Session",
@@ -1153,10 +943,7 @@
       "imageUrl": "https://picsum.photos/seed/vet7/200/200",
       "availability": "Available Now",
       "bio": "Dr. Nyla Khan focuses on the holistic well-being of pets. If your pet is a picky eater, overweight, or showing behavioral issues like aggression or anxiety, Dr. Nyla can provide a customized plan online.",
-      "qualifications": [
-        "DVM, BAU",
-        "Certified Clinical Pet Nutritionist"
-      ],
+      "qualifications": ["DVM, BAU", "Certified Clinical Pet Nutritionist"],
       "services": [
         {
           "name": "Diet & Nutrition Plan",
@@ -1305,23 +1092,7 @@
       "content": "Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand?",
       "imageUrl": "https://picsum.photos/seed/post1/600/400",
       "timestamp": "2026-01-24T17:29:09.188Z",
-      "likes": [
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16
-      ],
+      "likes": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       "comments": [
         {
           "id": 1,
@@ -1331,9 +1102,7 @@
             "profilePictureUrl": "https://picsum.photos/seed/jamal/200"
           },
           "text": "Great advice! I was wondering about this for my cat.",
-          "likes": [
-            1
-          ],
+          "likes": [1],
           "timestamp": "2026-01-24T18:29:09.188Z",
           "replies": [
             {
@@ -1344,9 +1113,7 @@
                 "profilePictureUrl": "https://picsum.photos/seed/aisha/200"
               },
               "text": "Same here, thanks for sharing!",
-              "likes": [
-                2
-              ],
+              "likes": [2],
               "timestamp": "2026-01-24T18:59:09.188Z"
             }
           ]
@@ -1363,12 +1130,7 @@
       "content": "🐕 Pro tip for new dog owners: Consistency is key in training! Start with basic commands like \"sit\" and \"stay\" and practice daily. My German Shepherd learned these in just 2 weeks. What training tips do you have?",
       "imageUrl": "https://picsum.photos/seed/post2/600/400",
       "timestamp": "2026-01-24T14:29:09.188Z",
-      "likes": [
-        1,
-        3,
-        5,
-        7
-      ],
+      "likes": [1, 3, 5, 7],
       "comments": []
     },
     {
@@ -1380,10 +1142,7 @@
       },
       "content": "Looking for recommendations for a good vet in Dhanmondi area. My kitten needs her first vaccination. Any suggestions would be greatly appreciated! 🐱💉",
       "timestamp": "2026-01-24T11:29:09.188Z",
-      "likes": [
-        1,
-        2
-      ],
+      "likes": [1, 2],
       "comments": [
         {
           "id": 2,
@@ -1393,9 +1152,7 @@
             "profilePictureUrl": "https://picsum.photos/seed/aisha/200"
           },
           "text": "I highly recommend Dr. Kabir at Dhaka Pet Hospital! Very gentle with kittens.",
-          "likes": [
-            3
-          ],
+          "likes": [3],
           "timestamp": "2026-01-24T12:29:09.188Z",
           "replies": []
         }

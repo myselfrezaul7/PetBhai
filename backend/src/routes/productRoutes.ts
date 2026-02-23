@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import type { Product } from '../types';
-import { AuthRequest, optionalAuth, requireAuth } from '../middleware/auth';
+import { AuthRequest, optionalAuth, requireAdmin, requireAuth } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -13,6 +13,34 @@ const reviewCreateSchema = z
   })
   .strict();
 
+const inventoryUpdateSchema = z
+  .object({
+    stockQuantity: z.number().int().min(0).max(100000),
+    reorderPoint: z.number().int().min(0).max(100000),
+  })
+  .strict();
+
+const adminProductCreateSchema = z
+  .object({
+    name: z.string().min(2).max(250),
+    category: z.enum([
+      'Cat Food',
+      'Dog Food',
+      'Cat Supplies',
+      'Dog Supplies',
+      'Grooming',
+      'Accessories',
+    ]),
+    price: z.number().positive().finite(),
+    imageUrl: z.string().url().max(3000),
+    description: z.string().min(5).max(3000),
+    weight: z.string().min(1).max(50),
+    brandId: z.number().int().positive(),
+    stockQuantity: z.number().int().min(0).max(100000),
+    reorderPoint: z.number().int().min(0).max(100000),
+  })
+  .strict();
+
 const complementaryCategories: Record<string, Array<Product['category']>> = {
   'Dog Food': ['Dog Supplies', 'Grooming', 'Accessories'],
   'Cat Food': ['Cat Supplies', 'Grooming', 'Accessories'],
@@ -20,6 +48,40 @@ const complementaryCategories: Record<string, Array<Product['category']>> = {
   'Cat Supplies': ['Cat Food', 'Grooming', 'Accessories'],
   Grooming: ['Dog Supplies', 'Cat Supplies', 'Accessories'],
   Accessories: ['Dog Supplies', 'Cat Supplies', 'Grooming'],
+};
+
+const inferStockQuantity = (product: Product): number => {
+  if (typeof product.stockQuantity === 'number' && Number.isFinite(product.stockQuantity)) {
+    return Math.max(0, Math.floor(product.stockQuantity));
+  }
+
+  if (product.stockStatus === 'out-of-stock') return 0;
+  if (product.stockStatus === 'low-stock') return 10;
+  return 120;
+};
+
+const inferReorderPoint = (product: Product): number => {
+  if (typeof product.reorderPoint === 'number' && Number.isFinite(product.reorderPoint)) {
+    return Math.max(0, Math.floor(product.reorderPoint));
+  }
+  return 20;
+};
+
+const deriveStockStatus = (stockQuantity: number, reorderPoint: number): Product['stockStatus'] => {
+  if (stockQuantity <= 0) return 'out-of-stock';
+  if (stockQuantity <= reorderPoint) return 'low-stock';
+  return 'in-stock';
+};
+
+const normalizeProductInventory = (product: Product): Product => {
+  const stockQuantity = inferStockQuantity(product);
+  const reorderPoint = inferReorderPoint(product);
+  return {
+    ...product,
+    stockQuantity,
+    reorderPoint,
+    stockStatus: deriveStockStatus(stockQuantity, reorderPoint),
+  };
 };
 
 // Async error wrapper
@@ -42,6 +104,104 @@ router.get(
       console.error('Error fetching products:', error);
       res.status(500).json({ message: 'Failed to fetch products', products: [] });
     }
+  })
+);
+
+router.get(
+  '/admin/inventory',
+  requireAuth,
+  requireAdmin,
+  asyncHandler((req, res) => {
+    const inventory = db.products.map((product) => normalizeProductInventory(product));
+    return res.json(inventory);
+  })
+);
+
+router.post(
+  '/admin',
+  requireAuth,
+  requireAdmin,
+  asyncHandler((req, res) => {
+    const parseResult = adminProductCreateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        message: 'Invalid product payload',
+        details: parseResult.error.errors.map((error) => ({
+          field: error.path.join('.'),
+          message: error.message,
+        })),
+      });
+    }
+
+    const payload = parseResult.data;
+    const nextId =
+      db.products.reduce((maxId, product) => Math.max(maxId, Number(product.id) || 0), 0) + 1;
+
+    const stockStatus = deriveStockStatus(payload.stockQuantity, payload.reorderPoint);
+
+    const newProduct: Product = {
+      id: nextId,
+      name: payload.name.trim(),
+      category: payload.category,
+      price: payload.price,
+      imageUrl: payload.imageUrl,
+      description: payload.description.trim(),
+      weight: payload.weight.trim(),
+      brandId: payload.brandId,
+      rating: 0,
+      reviews: [],
+      stockQuantity: payload.stockQuantity,
+      reorderPoint: payload.reorderPoint,
+      stockStatus,
+    };
+
+    db.products.push(newProduct);
+    db.write();
+
+    return res.status(201).json(newProduct);
+  })
+);
+
+router.patch(
+  '/:id/inventory',
+  requireAuth,
+  requireAdmin,
+  asyncHandler((req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    const parseResult = inventoryUpdateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        message: 'Invalid inventory payload',
+        details: parseResult.error.errors.map((error) => ({
+          field: error.path.join('.'),
+          message: error.message,
+        })),
+      });
+    }
+
+    const productIndex = db.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const { stockQuantity, reorderPoint } = parseResult.data;
+    const stockStatus = deriveStockStatus(stockQuantity, reorderPoint);
+
+    const updatedProduct: Product = {
+      ...db.products[productIndex],
+      stockQuantity,
+      reorderPoint,
+      stockStatus,
+    };
+
+    db.products[productIndex] = updatedProduct;
+    db.write();
+
+    return res.json(updatedProduct);
   })
 );
 

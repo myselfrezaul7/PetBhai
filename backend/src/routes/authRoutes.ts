@@ -11,6 +11,15 @@ const router = Router();
 // Password hashing configuration
 const SALT_ROUNDS = 12;
 
+const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+
+const ADMIN_EMAIL_ALLOWLIST = new Set(
+  (process.env.ADMIN_EMAILS || DEFAULT_ADMIN_EMAIL)
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => value.length > 0)
+);
+
 // Email validation regex
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,6 +29,20 @@ const isValidEmail = (email: string): boolean => {
 // Sanitize string input
 const sanitizeString = (str: string): string => {
   return str.trim().slice(0, 500); // Limit length and trim whitespace
+};
+
+const getRoleByEmail = (email: string): 'admin' | 'customer' => {
+  return ADMIN_EMAIL_ALLOWLIST.has(email.toLowerCase()) ? 'admin' : 'customer';
+};
+
+const syncRoleByEmail = (user: User): boolean => {
+  const expectedRole = getRoleByEmail(user.email);
+  if (user.role === expectedRole) {
+    return false;
+  }
+
+  user.role = expectedRole;
+  return true;
 };
 
 // Password strength validation
@@ -111,12 +134,18 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (syncRoleByEmail(user)) {
+      persistChanges(res);
+      auditLog('USER_ROLE_SYNCED', user.id, { email: sanitizedEmail, role: user.role });
+    }
+
     // Generate JWT token
     const token = generateToken({
       id: user.id,
       email: user.email,
       name: user.name,
       isPlusMember: user.isPlusMember,
+      isAdmin: user.role === 'admin',
     });
 
     auditLog('LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
@@ -173,6 +202,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       name: sanitizedName,
       email: sanitizedEmail,
       password: hashedPassword,
+      role: getRoleByEmail(sanitizedEmail),
       wishlist: [],
       orderHistory: [],
       favorites: [],
@@ -188,6 +218,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       email: newUser.email,
       name: newUser.name,
       isPlusMember: newUser.isPlusMember,
+      isAdmin: newUser.role === 'admin',
     });
 
     auditLog('USER_SIGNUP', newUser.id, { email: sanitizedEmail });
@@ -224,16 +255,25 @@ router.post('/social', authLimiter, (req, res) => {
     let user = db.users.find((u) => u.email.toLowerCase() === sanitizedEmail);
 
     if (user) {
+      let shouldPersist = false;
       user.name = sanitizedName;
+      shouldPersist = true;
       if (typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)) {
         user.profilePictureUrl = photoUrl.slice(0, 500);
+        shouldPersist = true;
       }
-      persistChanges(res);
+      if (syncRoleByEmail(user)) {
+        shouldPersist = true;
+      }
+      if (shouldPersist) {
+        persistChanges(res);
+      }
     } else {
       user = {
         id: getNextUserId(),
         name: sanitizedName,
         email: sanitizedEmail,
+        role: getRoleByEmail(sanitizedEmail),
         profilePictureUrl:
           typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)
             ? photoUrl.slice(0, 500)
@@ -254,6 +294,7 @@ router.post('/social', authLimiter, (req, res) => {
       email: user.email,
       name: user.name,
       isPlusMember: user.isPlusMember,
+      isAdmin: user.role === 'admin',
     });
 
     auditLog('SOCIAL_LOGIN_SUCCESS', user.id, { email: sanitizedEmail });

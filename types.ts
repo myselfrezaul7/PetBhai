@@ -68,6 +68,7 @@ export interface User {
   name: string;
   email: string;
   profilePictureUrl?: string;
+  role?: 'customer' | 'admin';
   wishlist: number[]; // Array of product IDs
   orderHistory: Order[];
   favorites: number[]; // Array of animal IDs
@@ -161,6 +162,7 @@ export interface Product {
   searchTags?: string[];
   stockStatus?: StockStatus;
   stockQuantity?: number;
+  reorderPoint?: number;
   originalPrice?: number; // For showing discounts
   discount?: number; // Percentage discount
 }

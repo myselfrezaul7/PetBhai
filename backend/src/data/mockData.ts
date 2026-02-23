@@ -2279,7 +2279,7 @@ export const MOCK_USERS: User[] = [
   {
     id: 'user_2',
     name: 'Admin User',
-    email: 'admin@petbhai.com',
+    email: 'petbhaibd@gmail.com',
     role: 'admin',
     orders: [],
   },

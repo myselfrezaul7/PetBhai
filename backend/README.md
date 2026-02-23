@@ -33,7 +33,16 @@ Create a `.env` file in the `backend` directory (optional for development):
 
 ```
 PORT=5000
+JWT_SECRET=replace_with_a_long_random_secret_at_least_32_chars
+ADMIN_EMAILS=petbhaibd@gmail.com
 ```
+
+### Admin Access Control
+
+- `ADMIN_EMAILS` is a comma-separated allowlist of emails that receive `admin` role automatically.
+- Default allowlist is `petbhaibd@gmail.com` when `ADMIN_EMAILS` is not set.
+- Role is re-synced on every login/social-login, so non-allowlisted emails are downgraded to `customer`.
+- Always set a strong `JWT_SECRET` in production (minimum 32 characters).
 
 ## Development
 

@@ -23,9 +23,6 @@ interface SocialLink {
 }
 
 const Footer: React.FC = () => {
-  // Memoize the current year to prevent recalculation on each render
-  const currentYear = useMemo(() => new Date().getFullYear(), []);
-
   // Memoize social links configuration
   const socialLinks: SocialLink[] = useMemo(
     () => [
@@ -80,7 +77,7 @@ const Footer: React.FC = () => {
             </div>
             <p className="text-slate-600 dark:text-slate-400 mb-4">Your Pet's Favorite Partner.</p>
             <div className="text-sm text-slate-500 dark:text-slate-500">
-              &copy; {currentYear} PetBhai. All rights reserved.
+              &copy; 2025 PetBhai. All rights reserved.
             </div>
             <p className="text-xs text-slate-400 dark:text-slate-600 mt-2">
               A concern of{' '}
@@ -247,7 +244,7 @@ const Footer: React.FC = () => {
       {/* Bottom bar */}
       <div className="mt-8 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-t border-slate-200/50 dark:border-slate-800/50">
         <div className="container mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-500">
-          © {currentYear} PetBhai. All rights reserved.
+          © 2025 PetBhai. All rights reserved.
         </div>
       </div>
     </footer>

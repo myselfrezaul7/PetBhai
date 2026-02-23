@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { useCart } from './contexts/CartContext';
@@ -21,6 +21,7 @@ import SEO, {
   ServicesPageSEO,
 } from './components/SEO';
 import AppProviders from './components/AppProviders';
+import { useAuth } from './contexts/AuthContext';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -50,8 +51,23 @@ const PetDashboardPage = lazy(() => import('./pages/PetDashboardPage'));
 const PetCompatibilityPage = lazy(() => import('./pages/PetCompatibilityPage'));
 const ServicesBookingPage = lazy(() => import('./pages/ServicesBookingPage'));
 const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'));
 const MessengerPlugin = lazy(() => import('./components/MessengerPlugin'));
+
+const AdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const { isAuthenticated, currentUser } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (currentUser?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 const prefetchLikelyRoutes = () => {
   void import('./pages/ShopPage');
@@ -237,6 +253,7 @@ const RouteSEO: React.FC = () => {
   if (path === '/signup') return <SEO title="Sign Up" noindex />;
   if (path === '/profile') return <SEO title="Profile" noindex />;
   if (path === '/dashboard') return <SEO title="Dashboard" noindex />;
+  if (path === '/admin-dashboard') return <SEO title="Admin Dashboard" noindex />;
   if (path === '/thumbnail-generator') {
     return (
       <SEO
@@ -259,10 +276,19 @@ const AppContent: React.FC = () => {
     const registerServiceWorker = async () => {
       if ('serviceWorker' in navigator) {
         try {
-          // In a React app, components mount after the basic DOM is ready.
-          // We can register immediately without waiting for 'load' event,
-          // which avoids the "document in invalid state" error if the event has already passed.
-          const registration = await navigator.serviceWorker.register('./service-worker.js');
+          const swUrl = '/service-worker.js';
+          const swProbe = await fetch(swUrl, {
+            method: 'GET',
+            cache: 'no-store',
+            credentials: 'same-origin',
+          });
+
+          if (!swProbe.ok) {
+            console.warn('SW script not found, skipping registration:', swUrl);
+            return;
+          }
+
+          const registration = await navigator.serviceWorker.register(swUrl);
           console.log('SW registered with scope:', registration.scope);
         } catch (error) {
           console.error('SW registration failed:', error);
@@ -307,6 +333,14 @@ const AppContent: React.FC = () => {
           <Suspense fallback={<PawHeartLoader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route
+                path="/admin-dashboard"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />

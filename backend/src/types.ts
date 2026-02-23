@@ -178,6 +178,8 @@ export interface Product {
   reviews: Review[];
   searchTags?: string[];
   stockStatus?: 'in-stock' | 'low-stock' | 'out-of-stock';
+  stockQuantity?: number;
+  reorderPoint?: number;
 }
 
 export interface CartItem extends Product {
