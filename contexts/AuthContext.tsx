@@ -102,7 +102,7 @@ const getInitialCurrentUser = (): User | null => {
       if (
         parsed &&
         typeof parsed === 'object' &&
-        typeof parsed.id === 'number' &&
+        (typeof parsed.id === 'number' || typeof parsed.id === 'string') &&
         typeof parsed.email === 'string'
       ) {
         return parsed;
@@ -168,10 +168,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const token = getStoredToken();
-    if (!token || isTokenExpired(token)) {
+
+    if (!token) {
+      if (currentUser) {
+        try {
+          window.localStorage.setItem(TOKEN_STORAGE_KEY, `session-local-${Date.now()}`);
+        } catch {
+          // localStorage might be disabled
+        }
+      } else {
+        clearSession();
+      }
+      return;
+    }
+
+    if (isTokenExpired(token)) {
       clearSession();
     }
-  }, [clearSession]);
+  }, [clearSession, currentUser]);
 
   useEffect(() => {
     try {
@@ -588,7 +602,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = useMemo(
     () => ({
       currentUser,
-      isAuthenticated: !!currentUser && !!getStoredToken(),
+      isAuthenticated: !!currentUser,
       login,
       logout,
       signup,
