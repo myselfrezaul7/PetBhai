@@ -27,7 +27,10 @@ const readWithTimeout = async (
   return await Promise.race([
     reader.read(),
     new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error(`Timed out after ${timeoutMs}ms while waiting for stream data`)), timeoutMs);
+      setTimeout(
+        () => reject(new Error(`Timed out after ${timeoutMs}ms while waiting for stream data`)),
+        timeoutMs
+      );
     }),
   ]);
 };
@@ -69,7 +72,10 @@ const run = async (): Promise<void> => {
     },
   });
 
-  assert(streamResponse.status === 200, `Expected 200 from stream endpoint, got ${streamResponse.status}`);
+  assert(
+    streamResponse.status === 200,
+    `Expected 200 from stream endpoint, got ${streamResponse.status}`
+  );
   assert(
     streamResponse.headers.get('content-type')?.includes('text/event-stream'),
     `Expected text/event-stream content type, got ${streamResponse.headers.get('content-type')}`
@@ -96,7 +102,10 @@ const run = async (): Promise<void> => {
     });
 
     const createdPostPayload = (await createdPostResponse.json()) as PostResponse;
-    assert(createdPostResponse.status === 201, `Expected 201 on post creation, got ${createdPostResponse.status}`);
+    assert(
+      createdPostResponse.status === 201,
+      `Expected 201 on post creation, got ${createdPostResponse.status}`
+    );
     assert(Boolean(createdPostPayload?.id), 'Created post response is missing id');
 
     const postId = createdPostPayload.id;
@@ -110,7 +119,10 @@ const run = async (): Promise<void> => {
       10000
     );
 
-    assert(updateEvent.raw.includes('post-update'), 'Did not receive post-update event in stream payload');
+    assert(
+      updateEvent.raw.includes('post-update'),
+      'Did not receive post-update event in stream payload'
+    );
 
     const cleanupResponse = await fetch(
       `${baseUrl}/posts/${encodeURIComponent(String(postId))}?authorId=900001`,
