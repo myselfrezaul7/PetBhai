@@ -9,39 +9,108 @@ import { signInWithGoogle } from '../services/authService';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import * as postService from '../services/postService';
+import { API_BASE_URL } from '../services/apiClient';
 
 const CommunityPage: React.FC = () => {
   const { isAuthenticated, socialLogin, currentUser } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLive, setIsLive] = useState<boolean>(false);
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'feed' | 'popular' | 'trending'>('feed');
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const toast = useToast();
   const { confirm } = useConfirmation();
 
   // Fetch posts from API
-  const fetchPosts = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const apiPosts = await postService.fetchPosts();
-      setPosts(apiPosts);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load posts.';
-      console.warn('API unavailable:', error);
-      setPosts([]);
-      setError(message);
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
+  const fetchPosts = useCallback(
+    async (options?: { silent?: boolean; showErrors?: boolean }) => {
+      const silent = options?.silent ?? false;
+      const showErrors = options?.showErrors ?? true;
+
+      if (!silent) {
+        setIsLoading(true);
+      }
+      setError(null);
+      try {
+        const apiPosts = await postService.fetchPosts();
+        setPosts(apiPosts);
+        setLastSyncAt(new Date().toISOString());
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to load posts.';
+        console.warn('API unavailable:', error);
+        setPosts([]);
+        setError(message);
+        if (showErrors) {
+          toast.error(message);
+        }
+      } finally {
+        if (!silent) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [toast]
+  );
 
   // Fetch posts on mount
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setIsLive(false);
+      return;
+    }
+
+    let isDisposed = false;
+    const streamUrl = `${API_BASE_URL}/posts/stream`;
+    const eventSource = new EventSource(streamUrl, { withCredentials: true });
+
+    const syncInBackground = () => {
+      void fetchPosts({ silent: true, showErrors: false });
+    };
+
+    const onConnected = () => {
+      if (isDisposed) return;
+      setIsLive(true);
+      syncInBackground();
+    };
+
+    const onPostUpdate = () => {
+      if (isDisposed) return;
+      setIsLive(true);
+      syncInBackground();
+    };
+
+    const onError = () => {
+      if (isDisposed) return;
+      setIsLive(false);
+      eventSource.close();
+    };
+
+    eventSource.addEventListener('connected', onConnected);
+    eventSource.addEventListener('post-update', onPostUpdate);
+    eventSource.addEventListener('error', onError);
+
+    const fallbackPolling = window.setInterval(() => {
+      if (!isDisposed) {
+        syncInBackground();
+      }
+    }, 15000);
+
+    return () => {
+      isDisposed = true;
+      setIsLive(false);
+      window.clearInterval(fallbackPolling);
+      eventSource.removeEventListener('connected', onConnected);
+      eventSource.removeEventListener('post-update', onPostUpdate);
+      eventSource.removeEventListener('error', onError);
+      eventSource.close();
+    };
+  }, [fetchPosts, isAuthenticated]);
 
   const handleAddPost = async (newPost: Post) => {
     if (!currentUser) {
@@ -421,11 +490,11 @@ const CommunityPage: React.FC = () => {
   );
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-slate-50/40 dark:bg-slate-950/50">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
         {/* Hero Section */}
-        <header className="text-center mb-6 md:mb-8 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-lg">
+        <header className="text-center mb-6 md:mb-8 rounded-2xl border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900/80 p-5 md:p-8 shadow-sm">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-orange-50 dark:bg-orange-900/20 rounded-xl md:rounded-2xl mb-3 md:mb-4">
             <UserGroupIcon
               className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-orange-500"
               aria-hidden="true"
@@ -438,6 +507,15 @@ const CommunityPage: React.FC = () => {
             Share your pet stories, get advice from fellow pet parents, and be part of Bangladesh's
             most caring pet community.
           </p>
+          {isAuthenticated && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              <span
+                className={`h-2 w-2 rounded-full ${isLive ? 'bg-emerald-500' : 'bg-amber-500'}`}
+              />
+              {isLive ? 'Live updates on' : 'Reconnecting...'}
+              {lastSyncAt ? ` • synced ${new Date(lastSyncAt).toLocaleTimeString()}` : ''}
+            </div>
+          )}
         </header>
 
         {/* Stats Bar */}
@@ -445,24 +523,24 @@ const CommunityPage: React.FC = () => {
           className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
           aria-label="Community statistics"
         >
-          <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-500">
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalPosts}
             </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
               Posts
             </p>
           </div>
-          <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-blue-500">
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalComments}
             </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
               Comments
             </p>
           </div>
-          <div className="glass-card-ios p-2.5 sm:p-4 text-center hover:scale-105 transition-transform cursor-default">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-pink-500">
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalLikes}
             </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
@@ -475,7 +553,7 @@ const CommunityPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:mb-8">
           {/* Trending Topics */}
           {trendingTopics.length > 0 && (
-            <div className="glass-card-ios p-4 bg-gradient-to-br from-purple-50/70 to-pink-50/70 dark:from-purple-900/25 dark:to-pink-900/25 border border-white/35 dark:border-white/10 backdrop-blur-xl">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
                 <span className="text-lg">🔥</span>
                 Trending Topics
@@ -496,7 +574,7 @@ const CommunityPage: React.FC = () => {
           )}
 
           {/* Leaderboard Toggle */}
-          <div className="glass-card-ios p-4 bg-gradient-to-br from-yellow-50/70 to-orange-50/70 dark:from-yellow-900/25 dark:to-orange-900/25 border border-white/35 dark:border-white/10 backdrop-blur-xl">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
               <span className="text-lg">👑</span>
               Top Contributors
@@ -628,12 +706,7 @@ const CommunityPage: React.FC = () => {
         {isAuthenticated ? (
           <CreatePostForm onAddPost={handleAddPost} />
         ) : (
-          <div className="glass-card-ios p-8 mb-8 text-center bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-slate-800/50">
-            <div className="flex justify-center gap-2 mb-4">
-              <span className="text-3xl">🐕</span>
-              <span className="text-3xl">🐈</span>
-              <span className="text-3xl">🐾</span>
-            </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 mb-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
               Join the Conversation!
             </h2>
@@ -685,7 +758,7 @@ const CommunityPage: React.FC = () => {
           className="flex items-center justify-between mb-4 sm:mb-6"
           aria-label="Post feed filters"
         >
-          <div className="flex space-x-1 glass-card-ios border border-white/30 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 p-1 sm:p-1.5 rounded-lg sm:rounded-xl backdrop-blur-xl">
+          <div className="flex space-x-1 rounded-xl border border-slate-200 bg-white p-1 sm:p-1.5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <button
               onClick={() => handleTabChange('feed')}
               data-active={activeTab === 'feed'}
@@ -695,7 +768,7 @@ const CommunityPage: React.FC = () => {
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
-              📰 Latest
+              Latest
             </button>
             <button
               onClick={() => handleTabChange('trending')}
@@ -706,7 +779,7 @@ const CommunityPage: React.FC = () => {
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
-              🔥 Trending
+              Trending
             </button>
             <button
               onClick={() => handleTabChange('popular')}
@@ -717,7 +790,7 @@ const CommunityPage: React.FC = () => {
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
-              ⭐ Popular
+              Popular
             </button>
           </div>
           <button

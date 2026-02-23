@@ -6,6 +6,25 @@ import { postMutationLimiter } from '../middleware/rateLimiter';
 import { securityLog } from '../middleware/logger';
 
 const router = express.Router();
+const liveClients = new Set<express.Response>();
+
+const emitPostEvent = (eventType: string, postId?: number): void => {
+  const payload = JSON.stringify({
+    type: eventType,
+    postId,
+    timestamp: new Date().toISOString(),
+  });
+
+  for (const client of liveClients) {
+    try {
+      client.write(`event: post-update\n`);
+      client.write(`data: ${payload}\n\n`);
+    } catch {
+      liveClients.delete(client);
+      client.end();
+    }
+  }
+};
 
 const authorSchema = z
   .object({
@@ -98,6 +117,31 @@ router.get('/', (_req, res) => {
   }
 });
 
+// Real-time post update stream (SSE)
+router.get('/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
+  res.write(`event: connected\n`);
+  res.write(`data: ${JSON.stringify({ timestamp: new Date().toISOString() })}\n\n`);
+
+  liveClients.add(res);
+
+  const heartbeat = setInterval(() => {
+    if (!res.writableEnded) {
+      res.write(': ping\n\n');
+    }
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    liveClients.delete(res);
+    res.end();
+  });
+});
+
 // Get single post
 router.get('/:id', (req, res) => {
   try {
@@ -166,6 +210,8 @@ router.post('/', postMutationLimiter, (req, res) => {
     };
 
     db.posts.unshift(newPost);
+    db.write();
+    emitPostEvent('post-created', newPost.id);
     res.status(201).json(newPost);
   } catch (error) {
     console.error('Error creating post:', error);
@@ -213,6 +259,8 @@ router.put('/:id', postMutationLimiter, (req, res) => {
     }
 
     db.posts[postIndex] = { ...db.posts[postIndex], content: sanitizedContent };
+    db.write();
+    emitPostEvent('post-updated', postId);
     res.json(db.posts[postIndex]);
   } catch (error) {
     console.error('Error updating post:', error);
@@ -249,6 +297,8 @@ router.delete('/:id', postMutationLimiter, (req, res) => {
     }
 
     db.posts.splice(postIndex, 1);
+    db.write();
+    emitPostEvent('post-deleted', postId);
     res.json({ message: 'Post deleted successfully' });
   } catch (error) {
     console.error('Error deleting post:', error);
@@ -286,6 +336,8 @@ router.post('/:id/like', postMutationLimiter, (req, res) => {
       post.likes.splice(likeIndex, 1);
     }
 
+    db.write();
+    emitPostEvent('post-liked', postId);
     res.json(post);
   } catch (error) {
     console.error('Error toggling post like:', error);
@@ -332,6 +384,8 @@ router.post('/:id/comments', postMutationLimiter, (req, res) => {
     };
 
     post.comments.push(newComment);
+    db.write();
+    emitPostEvent('comment-created', postId);
     res.status(201).json(newComment);
   } catch (error) {
     console.error('Error adding comment:', error);
@@ -375,6 +429,8 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res)
       comment.likes.splice(likeIndex, 1);
     }
 
+    db.write();
+    emitPostEvent('comment-liked', postId);
     res.json(comment);
   } catch (error) {
     console.error('Error toggling comment like:', error);
@@ -427,6 +483,8 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, r
     };
 
     comment.replies.push(newReply);
+    db.write();
+    emitPostEvent('reply-created', postId);
     res.status(201).json(newReply);
   } catch (error) {
     console.error('Error adding reply:', error);
@@ -479,6 +537,8 @@ router.post(
         reply.likes.splice(likeIndex, 1);
       }
 
+      db.write();
+      emitPostEvent('reply-liked', postId);
       res.json(reply);
     } catch (error) {
       console.error('Error toggling reply like:', error);

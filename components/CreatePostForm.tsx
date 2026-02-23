@@ -186,7 +186,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
   const isNearLimit = remainingChars < 200;
 
   return (
-    <div className="glass-card-ios p-4 sm:p-6 mb-6 sm:mb-8">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 mb-6 sm:mb-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <form onSubmit={handleSubmit}>
         <div className="flex items-start space-x-3 sm:space-x-4">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -206,7 +206,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
               value={content}
               onChange={handleTextareaChange}
               placeholder={`What's on your mind, ${currentUser?.name.split(' ')[0] || 'friend'}?`}
-              className="w-full p-3 border border-slate-300/50 dark:border-slate-600/50 bg-white/50 dark:bg-slate-700/50 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none text-sm sm:text-base min-h-[80px]"
+              className="w-full p-3 border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none text-sm sm:text-base min-h-[80px]"
               rows={3}
               maxLength={MAX_CONTENT_LENGTH}
               disabled={isSubmitting}
@@ -263,7 +263,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isSubmitting || isCompressing}
-              className="flex items-center space-x-1.5 sm:space-x-2 text-orange-600 hover:text-orange-800 dark:hover:text-orange-400 font-semibold text-sm sm:text-base disabled:opacity-50 active:scale-95 transition-transform touch-manipulation py-2 px-1"
+              className="flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-orange-600 dark:text-slate-300 dark:hover:text-orange-400 font-semibold text-sm sm:text-base disabled:opacity-50 active:scale-95 transition-transform touch-manipulation py-2 px-1"
             >
               <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               <span className="hidden xs:inline">Add Photo</span>
@@ -285,7 +285,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
           <button
             type="submit"
             disabled={!content.trim() || isSubmitting || isCompressing}
-            className="bg-orange-500 text-white font-bold py-2.5 px-6 sm:px-8 rounded-full hover:bg-orange-600 transition-all disabled:bg-orange-300 disabled:cursor-not-allowed active:scale-95 touch-manipulation text-sm sm:text-base min-w-[80px]"
+            className="bg-orange-500 text-white font-semibold py-2.5 px-6 sm:px-8 rounded-full hover:bg-orange-600 transition-all disabled:bg-orange-300 disabled:cursor-not-allowed active:scale-95 touch-manipulation text-sm sm:text-base min-w-[80px]"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
