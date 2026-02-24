@@ -259,7 +259,9 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(400).json({ message: 'Invalid email format' });
     }
 
-    const user = db.users.find((u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail);
+    const user = db.users.find(
+      (u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail
+    );
 
     if (!user) {
       // Use consistent error message to prevent user enumeration
@@ -397,7 +399,9 @@ router.post('/social', authLimiter, (req, res) => {
         ? sanitizeString(name)
         : sanitizedEmail.split('@')[0];
 
-    let user = db.users.find((u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail);
+    let user = db.users.find(
+      (u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail
+    );
 
     if (user) {
       let shouldPersist = false;
