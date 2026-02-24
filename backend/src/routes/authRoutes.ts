@@ -1,9 +1,16 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { z } from 'zod';
 import { db } from '../db';
 import type { MedicineReminderRecord, PetProfileRecord, User } from '../types';
-import { AuthRequest, generateToken, requireAuth } from '../middleware/auth';
+import {
+  AuthRequest,
+  generateAccessToken,
+  generateRefreshToken,
+  requireAuth,
+  verifyRefreshToken,
+} from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
 
@@ -11,6 +18,24 @@ const router = Router();
 
 // Password hashing configuration
 const SALT_ROUNDS = 12;
+const EMAIL_VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const LOCKOUT_WINDOW_MS = 15 * 60 * 1000;
+const LOCKOUT_THRESHOLD = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
+
+const loginAttemptTracker = new Map<
+  string,
+  { attempts: number; firstAttemptAt: number; lockUntil: number }
+>();
+
+type AuthErrorCode =
+  | 'AUTH_MISSING_EMAIL'
+  | 'AUTH_INVALID_EMAIL_FORMAT'
+  | 'AUTH_INVALID_CREDENTIALS'
+  | 'AUTH_ACCOUNT_LOCKED'
+  | 'AUTH_EMAIL_NOT_VERIFIED'
+  | 'AUTH_SOCIAL_PROVIDER_MISMATCH'
+  | 'AUTH_REFRESH_INVALID';
 
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
@@ -115,6 +140,150 @@ const canAccessUser = (req: AuthRequest, userId: number): boolean => {
 const persistChanges = (res: any): boolean => {
   db.write();
   return true;
+};
+
+const sendAuthError = (
+  res: any,
+  status: number,
+  code: AuthErrorCode,
+  message: string,
+  details?: Record<string, unknown>
+) => {
+  return res.status(status).json({
+    code,
+    message,
+    ...(details ? { details } : {}),
+  });
+};
+
+const getClientIp = (req: AuthRequest): string => {
+  const rawIp = req.ip || req.socket.remoteAddress || 'unknown';
+  return rawIp.trim().toLowerCase();
+};
+
+const getLoginAttemptKey = (email: string, req: AuthRequest): string => {
+  return `${normalizeEmail(email)}|${getClientIp(req)}`;
+};
+
+const nowMs = (): number => Date.now();
+
+const checkIpEmailLock = (
+  email: string,
+  req: AuthRequest
+): { locked: boolean; retryAfterMs: number } => {
+  const key = getLoginAttemptKey(email, req);
+  const record = loginAttemptTracker.get(key);
+  if (!record) return { locked: false, retryAfterMs: 0 };
+
+  const now = nowMs();
+  if (record.lockUntil > now) {
+    return { locked: true, retryAfterMs: record.lockUntil - now };
+  }
+
+  if (now - record.firstAttemptAt > LOCKOUT_WINDOW_MS) {
+    loginAttemptTracker.delete(key);
+    return { locked: false, retryAfterMs: 0 };
+  }
+
+  return { locked: false, retryAfterMs: 0 };
+};
+
+const recordFailedLogin = (email: string, req: AuthRequest): void => {
+  const key = getLoginAttemptKey(email, req);
+  const now = nowMs();
+  const current = loginAttemptTracker.get(key);
+
+  if (!current || now - current.firstAttemptAt > LOCKOUT_WINDOW_MS) {
+    loginAttemptTracker.set(key, {
+      attempts: 1,
+      firstAttemptAt: now,
+      lockUntil: 0,
+    });
+    return;
+  }
+
+  const nextAttempts = current.attempts + 1;
+  loginAttemptTracker.set(key, {
+    attempts: nextAttempts,
+    firstAttemptAt: current.firstAttemptAt,
+    lockUntil: nextAttempts >= LOCKOUT_THRESHOLD ? now + LOCKOUT_DURATION_MS : 0,
+  });
+};
+
+const clearFailedLogin = (email: string, req: AuthRequest): void => {
+  loginAttemptTracker.delete(getLoginAttemptKey(email, req));
+};
+
+const hashToken = (value: string): string => {
+  return crypto.createHash('sha256').update(value).digest('hex');
+};
+
+const generateVerificationToken = (): string => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+const getTokenVersion = (user: User): number => {
+  const raw = (user as Record<string, unknown>).tokenVersion;
+  return typeof raw === 'number' && Number.isFinite(raw) && raw >= 0 ? Math.floor(raw) : 0;
+};
+
+const setTokenVersion = (user: User, nextValue: number): void => {
+  (user as Record<string, unknown>).tokenVersion = Math.max(0, Math.floor(nextValue));
+};
+
+const setRefreshTokenState = (user: User, refreshToken: string): void => {
+  const rawUser = user as Record<string, unknown>;
+  rawUser.refreshTokenHash = hashToken(refreshToken);
+  rawUser.refreshTokenExpiresAt = new Date(nowMs() + 30 * 24 * 60 * 60 * 1000).toISOString();
+};
+
+const clearRefreshTokenState = (user: User): void => {
+  const rawUser = user as Record<string, unknown>;
+  delete rawUser.refreshTokenHash;
+  delete rawUser.refreshTokenExpiresAt;
+};
+
+const issueAuthSession = (
+  user: User
+): {
+  accessToken: string;
+  refreshToken: string;
+} => {
+  const tokenVersion = getTokenVersion(user);
+  const accessToken = generateAccessToken({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    isPlusMember: user.isPlusMember,
+    isAdmin: user.role === 'admin',
+  });
+  const refreshToken = generateRefreshToken(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isPlusMember: user.isPlusMember,
+      isAdmin: user.role === 'admin',
+    },
+    tokenVersion
+  );
+  setRefreshTokenState(user, refreshToken);
+  return { accessToken, refreshToken };
+};
+
+const assignNewEmailVerification = (user: User): string => {
+  const token = generateVerificationToken();
+  const rawUser = user as Record<string, unknown>;
+  rawUser.emailVerified = false;
+  rawUser.emailVerificationTokenHash = hashToken(token);
+  rawUser.emailVerificationExpiresAt = new Date(
+    nowMs() + EMAIL_VERIFICATION_TOKEN_TTL_MS
+  ).toISOString();
+  return token;
+};
+
+const isEmailVerified = (user: User): boolean => {
+  return Boolean((user as Record<string, unknown>).emailVerified);
 };
 
 const getNextUserId = (): number => {
@@ -256,7 +425,14 @@ router.post('/login', authLimiter, async (req, res) => {
     const sanitizedEmail = sanitizeString(email).toLowerCase();
 
     if (!isValidEmail(sanitizedEmail)) {
-      return res.status(400).json({ message: 'Invalid email format' });
+      return sendAuthError(res, 400, 'AUTH_INVALID_EMAIL_FORMAT', 'Invalid email format');
+    }
+
+    const ipEmailLock = checkIpEmailLock(sanitizedEmail, req);
+    if (ipEmailLock.locked) {
+      return sendAuthError(res, 429, 'AUTH_ACCOUNT_LOCKED', 'Too many failed login attempts', {
+        retryAfterMs: ipEmailLock.retryAfterMs,
+      });
     }
 
     const user = db.users.find(
@@ -264,8 +440,9 @@ router.post('/login', authLimiter, async (req, res) => {
     );
 
     if (!user) {
+      recordFailedLogin(sanitizedEmail, req);
       // Use consistent error message to prevent user enumeration
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return sendAuthError(res, 401, 'AUTH_INVALID_CREDENTIALS', 'Invalid email or password');
     }
 
     // Check password - support both hashed and legacy plain text (for migration)
@@ -274,29 +451,36 @@ router.post('/login', authLimiter, async (req, res) => {
       : user.password === password;
 
     if (!isValidPassword) {
+      recordFailedLogin(sanitizedEmail, req);
       auditLog('FAILED_LOGIN', undefined, { email: sanitizedEmail });
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return sendAuthError(res, 401, 'AUTH_INVALID_CREDENTIALS', 'Invalid email or password');
     }
+
+    if (!isEmailVerified(user)) {
+      return sendAuthError(
+        res,
+        403,
+        'AUTH_EMAIL_NOT_VERIFIED',
+        'Please verify your email before logging in.'
+      );
+    }
+
+    clearFailedLogin(sanitizedEmail, req);
 
     if (syncRoleByEmail(user)) {
       persistChanges(res);
       auditLog('USER_ROLE_SYNCED', user.id, { email: sanitizedEmail, role: user.role });
     }
 
-    // Generate JWT token
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      isPlusMember: user.isPlusMember,
-      isAdmin: user.role === 'admin',
-    });
+    const { accessToken, refreshToken } = issueAuthSession(user);
+    persistChanges(res);
 
     auditLog('LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
 
     return res.json({
       user: sanitizeUser(user),
-      token,
+      token: accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -342,7 +526,7 @@ router.post('/signup', authLimiter, async (req, res) => {
     const hashedPassword = await hashPassword(password);
 
     const newUser: User = {
-      id: db.users.length + 1,
+      id: getNextUserId(),
       name: sanitizedName,
       email: sanitizedEmail,
       password: hashedPassword,
@@ -353,23 +537,21 @@ router.post('/signup', authLimiter, async (req, res) => {
       isPlusMember: false,
     };
 
-    db.users.push(newUser);
-    persistChanges(res);
+    const emailVerificationToken = assignNewEmailVerification(newUser);
+    setTokenVersion(newUser, 0);
 
-    // Generate JWT token
-    const token = generateToken({
-      id: newUser.id,
-      email: newUser.email,
-      name: newUser.name,
-      isPlusMember: newUser.isPlusMember,
-      isAdmin: newUser.role === 'admin',
-    });
+    db.users.push(newUser);
+    const { accessToken, refreshToken } = issueAuthSession(newUser);
+    persistChanges(res);
 
     auditLog('USER_SIGNUP', newUser.id, { email: sanitizedEmail });
 
     res.status(201).json({
       user: sanitizeUser(newUser),
-      token,
+      token: accessToken,
+      refreshToken,
+      emailVerificationRequired: true,
+      ...(process.env.NODE_ENV !== 'production' && { emailVerificationToken }),
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -384,14 +566,16 @@ router.post('/social', authLimiter, (req, res) => {
     const name = typeof payload.name === 'string' ? payload.name : '';
     const email = typeof payload.email === 'string' ? payload.email : '';
     const photoUrl = typeof payload.photoUrl === 'string' ? payload.photoUrl : undefined;
+    const providerUserId =
+      typeof payload.providerUserId === 'string' ? sanitizeString(payload.providerUserId) : '';
 
     if (!email || typeof email !== 'string') {
-      return res.status(400).json({ message: 'Email is required' });
+      return sendAuthError(res, 400, 'AUTH_MISSING_EMAIL', 'Email is required');
     }
 
     const sanitizedEmail = sanitizeString(email).toLowerCase();
     if (!isValidEmail(sanitizedEmail)) {
-      return res.status(400).json({ message: 'Invalid email format' });
+      return sendAuthError(res, 400, 'AUTH_INVALID_EMAIL_FORMAT', 'Invalid email format');
     }
 
     const sanitizedName =
@@ -408,6 +592,28 @@ router.post('/social', authLimiter, (req, res) => {
       ensureUserCollections(user);
       user.name = sanitizedName;
       shouldPersist = true;
+
+      const rawUser = user as Record<string, unknown>;
+      const existingProviderUserId =
+        typeof rawUser.socialProviderId === 'string' ? rawUser.socialProviderId : '';
+
+      if (existingProviderUserId && providerUserId && existingProviderUserId !== providerUserId) {
+        return sendAuthError(
+          res,
+          409,
+          'AUTH_SOCIAL_PROVIDER_MISMATCH',
+          'This email is linked to a different Google account.'
+        );
+      }
+
+      if (!existingProviderUserId && providerUserId) {
+        rawUser.socialProviderId = providerUserId;
+        rawUser.socialProvider = 'google';
+        shouldPersist = true;
+      }
+
+      rawUser.emailVerified = true;
+
       if (typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)) {
         user.profilePictureUrl = photoUrl.slice(0, 500);
         shouldPersist = true;
@@ -434,24 +640,174 @@ router.post('/social', authLimiter, (req, res) => {
         isPlusMember: false,
       };
 
+      const rawUser = user as Record<string, unknown>;
+      rawUser.emailVerified = true;
+      rawUser.socialProvider = 'google';
+      if (providerUserId) {
+        rawUser.socialProviderId = providerUserId;
+      }
+      setTokenVersion(user, 0);
+
       db.users.push(user);
       persistChanges(res);
       auditLog('USER_SOCIAL_SIGNUP', user.id, { email: sanitizedEmail });
     }
 
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      isPlusMember: user.isPlusMember,
-      isAdmin: user.role === 'admin',
-    });
+    const { accessToken, refreshToken } = issueAuthSession(user);
+    persistChanges(res);
 
     auditLog('SOCIAL_LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
-    return res.json({ user: sanitizeUser(user), token });
+    return res.json({ user: sanitizeUser(user), token: accessToken, refreshToken });
   } catch (error) {
     console.error('Social login error:', error);
     return res.status(500).json({ message: 'An error occurred during social login' });
+  }
+});
+
+router.post('/refresh', authLimiter, (req, res) => {
+  try {
+    const refreshToken =
+      typeof req.body?.refreshToken === 'string' ? req.body.refreshToken.trim() : '';
+
+    if (!refreshToken) {
+      return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Refresh token is required');
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) {
+      return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Invalid or expired refresh token');
+    }
+
+    const user = db.users.find((u) => Number(u.id) === Number(decoded.id));
+    if (!user) {
+      return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Invalid refresh session');
+    }
+
+    const rawUser = user as Record<string, unknown>;
+    const storedHash = typeof rawUser.refreshTokenHash === 'string' ? rawUser.refreshTokenHash : '';
+    const storedExpiry =
+      typeof rawUser.refreshTokenExpiresAt === 'string'
+        ? Date.parse(rawUser.refreshTokenExpiresAt)
+        : NaN;
+    const tokenVersion = getTokenVersion(user);
+
+    if (!storedHash || storedHash !== hashToken(refreshToken)) {
+      return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Refresh token revoked');
+    }
+
+    if (!Number.isFinite(storedExpiry) || storedExpiry <= nowMs()) {
+      clearRefreshTokenState(user);
+      persistChanges(res);
+      return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Refresh token expired');
+    }
+
+    if (decoded.tokenVersion !== tokenVersion) {
+      return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Refresh token version mismatch');
+    }
+
+    const { accessToken, refreshToken: rotatedRefreshToken } = issueAuthSession(user);
+    persistChanges(res);
+
+    return res.json({
+      token: accessToken,
+      refreshToken: rotatedRefreshToken,
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    return res.status(500).json({ message: 'Failed to refresh session' });
+  }
+});
+
+router.post('/logout', requireAuth, (req: AuthRequest, res) => {
+  const requesterId = Number(req.user?.id);
+  if (!Number.isFinite(requesterId)) {
+    return res.status(400).json({ message: 'Invalid session' });
+  }
+
+  const user = db.users.find((u) => Number(u.id) === requesterId);
+  if (!user) {
+    return res.status(200).json({ success: true });
+  }
+
+  setTokenVersion(user, getTokenVersion(user) + 1);
+  clearRefreshTokenState(user);
+  persistChanges(res);
+
+  auditLog('LOGOUT_SUCCESS', user.id, { email: user.email });
+  return res.status(200).json({ success: true });
+});
+
+router.post('/verify-email', authLimiter, (req, res) => {
+  try {
+    const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : '';
+    const token = typeof req.body?.token === 'string' ? req.body.token.trim() : '';
+
+    if (!email || !token) {
+      return res.status(400).json({ message: 'Email and token are required' });
+    }
+
+    const user = db.users.find((u) => normalizeEmail((u as User | undefined)?.email) === email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const rawUser = user as Record<string, unknown>;
+    const tokenHash =
+      typeof rawUser.emailVerificationTokenHash === 'string'
+        ? rawUser.emailVerificationTokenHash
+        : '';
+    const expiresAt =
+      typeof rawUser.emailVerificationExpiresAt === 'string'
+        ? Date.parse(rawUser.emailVerificationExpiresAt)
+        : NaN;
+
+    if (!tokenHash || hashToken(token) !== tokenHash) {
+      return res.status(400).json({ message: 'Invalid verification token' });
+    }
+
+    if (!Number.isFinite(expiresAt) || expiresAt <= nowMs()) {
+      return res.status(400).json({ message: 'Verification token expired' });
+    }
+
+    rawUser.emailVerified = true;
+    delete rawUser.emailVerificationTokenHash;
+    delete rawUser.emailVerificationExpiresAt;
+    persistChanges(res);
+
+    return res.json({ message: 'Email verified successfully' });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    return res.status(500).json({ message: 'Failed to verify email' });
+  }
+});
+
+router.post('/resend-verification', authLimiter, (req, res) => {
+  try {
+    const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : '';
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = db.users.find((u) => normalizeEmail((u as User | undefined)?.email) === email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (isEmailVerified(user)) {
+      return res.status(200).json({ message: 'Email already verified' });
+    }
+
+    const token = assignNewEmailVerification(user);
+    persistChanges(res);
+
+    return res.status(200).json({
+      message: 'Verification token generated',
+      ...(process.env.NODE_ENV !== 'production' && { emailVerificationToken: token }),
+    });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    return res.status(500).json({ message: 'Failed to resend verification token' });
   }
 });
 

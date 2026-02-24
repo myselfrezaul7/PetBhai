@@ -1,16 +1,212 @@
 import express from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import type { Post, Comment, CommentReply } from '../types';
+import type { Post, Comment, CommentReply, ModerationReport, User } from '../types';
 import { postMutationLimiter } from '../middleware/rateLimiter';
 import { securityLog } from '../middleware/logger';
 
 const router = express.Router();
 const liveClients = new Set<express.Response>();
+const REPORT_HIDE_THRESHOLD = 3;
+const POST_COOLDOWN_MS = 15_000;
+const COMMENT_COOLDOWN_MS = 5_000;
+const LIKE_COOLDOWN_MS = 500;
+const MAX_LINKS_PER_POST = 3;
+const MAX_IMAGE_POSTS_PER_MINUTE = 4;
+const IDEMPOTENCY_TTL_MS = 10 * 60 * 1000;
+
+const cooldownTracker = new Map<string, number>();
+const mediaRateTracker = new Map<string, number[]>();
+const idempotencyStore = new Map<string, { status: number; payload: unknown; expiresAt: number }>();
 
 const ensurePostsCollection = (): void => {
   if (!Array.isArray(db.data.posts)) {
     db.data.posts = [];
+  }
+};
+
+const ensureModerationCollection = (): ModerationReport[] => {
+  const record = db.data as unknown as Record<string, unknown>;
+  if (!Array.isArray(record.moderationReports)) {
+    record.moderationReports = [];
+  }
+  return record.moderationReports as ModerationReport[];
+};
+
+const filterVisiblePost = (post: Post): Post | null => {
+  if (post.hidden) return null;
+  return {
+    ...post,
+    comments: post.comments
+      .filter((comment) => !comment.hidden)
+      .map((comment) => ({
+        ...comment,
+        replies: comment.replies.filter((reply) => !reply.hidden),
+      })),
+  };
+};
+
+const getSortedVisiblePosts = (): Post[] => {
+  ensurePostsCollection();
+  return [...db.posts]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .map(filterVisiblePost)
+    .filter((post): post is Post => post !== null);
+};
+
+const resolveUserById = (userId: number): User | null => {
+  const user = db.users.find((record) => Number(record.id) === Number(userId));
+  return user || null;
+};
+
+const ensureVerifiedUser = (userId: number): { ok: true } | { ok: false; message: string } => {
+  const user = resolveUserById(userId);
+  if (!user) {
+    return { ok: false, message: 'User not found' };
+  }
+
+  if (!Boolean((user as Record<string, unknown>).emailVerified)) {
+    return { ok: false, message: 'Please verify your email before posting or interacting.' };
+  }
+
+  return { ok: true };
+};
+
+const assertCooldown = (
+  key: string,
+  cooldownMs: number
+): { ok: true } | { ok: false; retryAfterMs: number } => {
+  const now = Date.now();
+  const nextAllowedAt = cooldownTracker.get(key) || 0;
+  if (nextAllowedAt > now) {
+    return { ok: false, retryAfterMs: nextAllowedAt - now };
+  }
+
+  cooldownTracker.set(key, now + cooldownMs);
+  return { ok: true };
+};
+
+const countLinks = (text: string): number => {
+  const linkMatches = text.match(/https?:\/\//gi);
+  return linkMatches ? linkMatches.length : 0;
+};
+
+const assertMediaRate = (userId: number): { ok: true } | { ok: false; message: string } => {
+  const now = Date.now();
+  const key = String(userId);
+  const entries = (mediaRateTracker.get(key) || []).filter((ts) => now - ts <= 60_000);
+  if (entries.length >= MAX_IMAGE_POSTS_PER_MINUTE) {
+    mediaRateTracker.set(key, entries);
+    return { ok: false, message: 'Image post rate limit reached. Please wait a minute.' };
+  }
+  entries.push(now);
+  mediaRateTracker.set(key, entries);
+  return { ok: true };
+};
+
+const cleanupIdempotencyStore = (): void => {
+  const now = Date.now();
+  for (const [key, value] of idempotencyStore.entries()) {
+    if (value.expiresAt <= now) {
+      idempotencyStore.delete(key);
+    }
+  }
+};
+
+const getIdempotencyCacheKey = (req: express.Request, actorId: number | null): string | null => {
+  const key = req.get('X-Idempotency-Key');
+  if (!key || key.trim().length < 8) {
+    return null;
+  }
+
+  const actor = actorId ?? 'anonymous';
+  return `${req.method}:${req.path}:${actor}:${key.trim()}`;
+};
+
+const getCachedIdempotentResponse = (
+  cacheKey: string | null
+): { status: number; payload: unknown } | null => {
+  if (!cacheKey) return null;
+  cleanupIdempotencyStore();
+  const cached = idempotencyStore.get(cacheKey);
+  if (!cached) return null;
+  return { status: cached.status, payload: cached.payload };
+};
+
+const setCachedIdempotentResponse = (
+  cacheKey: string | null,
+  status: number,
+  payload: unknown
+): void => {
+  if (!cacheKey) return;
+  idempotencyStore.set(cacheKey, {
+    status,
+    payload,
+    expiresAt: Date.now() + IDEMPOTENCY_TTL_MS,
+  });
+};
+
+const createReport = (
+  targetType: ModerationReport['targetType'],
+  reporterId: number,
+  reason: string,
+  targetPostId: number,
+  targetCommentId?: number,
+  targetReplyId?: number
+): ModerationReport => {
+  const now = new Date().toISOString();
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    targetType,
+    targetPostId,
+    targetCommentId,
+    targetReplyId,
+    reporterId,
+    reason,
+    status: 'open',
+    createdAt: now,
+    updatedAt: now,
+    history: [
+      {
+        at: now,
+        action: 'reported',
+        actorId: reporterId,
+        note: reason,
+      },
+    ],
+  };
+};
+
+const applyAutoHideByThreshold = (
+  post: Post,
+  targetType: ModerationReport['targetType'],
+  commentId?: number,
+  replyId?: number
+): void => {
+  if (targetType === 'post') {
+    post.reportCount = (post.reportCount || 0) + 1;
+    if ((post.reportCount || 0) >= REPORT_HIDE_THRESHOLD) {
+      post.hidden = true;
+    }
+    return;
+  }
+
+  const comment = post.comments.find((entry) => entry.id === commentId);
+  if (!comment) return;
+
+  if (targetType === 'comment') {
+    comment.reportCount = (comment.reportCount || 0) + 1;
+    if ((comment.reportCount || 0) >= REPORT_HIDE_THRESHOLD) {
+      comment.hidden = true;
+    }
+    return;
+  }
+
+  const reply = comment.replies.find((entry) => entry.id === replyId);
+  if (!reply) return;
+  reply.reportCount = (reply.reportCount || 0) + 1;
+  if ((reply.reportCount || 0) >= REPORT_HIDE_THRESHOLD) {
+    reply.hidden = true;
   }
 };
 
@@ -112,15 +308,35 @@ const validateAuthor = (
 // Get all posts
 router.get('/', (_req, res) => {
   try {
-    ensurePostsCollection();
-    // Sort by timestamp, newest first
-    const sortedPosts = [...db.posts].sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-    res.json(sortedPosts);
+    res.json(getSortedVisiblePosts());
   } catch (error) {
     console.error('Error fetching posts:', error);
     res.status(500).json({ message: 'Failed to fetch posts' });
+  }
+});
+
+router.get('/feed', (req, res) => {
+  try {
+    const requestedLimit = Number.parseInt(String(req.query.limit || '10'), 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 30) : 10;
+    const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : '';
+
+    const sortedPosts = getSortedVisiblePosts();
+    const startIndex = cursor
+      ? Math.max(sortedPosts.findIndex((post) => String(post.id) === cursor) + 1, 0)
+      : 0;
+
+    const items = sortedPosts.slice(startIndex, startIndex + limit);
+    const nextItem = sortedPosts[startIndex + limit];
+
+    res.json({
+      items,
+      nextCursor: nextItem ? String(items[items.length - 1]?.id ?? '') : null,
+      hasMore: Boolean(nextItem),
+    });
+  } catch (error) {
+    console.error('Error fetching paginated posts:', error);
+    res.status(500).json({ message: 'Failed to fetch feed' });
   }
 });
 
@@ -150,7 +366,7 @@ router.get('/stream', (req, res) => {
 });
 
 // Get single post
-router.get('/:id', (req, res) => {
+router.get('/:id(\\d+)', (req, res) => {
   try {
     ensurePostsCollection();
     const postId = validateId(req.params.id);
@@ -170,6 +386,44 @@ router.get('/:id', (req, res) => {
   }
 });
 
+router.get('/:id(\\d+)/comments', (req, res) => {
+  try {
+    const postId = validateId(req.params.id);
+    if (!postId) {
+      return res.status(400).json({ message: 'Invalid post ID' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post || post.hidden) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const requestedLimit = Number.parseInt(String(req.query.limit || '20'), 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 50) : 20;
+    const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : '';
+
+    const visibleComments = post.comments.filter((comment) => !comment.hidden);
+    const startIndex = cursor
+      ? Math.max(visibleComments.findIndex((comment) => String(comment.id) === cursor) + 1, 0)
+      : 0;
+
+    const items = visibleComments.slice(startIndex, startIndex + limit).map((comment) => ({
+      ...comment,
+      replies: comment.replies.filter((reply) => !reply.hidden),
+    }));
+    const nextItem = visibleComments[startIndex + limit];
+
+    return res.json({
+      items,
+      nextCursor: nextItem ? String(items[items.length - 1]?.id ?? '') : null,
+      hasMore: Boolean(nextItem),
+    });
+  } catch (error) {
+    console.error('Error fetching paginated comments:', error);
+    return res.status(500).json({ message: 'Failed to fetch comments' });
+  }
+});
+
 // Create a new post
 router.post('/', postMutationLimiter, (req, res) => {
   try {
@@ -186,9 +440,34 @@ router.post('/', postMutationLimiter, (req, res) => {
       return res.status(400).json({ message: 'Valid author information is required' });
     }
 
+    const verification = ensureVerifiedUser(validatedAuthor.id);
+    if (!verification.ok) {
+      return res.status(403).json({ message: verification.message });
+    }
+
+    const cooldownResult = assertCooldown(`post:${validatedAuthor.id}`, POST_COOLDOWN_MS);
+    if (!cooldownResult.ok) {
+      return res.status(429).json({
+        message: 'Posting too fast. Please wait before creating another post.',
+        retryAfterMs: cooldownResult.retryAfterMs,
+      });
+    }
+
     const sanitizedContent = sanitizeText(content, 5000);
     if (!sanitizedContent) {
       return res.status(400).json({ message: 'Content is required' });
+    }
+
+    if (countLinks(sanitizedContent) > MAX_LINKS_PER_POST) {
+      return res
+        .status(400)
+        .json({ message: 'Too many links in one post. Please keep it concise.' });
+    }
+
+    const cacheKey = getIdempotencyCacheKey(req, validatedAuthor.id);
+    const cachedResponse = getCachedIdempotentResponse(cacheKey);
+    if (cachedResponse) {
+      return res.status(cachedResponse.status).json(cachedResponse.payload);
     }
 
     // Validate image URL if provided
@@ -206,6 +485,11 @@ router.post('/', postMutationLimiter, (req, res) => {
         return res.status(400).json({ message: 'Invalid image URL' });
       }
       validImageUrl = imageUrl;
+
+      const mediaRateResult = assertMediaRate(validatedAuthor.id);
+      if (!mediaRateResult.ok) {
+        return res.status(429).json({ message: mediaRateResult.message });
+      }
     }
 
     const newPost: Post = {
@@ -221,6 +505,7 @@ router.post('/', postMutationLimiter, (req, res) => {
     db.posts.unshift(newPost);
     db.write();
     emitPostEvent('post-created', newPost.id);
+    setCachedIdempotentResponse(cacheKey, 201, newPost);
     res.status(201).json(newPost);
   } catch (error) {
     console.error('Error creating post:', error);
@@ -229,7 +514,7 @@ router.post('/', postMutationLimiter, (req, res) => {
 });
 
 // Update a post
-router.put('/:id', postMutationLimiter, (req, res) => {
+router.put('/:id(\\d+)', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -278,7 +563,7 @@ router.put('/:id', postMutationLimiter, (req, res) => {
 });
 
 // Delete a post
-router.delete('/:id', postMutationLimiter, (req, res) => {
+router.delete('/:id(\\d+)', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -316,7 +601,7 @@ router.delete('/:id', postMutationLimiter, (req, res) => {
 });
 
 // Like/Unlike a post
-router.post('/:id/like', postMutationLimiter, (req, res) => {
+router.post('/:id(\\d+)/like', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -333,8 +618,24 @@ router.post('/:id/like', postMutationLimiter, (req, res) => {
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
 
+    const verification = ensureVerifiedUser(userId);
+    if (!verification.ok) {
+      return res.status(403).json({ message: verification.message });
+    }
+
+    const cooldownResult = assertCooldown(`like:post:${userId}`, LIKE_COOLDOWN_MS);
+    if (!cooldownResult.ok) {
+      return res.status(429).json({ message: 'You are reacting too fast. Please slow down.' });
+    }
+
+    const cacheKey = getIdempotencyCacheKey(req, userId);
+    const cachedResponse = getCachedIdempotentResponse(cacheKey);
+    if (cachedResponse) {
+      return res.status(cachedResponse.status).json(cachedResponse.payload);
+    }
+
     const post = db.posts.find((p) => p.id === postId);
-    if (!post) {
+    if (!post || post.hidden) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
@@ -347,6 +648,7 @@ router.post('/:id/like', postMutationLimiter, (req, res) => {
 
     db.write();
     emitPostEvent('post-liked', postId);
+    setCachedIdempotentResponse(cacheKey, 200, post);
     res.json(post);
   } catch (error) {
     console.error('Error toggling post like:', error);
@@ -355,7 +657,7 @@ router.post('/:id/like', postMutationLimiter, (req, res) => {
 });
 
 // Add a comment to a post
-router.post('/:id/comments', postMutationLimiter, (req, res) => {
+router.post('/:id(\\d+)/comments', postMutationLimiter, (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -373,13 +675,31 @@ router.post('/:id/comments', postMutationLimiter, (req, res) => {
       return res.status(400).json({ message: 'Valid author information is required' });
     }
 
+    const verification = ensureVerifiedUser(validatedAuthor.id);
+    if (!verification.ok) {
+      return res.status(403).json({ message: verification.message });
+    }
+
+    const cooldownResult = assertCooldown(`comment:${validatedAuthor.id}`, COMMENT_COOLDOWN_MS);
+    if (!cooldownResult.ok) {
+      return res.status(429).json({
+        message: 'Commenting too fast. Please wait before commenting again.',
+      });
+    }
+
+    const cacheKey = getIdempotencyCacheKey(req, validatedAuthor.id);
+    const cachedResponse = getCachedIdempotentResponse(cacheKey);
+    if (cachedResponse) {
+      return res.status(cachedResponse.status).json(cachedResponse.payload);
+    }
+
     const sanitizedText = sanitizeText(text, 2000);
     if (!sanitizedText) {
       return res.status(400).json({ message: 'Comment text is required' });
     }
 
     const post = db.posts.find((p) => p.id === postId);
-    if (!post) {
+    if (!post || post.hidden) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
@@ -395,6 +715,7 @@ router.post('/:id/comments', postMutationLimiter, (req, res) => {
     post.comments.push(newComment);
     db.write();
     emitPostEvent('comment-created', postId);
+    setCachedIdempotentResponse(cacheKey, 201, newComment);
     res.status(201).json(newComment);
   } catch (error) {
     console.error('Error adding comment:', error);
@@ -421,13 +742,29 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res)
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
 
+    const verification = ensureVerifiedUser(userId);
+    if (!verification.ok) {
+      return res.status(403).json({ message: verification.message });
+    }
+
+    const cooldownResult = assertCooldown(`like:comment:${userId}`, LIKE_COOLDOWN_MS);
+    if (!cooldownResult.ok) {
+      return res.status(429).json({ message: 'You are reacting too fast. Please slow down.' });
+    }
+
+    const cacheKey = getIdempotencyCacheKey(req, userId);
+    const cachedResponse = getCachedIdempotentResponse(cacheKey);
+    if (cachedResponse) {
+      return res.status(cachedResponse.status).json(cachedResponse.payload);
+    }
+
     const post = db.posts.find((p) => p.id === postId);
-    if (!post) {
+    if (!post || post.hidden) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
     const comment = post.comments.find((c) => c.id === commentId);
-    if (!comment) {
+    if (!comment || comment.hidden) {
       return res.status(404).json({ message: 'Comment not found' });
     }
 
@@ -440,6 +777,7 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res)
 
     db.write();
     emitPostEvent('comment-liked', postId);
+    setCachedIdempotentResponse(cacheKey, 200, comment);
     res.json(comment);
   } catch (error) {
     console.error('Error toggling comment like:', error);
@@ -468,18 +806,36 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, r
       return res.status(400).json({ message: 'Valid author information is required' });
     }
 
+    const verification = ensureVerifiedUser(validatedAuthor.id);
+    if (!verification.ok) {
+      return res.status(403).json({ message: verification.message });
+    }
+
+    const cooldownResult = assertCooldown(`reply:${validatedAuthor.id}`, COMMENT_COOLDOWN_MS);
+    if (!cooldownResult.ok) {
+      return res
+        .status(429)
+        .json({ message: 'Replying too fast. Please wait before replying again.' });
+    }
+
+    const cacheKey = getIdempotencyCacheKey(req, validatedAuthor.id);
+    const cachedResponse = getCachedIdempotentResponse(cacheKey);
+    if (cachedResponse) {
+      return res.status(cachedResponse.status).json(cachedResponse.payload);
+    }
+
     const sanitizedText = sanitizeText(text, 1000);
     if (!sanitizedText) {
       return res.status(400).json({ message: 'Reply text is required' });
     }
 
     const post = db.posts.find((p) => p.id === postId);
-    if (!post) {
+    if (!post || post.hidden) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
     const comment = post.comments.find((c) => c.id === commentId);
-    if (!comment) {
+    if (!comment || comment.hidden) {
       return res.status(404).json({ message: 'Comment not found' });
     }
 
@@ -494,6 +850,7 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, r
     comment.replies.push(newReply);
     db.write();
     emitPostEvent('reply-created', postId);
+    setCachedIdempotentResponse(cacheKey, 201, newReply);
     res.status(201).json(newReply);
   } catch (error) {
     console.error('Error adding reply:', error);
@@ -524,18 +881,34 @@ router.post(
         return res.status(400).json({ message: 'Valid user ID is required' });
       }
 
+      const verification = ensureVerifiedUser(userId);
+      if (!verification.ok) {
+        return res.status(403).json({ message: verification.message });
+      }
+
+      const cooldownResult = assertCooldown(`like:reply:${userId}`, LIKE_COOLDOWN_MS);
+      if (!cooldownResult.ok) {
+        return res.status(429).json({ message: 'You are reacting too fast. Please slow down.' });
+      }
+
+      const cacheKey = getIdempotencyCacheKey(req, userId);
+      const cachedResponse = getCachedIdempotentResponse(cacheKey);
+      if (cachedResponse) {
+        return res.status(cachedResponse.status).json(cachedResponse.payload);
+      }
+
       const post = db.posts.find((p) => p.id === postId);
-      if (!post) {
+      if (!post || post.hidden) {
         return res.status(404).json({ message: 'Post not found' });
       }
 
       const comment = post.comments.find((c) => c.id === commentId);
-      if (!comment) {
+      if (!comment || comment.hidden) {
         return res.status(404).json({ message: 'Comment not found' });
       }
 
       const reply = comment.replies.find((r) => r.id === replyId);
-      if (!reply) {
+      if (!reply || reply.hidden) {
         return res.status(404).json({ message: 'Reply not found' });
       }
 
@@ -548,6 +921,7 @@ router.post(
 
       db.write();
       emitPostEvent('reply-liked', postId);
+      setCachedIdempotentResponse(cacheKey, 200, reply);
       res.json(reply);
     } catch (error) {
       console.error('Error toggling reply like:', error);
@@ -555,5 +929,187 @@ router.post(
     }
   }
 );
+
+const reportSchema = z
+  .object({
+    reporterId: z.number().int().positive(),
+    reason: z.string().trim().min(3).max(500),
+  })
+  .strict();
+
+router.post('/:id(\\d+)/report', postMutationLimiter, (req, res) => {
+  const postId = validateId(req.params.id);
+  if (!postId) {
+    return res.status(400).json({ message: 'Invalid post ID' });
+  }
+
+  const parsed = reportSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: 'Invalid report payload' });
+  }
+
+  const { reporterId, reason } = parsed.data;
+  const post = db.posts.find((entry) => entry.id === postId);
+  if (!post) {
+    return res.status(404).json({ message: 'Post not found' });
+  }
+
+  const reports = ensureModerationCollection();
+  const report = createReport('post', reporterId, sanitizeText(reason, 500), postId);
+  reports.push(report);
+  applyAutoHideByThreshold(post, 'post');
+  db.write();
+  emitPostEvent('post-reported', postId);
+  return res.status(201).json({ message: 'Report submitted', reportId: report.id });
+});
+
+router.post('/:postId/comments/:commentId/report', postMutationLimiter, (req, res) => {
+  const postId = validateId(req.params.postId);
+  const commentId = validateId(req.params.commentId);
+  if (!postId || !commentId) {
+    return res.status(400).json({ message: 'Invalid post or comment ID' });
+  }
+
+  const parsed = reportSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: 'Invalid report payload' });
+  }
+
+  const { reporterId, reason } = parsed.data;
+  const post = db.posts.find((entry) => entry.id === postId);
+  if (!post) {
+    return res.status(404).json({ message: 'Post not found' });
+  }
+
+  const comment = post.comments.find((entry) => entry.id === commentId);
+  if (!comment) {
+    return res.status(404).json({ message: 'Comment not found' });
+  }
+
+  const reports = ensureModerationCollection();
+  const report = createReport('comment', reporterId, sanitizeText(reason, 500), postId, commentId);
+  reports.push(report);
+  applyAutoHideByThreshold(post, 'comment', commentId);
+  db.write();
+  emitPostEvent('comment-reported', postId);
+  return res.status(201).json({ message: 'Report submitted', reportId: report.id });
+});
+
+router.post(
+  '/:postId/comments/:commentId/replies/:replyId/report',
+  postMutationLimiter,
+  (req, res) => {
+    const postId = validateId(req.params.postId);
+    const commentId = validateId(req.params.commentId);
+    const replyId = validateId(req.params.replyId);
+    if (!postId || !commentId || !replyId) {
+      return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
+    }
+
+    const parsed = reportSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid report payload' });
+    }
+
+    const { reporterId, reason } = parsed.data;
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.find((entry) => entry.id === commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const reply = comment.replies.find((entry) => entry.id === replyId);
+    if (!reply) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    const reports = ensureModerationCollection();
+    const report = createReport(
+      'reply',
+      reporterId,
+      sanitizeText(reason, 500),
+      postId,
+      commentId,
+      replyId
+    );
+    reports.push(report);
+    applyAutoHideByThreshold(post, 'reply', commentId, replyId);
+    db.write();
+    emitPostEvent('reply-reported', postId);
+    return res.status(201).json({ message: 'Report submitted', reportId: report.id });
+  }
+);
+
+router.get('/moderation/reports', (_req, res) => {
+  const reports = ensureModerationCollection();
+  const openReports = reports
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return res.json({ items: openReports, total: openReports.length });
+});
+
+const moderationUpdateSchema = z
+  .object({
+    reviewerId: z.number().int().positive(),
+    status: z.enum(['open', 'reviewed', 'dismissed']),
+    action: z.enum(['none', 'hide', 'restore']).default('none'),
+    note: z.string().trim().max(500).optional(),
+  })
+  .strict();
+
+router.patch('/moderation/reports/:reportId', postMutationLimiter, (req, res) => {
+  const parsed = moderationUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: 'Invalid moderation update payload' });
+  }
+
+  const reportId = sanitizeText(req.params.reportId, 120);
+  const reports = ensureModerationCollection();
+  const report = reports.find((entry) => entry.id === reportId);
+  if (!report) {
+    return res.status(404).json({ message: 'Moderation report not found' });
+  }
+
+  const post = db.posts.find((entry) => entry.id === report.targetPostId);
+  if (!post) {
+    return res.status(404).json({ message: 'Target post not found' });
+  }
+
+  const { reviewerId, status, action, note } = parsed.data;
+  if (report.targetType === 'post') {
+    if (action === 'hide') post.hidden = true;
+    if (action === 'restore') post.hidden = false;
+  } else if (report.targetType === 'comment') {
+    const comment = post.comments.find((entry) => entry.id === report.targetCommentId);
+    if (comment) {
+      if (action === 'hide') comment.hidden = true;
+      if (action === 'restore') comment.hidden = false;
+    }
+  } else {
+    const comment = post.comments.find((entry) => entry.id === report.targetCommentId);
+    const reply = comment?.replies.find((entry) => entry.id === report.targetReplyId);
+    if (reply) {
+      if (action === 'hide') reply.hidden = true;
+      if (action === 'restore') reply.hidden = false;
+    }
+  }
+
+  report.status = status;
+  report.updatedAt = new Date().toISOString();
+  report.history.push({
+    at: report.updatedAt,
+    actorId: reviewerId,
+    action: `moderation-${action}`,
+    note,
+  });
+
+  db.write();
+  emitPostEvent('moderation-updated', report.targetPostId);
+  return res.json({ message: 'Moderation report updated', report });
+});
 
 export default router;

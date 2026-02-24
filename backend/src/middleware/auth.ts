@@ -4,6 +4,8 @@ import { securityLog } from './logger';
 
 const JWT_ISSUER = 'petbhai-api';
 const JWT_AUDIENCE = 'petbhai-client';
+const ACCESS_TOKEN_TTL = '15m';
+const REFRESH_TOKEN_TTL = '30d';
 const FALLBACK_JWT_SECRET = 'petbhai_prod_fallback_secret_change_immediately_2026';
 let hasLoggedJwtSecretWarning = false;
 
@@ -45,28 +47,83 @@ export interface JwtPayload {
   name: string;
   isPlusMember?: boolean;
   isAdmin?: boolean;
+  tokenType?: 'access' | 'refresh';
+  tokenVersion?: number;
   iat?: number;
   exp?: number;
 }
 
+export interface RefreshTokenPayload extends JwtPayload {
+  tokenType: 'refresh';
+  tokenVersion: number;
+}
+
 // Generate JWT token
 export const generateToken = (user: Omit<JwtPayload, 'iat' | 'exp'>): string => {
+  return generateAccessToken(user);
+};
+
+export const generateAccessToken = (user: Omit<JwtPayload, 'iat' | 'exp'>): string => {
   return jwt.sign(user, getJwtSecret(), {
     algorithm: 'HS256',
-    expiresIn: '7d',
+    expiresIn: ACCESS_TOKEN_TTL,
     issuer: JWT_ISSUER,
     audience: JWT_AUDIENCE,
   });
 };
 
+export const generateRefreshToken = (
+  user: Omit<JwtPayload, 'iat' | 'exp' | 'tokenType' | 'tokenVersion'>,
+  tokenVersion: number
+): string => {
+  return jwt.sign(
+    {
+      ...user,
+      tokenType: 'refresh',
+      tokenVersion,
+    },
+    getJwtSecret(),
+    {
+      algorithm: 'HS256',
+      expiresIn: REFRESH_TOKEN_TTL,
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    }
+  );
+};
+
 // Verify JWT token
 export const verifyToken = (token: string): JwtPayload | null => {
   try {
-    return jwt.verify(token, getJwtSecret(), {
+    const decoded = jwt.verify(token, getJwtSecret(), {
       algorithms: ['HS256'],
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,
     }) as JwtPayload;
+
+    if (decoded.tokenType === 'refresh') {
+      return null;
+    }
+
+    return decoded;
+  } catch {
+    return null;
+  }
+};
+
+export const verifyRefreshToken = (token: string): RefreshTokenPayload | null => {
+  try {
+    const decoded = jwt.verify(token, getJwtSecret(), {
+      algorithms: ['HS256'],
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    }) as RefreshTokenPayload;
+
+    if (decoded.tokenType !== 'refresh' || typeof decoded.tokenVersion !== 'number') {
+      return null;
+    }
+
+    return decoded;
   } catch {
     return null;
   }

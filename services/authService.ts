@@ -12,6 +12,7 @@ interface SocialUser {
   email: string;
   photoUrl?: string;
   firebaseToken?: string;
+  providerUserId?: string;
 }
 
 export const signInWithGoogle = async (): Promise<SocialUser> => {
@@ -44,6 +45,7 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
       email: user.email || '',
       photoUrl: user.photoURL || undefined,
       firebaseToken,
+      providerUserId: user.uid || undefined,
     };
   } catch (error: unknown) {
     console.error('Google Sign-In Error (full):', error);

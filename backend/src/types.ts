@@ -133,6 +133,14 @@ export interface User {
   favorites?: number[]; // Array of animal IDs
   isPlusMember?: boolean;
   role?: 'customer' | 'admin';
+  emailVerified?: boolean;
+  emailVerificationTokenHash?: string;
+  emailVerificationExpiresAt?: string;
+  tokenVersion?: number;
+  refreshTokenHash?: string;
+  refreshTokenExpiresAt?: string;
+  socialProvider?: 'google';
+  socialProviderId?: string;
   defaultShippingAddress?: {
     fullName: string;
     address: string;
@@ -153,6 +161,8 @@ export interface CommentReply {
   text: string;
   likes: number[];
   timestamp: string;
+  hidden?: boolean;
+  reportCount?: number;
 }
 
 export interface Comment {
@@ -166,6 +176,8 @@ export interface Comment {
   replies: CommentReply[];
   likes: number[];
   timestamp: string;
+  hidden?: boolean;
+  reportCount?: number;
 }
 
 export interface Post {
@@ -180,6 +192,29 @@ export interface Post {
   timestamp: string; // ISO string
   likes: number[];
   comments: Comment[];
+  hidden?: boolean;
+  reportCount?: number;
+}
+
+export type ModerationTargetType = 'post' | 'comment' | 'reply';
+
+export interface ModerationReport {
+  id: string;
+  targetType: ModerationTargetType;
+  targetPostId: number;
+  targetCommentId?: number;
+  targetReplyId?: number;
+  reporterId: number;
+  reason: string;
+  status: 'open' | 'reviewed' | 'dismissed';
+  createdAt: string;
+  updatedAt: string;
+  history: Array<{
+    at: string;
+    action: string;
+    note?: string;
+    actorId?: number;
+  }>;
 }
 
 export type VetAvailability = 'Available Now' | 'Available Today' | 'Offline';

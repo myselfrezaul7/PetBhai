@@ -1,4 +1,4 @@
-import type { Post, Comment, CommentReply } from '../types';
+import type { Post, Comment, CommentReply, PaginatedPostsResponse } from '../types';
 import { apiRequest, ApiRequestError } from './apiClient';
 
 // Simple rate limiting - tracks timestamps per action type
@@ -12,6 +12,117 @@ const RATE_LIMITS = {
   post: { max: 5, windowMs: 60000 }, // 5 posts per minute
   comment: { max: 20, windowMs: 60000 }, // 20 comments per minute
   like: { max: 60, windowMs: 60000 }, // 60 likes per minute
+};
+
+const QUEUED_MUTATIONS_KEY = 'petbhai_community_retry_queue';
+
+type QueuedMutation =
+  | {
+      id: string;
+      type: 'createPost';
+      payload: {
+        author: { id: number; name: string; profilePictureUrl?: string };
+        content: string;
+        imageUrl?: string;
+      };
+      createdAt: string;
+    }
+  | {
+      id: string;
+      type: 'togglePostLike';
+      payload: { postId: number; userId: number };
+      createdAt: string;
+    }
+  | {
+      id: string;
+      type: 'addComment';
+      payload: {
+        postId: number;
+        author: { id: number; name: string; profilePictureUrl?: string };
+        text: string;
+      };
+      createdAt: string;
+    }
+  | {
+      id: string;
+      type: 'addReply';
+      payload: {
+        postId: number;
+        commentId: number;
+        author: { id: number; name: string; profilePictureUrl?: string };
+        text: string;
+      };
+      createdAt: string;
+    };
+
+const createIdempotencyKey = (): string => {
+  return typeof window.crypto?.randomUUID === 'function'
+    ? window.crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
+const readQueuedMutations = (): QueuedMutation[] => {
+  try {
+    const raw = window.localStorage.getItem(QUEUED_MUTATIONS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as QueuedMutation[]) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeQueuedMutations = (queue: QueuedMutation[]): void => {
+  try {
+    window.localStorage.setItem(QUEUED_MUTATIONS_KEY, JSON.stringify(queue.slice(-100)));
+  } catch {
+    // ignore localStorage failures
+  }
+};
+
+export const enqueueFailedMutation = (mutation: Omit<QueuedMutation, 'id' | 'createdAt'>): void => {
+  const queue = readQueuedMutations();
+  queue.push({
+    ...mutation,
+    id: createIdempotencyKey(),
+    createdAt: new Date().toISOString(),
+  } as QueuedMutation);
+  writeQueuedMutations(queue);
+};
+
+export const flushQueuedMutations = async (): Promise<{ processed: number; remaining: number }> => {
+  const queue = readQueuedMutations();
+  if (queue.length === 0) {
+    return { processed: 0, remaining: 0 };
+  }
+
+  const remaining: QueuedMutation[] = [];
+  let processed = 0;
+
+  for (const item of queue) {
+    try {
+      if (item.type === 'createPost') {
+        await createPost(item.payload.author, item.payload.content, item.payload.imageUrl);
+      } else if (item.type === 'togglePostLike') {
+        await togglePostLike(item.payload.postId, item.payload.userId);
+      } else if (item.type === 'addComment') {
+        await addComment(item.payload.postId, item.payload.author, item.payload.text);
+      } else if (item.type === 'addReply') {
+        await addReply(
+          item.payload.postId,
+          item.payload.commentId,
+          item.payload.author,
+          item.payload.text
+        );
+      }
+      processed += 1;
+    } catch {
+      remaining.push(item);
+    }
+  }
+
+  writeQueuedMutations(remaining);
+  return { processed, remaining: remaining.length };
 };
 
 const checkRateLimit = (action: keyof typeof RATE_LIMITS): boolean => {
@@ -68,13 +179,36 @@ const toApiError = (error: unknown, fallbackMessage: string): ApiError => {
 // Get all posts
 export const fetchPosts = async (): Promise<Post[]> => {
   try {
-    const posts = await apiRequest<Post[]>('/posts', { method: 'GET' });
+    const response = await apiRequest<PaginatedPostsResponse>('/posts/feed?limit=20', {
+      method: 'GET',
+    });
+    const posts = response?.items || [];
     if (!Array.isArray(posts)) {
       throw new ApiError('Invalid response from server');
     }
     return posts;
   } catch (error) {
     console.error('Error fetching posts:', error);
+    throw toApiError(error, 'Failed to load posts. Please try again.');
+  }
+};
+
+export const fetchPostsPage = async (
+  cursor?: string,
+  limit: number = 10
+): Promise<PaginatedPostsResponse> => {
+  const query = new URLSearchParams();
+  query.set('limit', String(Math.min(Math.max(limit, 1), 30)));
+  if (cursor) {
+    query.set('cursor', cursor);
+  }
+
+  try {
+    return await apiRequest<PaginatedPostsResponse>(`/posts/feed?${query.toString()}`, {
+      method: 'GET',
+    });
+  } catch (error) {
+    console.error('Error fetching paginated posts:', error);
     throw toApiError(error, 'Failed to load posts. Please try again.');
   }
 };
@@ -101,6 +235,7 @@ export const createPost = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
       },
       body: JSON.stringify({
         author: {
@@ -134,6 +269,7 @@ export const updatePost = async (
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
       },
       body: JSON.stringify({ content: sanitizedContent, authorId: Number(authorId) }),
     });
@@ -164,6 +300,7 @@ export const togglePostLike = async (postId: number, userId: number): Promise<Po
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
       },
       body: JSON.stringify({ userId: Number(userId) }),
     });
@@ -193,6 +330,7 @@ export const addComment = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
       },
       body: JSON.stringify({
         author: {
@@ -224,6 +362,7 @@ export const toggleCommentLike = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
       },
       body: JSON.stringify({ userId: Number(userId) }),
     });
@@ -254,6 +393,7 @@ export const addReply = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
       },
       body: JSON.stringify({
         author: {
@@ -288,6 +428,7 @@ export const toggleReplyLike = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Idempotency-Key': createIdempotencyKey(),
         },
         body: JSON.stringify({ userId: Number(userId) }),
       }

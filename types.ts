@@ -69,6 +69,9 @@ export interface User {
   email: string;
   profilePictureUrl?: string;
   role?: 'customer' | 'admin';
+  emailVerified?: boolean;
+  socialProvider?: 'google';
+  socialProviderId?: string;
   wishlist: number[]; // Array of product IDs
   orderHistory: Order[];
   favorites: number[]; // Array of animal IDs
@@ -85,6 +88,8 @@ export interface CommentReply {
   text: string;
   likes: number[];
   timestamp: string;
+  hidden?: boolean;
+  reportCount?: number;
 }
 
 export interface Comment {
@@ -98,6 +103,8 @@ export interface Comment {
   replies: CommentReply[];
   likes: number[];
   timestamp: string;
+  hidden?: boolean;
+  reportCount?: number;
 }
 
 export interface Post {
@@ -112,6 +119,14 @@ export interface Post {
   timestamp: string; // ISO string
   likes: number[];
   comments: Comment[];
+  hidden?: boolean;
+  reportCount?: number;
+}
+
+export interface PaginatedPostsResponse {
+  items: Post[];
+  nextCursor: string | null;
+  hasMore: boolean;
 }
 
 export type VetAvailability = 'Available Now' | 'Available Today' | 'Offline';

@@ -5,12 +5,15 @@ import { apiRequest, ApiRequestError, getErrorMessage } from '../services/apiCli
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
+const REFRESH_TOKEN_STORAGE_KEY = 'petbhai_refresh_token';
 const TOKEN_EXPIRY_SKEW_MS = 30_000;
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
 interface AuthResponse {
   user: User;
   token: string;
+  refreshToken?: string;
+  emailVerificationRequired?: boolean;
 }
 
 // Validation helpers
@@ -34,6 +37,7 @@ const isAdminEmail = (email?: string): boolean => {
 const clearAuthStorage = () => {
   try {
     window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
     window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
   } catch {
     // localStorage might be disabled
@@ -43,6 +47,14 @@ const clearAuthStorage = () => {
 const getStoredToken = (): string | null => {
   try {
     return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const getStoredRefreshToken = (): string | null => {
+  try {
+    return window.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
   } catch {
     return null;
   }
@@ -126,6 +138,7 @@ interface AuthContextType {
     email: string;
     photoUrl?: string;
     firebaseToken?: string;
+    providerUserId?: string;
   }) => Promise<User>;
   updateProfile: (updatedData: { name?: string; profilePictureUrl?: string }) => Promise<User>;
   addToWishlist: (productId: number) => void;
@@ -146,8 +159,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     clearAuthStorage();
   }, []);
 
+  const persistSession = useCallback((data: AuthResponse): User => {
+    if (!data?.token || !data?.user) {
+      throw new Error('Invalid auth response');
+    }
+
+    window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+    if (data.refreshToken) {
+      window.localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+    }
+
+    setCurrentUser(data.user);
+    return data.user;
+  }, []);
+
+  const refreshSession = useCallback(async (): Promise<boolean> => {
+    const refreshToken = getStoredRefreshToken();
+    if (!refreshToken) {
+      return false;
+    }
+
+    try {
+      const data = await apiRequest<AuthResponse>('/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      persistSession(data);
+      return true;
+    } catch {
+      clearSession();
+      return false;
+    }
+  }, [clearSession, persistSession]);
+
   useEffect(() => {
     const token = getStoredToken();
+    const refreshToken = getStoredRefreshToken();
 
     if (!token) {
       if (!currentUser) {
@@ -157,9 +206,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (isTokenExpired(token)) {
-      clearSession();
+      if (!refreshToken) {
+        clearSession();
+        return;
+      }
+
+      void refreshSession();
     }
-  }, [clearSession, currentUser]);
+  }, [clearSession, currentUser, refreshSession]);
 
   useEffect(() => {
     try {
@@ -210,39 +264,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }),
         });
 
-        // Save token
-        if (!data?.token || !data?.user) {
-          throw new Error('Invalid login response');
-        }
-
-        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-        setCurrentUser(data.user);
-
-        return data.user;
+        return persistSession(data);
       } catch (error: unknown) {
         const message = getErrorMessage(error, 'Failed to login');
         console.error('Login error:', message);
         throw new Error(message);
       }
     },
-    []
+    [persistSession]
   );
 
   const logout = useCallback(() => {
+    const token = getStoredToken();
+    if (token && !isTokenExpired(token)) {
+      void apiRequest('/auth/logout', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).catch(() => undefined);
+    }
     clearSession();
   }, [clearSession]);
 
   const protectedApiRequest = useCallback(
     async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
       const token = getStoredToken();
-      if (!token || isTokenExpired(token)) {
+      if (!token) {
         clearSession();
         throw new Error('Session expired. Please sign in again.');
       }
 
+      let accessToken = token;
+
+      if (isTokenExpired(accessToken)) {
+        const refreshed = await refreshSession();
+        if (!refreshed) {
+          throw new Error('Session expired. Please sign in again.');
+        }
+        const updatedToken = getStoredToken();
+        if (!updatedToken) {
+          throw new Error('Session expired. Please sign in again.');
+        }
+        accessToken = updatedToken;
+      }
+
       const mergedHeaders = {
         ...(options.headers || {}),
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       };
 
       try {
@@ -252,14 +321,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (error) {
         if (error instanceof ApiRequestError && error.statusCode === 401) {
-          clearSession();
-          throw new Error('Session expired. Please sign in again.');
+          const refreshed = await refreshSession();
+          if (!refreshed) {
+            throw new Error('Session expired. Please sign in again.');
+          }
+
+          const retriedToken = getStoredToken();
+          if (!retriedToken) {
+            throw new Error('Session expired. Please sign in again.');
+          }
+
+          return await apiRequest<T>(path, {
+            ...options,
+            headers: {
+              ...(options.headers || {}),
+              Authorization: `Bearer ${retriedToken}`,
+            },
+          });
         }
 
         throw error;
       }
     },
-    [clearSession]
+    [clearSession, refreshSession]
   );
 
   const signup = useCallback(
@@ -287,20 +371,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             recaptchaToken,
           }),
         });
-        if (!data?.token || !data?.user) {
-          throw new Error('Invalid signup response');
-        }
-        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-        setCurrentUser(data.user);
-
-        return data.user;
+        return persistSession(data);
       } catch (error: unknown) {
         const message = getErrorMessage(error, 'Failed to signup');
         console.error('Signup error:', message);
         throw new Error(message);
       }
     },
-    []
+    [persistSession]
   );
 
   const socialLogin = useCallback(
@@ -310,6 +388,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: string;
       photoUrl?: string;
       firebaseToken?: string;
+      providerUserId?: string;
     }): Promise<User> => {
       const name = `${socialUser.firstName} ${socialUser.lastName}`.trim();
       const normalizedEmail = sanitizeInput(socialUser.email.trim().toLowerCase());
@@ -327,6 +406,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...minimalPayload,
         photoUrl: socialUser.photoUrl,
         firebaseToken: socialUser.firebaseToken,
+        providerUserId: socialUser.providerUserId,
       };
 
       try {
@@ -355,26 +435,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
         }
 
-        if (!data?.token || !data?.user) {
-          throw new Error('Invalid social login response');
-        }
-
         if (isAdminEmail(data.user.email)) {
           data.user = {
             ...data.user,
             role: 'admin',
           };
         }
-
-        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-        setCurrentUser(data.user);
-        return data.user;
+        return persistSession(data);
       } catch (error: unknown) {
         const message = getErrorMessage(error, 'Google sign-in failed. Please try again.');
         throw new Error(message);
       }
     },
-    []
+    [persistSession]
   );
 
   const updateProfile = useCallback(

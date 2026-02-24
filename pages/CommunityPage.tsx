@@ -18,6 +18,9 @@ const CommunityPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLive, setIsLive] = useState<boolean>(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'feed' | 'popular' | 'trending'>('feed');
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const toast = useToast();
@@ -34,8 +37,10 @@ const CommunityPage: React.FC = () => {
       }
       setError(null);
       try {
-        const apiPosts = await postService.fetchPosts();
-        setPosts(apiPosts);
+        const feed = await postService.fetchPostsPage(undefined, 10);
+        setPosts(feed.items);
+        setNextCursor(feed.nextCursor);
+        setHasMore(feed.hasMore);
         setLastSyncAt(new Date().toISOString());
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Failed to load posts.';
@@ -58,6 +63,50 @@ const CommunityPage: React.FC = () => {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const flushQueue = async () => {
+      try {
+        const result = await postService.flushQueuedMutations();
+        if (!cancelled && result.processed > 0) {
+          toast.success(`Synced ${result.processed} queued community action(s).`);
+          void fetchPosts({ silent: true, showErrors: false });
+        }
+      } catch {
+        // keep queued actions for next retry
+      }
+    };
+
+    void flushQueue();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchPosts, toast]);
+
+  const loadMorePosts = useCallback(async () => {
+    if (!hasMore || !nextCursor || isLoadingMore) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    try {
+      const feed = await postService.fetchPostsPage(nextCursor, 10);
+      setPosts((prevPosts) => {
+        const existingIds = new Set(prevPosts.map((post) => post.id));
+        const deduped = feed.items.filter((post) => !existingIds.has(post.id));
+        return [...prevPosts, ...deduped];
+      });
+      setNextCursor(feed.nextCursor);
+      setHasMore(feed.hasMore);
+      setLastSyncAt(new Date().toISOString());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load more posts.';
+      toast.error(message);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [hasMore, nextCursor, isLoadingMore, toast]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -118,6 +167,23 @@ const CommunityPage: React.FC = () => {
       return;
     }
 
+    const optimisticId = Date.now() * -1;
+    const optimisticPost: Post = {
+      id: optimisticId,
+      author: {
+        id: currentUser.id,
+        name: currentUser.name,
+        profilePictureUrl: currentUser.profilePictureUrl,
+      },
+      content: newPost.content,
+      imageUrl: newPost.imageUrl,
+      timestamp: new Date().toISOString(),
+      likes: [],
+      comments: [],
+    };
+
+    setPosts((prevPosts) => [optimisticPost, ...prevPosts]);
+
     try {
       const createdPost = await postService.createPost(
         {
@@ -128,11 +194,26 @@ const CommunityPage: React.FC = () => {
         newPost.content,
         newPost.imageUrl
       );
-      setPosts((prevPosts) => [createdPost, ...prevPosts]);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post.id === optimisticId ? createdPost : post))
+      );
       toast.success('Post shared successfully! 🎉');
     } catch (error) {
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== optimisticId));
+      postService.enqueueFailedMutation({
+        type: 'createPost',
+        payload: {
+          author: {
+            id: currentUser.id,
+            name: currentUser.name,
+            profilePictureUrl: currentUser.profilePictureUrl,
+          },
+          content: newPost.content,
+          imageUrl: newPost.imageUrl,
+        },
+      });
       const message = error instanceof Error ? error.message : 'Failed to share post.';
-      toast.error(message);
+      toast.error(`${message} Saved to retry queue.`);
     }
   };
 
@@ -181,12 +262,34 @@ const CommunityPage: React.FC = () => {
       return;
     }
 
+    const previousPosts = posts;
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id !== postId) return post;
+        const alreadyLiked = post.likes.includes(currentUser.id);
+        return {
+          ...post,
+          likes: alreadyLiked
+            ? post.likes.filter((id) => id !== currentUser.id)
+            : [...post.likes, currentUser.id],
+        };
+      })
+    );
+
     try {
       const updatedPost = await postService.togglePostLike(postId, currentUser.id);
       setPosts(posts.map((p) => (p.id === postId ? updatedPost : p)));
     } catch (error) {
+      setPosts(previousPosts);
+      postService.enqueueFailedMutation({
+        type: 'togglePostLike',
+        payload: {
+          postId,
+          userId: currentUser.id,
+        },
+      });
       const message = error instanceof Error ? error.message : 'Failed to update like.';
-      toast.error(message);
+      toast.error(`${message} Saved to retry queue.`);
     }
   };
 
@@ -259,6 +362,26 @@ const CommunityPage: React.FC = () => {
       return;
     }
 
+    const optimisticCommentId = Date.now() * -1;
+    const optimisticComment = {
+      id: optimisticCommentId,
+      author: {
+        id: currentUser.id,
+        name: currentUser.name,
+        profilePictureUrl: currentUser.profilePictureUrl,
+      },
+      text: commentText,
+      replies: [],
+      likes: [],
+      timestamp: new Date().toISOString(),
+    };
+
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId ? { ...post, comments: [...post.comments, optimisticComment] } : post
+      )
+    );
+
     try {
       const createdComment = await postService.addComment(
         postId,
@@ -270,13 +393,43 @@ const CommunityPage: React.FC = () => {
         commentText
       );
 
-      const updated = posts.map((p) =>
-        p.id === postId ? { ...p, comments: [...p.comments, createdComment] } : p
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment.id === optimisticCommentId ? createdComment : comment
+                ),
+              }
+            : post
+        )
       );
-      setPosts(updated);
     } catch (error) {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.filter((comment) => comment.id !== optimisticCommentId),
+              }
+            : post
+        )
+      );
+      postService.enqueueFailedMutation({
+        type: 'addComment',
+        payload: {
+          postId,
+          author: {
+            id: currentUser.id,
+            name: currentUser.name,
+            profilePictureUrl: currentUser.profilePictureUrl,
+          },
+          text: commentText,
+        },
+      });
       const message = error instanceof Error ? error.message : 'Failed to add comment.';
-      toast.error(message);
+      toast.error(`${message} Saved to retry queue.`);
     }
   };
 
@@ -285,6 +438,34 @@ const CommunityPage: React.FC = () => {
       toast.error('Please sign in to reply to comments.');
       return;
     }
+
+    const optimisticReplyId = Date.now() * -1;
+    const optimisticReply = {
+      id: optimisticReplyId,
+      author: {
+        id: currentUser.id,
+        name: currentUser.name,
+        profilePictureUrl: currentUser.profilePictureUrl,
+      },
+      text: replyText,
+      likes: [],
+      timestamp: new Date().toISOString(),
+    };
+
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              comments: post.comments.map((comment) =>
+                comment.id === commentId
+                  ? { ...comment, replies: [...comment.replies, optimisticReply] }
+                  : comment
+              ),
+            }
+          : post
+      )
+    );
 
     try {
       const createdReply = await postService.addReply(
@@ -298,20 +479,58 @@ const CommunityPage: React.FC = () => {
         replyText
       );
 
-      const updated = posts.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              comments: p.comments.map((c) =>
-                c.id === commentId ? { ...c, replies: [...c.replies, createdReply] } : c
-              ),
-            }
-          : p
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment.id === commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply.id === optimisticReplyId ? createdReply : reply
+                        ),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        )
       );
-      setPosts(updated);
     } catch (error) {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment.id === commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.filter((reply) => reply.id !== optimisticReplyId),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        )
+      );
+      postService.enqueueFailedMutation({
+        type: 'addReply',
+        payload: {
+          postId,
+          commentId,
+          author: {
+            id: currentUser.id,
+            name: currentUser.name,
+            profilePictureUrl: currentUser.profilePictureUrl,
+          },
+          text: replyText,
+        },
+      });
       const message = error instanceof Error ? error.message : 'Failed to add reply.';
-      toast.error(message);
+      toast.error(`${message} Saved to retry queue.`);
     }
   };
 
@@ -867,23 +1086,36 @@ const CommunityPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            displayedPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onUpdatePost={handleUpdatePost}
-                onDeletePost={handleDeletePost}
-                onLikePost={handleLikePost}
-                onLikeComment={handleLikeComment}
-                onLikeReply={handleLikeReply}
-                onAddComment={handleAddComment}
-                onAddReply={handleAddReply}
-                onUpdateComment={handleUpdateComment}
-                onUpdateReply={handleUpdateReply}
-                onDeleteComment={handleDeleteComment}
-                onDeleteReply={handleDeleteReply}
-              />
-            ))
+            <>
+              {displayedPosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onUpdatePost={handleUpdatePost}
+                  onDeletePost={handleDeletePost}
+                  onLikePost={handleLikePost}
+                  onLikeComment={handleLikeComment}
+                  onLikeReply={handleLikeReply}
+                  onAddComment={handleAddComment}
+                  onAddReply={handleAddReply}
+                  onUpdateComment={handleUpdateComment}
+                  onUpdateReply={handleUpdateReply}
+                  onDeleteComment={handleDeleteComment}
+                  onDeleteReply={handleDeleteReply}
+                />
+              ))}
+              {hasMore && activeTab === 'feed' && (
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={loadMorePosts}
+                    disabled={isLoadingMore}
+                    className="px-5 py-2 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    {isLoadingMore ? 'Loading...' : 'Load more'}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>
