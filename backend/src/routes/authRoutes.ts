@@ -43,6 +43,16 @@ const normalizeEmail = (email: unknown): string => {
   return sanitizeString(email).toLowerCase();
 };
 
+const isRecordObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null;
+};
+
+const ensureUserCollections = (user: User): void => {
+  if (!Array.isArray(user.wishlist)) user.wishlist = [];
+  if (!Array.isArray(user.orderHistory)) user.orderHistory = [];
+  if (!Array.isArray(user.favorites)) user.favorites = [];
+};
+
 const getRoleByEmail = (email: string): 'admin' | 'customer' => {
   const normalizedEmail = normalizeEmail(email);
   return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'admin' : 'customer';
@@ -109,6 +119,7 @@ const persistChanges = (res: any): boolean => {
 
 const getNextUserId = (): number => {
   const numericIds = db.users
+    .filter((user): user is User => isRecordObject(user))
     .map((user) => Number(user.id))
     .filter((id) => Number.isFinite(id) && id > 0);
   const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
@@ -248,7 +259,7 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(400).json({ message: 'Invalid email format' });
     }
 
-    const user = db.users.find((u) => normalizeEmail(u.email) === sanitizedEmail);
+    const user = db.users.find((u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail);
 
     if (!user) {
       // Use consistent error message to prevent user enumeration
@@ -321,7 +332,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       return res.status(400).json({ message: passwordCheck.message });
     }
 
-    if (db.users.some((u) => normalizeEmail(u.email) === sanitizedEmail)) {
+    if (db.users.some((u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail)) {
       return res.status(409).json({ message: 'User with this email already exists' });
     }
 
@@ -367,7 +378,10 @@ router.post('/signup', authLimiter, async (req, res) => {
 // Social login (Google/Firebase)
 router.post('/social', authLimiter, (req, res) => {
   try {
-    const { name, email, photoUrl } = req.body;
+    const payload = isRecordObject(req.body) ? req.body : {};
+    const name = typeof payload.name === 'string' ? payload.name : '';
+    const email = typeof payload.email === 'string' ? payload.email : '';
+    const photoUrl = typeof payload.photoUrl === 'string' ? payload.photoUrl : undefined;
 
     if (!email || typeof email !== 'string') {
       return res.status(400).json({ message: 'Email is required' });
@@ -383,10 +397,11 @@ router.post('/social', authLimiter, (req, res) => {
         ? sanitizeString(name)
         : sanitizedEmail.split('@')[0];
 
-    let user = db.users.find((u) => normalizeEmail(u.email) === sanitizedEmail);
+    let user = db.users.find((u) => normalizeEmail((u as User | undefined)?.email) === sanitizedEmail);
 
     if (user) {
       let shouldPersist = false;
+      ensureUserCollections(user);
       user.name = sanitizedName;
       shouldPersist = true;
       if (typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)) {

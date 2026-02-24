@@ -554,12 +554,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [currentUser, protectedApiRequest]
   );
 
-  const value = useMemo(
-    () => {
-      const token = getStoredToken();
-      const isAuthenticated = !!currentUser && !!token && !isTokenExpired(token);
+  const value = useMemo(() => {
+    const token = getStoredToken();
+    const isAuthenticated = !!currentUser && !!token && !isTokenExpired(token);
 
-      return {
+    return {
       currentUser,
       isAuthenticated,
       login,
@@ -574,22 +573,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unfavoritePet,
       subscribeToPlus,
     };
-    },
-    [
-      currentUser,
-      login,
-      logout,
-      signup,
-      socialLogin,
-      updateProfile,
-      addToWishlist,
-      removeFromWishlist,
-      addOrderToHistory,
-      favoritePet,
-      unfavoritePet,
-      subscribeToPlus,
-    ]
-  );
+  }, [
+    currentUser,
+    login,
+    logout,
+    signup,
+    socialLogin,
+    updateProfile,
+    addToWishlist,
+    removeFromWishlist,
+    addOrderToHistory,
+    favoritePet,
+    unfavoritePet,
+    subscribeToPlus,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
