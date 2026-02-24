@@ -239,10 +239,18 @@ app.use(errorLogger);
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled error:', err.stack);
 
-  // Don't expose internal errors in production
-  const message = process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message;
+  const statusCode = Number(err?.status) || 500;
+  const isClientError = statusCode >= 400 && statusCode < 500;
 
-  res.status(err.status || 500).json({
+  // In production, keep server errors generic but allow explicit client-error messages.
+  const message =
+    process.env.NODE_ENV === 'production'
+      ? isClientError
+        ? err?.message || 'Request failed'
+        : 'Internal Server Error'
+      : err?.message || 'Internal Server Error';
+
+  res.status(statusCode).json({
     message,
     ...(process.env.NODE_ENV === 'development' && {
       error: err.message,

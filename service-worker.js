@@ -1,5 +1,5 @@
-const CACHE_NAME = 'petbhai-cache-v5'; // Incremented version
-const STATIC_CACHE = 'petbhai-static-v5';
+const CACHE_NAME = 'petbhai-cache-v6'; // Incremented version
+const STATIC_CACHE = 'petbhai-static-v6';
 const DYNAMIC_CACHE = 'petbhai-dynamic-v3';
 const IMAGE_CACHE = 'petbhai-images-v3';
 const FONT_CACHE = 'petbhai-fonts-v1';
@@ -58,9 +58,17 @@ const addCacheTimestamp = async (response) => {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
+    caches.open(STATIC_CACHE).then(async (cache) => {
       console.log('Service Worker: Precaching static assets');
-      return cache.addAll(urlsToCache);
+      const cacheResults = await Promise.allSettled(urlsToCache.map((url) => cache.add(url)));
+      const failedAssets = cacheResults
+        .map((result, index) => ({ result, url: urlsToCache[index] }))
+        .filter((item) => item.result.status === 'rejected')
+        .map((item) => item.url);
+
+      if (failedAssets.length > 0) {
+        console.warn('Service Worker: Failed to precache some assets', failedAssets);
+      }
     })
   );
   // Immediately take control

@@ -216,8 +216,19 @@ export const sqlInjectionProtection = (req: Request, res: Response, next: NextFu
 
 // Combined security middleware
 export const securityMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+  const socialAuthPath = '/api/auth/social';
+  const requestPath = req.path || req.originalUrl || '';
+  const isSocialAuthRequest = req.method === 'POST' && requestPath.includes(socialAuthPath);
+
   // Skip security checks for file uploads (handled separately)
   if (req.headers['content-type']?.includes('multipart/form-data')) {
+    return next();
+  }
+
+  // OAuth/JWT payloads can trigger false positives in generic SQL/XSS regex checks.
+  // Keep lightweight sanitization and let route-level validation handle strict checks.
+  if (isSocialAuthRequest && req.body && typeof req.body === 'object') {
+    req.body = sanitizeObject(req.body);
     return next();
   }
 
