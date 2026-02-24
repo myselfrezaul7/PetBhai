@@ -81,10 +81,12 @@ const AdminDashboard = () => {
   const [inventoryRows, setInventoryRows] = useState([]);
   const [orderStats, setOrderStats] = useState({ total: 0, totalRevenue: 0, todayOrders: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [moderationReports, setModerationReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingId, setSavingId] = useState(null);
   const [savingOrderId, setSavingOrderId] = useState('');
+  const [savingModerationId, setSavingModerationId] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState({});
   const [orderNotes, setOrderNotes] = useState({});
   const [trackingNumbers, setTrackingNumbers] = useState({});
@@ -96,6 +98,7 @@ const AdminDashboard = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastSyncAt, setLastSyncAt] = useState('');
   const [isLiveConnected, setIsLiveConnected] = useState(false);
+  const [moderationStatusFilter, setModerationStatusFilter] = useState('open');
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: 'Dog Food',
@@ -114,10 +117,11 @@ const AdminDashboard = () => {
 
     try {
       const headers = getAuthHeaders();
-      const [inventory, stats, ordersPayload] = await Promise.all([
+      const [inventory, stats, ordersPayload, moderationPayload] = await Promise.all([
         apiRequest('/products/admin/inventory', { headers }),
         apiRequest('/orders/stats/summary', { headers }),
         apiRequest('/orders?limit=20&page=1', { headers }),
+        apiRequest('/posts/moderation/reports', { headers }),
       ]);
 
       setInventoryRows(
@@ -133,7 +137,9 @@ const AdminDashboard = () => {
       );
       setOrderStats(stats || { total: 0, totalRevenue: 0, todayOrders: 0 });
       const orders = Array.isArray(ordersPayload?.orders) ? ordersPayload.orders : [];
+      const reports = Array.isArray(moderationPayload?.items) ? moderationPayload.items : [];
       setRecentOrders(orders);
+      setModerationReports(reports);
       setSelectedStatuses(
         orders.reduce((acc, order) => {
           acc[order.orderId] = order.status || 'pending';
@@ -398,6 +404,46 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleModerationAction = async (reportId, status, action, note = '') => {
+    const reviewerId = Number(currentUser?.id);
+    if (!Number.isFinite(reviewerId) || reviewerId <= 0) {
+      setError('Unable to identify current admin account. Please log in again.');
+      return;
+    }
+
+    setSavingModerationId(reportId);
+    setError('');
+
+    try {
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      };
+
+      const response = await apiRequest(`/posts/moderation/reports/${encodeURIComponent(reportId)}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          reviewerId,
+          status,
+          action,
+          note: sanitizeInput(String(note || ''), 500),
+        }),
+      });
+
+      const updatedReport = response?.report;
+      if (updatedReport?.id) {
+        setModerationReports((prevReports) =>
+          prevReports.map((report) => (report.id === updatedReport.id ? updatedReport : report))
+        );
+      }
+    } catch (requestError) {
+      setError(getErrorMessage(requestError, 'Failed to update moderation report.'));
+    } finally {
+      setSavingModerationId('');
+    }
+  };
+
   const metrics = useMemo(() => {
     const totalProducts = inventoryRows.length;
     const inStockCount = inventoryRows.filter((row) => row.stockStatus === 'in-stock').length;
@@ -476,6 +522,14 @@ const AdminDashboard = () => {
   }, [inventoryInsights, searchTerm, stockFilter, sortMode]);
 
   const topRiskItems = useMemo(() => filteredInventoryRows.slice(0, 5), [filteredInventoryRows]);
+
+  const filteredModerationReports = useMemo(() => {
+    if (moderationStatusFilter === 'all') {
+      return moderationReports;
+    }
+
+    return moderationReports.filter((report) => report.status === moderationStatusFilter);
+  }, [moderationReports, moderationStatusFilter]);
 
   const secureLogout = () => {
     logout();
@@ -967,6 +1021,152 @@ const AdminDashboard = () => {
     </section>
   );
 
+  const renderModeration = () => (
+    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
+            Community Moderation Queue
+          </h3>
+          <div className="flex items-center gap-2">
+            <select
+              value={moderationStatusFilter}
+              onChange={(event) => setModerationStatusFilter(event.target.value)}
+              className="rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
+            >
+              <option value="open">Open</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="dismissed">Dismissed</option>
+              <option value="all">All</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => void loadDashboardData()}
+              className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900"
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[980px] text-left text-sm">
+          <thead className="bg-slate-800 text-slate-100">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Type</th>
+              <th className="px-4 py-3 font-semibold">Target</th>
+              <th className="px-4 py-3 font-semibold">Reason</th>
+              <th className="px-4 py-3 font-semibold">Reporter</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Created</th>
+              <th className="px-4 py-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
+            {!loading &&
+              filteredModerationReports.map((report) => {
+                const isSaving = savingModerationId === report.id;
+                const targetLabel =
+                  report.targetType === 'post'
+                    ? `Post #${report.targetPostId}`
+                    : report.targetType === 'comment'
+                      ? `Comment #${report.targetCommentId} on Post #${report.targetPostId}`
+                      : `Reply #${report.targetReplyId} on Comment #${report.targetCommentId}`;
+
+                return (
+                  <tr key={report.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200 capitalize">
+                      {report.targetType}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{targetLabel}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[260px] truncate" title={report.reason}>
+                      {report.reason}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">#{report.reporterId}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                        {report.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                      {report.createdAt ? new Date(report.createdAt).toLocaleString() : 'N/A'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleModerationAction(report.id, 'reviewed', 'hide', 'Hidden by admin')
+                          }
+                          disabled={isSaving}
+                          className="rounded-lg bg-rose-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-rose-600 disabled:opacity-60"
+                        >
+                          Hide
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleModerationAction(
+                              report.id,
+                              'reviewed',
+                              'restore',
+                              'Restored by admin'
+                            )
+                          }
+                          disabled={isSaving}
+                          className="rounded-lg bg-emerald-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-60"
+                        >
+                          Restore
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleModerationAction(
+                              report.id,
+                              'dismissed',
+                              'none',
+                              'Dismissed by admin'
+                            )
+                          }
+                          disabled={isSaving}
+                          className="rounded-lg bg-slate-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-slate-600 disabled:opacity-60"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+
+            {!loading && filteredModerationReports.length === 0 && (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                >
+                  No moderation reports found for the selected filter.
+                </td>
+              </tr>
+            )}
+
+            {loading && (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Loading moderation queue...
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+
   return (
     <div className="min-h-screen bg-slate-100/70 dark:bg-slate-900 px-4 py-6 md:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl gap-6">
@@ -1019,6 +1219,17 @@ const AdminDashboard = () => {
               }`}
             >
               ➕ Add Product
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('moderation')}
+              className={`w-full rounded-xl px-3 py-2 text-left ${
+                activeTab === 'moderation'
+                  ? 'bg-orange-100 font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+                  : 'text-slate-600 dark:text-slate-300'
+              }`}
+            >
+              🛡️ Moderation
             </button>
           </nav>
 
@@ -1075,6 +1286,7 @@ const AdminDashboard = () => {
               { key: 'inventory', label: 'Inventory' },
               { key: 'orders', label: 'Orders' },
               { key: 'create', label: 'Add Product' },
+              { key: 'moderation', label: 'Moderation' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -1101,6 +1313,7 @@ const AdminDashboard = () => {
           {activeTab === 'inventory' && renderInventory()}
           {activeTab === 'orders' && renderOrders()}
           {activeTab === 'create' && renderCreateProduct()}
+          {activeTab === 'moderation' && renderModeration()}
         </main>
       </div>
     </div>
