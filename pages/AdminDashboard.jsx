@@ -420,16 +420,19 @@ const AdminDashboard = () => {
         'Content-Type': 'application/json',
       };
 
-      const response = await apiRequest(`/posts/moderation/reports/${encodeURIComponent(reportId)}`, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({
-          reviewerId,
-          status,
-          action,
-          note: sanitizeInput(String(note || ''), 500),
-        }),
-      });
+      const response = await apiRequest(
+        `/posts/moderation/reports/${encodeURIComponent(reportId)}`,
+        {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({
+            reviewerId,
+            status,
+            action,
+            note: sanitizeInput(String(note || ''), 500),
+          }),
+        }
+      );
 
       const updatedReport = response?.report;
       if (updatedReport?.id) {
@@ -1080,10 +1083,15 @@ const AdminDashboard = () => {
                       {report.targetType}
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{targetLabel}</td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[260px] truncate" title={report.reason}>
+                    <td
+                      className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[260px] truncate"
+                      title={report.reason}
+                    >
                       {report.reason}
                     </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">#{report.reporterId}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                      #{report.reporterId}
+                    </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                         {report.status}
@@ -1097,7 +1105,12 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() =>
-                            void handleModerationAction(report.id, 'reviewed', 'hide', 'Hidden by admin')
+                            void handleModerationAction(
+                              report.id,
+                              'reviewed',
+                              'hide',
+                              'Hidden by admin'
+                            )
                           }
                           disabled={isSaving}
                           className="rounded-lg bg-rose-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-rose-600 disabled:opacity-60"
