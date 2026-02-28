@@ -78,6 +78,21 @@ const ensureUserCollections = (user: User): void => {
   if (!Array.isArray(user.favorites)) user.favorites = [];
 };
 
+type UserAuthMetadata = User & {
+  tokenVersion?: number;
+  refreshTokenHash?: string;
+  refreshTokenExpiresAt?: string;
+  emailVerified?: boolean;
+  emailVerificationTokenHash?: string;
+  emailVerificationExpiresAt?: string;
+  socialProvider?: string;
+  socialProviderId?: string;
+};
+
+const userWithAuthMetadata = (user: User): UserAuthMetadata => {
+  return user as UserAuthMetadata;
+};
+
 const getRoleByEmail = (email: string): 'admin' | 'customer' => {
   const normalizedEmail = normalizeEmail(email);
   return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'admin' : 'customer';
@@ -223,22 +238,22 @@ const generateVerificationToken = (): string => {
 };
 
 const getTokenVersion = (user: User): number => {
-  const raw = (user as Record<string, unknown>).tokenVersion;
+  const raw = userWithAuthMetadata(user).tokenVersion;
   return typeof raw === 'number' && Number.isFinite(raw) && raw >= 0 ? Math.floor(raw) : 0;
 };
 
 const setTokenVersion = (user: User, nextValue: number): void => {
-  (user as Record<string, unknown>).tokenVersion = Math.max(0, Math.floor(nextValue));
+  userWithAuthMetadata(user).tokenVersion = Math.max(0, Math.floor(nextValue));
 };
 
 const setRefreshTokenState = (user: User, refreshToken: string): void => {
-  const rawUser = user as Record<string, unknown>;
+  const rawUser = userWithAuthMetadata(user);
   rawUser.refreshTokenHash = hashToken(refreshToken);
   rawUser.refreshTokenExpiresAt = new Date(nowMs() + 30 * 24 * 60 * 60 * 1000).toISOString();
 };
 
 const clearRefreshTokenState = (user: User): void => {
-  const rawUser = user as Record<string, unknown>;
+  const rawUser = userWithAuthMetadata(user);
   delete rawUser.refreshTokenHash;
   delete rawUser.refreshTokenExpiresAt;
 };
@@ -273,7 +288,7 @@ const issueAuthSession = (
 
 const assignNewEmailVerification = (user: User): string => {
   const token = generateVerificationToken();
-  const rawUser = user as Record<string, unknown>;
+  const rawUser = userWithAuthMetadata(user);
   rawUser.emailVerified = false;
   rawUser.emailVerificationTokenHash = hashToken(token);
   rawUser.emailVerificationExpiresAt = new Date(
@@ -283,7 +298,7 @@ const assignNewEmailVerification = (user: User): string => {
 };
 
 const isEmailVerified = (user: User): boolean => {
-  return Boolean((user as Record<string, unknown>).emailVerified);
+  return Boolean(userWithAuthMetadata(user).emailVerified);
 };
 
 const getNextUserId = (): number => {
@@ -593,7 +608,7 @@ router.post('/social', authLimiter, (req, res) => {
       user.name = sanitizedName;
       shouldPersist = true;
 
-      const rawUser = user as Record<string, unknown>;
+      const rawUser = userWithAuthMetadata(user);
       const existingProviderUserId =
         typeof rawUser.socialProviderId === 'string' ? rawUser.socialProviderId : '';
 
@@ -640,7 +655,7 @@ router.post('/social', authLimiter, (req, res) => {
         isPlusMember: false,
       };
 
-      const rawUser = user as Record<string, unknown>;
+      const rawUser = userWithAuthMetadata(user);
       rawUser.emailVerified = true;
       rawUser.socialProvider = 'google';
       if (providerUserId) {
@@ -683,7 +698,7 @@ router.post('/refresh', authLimiter, (req, res) => {
       return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Invalid refresh session');
     }
 
-    const rawUser = user as Record<string, unknown>;
+    const rawUser = userWithAuthMetadata(user);
     const storedHash = typeof rawUser.refreshTokenHash === 'string' ? rawUser.refreshTokenHash : '';
     const storedExpiry =
       typeof rawUser.refreshTokenExpiresAt === 'string'
@@ -752,7 +767,7 @@ router.post('/verify-email', authLimiter, (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const rawUser = user as Record<string, unknown>;
+    const rawUser = userWithAuthMetadata(user);
     const tokenHash =
       typeof rawUser.emailVerificationTokenHash === 'string'
         ? rawUser.emailVerificationTokenHash

@@ -59,13 +59,21 @@ const resolveUserById = (userId: number): User | null => {
   return user || null;
 };
 
+type UserCommunityMetadata = User & {
+  emailVerified?: boolean;
+};
+
+const userWithCommunityMetadata = (user: User): UserCommunityMetadata => {
+  return user as UserCommunityMetadata;
+};
+
 const ensureVerifiedUser = (userId: number): { ok: true } | { ok: false; message: string } => {
   const user = resolveUserById(userId);
   if (!user) {
     return { ok: false, message: 'User not found' };
   }
 
-  if (!Boolean((user as Record<string, unknown>).emailVerified)) {
+  if (!Boolean(userWithCommunityMetadata(user).emailVerified)) {
     return { ok: false, message: 'Please verify your email before posting or interacting.' };
   }
 
