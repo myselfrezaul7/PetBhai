@@ -50,16 +50,16 @@
 
       html.dark {
         --app-bg:
-          radial-gradient(1200px circle at 10% 0%, rgba(120, 80, 40, 0.12), transparent 50%),
-          radial-gradient(1000px circle at 90% 10%, rgba(160, 100, 50, 0.1), transparent 55%),
-          linear-gradient(180deg, #0c0f14 0%, #111317 45%, #141618 100%);
-        --glass-bg: rgba(20, 22, 26, 0.5);
-        --glass-bg-hover: rgba(24, 26, 30, 0.62);
-        --glass-border: rgba(255, 255, 255, 0.1);
+          radial-gradient(1200px circle at 12% 0%, rgba(56, 189, 248, 0.08), transparent 52%),
+          radial-gradient(1000px circle at 88% 8%, rgba(249, 115, 22, 0.08), transparent 56%),
+          linear-gradient(180deg, #0b1120 0%, #0f172a 45%, #111827 100%);
+        --glass-bg: rgba(15, 23, 42, 0.46);
+        --glass-bg-hover: rgba(15, 23, 42, 0.56);
+        --glass-border: rgba(148, 163, 184, 0.2);
         --glass-border-bottom: rgba(0, 0, 0, 0.2);
-        --glass-highlight: rgba(255, 255, 255, 0.08);
-        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.18);
-        --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.24);
+        --glass-highlight: rgba(255, 255, 255, 0.06);
+        --glass-shadow: 0 8px 28px rgba(2, 6, 23, 0.35), 0 2px 10px rgba(2, 6, 23, 0.2);
+        --glass-shadow-hover: 0 14px 36px rgba(2, 6, 23, 0.42), 0 4px 14px rgba(2, 6, 23, 0.24);
         --glass-blur: 48px;
         --glass-sat: 200%;
         --glass-gradient: linear-gradient(
@@ -119,9 +119,10 @@
           contain-intrinsic-size: 1px 800px;
         }
 
-        [class*='animate-'] {
-          animation-duration: 0.6s;
-          animation-iteration-count: 1;
+        [class*='animate-fade-'],
+        [class*='animate-slide-'],
+        [class*='animate-scale-'] {
+          animation-duration: 0.45s;
         }
 
         [class*='transition-'] {
@@ -536,15 +537,15 @@
         theme: {
           extend: {
             animation: {
-              'fade-in': 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-              'scale-in': 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              'toast-in': 'slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              'toast-out': 'slideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards',
-              'slide-up': 'slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-              'slide-down': 'slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-              blob: 'blob 7s infinite',
-              float: 'float 6s ease-in-out infinite',
-              glow: 'glow 2s ease-in-out infinite alternate',
+              'fade-in': 'fadeIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'scale-in': 'scaleIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'toast-in': 'slideInRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'toast-out': 'slideOutRight 0.24s cubic-bezier(0.4, 0, 1, 1) forwards',
+              'slide-up': 'slideUp 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'slide-down': 'slideDown 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              blob: 'blob 14s ease-in-out infinite',
+              float: 'float 8s ease-in-out infinite',
+              glow: 'glow 3.5s ease-in-out infinite alternate',
               shimmer: 'shimmer 2s linear infinite',
             },
             fontFamily: {
@@ -552,11 +553,11 @@
             },
             keyframes: {
               fadeIn: {
-                '0%': { opacity: '0', transform: 'translateY(12px)' },
+                '0%': { opacity: '0', transform: 'translateY(8px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
               },
               scaleIn: {
-                '0%': { opacity: '0', transform: 'scale(0.95)' },
+                '0%': { opacity: '0', transform: 'scale(0.98)' },
                 '100%': { opacity: '1', transform: 'scale(1)' },
               },
               slideInRight: {
@@ -568,26 +569,26 @@
                 '100%': { transform: 'translateX(100%)', opacity: '0' },
               },
               slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '0%': { transform: 'translateY(12px)', opacity: '0' },
                 '100%': { transform: 'translateY(0)', opacity: '1' },
               },
               slideDown: {
-                '0%': { transform: 'translateY(-20px)', opacity: '0' },
+                '0%': { transform: 'translateY(-12px)', opacity: '0' },
                 '100%': { transform: 'translateY(0)', opacity: '1' },
               },
               blob: {
                 '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '33%': { transform: 'translate(12px, -18px) scale(1.04)' },
+                '66%': { transform: 'translate(-10px, 10px) scale(0.97)' },
                 '100%': { transform: 'translate(0px, 0px) scale(1)' },
               },
               float: {
                 '0%, 100%': { transform: 'translateY(0px)' },
-                '50%': { transform: 'translateY(-20px)' },
+                '50%': { transform: 'translateY(-12px)' },
               },
               glow: {
-                '0%': { boxShadow: '0 0 20px rgba(249, 115, 22, 0.3)' },
-                '100%': { boxShadow: '0 0 40px rgba(249, 115, 22, 0.6)' },
+                '0%': { boxShadow: '0 0 12px rgba(249, 115, 22, 0.22)' },
+                '100%': { boxShadow: '0 0 24px rgba(249, 115, 22, 0.35)' },
               },
               shimmer: {
                 '0%': { backgroundPosition: '-200% 0' },
