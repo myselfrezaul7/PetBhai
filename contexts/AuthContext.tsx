@@ -131,7 +131,19 @@ interface AuthContextType {
     }
   ) => Promise<User>;
   logout: () => void;
-  signup: (name: string, email: string, password: string, recaptchaToken?: string) => Promise<User>;
+  signup: (
+    name: string,
+    email: string,
+    password: string,
+    recaptchaToken?: string,
+    captchaFallback?: {
+      type: 'math-v1';
+      left: number;
+      right: number;
+      operator: '+' | '-';
+      answer: number;
+    }
+  ) => Promise<User>;
   socialLogin: (socialUser: {
     firstName: string;
     lastName: string;
@@ -378,7 +390,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: string,
       email: string,
       password: string,
-      recaptchaToken?: string
+      recaptchaToken?: string,
+      captchaFallback?: {
+        type: 'math-v1';
+        left: number;
+        right: number;
+        operator: '+' | '-';
+        answer: number;
+      }
     ): Promise<User> => {
       const sanitizedName = sanitizeInput(name.trim());
       const sanitizedEmail = sanitizeInput(email.trim().toLowerCase());
@@ -396,6 +415,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: sanitizedEmail,
             password,
             recaptchaToken,
+            captchaFallback,
           }),
         });
         return persistSession(data);

@@ -63,23 +63,22 @@ const Footer: React.FC = () => {
   );
   return (
     <footer
-      className="glass-card-ios border-t border-white/30 dark:border-slate-700/40 text-slate-700 dark:text-slate-200 pt-12 mt-auto"
+      className="glass-card-ios-heavy border-t border-white/25 dark:border-slate-700/30 text-slate-700 dark:text-slate-200 pt-6 md:pt-12 mt-auto"
       role="contentinfo"
       aria-label="Site footer"
     >
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center md:text-left">
           {/* Column 1: Logo and Tagline */}
-          <div className="flex flex-col items-center md:items-start">
+          <div className="flex flex-col items-center md:items-start col-span-2 md:col-span-1">
             <div className="flex items-center space-x-3 mb-2">
               <Logo className="w-10 h-10 text-orange-500" aria-hidden="true" />
               <span className="text-2xl font-bold text-slate-800 dark:text-white">PetBhai</span>
             </div>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">Your Pet's Favorite Partner.</p>
-            <div className="text-sm text-slate-500 dark:text-slate-500">
-              &copy; 2025 PetBhai. All rights reserved.
-            </div>
-            <p className="text-xs text-slate-400 dark:text-slate-600 mt-2">
+            <p className="hidden md:block text-slate-600 dark:text-slate-400 mb-4">
+              Your Pet's Favorite Partner.
+            </p>
+            <p className="hidden md:block text-xs text-slate-400 dark:text-slate-600 mt-2">
               A concern of{' '}
               <a
                 href="https://www.kuttawaala.com/"
@@ -104,7 +103,7 @@ const Footer: React.FC = () => {
 
           {/* Column 2: Get Involved */}
           <nav aria-label="Get Involved">
-            <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-3 uppercase tracking-wider">
               Get Involved
             </h3>
             <ul className="space-y-2 text-slate-600 dark:text-slate-400">
@@ -119,7 +118,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/volunteer"
-                  className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation"
+                  className="hidden md:inline hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation"
                 >
                   Volunteer
                 </Link>
@@ -135,7 +134,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/safety"
-                  className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation font-medium text-orange-600 dark:text-orange-400"
+                  className="hidden md:inline hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation font-medium text-orange-600 dark:text-orange-400"
                 >
                   Safety & Trust
                 </Link>
@@ -153,13 +152,13 @@ const Footer: React.FC = () => {
 
           {/* Column 3: Contact & Social */}
           <div>
-            <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-3 uppercase tracking-wider">
               Connect
             </h3>
             <div className="flex flex-col items-center md:items-start space-y-3">
               <a
                 href="mailto:petbhaibd@gmail.com"
-                className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation active:scale-95"
+                className="hidden md:flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors touch-manipulation active:scale-95"
                 aria-label="Email us at petbhaibd@gmail.com"
               >
                 <MailIcon className="w-5 h-5" aria-hidden="true" />
@@ -167,7 +166,7 @@ const Footer: React.FC = () => {
               </a>
 
               <div
-                className="flex items-center space-x-4 mt-2"
+                className="flex items-center space-x-2 md:space-x-4 mt-2"
                 role="list"
                 aria-label="Social media links"
               >
@@ -178,11 +177,13 @@ const Footer: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     referrerPolicy="no-referrer"
-                    className={`group relative p-2 rounded-full transition-all duration-300 ${link.hoverBg} ${link.glowColor} touch-manipulation active:scale-95`}
+                    className={`group relative p-1.5 md:p-2 rounded-full transition-all duration-300 ${link.hoverBg} ${link.glowColor} touch-manipulation active:scale-95`}
                     aria-label={`Follow us on ${link.name}`}
                     role="listitem"
                   >
-                    <span className={link.colorClass}>{link.icon}</span>
+                    <span className={`${link.colorClass} [&>svg]:w-5 [&>svg]:h-5 md:[&>svg]:w-6 md:[&>svg]:h-6`}>
+                      {link.icon}
+                    </span>
                     <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 dark:bg-slate-700 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg">
                       {link.name}
                     </span>
@@ -194,14 +195,14 @@ const Footer: React.FC = () => {
 
           {/* Column 4: Payment Methods & Legal */}
           <div>
-            <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-2 md:mb-3 uppercase tracking-wider">
               We Accept
             </h3>
-            <p className="text-sm sm:text-base font-bold text-slate-800 dark:text-white mb-6">
+            <p className="text-xs sm:text-sm md:text-base font-bold text-slate-800 dark:text-white mb-3 md:mb-6">
               bKash, Nagad, COD
             </p>
             <nav aria-label="Legal links">
-              <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-3 uppercase tracking-wider">
+              <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-2 md:mb-3 uppercase tracking-wider">
                 Legal
               </h3>
               <ul className="space-y-2 text-slate-600 dark:text-slate-400">
@@ -215,7 +216,7 @@ const Footer: React.FC = () => {
                 </li>
               </ul>
             </nav>
-            <div className="mt-6 flex items-center justify-center md:justify-start space-x-2">
+            <div className="mt-3 md:mt-6 hidden md:flex items-center justify-center md:justify-start space-x-2">
               <div
                 className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-200 dark:border-green-800/50 flex items-center"
                 role="status"
@@ -242,7 +243,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="mt-8 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-t border-slate-200/50 dark:border-slate-800/50">
+      <div className="mt-4 md:mt-8 py-2 md:py-4 bg-slate-100/50 dark:bg-slate-900/50 border-t border-slate-200/50 dark:border-slate-800/50">
         <div className="container mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-500">
           © 2025 PetBhai. All rights reserved.
         </div>

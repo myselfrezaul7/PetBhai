@@ -32,4 +32,6 @@ backend/dist
 .env.local
 reports/
 tmp_*.html
+.agent/
+.venv/
 .vercel

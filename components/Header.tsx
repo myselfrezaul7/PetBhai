@@ -352,7 +352,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="glass-card-ios sticky top-0 z-40 border-b-0 !rounded-none transition-all duration-500">
+      <header className="glass-card-ios-heavy sticky top-0 z-40 border-b border-white/20 dark:border-slate-700/30 !rounded-none shadow-lg transition-all duration-500">
         <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
           <NavLink
             to="/"
@@ -387,7 +387,7 @@ const Header: React.FC = () => {
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 onKeyDown={handleKeyDown}
-                className="w-48 focus:w-64 transition-all duration-300 ease-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
+                className="w-48 focus:w-64 transition-all duration-300 ease-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/30 dark:border-slate-700/30 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white/60 dark:focus:bg-slate-900/60 shadow-inner"
                 aria-label="Search"
                 autoComplete="off"
                 role="combobox"
@@ -479,7 +479,7 @@ const Header: React.FC = () => {
                   </div>
                 </button>
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-20 py-2 border border-slate-200 dark:border-slate-700 transform origin-top-right animate-scale-in">
+                  <div className="absolute right-0 mt-3 w-56 glass-card-ios backdrop-blur-xl rounded-xl shadow-2xl z-20 py-2 border border-white/30 dark:border-slate-700/30 transform origin-top-right animate-scale-in">
                     <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 mb-2">
                       <p className="font-bold text-slate-800 dark:text-white">
                         Hi, {currentUser.name.split(' ')[0]}
