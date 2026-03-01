@@ -80,10 +80,10 @@ const ProfilePage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isRefreshing) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isRefreshing, navigate]);
 
   useEffect(() => {
     if (!currentUser) {

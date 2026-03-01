@@ -716,7 +716,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = useMemo(() => {
     const token = getStoredToken();
-    const isAuthenticated = !!currentUser && !!token && !isTokenExpired(token);
+    const refreshToken = getStoredRefreshToken();
+    const isAuthenticated = !!currentUser && !!token && (!isTokenExpired(token) || !!refreshToken);
 
     return {
       currentUser,
