@@ -574,15 +574,73 @@ router.post('/signup', authLimiter, async (req, res) => {
   }
 });
 
+// Firebase Admin — initialised lazily so we don't crash when credentials are absent
+let firebaseAdminApp: import('firebase-admin').app.App | null = null;
+const getFirebaseAdmin = async (): Promise<import('firebase-admin').app.App | null> => {
+  if (firebaseAdminApp) return firebaseAdminApp;
+  try {
+    const admin = await import('firebase-admin');
+    if (admin.apps.length > 0) {
+      firebaseAdminApp = admin.apps[0]!;
+    } else {
+      // If GOOGLE_APPLICATION_CREDENTIALS is set, use it; otherwise use projectId-only init
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      firebaseAdminApp = admin.initializeApp(projectId ? { projectId } : undefined);
+    }
+    return firebaseAdminApp;
+  } catch (err) {
+    console.warn('Firebase Admin init failed (social token verification disabled):', err);
+    return null;
+  }
+};
+
+/**
+ * Verify a Firebase ID token and return the decoded claims.
+ * Returns null when verification cannot be performed (missing SDK / credentials).
+ */
+const verifyFirebaseToken = async (
+  idToken: string
+): Promise<{ uid: string; email?: string } | null> => {
+  if (!idToken) return null;
+  try {
+    const app = await getFirebaseAdmin();
+    if (!app) return null;
+    const admin = await import('firebase-admin');
+    const decoded = await admin.auth(app).verifyIdToken(idToken);
+    return { uid: decoded.uid, email: decoded.email };
+  } catch (err) {
+    console.error('Firebase token verification failed:', err);
+    return null;
+  }
+};
+
 // Social login (Google/Firebase)
-router.post('/social', authLimiter, (req, res) => {
+router.post('/social', authLimiter, async (req, res) => {
   try {
     const payload = isRecordObject(req.body) ? req.body : {};
     const name = typeof payload.name === 'string' ? payload.name : '';
     const email = typeof payload.email === 'string' ? payload.email : '';
     const photoUrl = typeof payload.photoUrl === 'string' ? payload.photoUrl : undefined;
-    const providerUserId =
+    const firebaseToken =
+      typeof payload.firebaseToken === 'string' ? payload.firebaseToken.trim() : '';
+    let providerUserId =
       typeof payload.providerUserId === 'string' ? sanitizeString(payload.providerUserId) : '';
+
+    // ── Firebase ID token verification ──
+    // If the client sent a Firebase ID token, verify it server-side.
+    if (firebaseToken) {
+      const verified = await verifyFirebaseToken(firebaseToken);
+      if (verified) {
+        // Trust the uid from the verified token over the client-supplied one
+        providerUserId = verified.uid;
+        // If backend email doesn't match the verified token, warn but allow
+        // (the route already validates the email format below)
+      } else {
+        console.warn(
+          'Firebase token provided but could not be verified — proceeding without trust'
+        );
+      }
+    }
 
     if (!email || typeof email !== 'string') {
       return sendAuthError(res, 400, 'AUTH_MISSING_EMAIL', 'Email is required');

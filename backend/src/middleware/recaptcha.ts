@@ -63,7 +63,7 @@ const isValidMathFallback = (payload: unknown): payload is MathFallbackPayload =
 };
 
 /**
- * Verify reCAPTCHA token with Google's API
+ * Verify reCAPTCHA v2 token with Google's siteverify API
  */
 export const verifyRecaptchaToken = async (token: string): Promise<RecaptchaVerifyResponse> => {
   try {

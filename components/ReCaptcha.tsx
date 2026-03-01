@@ -70,6 +70,8 @@ const loadReCaptchaScript = (): Promise<void> => {
   return scriptLoadPromise;
 };
 
+
+
 /**
  * Google reCAPTCHA v2 Component
  * Use this component in forms to verify human users

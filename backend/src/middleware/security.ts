@@ -36,6 +36,17 @@ export const sanitizeString = (str: string, maxLength = 1000): string => {
   );
 };
 
+// Keys whose string values must not be truncated (JWTs, tokens, etc.)
+const TOKEN_KEYS = new Set([
+  'firebasetoken',
+  'token',
+  'idtoken',
+  'accesstoken',
+  'refreshtoken',
+  'recaptchatoken',
+  'provideruserid',
+]);
+
 // Deep sanitize an object (recursively)
 export const sanitizeObject = <T extends object>(obj: T, maxDepth = 10): T => {
   if (maxDepth <= 0) return obj;
@@ -52,7 +63,12 @@ export const sanitizeObject = <T extends object>(obj: T, maxDepth = 10): T => {
     const sanitizedKey = sanitizeString(key, 100);
 
     if (typeof value === 'string') {
-      sanitized[sanitizedKey] = sanitizeString(value);
+      // Don't truncate known token fields — they can be 1400+ chars (JWTs)
+      if (TOKEN_KEYS.has(sanitizedKey.toLowerCase())) {
+        sanitized[sanitizedKey] = value.trim().replace(/\0/g, '');
+      } else {
+        sanitized[sanitizedKey] = sanitizeString(value);
+      }
     } else if (Array.isArray(value)) {
       sanitized[sanitizedKey] = value.map((item) => {
         if (typeof item === 'string') return sanitizeString(item);

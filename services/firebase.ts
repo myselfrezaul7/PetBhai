@@ -1,4 +1,5 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
+import { getAnalytics, isSupported, type Analytics } from 'firebase/analytics';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -14,6 +15,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
 };
 
 // Check if Firebase is properly configured
@@ -38,6 +40,7 @@ export const isFirebaseConfigured = (): boolean => {
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
+let analytics: Analytics | null = null;
 
 if (isFirebaseConfigured()) {
   try {
@@ -45,15 +48,24 @@ if (isFirebaseConfigured()) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
+
+    if (typeof window !== 'undefined') {
+      void isSupported().then((supported) => {
+        if (supported && app) {
+          analytics = getAnalytics(app);
+        }
+      });
+    }
+
     console.log('Firebase initialized successfully');
   } catch (error) {
     console.error('Firebase initialization failed:', error);
   }
 } else {
-  console.log('Firebase not configured - will use mock sign-in');
+  console.log('Firebase not configured - Google Sign-In is unavailable');
 }
 
-export { auth, googleProvider };
+export { app, auth, googleProvider, analytics };
 
 /**
  * Send a password reset email to the specified email address

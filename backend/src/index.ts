@@ -82,7 +82,8 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    // 'unsafe-none' allows Firebase signInWithPopup to communicate with the opener
+    crossOriginOpenerPolicy: { policy: 'unsafe-none' },
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     hsts: {
@@ -117,10 +118,20 @@ app.use((req, res, next) => {
 });
 
 // CORS configuration
-const allowedOrigins = ['http://localhost:3000', 'https://myselfrezaul7.github.io'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://myselfrezaul7.github.io',
+  'https://www.petbhai.com',
+  'https://petbhai.com',
+  'https://petbhai.vercel.app',
+];
 
 if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(...process.env.CORS_ORIGIN.split(','));
+  allowedOrigins.push(
+    ...process.env.CORS_ORIGIN.split(',')
+      .map((o) => o.trim())
+      .filter(Boolean)
+  );
 }
 
 app.use(
@@ -129,10 +140,11 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(null, false);
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
