@@ -1,7 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useArticles } from '../contexts/ArticleContext';
-import { generateImageFromPrompt } from '../services/geminiService';
 import { ImageIcon, PawIcon } from '../components/icons';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -9,11 +8,8 @@ import SEO from '../components/SEO';
 
 const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { articles, updateArticleImage, loading, error } = useArticles();
+  const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
-
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState('');
 
   const article = useMemo(() => articles.find((a) => a.id === Number(id)), [id, articles]);
 
@@ -25,22 +21,6 @@ const ArticleDetailPage: React.FC = () => {
         .slice(0, 3),
     [articles, id]
   );
-
-  const handleGenerateImage = useCallback(async () => {
-    if (!article) return;
-    setIsGenerating(true);
-    setGenerationError('');
-    try {
-      const prompt = `একটি প্রাণবন্ত, বাস্তবসম্মত ছবি যা "${article.title}" শিরোনামের একটি ব্লগ পোস্টের জন্য উপযুক্ত। ছবিটি একটি পশু কল্যাণ সংস্থার ব্লগের জন্য মানানসই হতে হবে।`;
-      const imageUrl = await generateImageFromPrompt(prompt);
-      updateArticleImage(article.id, imageUrl);
-    } catch (error) {
-      console.error(error);
-      setGenerationError(error instanceof Error ? error.message : 'An unknown error occurred.');
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [article, updateArticleImage]);
 
   if (loading) {
     return (
@@ -150,32 +130,11 @@ const ArticleDetailPage: React.FC = () => {
                   aria-hidden="true"
                 />
                 <h3 className="text-lg md:text-xl font-bold text-slate-700 dark:text-slate-200">
-                  {t('article_generate_image')}
+                  Feature photo coming soon
                 </h3>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2 mb-4">
-                  {t('article_generate_image_desc')}
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2">
+                  This article does not have a feature photo yet.
                 </p>
-                <button
-                  onClick={handleGenerateImage}
-                  disabled={isGenerating}
-                  className="bg-orange-500 text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-wait text-sm md:text-base touch-manipulation active:scale-95"
-                >
-                  {isGenerating ? t('btn_generating') : t('btn_generate_ai')}
-                </button>
-                {isGenerating && (
-                  <div
-                    className="mt-4 w-full max-w-xs bg-slate-300 dark:bg-slate-600 h-1 rounded-full overflow-hidden"
-                    role="progressbar"
-                    aria-label="Generating image"
-                  >
-                    <div className="bg-orange-500 h-1 animate-pulse w-full"></div>
-                  </div>
-                )}
-                {generationError && (
-                  <p className="text-red-500 mt-4 text-sm" role="alert">
-                    {generationError}
-                  </p>
-                )}
               </div>
             )}
           </figure>

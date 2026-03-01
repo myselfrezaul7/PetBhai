@@ -115,13 +115,6 @@ const translations: Translations = {
   },
   btn_back_blog: { en: 'Back to Blog', bn: 'ব্লগ-এ ফিরে যান' },
   article_written_by: { en: 'Written by:', bn: 'লিখেছেন:' },
-  article_generate_image: { en: 'Generate a Feature Photo', bn: 'ফিচার ফটো তৈরি করুন' },
-  article_generate_image_desc: {
-    en: 'Click the button to create a unique AI-generated image for this article.',
-    bn: 'এই আর্টিকেলের জন্য AI দিয়ে নতুন একটি ছবি তৈরি করতে নিচের বাটনে ক্লিক করুন।',
-  },
-  btn_generate_ai: { en: 'Generate with AI', bn: 'AI দিয়ে তৈরি করুন' },
-  btn_generating: { en: 'Generating...', bn: 'তৈরি হচ্ছে...' },
   recent_articles: { en: 'Recent Articles', bn: 'সাম্প্রতিক লেখা' },
 
   // Trust Page

@@ -120,31 +120,6 @@ textarea,
   }
 }
 
-/* Consistent readable text in both themes */
-.text-slate-600 {
-  color: #475569;
-}
-
-.text-slate-700 {
-  color: #334155;
-}
-
-.text-slate-800 {
-  color: #0f172a;
-}
-
-html.dark .text-slate-600 {
-  color: #94a3b8;
-}
-
-html.dark .text-slate-700 {
-  color: #cbd5e1;
-}
-
-html.dark .text-slate-800 {
-  color: #e2e8f0;
-}
-
 /* Global control polish */
 input,
 select,
@@ -204,11 +179,6 @@ a:focus-visible {
 
 html.dark .glass-card-ios-heavy {
   background-color: rgba(15, 23, 42, 0.6);
-}
-
-html.dark .border-slate-200,
-html.dark .border-slate-300 {
-  border-color: rgba(148, 163, 184, 0.2) !important;
 }
 
 html.dark .glass-card,

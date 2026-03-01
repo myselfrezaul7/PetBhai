@@ -122,7 +122,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
                     <a
                       href={generatedImage}
                       download={`petbhai-thumbnail-${Date.now()}.png`}
-                      className="bg-white text-slate-900 font-bold py-2 px-6 rounded-full hover:bg-slate-200 transition-colors"
+                      className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold py-2 px-6 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                     >
                       Download
                     </a>
@@ -145,7 +145,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <ImageIcon className="w-24 h-24 mx-auto mb-4 opacity-50" />
+                    <ImageIcon className="w-24 h-24 mx-auto mb-4 opacity-50 text-slate-400 dark:text-slate-500" />
                     <p className="text-lg font-medium">Your thumbnail will appear here.</p>
                   </>
                 )}

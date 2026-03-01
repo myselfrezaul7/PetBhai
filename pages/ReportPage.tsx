@@ -282,6 +282,33 @@ const ReportPage: React.FC = () => {
             </button>
           </div>
         </form>
+
+        <section className="mt-6 sm:mt-8 border-t border-slate-200/70 dark:border-slate-700/60 pt-5 sm:pt-6">
+          <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+            Join Rescue Communities
+          </h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 mb-3">
+            For faster local help, post in these trusted Facebook groups too.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <a
+              href="https://www.facebook.com/groups/catwaala"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white font-semibold py-2.5 px-4 hover:bg-blue-700 transition-colors touch-manipulation active:scale-95"
+            >
+              Catwaala Facebook Community
+            </a>
+            <a
+              href="https://www.facebook.com/groups/kuttawaala"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white font-semibold py-2.5 px-4 hover:bg-blue-700 transition-colors touch-manipulation active:scale-95"
+            >
+              Kuttawaala Facebook Community
+            </a>
+          </div>
+        </section>
       </div>
     </main>
   );

@@ -105,6 +105,10 @@ const GlobalCartElements: React.FC = () => {
   const isShopPage = location.pathname === '/shop';
   const isVisible = cartCount > 0 || isShopPage;
 
+  useEffect(() => {
+    closeCart();
+  }, [location.pathname, closeCart]);
+
   return (
     <>
       <button
@@ -123,7 +127,7 @@ const GlobalCartElements: React.FC = () => {
           </span>
         )}
       </button>
-      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
+      {isCartOpen && <CartSidebar isOpen={isCartOpen} onClose={closeCart} />}
     </>
   );
 };

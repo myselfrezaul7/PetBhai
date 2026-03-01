@@ -159,6 +159,34 @@ const ProfilePage: React.FC = () => {
     return undefined;
   }, []);
 
+  const validatePhone = useCallback((value: string): string | undefined => {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    if (trimmed.length < 6) return 'Phone must be at least 6 characters';
+    if (trimmed.length > 30) return 'Phone is too long (max 30 characters)';
+    return undefined;
+  }, []);
+
+  const validateShippingAddress = useCallback(
+    (data: {
+      fullName: string;
+      address: string;
+      city: string;
+      phone: string;
+    }): string | undefined => {
+      if (data.fullName.length < 2) return 'Full name must be at least 2 characters';
+      if (data.address.length < 5) return 'Address must be at least 5 characters';
+      if (data.city.length < 2) return 'City must be at least 2 characters';
+      if (data.phone.length < 6) return 'Phone must be at least 6 characters';
+      if (data.fullName.length > 120) return 'Full name is too long (max 120 characters)';
+      if (data.address.length > 240) return 'Address is too long (max 240 characters)';
+      if (data.city.length > 80) return 'City is too long (max 80 characters)';
+      if (data.phone.length > 30) return 'Phone is too long (max 30 characters)';
+      return undefined;
+    },
+    []
+  );
+
   const handleNameBlur = useCallback(() => {
     setNameError(validateName(name));
   }, [name, validateName]);
@@ -205,9 +233,16 @@ const ProfilePage: React.FC = () => {
       const sanitizedPhone = sanitizeInput(phone.trim());
       const sanitizedBio = sanitizeInput(bio.trim());
       const nameValidationError = validateName(sanitizedName);
+      const phoneValidationError = validatePhone(sanitizedPhone);
 
       if (nameValidationError) {
         setNameError(nameValidationError);
+        return;
+      }
+
+      if (phoneValidationError) {
+        setErrorMessage(phoneValidationError);
+        clearMessagesSoon();
         return;
       }
 
@@ -273,18 +308,27 @@ const ProfilePage: React.FC = () => {
       e.preventDefault();
       if (!currentUser) return;
 
+      const sanitizedAddress = {
+        fullName: sanitizeInput(addressFullName.trim()),
+        address: sanitizeInput(addressLine.trim()),
+        city: sanitizeInput(addressCity.trim()),
+        phone: sanitizeInput(addressPhone.trim()),
+      };
+
+      const validationError = validateShippingAddress(sanitizedAddress);
+      if (validationError) {
+        setErrorMessage(validationError);
+        clearMessagesSoon();
+        return;
+      }
+
       setIsLoading(true);
       setErrorMessage('');
       setSuccessMessage('');
 
       try {
         await updateProfile({
-          defaultShippingAddress: {
-            fullName: sanitizeInput(addressFullName.trim()),
-            address: sanitizeInput(addressLine.trim()),
-            city: sanitizeInput(addressCity.trim()),
-            phone: sanitizeInput(addressPhone.trim()),
-          },
+          defaultShippingAddress: sanitizedAddress,
         });
 
         setSuccessMessage('Address saved successfully!');
@@ -304,6 +348,7 @@ const ProfilePage: React.FC = () => {
       clearMessagesSoon,
       currentUser,
       updateProfile,
+      validateShippingAddress,
     ]
   );
 
@@ -689,12 +734,18 @@ const ProfilePage: React.FC = () => {
                   value={addressFullName}
                   onChange={(e) => setAddressFullName(e.target.value)}
                   placeholder="Full Name"
+                  required
+                  minLength={2}
+                  maxLength={120}
                   className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
                 />
                 <input
                   value={addressLine}
                   onChange={(e) => setAddressLine(e.target.value)}
                   placeholder="Address"
+                  required
+                  minLength={5}
+                  maxLength={240}
                   className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
                 />
                 <div className="grid sm:grid-cols-2 gap-3">
@@ -702,12 +753,18 @@ const ProfilePage: React.FC = () => {
                     value={addressCity}
                     onChange={(e) => setAddressCity(e.target.value)}
                     placeholder="City"
+                    required
+                    minLength={2}
+                    maxLength={80}
                     className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
                   />
                   <input
                     value={addressPhone}
                     onChange={(e) => setAddressPhone(e.target.value)}
                     placeholder="Phone"
+                    required
+                    minLength={6}
+                    maxLength={30}
                     className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
                   />
                 </div>

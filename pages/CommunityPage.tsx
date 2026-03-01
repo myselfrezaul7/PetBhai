@@ -535,40 +535,157 @@ const CommunityPage: React.FC = () => {
   };
 
   // Delete comment
-  const handleDeleteComment = async (_postId: number, _commentId: number) => {
-    await confirm({
+  const handleDeleteComment = async (postId: number, commentId: number) => {
+    const shouldDelete = await confirm({
       title: 'Delete Comment?',
-      message: 'Comment deletion is not available yet.',
-      confirmText: 'OK',
-      cancelText: 'Close',
+      message: 'Are you sure you want to delete this comment? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
     });
-    toast.error('Comment deletion is not available yet.');
+    if (!shouldDelete) return;
+
+    if (!currentUser) {
+      toast.error('Please sign in to delete comments.');
+      return;
+    }
+
+    try {
+      await postService.deleteComment(postId, commentId, currentUser.id);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.filter((comment) => comment.id !== commentId),
+              }
+            : post
+        )
+      );
+      toast.success('Comment deleted.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete comment.';
+      toast.error(message);
+    }
   };
 
   // Delete reply
-  const handleDeleteReply = async (_postId: number, _commentId: number, _replyId: number) => {
-    await confirm({
+  const handleDeleteReply = async (postId: number, commentId: number, replyId: number) => {
+    const shouldDelete = await confirm({
       title: 'Delete Reply?',
-      message: 'Reply deletion is not available yet.',
-      confirmText: 'OK',
-      cancelText: 'Close',
+      message: 'Are you sure you want to delete this reply? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
     });
-    toast.error('Reply deletion is not available yet.');
+    if (!shouldDelete) return;
+
+    if (!currentUser) {
+      toast.error('Please sign in to delete replies.');
+      return;
+    }
+
+    try {
+      await postService.deleteReply(postId, commentId, replyId, currentUser.id);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment.id === commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.filter((reply) => reply.id !== replyId),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        )
+      );
+      toast.success('Reply deleted.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete reply.';
+      toast.error(message);
+    }
   };
 
   // Update comment
-  const handleUpdateComment = (_postId: number, _commentId: number, _newText: string) => {
-    toast.error('Comment editing is not available yet.');
+  const handleUpdateComment = async (postId: number, commentId: number, newText: string) => {
+    if (!currentUser) {
+      toast.error('Please sign in to edit comments.');
+      return;
+    }
+
+    try {
+      const updatedComment = await postService.updateComment(
+        postId,
+        commentId,
+        currentUser.id,
+        newText
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment.id === commentId ? updatedComment : comment
+                ),
+              }
+            : post
+        )
+      );
+      toast.success('Comment updated.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update comment.';
+      toast.error(message);
+    }
   };
 
   // Update reply
-  const handleUpdateReply = (
-    _postId: number,
-    _commentId: number,
-    _replyId: number,
-    _newText: string
+  const handleUpdateReply = async (
+    postId: number,
+    commentId: number,
+    replyId: number,
+    newText: string
   ) => {
-    toast.error('Reply editing is not available yet.');
+    if (!currentUser) {
+      toast.error('Please sign in to edit replies.');
+      return;
+    }
+
+    try {
+      const updatedReply = await postService.updateReply(
+        postId,
+        commentId,
+        replyId,
+        currentUser.id,
+        newText
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment.id === commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply.id === replyId ? updatedReply : reply
+                        ),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        )
+      );
+      toast.success('Reply updated.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update reply.';
+      toast.error(message);
+    }
   };
 
   const handleSocialLogin = async () => {

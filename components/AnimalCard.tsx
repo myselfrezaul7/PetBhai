@@ -65,7 +65,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
                 ${
                   isFavorited
                     ? 'bg-red-500 text-white'
-                    : 'bg-white/80 backdrop-blur-md text-slate-700 hover:text-red-500'
+                    : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 hover:text-red-500'
                 }`}
           aria-label={isFavorited ? 'Unfavorite' : 'Favorite'}
         >

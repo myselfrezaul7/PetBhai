@@ -25,7 +25,11 @@ const MobileNavLink: React.FC<{
     to={to}
     onClick={onClick}
     className={({ isActive }) =>
-      `block py-3 text-xl sm:text-2xl text-center transition-colors touch-manipulation ${isActive ? 'text-orange-500 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium hover:text-orange-500'} ${className || ''}`
+      `block py-3.5 px-4 rounded-2xl border text-xl sm:text-2xl text-center transition-all touch-manipulation backdrop-blur-xl ${
+        isActive
+          ? 'text-orange-500 dark:text-orange-300 font-bold bg-white/55 dark:bg-slate-900/45 border-white/70 dark:border-white/20 shadow-lg'
+          : 'text-slate-700 dark:text-slate-200 font-medium bg-white/35 dark:bg-slate-900/30 border-white/55 dark:border-white/15 hover:bg-white/55 dark:hover:bg-slate-900/45 hover:text-orange-500'
+      } ${className || ''}`
     }
   >
     {children}
@@ -640,7 +644,7 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) lg:hidden flex flex-col`}
+        className={`fixed inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl saturate-150 z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) lg:hidden flex flex-col`}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"

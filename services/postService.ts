@@ -347,6 +347,47 @@ export const addComment = async (
   }
 };
 
+export const updateComment = async (
+  postId: number,
+  commentId: number,
+  userId: number,
+  text: string
+): Promise<Comment> => {
+  const sanitizedText = sanitizeText(text, 2000);
+  if (!sanitizedText) {
+    throw new ApiError('Comment cannot be empty');
+  }
+
+  try {
+    return await apiRequest<Comment>(`/posts/${postId}/comments/${commentId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
+      },
+      body: JSON.stringify({ userId: Number(userId), text: sanitizedText }),
+    });
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    throw toApiError(error, 'Failed to update comment. Please try again.');
+  }
+};
+
+export const deleteComment = async (
+  postId: number,
+  commentId: number,
+  userId: number
+): Promise<void> => {
+  try {
+    await apiRequest<void>(`/posts/${postId}/comments/${commentId}?userId=${Number(userId)}`, {
+      method: 'DELETE',
+    });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    throw toApiError(error, 'Failed to delete comment. Please try again.');
+  }
+};
+
 // Like/Unlike a comment with rate limiting
 export const toggleCommentLike = async (
   postId: number,
@@ -407,6 +448,55 @@ export const addReply = async (
   } catch (error) {
     console.error('Error adding reply:', error);
     throw toApiError(error, 'Failed to add reply. Please try again.');
+  }
+};
+
+export const updateReply = async (
+  postId: number,
+  commentId: number,
+  replyId: number,
+  userId: number,
+  text: string
+): Promise<CommentReply> => {
+  const sanitizedText = sanitizeText(text, 1000);
+  if (!sanitizedText) {
+    throw new ApiError('Reply cannot be empty');
+  }
+
+  try {
+    return await apiRequest<CommentReply>(
+      `/posts/${postId}/comments/${commentId}/replies/${replyId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': createIdempotencyKey(),
+        },
+        body: JSON.stringify({ userId: Number(userId), text: sanitizedText }),
+      }
+    );
+  } catch (error) {
+    console.error('Error updating reply:', error);
+    throw toApiError(error, 'Failed to update reply. Please try again.');
+  }
+};
+
+export const deleteReply = async (
+  postId: number,
+  commentId: number,
+  replyId: number,
+  userId: number
+): Promise<void> => {
+  try {
+    await apiRequest<void>(
+      `/posts/${postId}/comments/${commentId}/replies/${replyId}?userId=${Number(userId)}`,
+      {
+        method: 'DELETE',
+      }
+    );
+  } catch (error) {
+    console.error('Error deleting reply:', error);
+    throw toApiError(error, 'Failed to delete reply. Please try again.');
   }
 };
 

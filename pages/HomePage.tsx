@@ -117,10 +117,11 @@ const HomePage: React.FC = () => {
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="glass-card-ios p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
             <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full overflow-hidden">
+              <div className="md:hidden w-full h-full bg-gradient-to-br from-orange-100 via-amber-100 to-sky-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
               <img
                 src="/landing-hero-dhaka.jpg"
                 alt="Professional Pet Services"
-                className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-110 hidden md:block"
                 loading="lazy"
               />
             </div>

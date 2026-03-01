@@ -6,18 +6,20 @@ const DhakaHero: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm group">
-      {/* Background Image - Dhaka Atmosphere */}
+    <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm group will-change-transform">
+      <div className="absolute inset-0 md:hidden bg-gradient-to-br from-orange-100 via-amber-100 to-sky-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+
+      {/* Background Image - Desktop */}
       <img
         src="/landing-hero-dhaka.jpg"
         alt="2D illustration of old Dhaka – a boy and girl holding a stray kitten and puppy"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 hidden md:block"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-black/5 md:from-black/45 md:to-black/20" />
 
       {/* PetBhai Branding */}
       <div className="absolute inset-0 flex items-center justify-center px-4 text-center z-10">
-        <div className="bg-white/40 dark:bg-slate-900/35 backdrop-blur-[6px] p-5 md:p-7 rounded-3xl shadow-xl border border-white/45 dark:border-white/15 w-full max-w-2xl">
+        <div className="bg-white/50 dark:bg-slate-900/40 backdrop-blur-[10px] p-5 md:p-7 rounded-3xl shadow-xl border border-white/50 dark:border-white/15 w-full max-w-2xl">
           <span className="inline-flex items-center rounded-full bg-white/45 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 px-3 py-1 text-xs md:text-sm font-semibold mb-3 backdrop-blur-[2px] border border-white/40 dark:border-white/10">
             Bangladesh's Trusted Pet Care Platform
           </span>
@@ -30,22 +32,22 @@ const DhakaHero: React.FC = () => {
           <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 mt-2 md:mt-3">
             Shop essentials, book vet help, and adopt responsibly in one place.
           </p>
-          <div className="mt-5 md:mt-6 flex flex-wrap justify-center gap-3">
+          <div className="mt-5 md:mt-6 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3">
             <Link
               to="/shop"
-              className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+              className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105 touch-manipulation active:scale-95"
             >
               {t('btn_shop')}
             </Link>
             <Link
               to="/adopt"
-              className="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+              className="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105 touch-manipulation active:scale-95"
             >
               {t('btn_adopt')}
             </Link>
             <Link
               to="/services"
-              className="px-6 py-2.5 bg-white/70 hover:bg-white/85 text-slate-800 rounded-full font-bold shadow-lg transition-transform hover:scale-105 backdrop-blur-[2px] border border-white/40"
+              className="px-6 py-2.5 bg-white/70 hover:bg-white/85 text-slate-800 rounded-full font-bold shadow-lg transition-transform hover:scale-105 backdrop-blur-[2px] border border-white/40 touch-manipulation active:scale-95"
             >
               Book Services
             </Link>
@@ -63,13 +65,6 @@ const DhakaHero: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* CSS Styles */}
-      <style>{`
-        .polygon-triangle {
-          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        }
-      `}</style>
     </div>
   );
 };

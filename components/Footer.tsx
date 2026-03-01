@@ -181,7 +181,9 @@ const Footer: React.FC = () => {
                     aria-label={`Follow us on ${link.name}`}
                     role="listitem"
                   >
-                    <span className={`${link.colorClass} [&>svg]:w-5 [&>svg]:h-5 md:[&>svg]:w-6 md:[&>svg]:h-6`}>
+                    <span
+                      className={`${link.colorClass} [&>svg]:w-5 [&>svg]:h-5 md:[&>svg]:w-6 md:[&>svg]:h-6`}
+                    >
                       {link.icon}
                     </span>
                     <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 dark:bg-slate-700 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg">
@@ -195,12 +197,14 @@ const Footer: React.FC = () => {
 
           {/* Column 4: Payment Methods & Legal */}
           <div>
-            <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-2 md:mb-3 uppercase tracking-wider">
-              We Accept
-            </h3>
-            <p className="text-xs sm:text-sm md:text-base font-bold text-slate-800 dark:text-white mb-3 md:mb-6">
-              bKash, Nagad, COD
-            </p>
+            <div className="hidden md:block">
+              <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-2 md:mb-3 uppercase tracking-wider">
+                We Accept
+              </h3>
+              <p className="text-xs sm:text-sm md:text-base font-bold text-slate-800 dark:text-white mb-3 md:mb-6">
+                bKash, Nagad, COD
+              </p>
+            </div>
             <nav aria-label="Legal links">
               <h3 className="font-bold text-slate-800 dark:text-white text-sm md:text-lg mb-2 md:mb-3 uppercase tracking-wider">
                 Legal

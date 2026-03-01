@@ -281,6 +281,20 @@ const replySchema = z
     text: z.string().min(1).max(1000),
   })
   .strict();
+
+const updateCommentSchema = z
+  .object({
+    userId: z.number().int().positive(),
+    text: z.string().min(1).max(2000),
+  })
+  .strict();
+
+const updateReplySchema = z
+  .object({
+    userId: z.number().int().positive(),
+    text: z.string().min(1).max(1000),
+  })
+  .strict();
 // Security: Sanitize text input
 const sanitizeText = (text: unknown, maxLength: number = 5000): string => {
   if (typeof text !== 'string') return '';
@@ -731,6 +745,103 @@ router.post('/:id(\\d+)/comments', postMutationLimiter, (req, res) => {
   }
 });
 
+router.put('/:postId/comments/:commentId', postMutationLimiter, (req, res) => {
+  try {
+    const postId = validateId(req.params.postId);
+    const commentId = validateId(req.params.commentId);
+    if (!postId || !commentId) {
+      return res.status(400).json({ message: 'Invalid post or comment ID' });
+    }
+
+    const parsed = updateCommentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid comment update payload' });
+    }
+
+    const userId = validateId(parsed.data.userId);
+    if (!userId) {
+      return res.status(400).json({ message: 'Valid user ID is required' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post || post.hidden) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.find((entry) => entry.id === commentId);
+    if (!comment || comment.hidden) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    if (comment.author.id !== userId) {
+      securityLog('COMMENT_EDIT_FORBIDDEN', req, {
+        postId,
+        commentId,
+        requesterId: userId,
+        ownerId: comment.author.id,
+      });
+      return res.status(403).json({ message: 'You can only edit your own comments' });
+    }
+
+    const sanitizedText = sanitizeText(parsed.data.text, 2000);
+    if (!sanitizedText) {
+      return res.status(400).json({ message: 'Comment text is required' });
+    }
+
+    comment.text = sanitizedText;
+    db.write();
+    emitPostEvent('comment-updated', postId);
+    return res.json(comment);
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    return res.status(500).json({ message: 'Failed to update comment' });
+  }
+});
+
+router.delete('/:postId/comments/:commentId', postMutationLimiter, (req, res) => {
+  try {
+    const postId = validateId(req.params.postId);
+    const commentId = validateId(req.params.commentId);
+    const userId = validateId(req.query.userId);
+
+    if (!postId || !commentId) {
+      return res.status(400).json({ message: 'Invalid post or comment ID' });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ message: 'Valid user ID is required' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post || post.hidden) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const commentIndex = post.comments.findIndex((entry) => entry.id === commentId);
+    if (commentIndex === -1 || post.comments[commentIndex].hidden) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    if (post.comments[commentIndex].author.id !== userId) {
+      securityLog('COMMENT_DELETE_FORBIDDEN', req, {
+        postId,
+        commentId,
+        requesterId: userId,
+        ownerId: post.comments[commentIndex].author.id,
+      });
+      return res.status(403).json({ message: 'You can only delete your own comments' });
+    }
+
+    post.comments.splice(commentIndex, 1);
+    db.write();
+    emitPostEvent('comment-deleted', postId);
+    return res.json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    return res.status(500).json({ message: 'Failed to delete comment' });
+  }
+});
+
 // Like/Unlike a comment
 router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res) => {
   try {
@@ -863,6 +974,118 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, r
   } catch (error) {
     console.error('Error adding reply:', error);
     res.status(500).json({ message: 'Failed to add reply' });
+  }
+});
+
+router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, (req, res) => {
+  try {
+    const postId = validateId(req.params.postId);
+    const commentId = validateId(req.params.commentId);
+    const replyId = validateId(req.params.replyId);
+
+    if (!postId || !commentId || !replyId) {
+      return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
+    }
+
+    const parsed = updateReplySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid reply update payload' });
+    }
+
+    const userId = validateId(parsed.data.userId);
+    if (!userId) {
+      return res.status(400).json({ message: 'Valid user ID is required' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post || post.hidden) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.find((entry) => entry.id === commentId);
+    if (!comment || comment.hidden) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const reply = comment.replies.find((entry) => entry.id === replyId);
+    if (!reply || reply.hidden) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    if (reply.author.id !== userId) {
+      securityLog('REPLY_EDIT_FORBIDDEN', req, {
+        postId,
+        commentId,
+        replyId,
+        requesterId: userId,
+        ownerId: reply.author.id,
+      });
+      return res.status(403).json({ message: 'You can only edit your own replies' });
+    }
+
+    const sanitizedText = sanitizeText(parsed.data.text, 1000);
+    if (!sanitizedText) {
+      return res.status(400).json({ message: 'Reply text is required' });
+    }
+
+    reply.text = sanitizedText;
+    db.write();
+    emitPostEvent('reply-updated', postId);
+    return res.json(reply);
+  } catch (error) {
+    console.error('Error updating reply:', error);
+    return res.status(500).json({ message: 'Failed to update reply' });
+  }
+});
+
+router.delete('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, (req, res) => {
+  try {
+    const postId = validateId(req.params.postId);
+    const commentId = validateId(req.params.commentId);
+    const replyId = validateId(req.params.replyId);
+    const userId = validateId(req.query.userId);
+
+    if (!postId || !commentId || !replyId) {
+      return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ message: 'Valid user ID is required' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post || post.hidden) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.find((entry) => entry.id === commentId);
+    if (!comment || comment.hidden) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const replyIndex = comment.replies.findIndex((entry) => entry.id === replyId);
+    if (replyIndex === -1 || comment.replies[replyIndex].hidden) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    if (comment.replies[replyIndex].author.id !== userId) {
+      securityLog('REPLY_DELETE_FORBIDDEN', req, {
+        postId,
+        commentId,
+        replyId,
+        requesterId: userId,
+        ownerId: comment.replies[replyIndex].author.id,
+      });
+      return res.status(403).json({ message: 'You can only delete your own replies' });
+    }
+
+    comment.replies.splice(replyIndex, 1);
+    db.write();
+    emitPostEvent('reply-deleted', postId);
+    return res.json({ message: 'Reply deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting reply:', error);
+    return res.status(500).json({ message: 'Failed to delete reply' });
   }
 });
 
