@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { Post } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { UserIcon, ImageIcon } from './icons';
+import { ImageIcon } from './icons';
 import { useToast } from '../contexts/ToastContext';
+import Avatar from './Avatar';
 
 interface CreatePostFormProps {
   onAddPost: (post: Post) => void;
@@ -173,7 +174,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
         if (textareaRef.current) {
           textareaRef.current.style.height = 'auto';
         }
-      } catch (error) {
+      } catch {
         // Error is handled by parent component
       } finally {
         setIsSubmitting(false);
@@ -189,17 +190,12 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
     <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 mb-6 sm:mb-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <form onSubmit={handleSubmit}>
         <div className="flex items-start space-x-3 sm:space-x-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
-            {currentUser?.profilePictureUrl ? (
-              <img
-                src={currentUser.profilePictureUrl}
-                alt={currentUser.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <UserIcon className="w-6 h-6 sm:w-7 sm:h-7 text-slate-600 dark:text-slate-300" />
-            )}
-          </div>
+          <Avatar
+            src={currentUser?.profilePictureUrl}
+            name={currentUser?.name || 'User'}
+            size="md"
+            className="flex-shrink-0"
+          />
           <div className="flex-1 min-w-0">
             <textarea
               ref={textareaRef}

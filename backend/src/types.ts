@@ -127,6 +127,8 @@ export interface User {
   email: string;
   password?: string;
   profilePictureUrl?: string;
+  phone?: string;
+  bio?: string;
   wishlist?: number[]; // Array of product IDs
   orderHistory?: Order[];
   orders?: Order[]; // Alternative orders field

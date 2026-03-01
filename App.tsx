@@ -257,7 +257,7 @@ const RouteSEO: React.FC = () => {
   if (path === '/checkout') return <SEO title="Checkout" noindex />;
   if (path === '/login') return <SEO title="Login" noindex />;
   if (path === '/signup') return <SEO title="Sign Up" noindex />;
-  if (path === '/profile') return <SEO title="Profile" noindex />;
+  if (path === '/profile') return <SEO title="My Profile | PetBhai" noindex />;
   if (path === '/dashboard') return <SEO title="Dashboard" noindex />;
   if (path === '/admin-dashboard') return <SEO title="Admin Dashboard" noindex />;
   if (path === '/thumbnail-generator') {

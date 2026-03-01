@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback, useDeferredValue, useMemo } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
-import { MenuIcon, CloseIcon, SearchIcon, UserIcon } from './icons';
+import { MenuIcon, CloseIcon, SearchIcon } from './icons';
 import Logo from './Logo';
+import Avatar from './Avatar';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import SearchResults, { type SearchResultsData } from './SearchResults';
@@ -469,24 +470,13 @@ const Header: React.FC = () => {
                   aria-haspopup="true"
                 >
                   <div className="ring-2 ring-transparent group-hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
-                    {currentUser.profilePictureUrl ? (
-                      <img
-                        src={currentUser.profilePictureUrl}
-                        alt={currentUser.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                        <UserIcon className="w-6 h-6 text-slate-500 dark:text-slate-300" />
-                      </div>
-                    )}
+                    <Avatar
+                      src={currentUser.profilePictureUrl}
+                      name={currentUser.name}
+                      size="md"
+                      showPlusBadge={currentUser.isPlusMember}
+                    />
                   </div>
-                  {currentUser.isPlusMember && (
-                    <span className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-800 shadow-sm animate-scale-in">
-                      +
-                    </span>
-                  )}
                 </button>
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-20 py-2 border border-slate-200 dark:border-slate-700 transform origin-top-right animate-scale-in">

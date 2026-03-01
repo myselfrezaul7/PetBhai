@@ -142,8 +142,16 @@ const comparePassword = async (password: string, hash: string): Promise<boolean>
 // Helper to remove password from user object
 const sanitizeUser = (user: User): Omit<User, 'password'> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: _p, ...userWithoutPassword } = user;
-  return userWithoutPassword;
+  const {
+    password: _p,
+    refreshTokenHash: _r,
+    refreshTokenExpiresAt: _re,
+    emailVerificationTokenHash: _evh,
+    emailVerificationExpiresAt: _eve,
+    tokenVersion: _tv,
+    ...safeUser
+  } = user as UserAuthMetadata;
+  return safeUser;
 };
 
 const canAccessUser = (req: AuthRequest, userId: number): boolean => {
@@ -370,6 +378,25 @@ const reminderUpdateSchema = z
     isActive: z.boolean().optional(),
     notificationEnabled: z.boolean().optional(),
     lastGivenDate: z.string().datetime().optional(),
+  })
+  .strict();
+
+const shippingAddressSchema = z
+  .object({
+    fullName: z.string().trim().min(2).max(120),
+    address: z.string().trim().min(5).max(240),
+    city: z.string().trim().min(2).max(80),
+    phone: z.string().trim().min(6).max(30),
+  })
+  .strict();
+
+const profileUpdateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(100).optional(),
+    profilePictureUrl: z.string().trim().max(100000).optional(),
+    phone: z.string().trim().min(6).max(30).optional(),
+    bio: z.string().trim().max(500).optional(),
+    defaultShippingAddress: shippingAddressSchema.optional(),
   })
   .strict();
 
@@ -884,10 +911,38 @@ router.post('/resend-verification', authLimiter, (req, res) => {
   }
 });
 
+router.get('/me', requireAuth, (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const requesterId = Number(req.user.id);
+    if (!Number.isFinite(requesterId)) {
+      return res.status(401).json({ message: 'Invalid auth context' });
+    }
+
+    const user = db.users.find((record) => Number(record.id) === requesterId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const roleSynced = syncRoleByEmail(user);
+    if (roleSynced) {
+      persistChanges(res);
+    }
+
+    ensureUserCollections(user);
+    return res.json(sanitizeUser(user));
+  } catch (error) {
+    console.error('Fetch profile error:', error);
+    return res.status(500).json({ message: 'Failed to fetch profile' });
+  }
+});
+
 // Update Profile
 router.put('/:id', requireAuth, (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-  const { name, profilePictureUrl } = req.body;
+  const userId = parseInt(req.params.id, 10);
 
   if (isNaN(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -903,15 +958,41 @@ router.put('/:id', requireAuth, (req: AuthRequest, res) => {
     return res.status(404).json({ message: 'User not found' });
   }
 
+  const parsed = profileUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: 'Invalid profile payload',
+      errors: parsed.error.flatten(),
+    });
+  }
+
+  const { name, profilePictureUrl, phone, bio, defaultShippingAddress } = parsed.data;
+
   const updatedUser = { ...db.users[userIndex] };
-  if (name && typeof name === 'string') {
+  if (typeof name === 'string') {
     updatedUser.name = sanitizeString(name);
   }
-  if (profilePictureUrl && typeof profilePictureUrl === 'string') {
-    // Basic URL validation
-    if (profilePictureUrl.startsWith('http://') || profilePictureUrl.startsWith('https://')) {
-      updatedUser.profilePictureUrl = profilePictureUrl.slice(0, 500);
+  if (typeof profilePictureUrl === 'string') {
+    const isHttpUrl =
+      profilePictureUrl.startsWith('http://') || profilePictureUrl.startsWith('https://');
+    const isDataImageUrl = profilePictureUrl.startsWith('data:image/');
+    if (isHttpUrl || isDataImageUrl) {
+      updatedUser.profilePictureUrl = profilePictureUrl.slice(0, 100000);
     }
+  }
+  if (typeof phone === 'string') {
+    updatedUser.phone = sanitizeString(phone).slice(0, 30);
+  }
+  if (typeof bio === 'string') {
+    updatedUser.bio = sanitizeString(bio);
+  }
+  if (defaultShippingAddress) {
+    updatedUser.defaultShippingAddress = {
+      fullName: sanitizeString(defaultShippingAddress.fullName).slice(0, 120),
+      address: sanitizeString(defaultShippingAddress.address).slice(0, 240),
+      city: sanitizeString(defaultShippingAddress.city).slice(0, 80),
+      phone: sanitizeString(defaultShippingAddress.phone).slice(0, 30),
+    };
   }
 
   db.users[userIndex] = updatedUser;
@@ -919,6 +1000,55 @@ router.put('/:id', requireAuth, (req: AuthRequest, res) => {
 
   auditLog('PROFILE_UPDATE', userId, { fields: Object.keys(req.body) });
   res.json(sanitizeUser(updatedUser));
+});
+
+router.delete('/:id', requireAuth, authLimiter, async (req: AuthRequest, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    if (Number.isNaN(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    if (!canAccessUser(req, userId)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const userIndex = db.users.findIndex((u) => Number(u.id) === userId);
+    if (userIndex === -1) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const candidate = db.users[userIndex];
+    const passwordConfirmation =
+      typeof req.body?.password === 'string' ? req.body.password : undefined;
+
+    if (candidate.password && !candidate.socialProvider) {
+      if (!passwordConfirmation) {
+        return res.status(400).json({ message: 'Password confirmation is required' });
+      }
+
+      const isValidPassword = candidate.password.startsWith('$2')
+        ? await comparePassword(passwordConfirmation, candidate.password)
+        : candidate.password === passwordConfirmation;
+
+      if (!isValidPassword) {
+        auditLog('FAILED_ACCOUNT_DELETE', userId, { reason: 'invalid_password' });
+        return res.status(401).json({ message: 'Password confirmation is incorrect' });
+      }
+    }
+
+    db.users.splice(userIndex, 1);
+    persistChanges(res);
+
+    auditLog('ACCOUNT_DELETED', userId, {
+      byAdmin: !!req.user?.isAdmin,
+    });
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error('Account deletion error:', error);
+    return res.status(500).json({ message: 'Failed to delete account' });
+  }
 });
 
 // Add to Wishlist

@@ -68,10 +68,18 @@ export interface User {
   name: string;
   email: string;
   profilePictureUrl?: string;
+  phone?: string;
+  bio?: string;
   role?: 'customer' | 'admin';
   emailVerified?: boolean;
   socialProvider?: 'google';
   socialProviderId?: string;
+  defaultShippingAddress?: {
+    fullName: string;
+    address: string;
+    city: string;
+    phone: string;
+  };
   wishlist: number[]; // Array of product IDs
   orderHistory: Order[];
   favorites: number[]; // Array of animal IDs

@@ -140,7 +140,21 @@ interface AuthContextType {
     firebaseToken?: string;
     providerUserId?: string;
   }) => Promise<User>;
-  updateProfile: (updatedData: { name?: string; profilePictureUrl?: string }) => Promise<User>;
+  fetchProfile: () => Promise<User>;
+  updateProfile: (updatedData: {
+    name?: string;
+    profilePictureUrl?: string;
+    phone?: string;
+    bio?: string;
+    defaultShippingAddress?: {
+      fullName: string;
+      address: string;
+      city: string;
+      phone: string;
+    };
+  }) => Promise<User>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  deleteAccount: (password?: string) => Promise<void>;
   addToWishlist: (productId: number) => void;
   removeFromWishlist: (productId: number) => void;
   addOrderToHistory: (order: Order) => void;
@@ -346,6 +360,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [clearSession, refreshSession]
   );
 
+  const fetchProfile = useCallback(async (): Promise<User> => {
+    const profile = await protectedApiRequest<User>('/auth/me', {
+      method: 'GET',
+    });
+
+    if (isAdminEmail(profile.email)) {
+      profile.role = 'admin';
+    }
+
+    setCurrentUser(profile);
+    return profile;
+  }, [protectedApiRequest]);
+
   const signup = useCallback(
     async (
       name: string,
@@ -451,7 +478,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const updateProfile = useCallback(
-    async (updatedData: { name?: string; profilePictureUrl?: string }): Promise<User> => {
+    async (updatedData: {
+      name?: string;
+      profilePictureUrl?: string;
+      phone?: string;
+      bio?: string;
+      defaultShippingAddress?: {
+        fullName: string;
+        address: string;
+        city: string;
+        phone: string;
+      };
+    }): Promise<User> => {
       if (!currentUser) throw new Error('No user logged in');
 
       try {
@@ -470,6 +508,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     },
     [currentUser, protectedApiRequest]
+  );
+
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string): Promise<void> => {
+      if (!currentUser) {
+        throw new Error('No user logged in');
+      }
+
+      if (!currentPassword || !newPassword) {
+        throw new Error('Current and new passwords are required');
+      }
+
+      await protectedApiRequest<{ message: string }>(`/auth/${currentUser.id}/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+    },
+    [currentUser, protectedApiRequest]
+  );
+
+  const deleteAccount = useCallback(
+    async (password?: string): Promise<void> => {
+      if (!currentUser) {
+        throw new Error('No user logged in');
+      }
+
+      await protectedApiRequest<unknown>(`/auth/${currentUser.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(password ? { password } : {}),
+      });
+
+      clearSession();
+    },
+    [clearSession, currentUser, protectedApiRequest]
   );
 
   const addToWishlist = useCallback(
@@ -627,6 +705,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [currentUser, protectedApiRequest]
   );
 
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token || isTokenExpired(token) || currentUser) {
+      return;
+    }
+
+    void fetchProfile().catch(() => undefined);
+  }, [currentUser, fetchProfile]);
+
   const value = useMemo(() => {
     const token = getStoredToken();
     const isAuthenticated = !!currentUser && !!token && !isTokenExpired(token);
@@ -638,7 +725,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       signup,
       socialLogin,
+      fetchProfile,
       updateProfile,
+      changePassword,
+      deleteAccount,
       addToWishlist,
       removeFromWishlist,
       addOrderToHistory,
@@ -652,7 +742,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     signup,
     socialLogin,
+    fetchProfile,
     updateProfile,
+    changePassword,
+    deleteAccount,
     addToWishlist,
     removeFromWishlist,
     addOrderToHistory,

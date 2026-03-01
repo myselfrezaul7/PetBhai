@@ -2,40 +2,80 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
-import { UserIcon } from '../components/icons';
 import type { Order } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { useToast } from '../contexts/ToastContext';
+import { usePetManagement } from '../contexts/PetManagementContext';
+import { useVaccination } from '../contexts/VaccinationContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 import ProductCard from '../components/ProductCard';
 import VaccinationReminder from '../components/VaccinationReminder';
 import PetTools from '../components/PetTools';
+import Avatar from '../components/Avatar';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 
 const REORDER_THRESHOLD_DAYS = 15;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+type ProfileTab =
+  | 'overview'
+  | 'profile'
+  | 'address'
+  | 'security'
+  | 'pets'
+  | 'vaccinations'
+  | 'tools'
+  | 'wishlist'
+  | 'orders';
+
 const ProfilePage: React.FC = () => {
-  const { currentUser, updateProfile, isAuthenticated } = useAuth();
+  const {
+    currentUser,
+    updateProfile,
+    isAuthenticated,
+    fetchProfile,
+    changePassword,
+    deleteAccount,
+  } = useAuth();
   const { addToCart } = useCart();
   const { products } = useProducts();
+  const { pets } = usePetManagement();
+  const { getUpcomingVaccinations } = useVaccination();
+  const { confirm } = useConfirmation();
   const navigate = useNavigate();
   const toast = useToast();
 
+  const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const [name, setName] = useState(currentUser?.name || '');
+  const [phone, setPhone] = useState(currentUser?.phone || '');
+  const [bio, setBio] = useState(currentUser?.bio || '');
   const [profilePicture, setProfilePicture] = useState<string | null>(
     currentUser?.profilePictureUrl || null
   );
   const [newProfilePictureFile, setNewProfilePictureFile] = useState<File | null>(null);
 
+  const [addressFullName, setAddressFullName] = useState(
+    currentUser?.defaultShippingAddress?.fullName || ''
+  );
+  const [addressLine, setAddressLine] = useState(
+    currentUser?.defaultShippingAddress?.address || ''
+  );
+  const [addressCity, setAddressCity] = useState(currentUser?.defaultShippingAddress?.city || '');
+  const [addressPhone, setAddressPhone] = useState(
+    currentUser?.defaultShippingAddress?.phone || ''
+  );
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [nameError, setNameError] = useState<string | undefined>();
-
-  const [activeTab, setActiveTab] = useState<
-    'profile' | 'wishlist' | 'orders' | 'reorder' | 'vaccinations' | 'tools'
-  >('profile');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,20 +85,57 @@ const ProfilePage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Sync name state when currentUser changes
   useEffect(() => {
-    if (currentUser?.name) {
-      setName(currentUser.name);
+    if (!currentUser) {
+      return;
     }
-    if (currentUser?.profilePictureUrl) {
-      setProfilePicture(currentUser.profilePictureUrl);
-    }
+
+    setName(currentUser.name || '');
+    setPhone(currentUser.phone || '');
+    setBio(currentUser.bio || '');
+    setProfilePicture(currentUser.profilePictureUrl || null);
+    setAddressFullName(currentUser.defaultShippingAddress?.fullName || '');
+    setAddressLine(currentUser.defaultShippingAddress?.address || '');
+    setAddressCity(currentUser.defaultShippingAddress?.city || '');
+    setAddressPhone(currentUser.defaultShippingAddress?.phone || '');
   }, [currentUser]);
+
+  const refreshProfile = useCallback(async () => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      await fetchProfile();
+    } catch {
+      // intentionally silent; page already has user data from context/local storage
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [fetchProfile, isAuthenticated]);
+
+  useEffect(() => {
+    void refreshProfile();
+  }, [refreshProfile]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      void refreshProfile();
+    }, 45000);
+
+    return () => window.clearInterval(intervalId);
+  }, [refreshProfile]);
 
   const wishlistedProducts = useMemo(() => {
     if (!currentUser) return [];
     return products.filter((product) => currentUser.wishlist.includes(product.id));
   }, [currentUser, products]);
+
+  const recentOrders = useMemo(() => {
+    if (!currentUser) return [];
+    return currentUser.orderHistory.slice(0, 3);
+  }, [currentUser]);
 
   const reorderSuggestions = useMemo(() => {
     if (!currentUser) return [];
@@ -67,7 +144,10 @@ const ProfilePage: React.FC = () => {
     return currentUser.orderHistory.filter((order) => new Date(order.date) < thresholdDate);
   }, [currentUser]);
 
-  // Validate name
+  const upcomingVaccinations = useMemo(() => {
+    return getUpcomingVaccinations(30).slice(0, 5);
+  }, [getUpcomingVaccinations]);
+
   const validateName = useCallback((value: string): string | undefined => {
     const trimmed = value.trim();
     if (!trimmed) return 'Name is required';
@@ -80,22 +160,19 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   const handleNameBlur = useCallback(() => {
-    const error = validateName(name);
-    setNameError(error);
+    setNameError(validateName(name));
   }, [name, validateName]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       setErrorMessage('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
       setTimeout(() => setErrorMessage(''), 5000);
       return;
     }
 
-    // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       setErrorMessage('Image file is too large (max 5MB)');
       setTimeout(() => setErrorMessage(''), 5000);
@@ -114,13 +191,19 @@ const ProfilePage: React.FC = () => {
     reader.readAsDataURL(file);
   }, []);
 
-  const handleSubmit = useCallback(
+  const clearMessagesSoon = useCallback(() => {
+    setTimeout(() => setSuccessMessage(''), 3000);
+    setTimeout(() => setErrorMessage(''), 5000);
+  }, []);
+
+  const handleSaveProfile = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (!currentUser) return;
 
-      // Sanitize and validate name
       const sanitizedName = sanitizeInput(name.trim());
+      const sanitizedPhone = sanitizeInput(phone.trim());
+      const sanitizedBio = sanitizeInput(bio.trim());
       const nameValidationError = validateName(sanitizedName);
 
       if (nameValidationError) {
@@ -129,60 +212,184 @@ const ProfilePage: React.FC = () => {
       }
 
       setIsLoading(true);
-      setSuccessMessage('');
       setErrorMessage('');
-      setNameError(undefined);
+      setSuccessMessage('');
 
       try {
-        let updatedData: { name?: string; profilePictureUrl?: string } = {};
+        const payload: {
+          name?: string;
+          profilePictureUrl?: string;
+          phone?: string;
+          bio?: string;
+        } = {};
 
         if (sanitizedName !== currentUser.name) {
-          updatedData.name = sanitizedName;
+          payload.name = sanitizedName;
+        }
+
+        if (sanitizedPhone !== (currentUser.phone || '')) {
+          payload.phone = sanitizedPhone;
+        }
+
+        if (sanitizedBio !== (currentUser.bio || '')) {
+          payload.bio = sanitizedBio;
         }
 
         if (newProfilePictureFile && profilePicture) {
-          // Sanitize the data URL
-          const sanitizedUrl = sanitizeUrl(profilePicture);
-          if (sanitizedUrl) {
-            updatedData.profilePictureUrl = sanitizedUrl;
-          }
+          const sanitizedImage = sanitizeUrl(profilePicture) || profilePicture;
+          payload.profilePictureUrl = sanitizedImage;
         }
 
-        if (Object.keys(updatedData).length > 0) {
-          await updateProfile(updatedData);
+        if (Object.keys(payload).length > 0) {
+          await updateProfile(payload);
           setSuccessMessage('Profile updated successfully!');
-          setNewProfilePictureFile(null); // Reset file state after save
+          setNewProfilePictureFile(null);
         } else {
           setSuccessMessage('No changes to save.');
         }
-
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'An unknown error occurred.';
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to save profile';
         setErrorMessage(message);
-        setTimeout(() => setErrorMessage(''), 5000);
       } finally {
         setIsLoading(false);
+        clearMessagesSoon();
       }
     },
-    [currentUser, name, newProfilePictureFile, profilePicture, updateProfile, validateName]
+    [
+      bio,
+      clearMessagesSoon,
+      currentUser,
+      name,
+      newProfilePictureFile,
+      phone,
+      profilePicture,
+      updateProfile,
+      validateName,
+    ]
   );
+
+  const handleSaveAddress = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      setIsLoading(true);
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      try {
+        await updateProfile({
+          defaultShippingAddress: {
+            fullName: sanitizeInput(addressFullName.trim()),
+            address: sanitizeInput(addressLine.trim()),
+            city: sanitizeInput(addressCity.trim()),
+            phone: sanitizeInput(addressPhone.trim()),
+          },
+        });
+
+        setSuccessMessage('Address saved successfully!');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to save address';
+        setErrorMessage(message);
+      } finally {
+        setIsLoading(false);
+        clearMessagesSoon();
+      }
+    },
+    [
+      addressCity,
+      addressFullName,
+      addressLine,
+      addressPhone,
+      clearMessagesSoon,
+      currentUser,
+      updateProfile,
+    ]
+  );
+
+  const handleChangePassword = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        setErrorMessage('Please fill out all password fields');
+        clearMessagesSoon();
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        setErrorMessage('New password and confirmation do not match');
+        clearMessagesSoon();
+        return;
+      }
+
+      setIsLoading(true);
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      try {
+        await changePassword(currentPassword, newPassword);
+        setSuccessMessage('Password changed successfully!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to change password';
+        setErrorMessage(message);
+      } finally {
+        setIsLoading(false);
+        clearMessagesSoon();
+      }
+    },
+    [changePassword, clearMessagesSoon, confirmPassword, currentPassword, newPassword]
+  );
+
+  const handleDeleteAccount = useCallback(async () => {
+    const approved = await confirm({
+      title: 'Delete Account',
+      message: 'This action is permanent and cannot be undone. Do you want to continue?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+
+    if (!approved) {
+      return;
+    }
+
+    const password = currentUser?.socialProvider ? undefined : currentPassword;
+
+    setIsLoading(true);
+    try {
+      await deleteAccount(password);
+      toast.success('Your account has been deleted');
+      navigate('/');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete account';
+      setErrorMessage(message);
+      clearMessagesSoon();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    clearMessagesSoon,
+    confirm,
+    currentPassword,
+    currentUser?.socialProvider,
+    deleteAccount,
+    navigate,
+    toast,
+  ]);
 
   const handleReorder = useCallback(
     (order: Order) => {
       order.items.forEach((item) => {
-        for (let i = 0; i < item.quantity; i++) {
+        for (let count = 0; count < item.quantity; count += 1) {
           addToCart(item);
         }
       });
-      toast.success('Items from your past order have been added to your cart!');
+      toast.success('Items from your past order were added to your cart!');
     },
     [addToCart, toast]
   );
-
-  const handleTabChange = useCallback((tabId: typeof activeTab) => {
-    setActiveTab(tabId);
-  }, []);
 
   const handleProfilePictureClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -192,339 +399,550 @@ const ProfilePage: React.FC = () => {
     return null;
   }
 
-  const TabButton: React.FC<{ tabId: typeof activeTab; children: React.ReactNode }> = ({
-    tabId,
-    children,
-  }) => (
-    <button
-      onClick={() => handleTabChange(tabId)}
-      className={`px-3 sm:px-4 py-2 font-semibold rounded-t-lg transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap touch-manipulation active:scale-95 ${activeTab === tabId ? 'bg-white/30 dark:bg-slate-800/30 border-b-2 border-orange-500 text-orange-600 dark:text-orange-400' : 'text-slate-700 dark:text-slate-300 hover:text-orange-500'}`}
-      data-selected={activeTab === tabId}
-      tabIndex={activeTab === tabId ? 0 : -1}
-    >
-      {children}
-    </button>
-  );
+  const tabs: Array<{ id: ProfileTab; label: string }> = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'profile', label: 'Edit Profile' },
+    { id: 'address', label: 'Address' },
+    { id: 'security', label: 'Security' },
+    { id: 'pets', label: `My Pets (${pets.length})` },
+    { id: 'vaccinations', label: '🐾 Vaccinations' },
+    { id: 'tools', label: '✨ Tools' },
+    { id: 'wishlist', label: `Wishlist (${wishlistedProducts.length})` },
+    { id: 'orders', label: `Orders (${currentUser.orderHistory.length})` },
+  ];
+
+  const memberSince = new Date(Number(currentUser.id) || Date.now()).toLocaleDateString();
 
   return (
     <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="glass-card-ios p-4 sm:p-6 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-4 sm:space-y-0 sm:space-x-6">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-orange-200 dark:ring-orange-500/30">
-              {currentUser.profilePictureUrl ? (
-                <img
-                  src={currentUser.profilePictureUrl}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <UserIcon className="w-12 h-12 sm:w-16 sm:h-16 text-slate-600 dark:text-slate-300" />
-              )}
-            </div>
-            <div className="flex-grow min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white truncate">
-                {currentUser.name}
-              </h1>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 truncate">
-                {currentUser.email}
-              </p>
-            </div>
-            {currentUser.isPlusMember ? (
-              <div className="bg-gradient-to-tr from-yellow-400 to-orange-500 text-white rounded-lg px-3 sm:px-4 py-2 text-center flex-shrink-0">
-                <p className="font-bold text-base sm:text-lg">PLUS Member</p>
-                <p className="text-xs">Enjoying exclusive benefits!</p>
-              </div>
-            ) : (
-              <Link
-                to="/plus-membership"
-                className="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg px-3 sm:px-4 py-2 text-center hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex-shrink-0 touch-manipulation active:scale-95"
+      <div className="max-w-6xl mx-auto space-y-6">
+        <section className="glass-card-ios p-4 sm:p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-5">
+            <div className="relative w-fit mx-auto lg:mx-0">
+              <button
+                type="button"
+                onClick={handleProfilePictureClick}
+                className="rounded-full focus:outline-none ring-2 ring-transparent hover:ring-orange-400 transition-all"
+                aria-label="Change profile picture"
               >
-                <p className="font-bold text-base sm:text-lg">Join PetBhai+</p>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Unlock Benefits</p>
-              </Link>
-            )}
-          </div>
-        </div>
-
-        <div className="glass-card-ios p-2 sm:p-3 mb-4 sm:mb-6 flex overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-          <TabButton tabId="profile">Edit Profile</TabButton>
-          <TabButton tabId="vaccinations">🐾 Vaccinations</TabButton>
-          <TabButton tabId="tools">✨ Tools</TabButton>
-          <TabButton tabId="wishlist">Wishlist ({wishlistedProducts.length})</TabButton>
-          <TabButton tabId="orders">Orders ({currentUser.orderHistory.length})</TabButton>
-          <TabButton tabId="reorder">Reorder</TabButton>
-        </div>
-
-        <div className="glass-card-ios p-4 sm:p-6 md:p-10">
-          {activeTab === 'profile' && (
-            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {profilePicture ? (
-                      <img
-                        src={profilePicture}
-                        alt="Profile Preview"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <UserIcon className="w-16 h-16 sm:w-20 sm:h-20 text-slate-600 dark:text-slate-300" />
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleProfilePictureClick}
-                    className="absolute -bottom-2 -right-2 bg-orange-500 text-white rounded-full p-2 hover:bg-orange-600 shadow-md touch-manipulation active:scale-95"
-                    aria-label="Change profile picture"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
-                    aria-label="Upload profile picture"
-                    title="Choose a profile picture"
-                  />
-                </div>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                  Click the pencil to change your photo. (Max 5MB)
-                </p>
-              </div>
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-200 mb-2"
-                >
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onBlur={handleNameBlur}
-                  required
-                  autoComplete="name"
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation text-base ${
-                    nameError
-                      ? 'border-red-500 dark:border-red-400'
-                      : 'border-slate-300 dark:border-slate-600'
-                  }`}
-                  aria-invalid="false"
-                  data-invalid={Boolean(nameError)}
-                  aria-describedby={nameError ? 'name-error' : undefined}
+                <Avatar
+                  src={profilePicture || currentUser.profilePictureUrl}
+                  name={currentUser.name}
+                  size="xl"
+                  showPlusBadge={currentUser.isPlusMember}
                 />
-                {nameError && (
-                  <p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {nameError}
-                  </p>
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
+
+            <div className="flex-1 min-w-0 text-center lg:text-left">
+              <div className="flex flex-wrap gap-2 items-center justify-center lg:justify-start">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white truncate">
+                  {currentUser.name}
+                </h1>
+                {currentUser.socialProvider === 'google' && (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                    Google Account
+                  </span>
                 )}
               </div>
-              {successMessage && (
-                <p
-                  role="status"
-                  aria-live="polite"
-                  className="bg-green-100/80 text-green-800 dark:bg-green-500/30 dark:text-green-200 p-3 rounded-lg text-center text-sm sm:text-base"
-                >
-                  {successMessage}
+              <p className="text-slate-600 dark:text-slate-300 truncate">{currentUser.email}</p>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Member since {memberSince}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full lg:w-auto">
+              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-slate-800 dark:text-white">
+                  {currentUser.orderHistory.length}
                 </p>
-              )}
-              {errorMessage && (
-                <p
-                  role="alert"
-                  aria-live="assertive"
-                  className="bg-red-100/80 text-red-700 dark:bg-red-500/30 dark:text-red-200 p-3 rounded-lg text-center text-sm sm:text-base"
-                >
-                  {errorMessage}
+                <p className="text-xs text-slate-500 dark:text-slate-400">Orders</p>
+              </div>
+              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-slate-800 dark:text-white">
+                  {wishlistedProducts.length}
                 </p>
-              )}
-              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Wishlist</p>
+              </div>
+              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-slate-800 dark:text-white">{pets.length}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Pets</p>
+              </div>
+              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-slate-800 dark:text-white">
+                  {upcomingVaccinations.length}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Upcoming Shots</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-4">
+            <button
+              type="button"
+              onClick={() => void refreshProfile()}
+              disabled={isRefreshing}
+              className="text-sm px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:bg-orange-300 transition-colors"
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh Live Data'}
+            </button>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4">
+          <aside className="glass-card-ios p-2 sm:p-3 flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-orange-500 text-white'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </aside>
+
+          <div className="glass-card-ios p-4 sm:p-6 md:p-8 transition-all duration-300">
+            {successMessage && (
+              <p className="mb-4 bg-green-100/80 text-green-800 dark:bg-green-500/30 dark:text-green-200 p-3 rounded-lg text-center text-sm">
+                {successMessage}
+              </p>
+            )}
+            {errorMessage && (
+              <p className="mb-4 bg-red-100/80 text-red-700 dark:bg-red-500/30 dark:text-red-200 p-3 rounded-lg text-center text-sm">
+                {errorMessage}
+              </p>
+            )}
+
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
+                    Overview
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm">
+                    Your latest activity and quick actions in one place.
+                  </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                    <p className="text-xs text-slate-500">Recent Orders</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      {recentOrders.length}
+                    </p>
+                  </div>
+                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                    <p className="text-xs text-slate-500">Wishlist Items</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      {wishlistedProducts.length}
+                    </p>
+                  </div>
+                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                    <p className="text-xs text-slate-500">My Pets</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      {pets.length}
+                    </p>
+                  </div>
+                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                    <p className="text-xs text-slate-500">Vaccinations (30d)</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      {upcomingVaccinations.length}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <Link
+                    to="/shop"
+                    className="block text-center bg-orange-500 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                  >
+                    Shop Now
+                  </Link>
+                  <Link
+                    to="/services"
+                    className="block text-center bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-2.5 rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                  >
+                    Book Vet
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    className="block text-center bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-2.5 rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                  >
+                    Manage Pets
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-bold text-slate-800 dark:text-white">Latest Orders</h3>
+                  {recentOrders.length === 0 ? (
+                    <p className="text-slate-600 dark:text-slate-300 text-sm">
+                      No recent orders yet.
+                    </p>
+                  ) : (
+                    recentOrders.map((order) => (
+                      <div
+                        key={order.orderId}
+                        className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-3"
+                      >
+                        <div className="flex justify-between items-center gap-3">
+                          <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">
+                            {order.orderId}
+                          </p>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">
+                            ৳{order.total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'profile' && (
+              <form onSubmit={handleSaveProfile} className="space-y-5" noValidate>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Edit Profile</h2>
+
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onBlur={handleNameBlur}
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50 ${
+                      nameError ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+                    }`}
+                  />
+                  {nameError && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
+                  >
+                    Phone
+                  </label>
+                  <input
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="bio"
+                    className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
+                  >
+                    Bio
+                  </label>
+                  <textarea
+                    id="bio"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    rows={4}
+                    maxLength={500}
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+                </div>
+
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98] flex items-center justify-center gap-2"
-                  aria-label={isLoading ? 'Saving changes, please wait' : 'Save Changes'}
+                  className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300"
                 >
-                  {isLoading && (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  )}
-                  {isLoading ? 'Saving Changes...' : 'Save Changes'}
+                  {isLoading ? 'Saving...' : 'Save Profile'}
                 </button>
+              </form>
+            )}
+
+            {activeTab === 'address' && (
+              <form onSubmit={handleSaveAddress} className="space-y-5">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                  Shipping Address
+                </h2>
+
+                <input
+                  value={addressFullName}
+                  onChange={(e) => setAddressFullName(e.target.value)}
+                  placeholder="Full Name"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                />
+                <input
+                  value={addressLine}
+                  onChange={(e) => setAddressLine(e.target.value)}
+                  placeholder="Address"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <input
+                    value={addressCity}
+                    onChange={(e) => setAddressCity(e.target.value)}
+                    placeholder="City"
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+                  <input
+                    value={addressPhone}
+                    onChange={(e) => setAddressPhone(e.target.value)}
+                    placeholder="Phone"
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300"
+                >
+                  {isLoading ? 'Saving...' : 'Save Address'}
+                </button>
+              </form>
+            )}
+
+            {activeTab === 'security' && (
+              <div className="space-y-8">
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Security</h2>
+
+                  {currentUser.socialProvider ? (
+                    <p className="text-sm text-slate-600 dark:text-slate-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                      You signed up with Google. Password change may not apply unless you also use
+                      email/password login.
+                    </p>
+                  ) : null}
+
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Current Password"
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New Password"
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm New Password"
+                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300"
+                  >
+                    {isLoading ? 'Updating...' : 'Change Password'}
+                  </button>
+                </form>
+
+                <div className="border border-red-300/60 dark:border-red-500/40 rounded-lg p-4 bg-red-50/50 dark:bg-red-900/10">
+                  <h3 className="font-bold text-red-700 dark:text-red-300 mb-2">Danger Zone</h3>
+                  <p className="text-sm text-red-600 dark:text-red-300 mb-3">
+                    Deleting your account is permanent.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteAccount()}
+                    disabled={isLoading}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:bg-red-400"
+                  >
+                    Delete Account
+                  </button>
+                </div>
               </div>
-            </form>
-          )}
-          {activeTab === 'wishlist' && (
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-slate-800 dark:text-white">
-                My Wishlist
-              </h2>
-              {wishlistedProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {wishlistedProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
-                  Your wishlist is empty.{' '}
-                  <Link to="/shop" className="text-orange-600 hover:underline touch-manipulation">
-                    Explore products!
+            )}
+
+            {activeTab === 'pets' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">My Pets</h2>
+                  <Link
+                    to="/dashboard"
+                    className="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600 transition-colors"
+                  >
+                    Manage in Dashboard
                   </Link>
-                </p>
-              )}
-            </div>
-          )}
-          {activeTab === 'orders' && (
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-slate-800 dark:text-white">
-                My Order History
-              </h2>
-              {currentUser.orderHistory.length > 0 ? (
-                <div className="space-y-3 sm:space-y-4">
-                  {currentUser.orderHistory.map((order) => (
-                    <div
-                      key={order.orderId}
-                      className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-3 sm:p-4"
-                    >
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2 gap-1">
-                        <p className="font-bold text-sm sm:text-base text-slate-800 dark:text-white truncate">
-                          Order: {order.orderId}
-                        </p>
-                        <p className="font-semibold text-sm sm:text-base text-slate-800 dark:text-white tabular-nums">
-                          Total: ৳
-                          {order.total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
-                        </p>
-                      </div>
-                      <div className="flex justify-between items-center mb-3 text-xs sm:text-sm">
-                        <p className="text-slate-500 dark:text-slate-400">
-                          Date: {new Date(order.date).toLocaleDateString()}
-                        </p>
-                        {order.status && (
-                          <span
-                            className={`px-2 py-0.5 rounded-full font-semibold ${
-                              order.status === 'delivered'
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                : order.status === 'cancelled' || order.status === 'refunded'
-                                  ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                            }`}
-                          >
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        )}
-                      </div>
-                      <ul className="text-xs sm:text-sm space-y-1">
-                        {order.items.map((item) => (
-                          <li
-                            key={item.id}
-                            className="flex justify-between text-slate-600 dark:text-slate-300"
-                          >
-                            <span className="truncate mr-2">
-                              {item.name} (x{item.quantity})
-                            </span>
-                            <span className="flex-shrink-0 tabular-nums">
-                              ৳
-                              {(item.price * item.quantity).toLocaleString('en-BD', {
-                                minimumFractionDigits: 2,
-                              })}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
                 </div>
-              ) : (
-                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
-                  You haven't made any purchases yet.{' '}
-                  <Link to="/shop" className="text-orange-600 hover:underline touch-manipulation">
-                    Visit the shop!
-                  </Link>
-                </p>
-              )}
-            </div>
-          )}
-          {activeTab === 'reorder' && (
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-slate-800 dark:text-white">
-                Smart Reorder Suggestions
-              </h2>
-              {reorderSuggestions.length > 0 ? (
-                <div className="space-y-3 sm:space-y-4">
-                  {reorderSuggestions.map((order) => (
-                    <div
-                      key={order.orderId}
-                      className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-3 sm:p-4"
-                    >
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">
-                        From your order on {new Date(order.date).toLocaleDateString()}:
-                      </p>
-                      <ul className="text-xs sm:text-sm space-y-1 mb-4">
-                        {order.items.map((item) => (
-                          <li
-                            key={item.id}
-                            className="flex items-center text-slate-600 dark:text-slate-300"
-                          >
-                            <img
-                              src={item.imageUrl}
-                              alt={item.name}
-                              className="w-8 h-8 rounded-sm object-cover mr-2 flex-shrink-0"
-                              loading="lazy"
-                            />
-                            <span className="truncate">
-                              {item.name} (x{item.quantity})
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                      <button
-                        onClick={() => handleReorder(order)}
-                        className="w-full sm:w-auto bg-orange-500 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
-                        aria-label={`Add items from order ${order.orderId} to cart`}
+
+                {pets.length === 0 ? (
+                  <p className="text-slate-600 dark:text-slate-300 text-sm">
+                    No pet profiles yet. Add your first pet in the dashboard.
+                  </p>
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {pets.map((pet) => (
+                      <div
+                        key={pet.id}
+                        className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-3"
                       >
-                        Add to Cart
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
-                  No reorder suggestions right now. We'll suggest items here when it's time to
-                  restock!
-                </p>
-              )}
-            </div>
-          )}
-          {activeTab === 'vaccinations' && (
-            <div>
-              <VaccinationReminder />
-            </div>
-          )}
-          {activeTab === 'tools' && (
-            <div>
-              <PetTools />
-            </div>
-          )}
-        </div>
+                        <div className="flex items-center gap-3">
+                          <Avatar src={pet.imageUrl} name={pet.name} size="lg" />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-800 dark:text-white truncate">
+                              {pet.name}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                              {pet.breed || pet.type}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'wishlist' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">
+                  My Wishlist
+                </h2>
+                {wishlistedProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                    {wishlistedProducts.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                    Your wishlist is empty.{' '}
+                    <Link to="/shop" className="text-orange-600 hover:underline">
+                      Explore products!
+                    </Link>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'orders' && (
+              <div className="space-y-5">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">My Orders</h2>
+
+                {reorderSuggestions.length > 0 && (
+                  <div className="rounded-lg border border-orange-300/50 bg-orange-50/60 dark:bg-orange-900/20 dark:border-orange-500/30 p-3">
+                    <p className="text-sm text-orange-700 dark:text-orange-300">
+                      Smart reorder available for {reorderSuggestions.length} previous orders.
+                    </p>
+                  </div>
+                )}
+
+                {currentUser.orderHistory.length > 0 ? (
+                  <div className="space-y-3">
+                    {currentUser.orderHistory.map((order) => (
+                      <div
+                        key={order.orderId}
+                        className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4"
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2 gap-1">
+                          <p className="font-bold text-sm sm:text-base text-slate-800 dark:text-white truncate">
+                            Order: {order.orderId}
+                          </p>
+                          <p className="font-semibold text-sm sm:text-base text-slate-800 dark:text-white tabular-nums">
+                            Total: ৳
+                            {order.total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        <div className="flex justify-between items-center mb-3 text-xs sm:text-sm">
+                          <p className="text-slate-500 dark:text-slate-400">
+                            Date: {new Date(order.date).toLocaleDateString()}
+                          </p>
+                          {order.status && (
+                            <span
+                              className={`px-2 py-0.5 rounded-full font-semibold ${
+                                order.status === 'delivered'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                  : order.status === 'cancelled' || order.status === 'refunded'
+                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                              }`}
+                            >
+                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            </span>
+                          )}
+                        </div>
+                        <ul className="text-xs sm:text-sm space-y-1 mb-3">
+                          {order.items.map((item) => (
+                            <li
+                              key={item.id}
+                              className="flex justify-between text-slate-600 dark:text-slate-300"
+                            >
+                              <span className="truncate mr-2">
+                                {item.name} (x{item.quantity})
+                              </span>
+                              <span className="flex-shrink-0 tabular-nums">
+                                ৳
+                                {(item.price * item.quantity).toLocaleString('en-BD', {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          type="button"
+                          onClick={() => handleReorder(order)}
+                          className="w-full sm:w-auto bg-orange-500 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-orange-600 transition-colors"
+                        >
+                          Reorder Items
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                    You haven't made any purchases yet.{' '}
+                    <Link to="/shop" className="text-orange-600 hover:underline">
+                      Visit the shop!
+                    </Link>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'vaccinations' && (
+              <div>
+                <VaccinationReminder />
+              </div>
+            )}
+
+            {activeTab === 'tools' && (
+              <div>
+                <PetTools />
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </main>
   );
