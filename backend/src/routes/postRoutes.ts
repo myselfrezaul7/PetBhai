@@ -14,6 +14,8 @@ const LIKE_COOLDOWN_MS = 500;
 const MAX_LINKS_PER_POST = 3;
 const MAX_IMAGE_POSTS_PER_MINUTE = 4;
 const IDEMPOTENCY_TTL_MS = 10 * 60 * 1000;
+const MAX_STORED_POSTS = 500;
+const POST_AGE_LIMIT_MS = 90 * 24 * 60 * 60 * 1000;
 
 const cooldownTracker = new Map<string, number>();
 const mediaRateTracker = new Map<string, number[]>();
@@ -24,6 +26,32 @@ const ensurePostsCollection = (): void => {
     db.data.posts = [];
   }
 };
+
+const cleanupOldPosts = (): void => {
+  ensurePostsCollection();
+
+  const now = Date.now();
+  const originalLength = db.data.posts.length;
+
+  db.data.posts = db.data.posts.filter((post) => {
+    const postTime = new Date(post.timestamp).getTime();
+    if (!Number.isFinite(postTime)) {
+      return false;
+    }
+    return now - postTime <= POST_AGE_LIMIT_MS;
+  });
+
+  if (db.data.posts.length > MAX_STORED_POSTS) {
+    db.data.posts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    db.data.posts = db.data.posts.slice(0, MAX_STORED_POSTS);
+  }
+
+  if (db.data.posts.length < originalLength) {
+    db.write();
+  }
+};
+
+cleanupOldPosts();
 
 const ensureModerationCollection = (): ModerationReport[] => {
   const record = db.data as unknown as Record<string, unknown>;
@@ -71,6 +99,14 @@ const ensureVerifiedUser = (userId: number): { ok: true } | { ok: false; message
   const user = resolveUserById(userId);
   if (!user) {
     return { ok: false, message: 'User not found' };
+  }
+
+  const bannedUsers = Array.isArray((db.data as unknown as Record<string, unknown>).bannedUsers)
+    ? ((db.data as unknown as Record<string, unknown>).bannedUsers as number[])
+    : [];
+
+  if (bannedUsers.includes(Number(userId))) {
+    return { ok: false, message: 'Your account is suspended from community interactions.' };
   }
 
   if (!Boolean(userWithCommunityMetadata(user).emailVerified)) {
@@ -250,7 +286,7 @@ const createPostSchema = z
     content: z.string().min(1).max(5000),
     imageUrl: z
       .string()
-      .max(7 * 1024 * 1024)
+      .max(3 * 1024 * 1024)
       .optional(),
   })
   .strict();

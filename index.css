@@ -3,35 +3,39 @@
 /* Custom application styles */
 
 :root {
-  --ui-text: #0f172a;
-  --ui-muted: #475569;
-  --ui-border: rgba(15, 23, 42, 0.1);
-  --ui-surface: rgba(255, 255, 255, 0.55);
-  --ui-surface-hover: rgba(255, 255, 255, 0.68);
-  --ui-input-bg: rgba(255, 255, 255, 0.72);
-  --ui-focus-ring: rgba(249, 115, 22, 0.32);
-  --ui-border-glass: rgba(255, 255, 255, 0.35);
-  --ui-blur: 20px;
-  --ui-blur-heavy: 40px;
-  --ui-shadow: 0 8px 32px rgba(15, 23, 42, 0.1);
-  --ui-shadow-hover: 0 16px 40px rgba(15, 23, 42, 0.14);
+  --ui-text: #1a1a2e;
+  --ui-muted: #62627d;
+  --ui-border: rgba(0, 0, 0, 0.08);
+  --ui-surface: rgba(255, 255, 255, 0.65);
+  --ui-surface-hover: rgba(255, 255, 255, 0.82);
+  --ui-input-bg: rgba(255, 255, 255, 0.78);
+  --ui-focus-ring: rgba(249, 115, 22, 0.28);
+  --ui-border-glass: rgba(255, 255, 255, 0.5);
+  --ui-blur: 24px;
+  --ui-blur-heavy: 48px;
+  --ui-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  --ui-shadow-hover: 0 12px 34px rgba(15, 23, 42, 0.12);
+  --ui-bg-primary: #f8f8fc;
+  --ui-bg-secondary: #f2f2f8;
   --motion-fast: 150ms;
-  --motion-base: 220ms;
-  --motion-slow: 320ms;
+  --motion-base: 200ms;
+  --motion-slow: 300ms;
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html.dark {
-  --ui-text: #e2e8f0;
-  --ui-muted: #94a3b8;
-  --ui-border: rgba(148, 163, 184, 0.22);
-  --ui-surface: rgba(15, 23, 42, 0.45);
-  --ui-surface-hover: rgba(15, 23, 42, 0.55);
-  --ui-input-bg: rgba(15, 23, 42, 0.64);
-  --ui-focus-ring: rgba(249, 115, 22, 0.28);
-  --ui-border-glass: rgba(148, 163, 184, 0.18);
-  --ui-shadow: 0 10px 34px rgba(2, 6, 23, 0.28);
-  --ui-shadow-hover: 0 18px 44px rgba(2, 6, 23, 0.36);
+  --ui-text: #f0f1ff;
+  --ui-muted: #a0a3bd;
+  --ui-border: rgba(255, 255, 255, 0.1);
+  --ui-surface: rgba(24, 24, 36, 0.56);
+  --ui-surface-hover: rgba(24, 24, 36, 0.7);
+  --ui-input-bg: rgba(24, 24, 36, 0.66);
+  --ui-focus-ring: rgba(251, 146, 60, 0.24);
+  --ui-border-glass: rgba(255, 255, 255, 0.12);
+  --ui-shadow: 0 6px 28px rgba(2, 6, 23, 0.28);
+  --ui-shadow-hover: 0 14px 40px rgba(2, 6, 23, 0.4);
+  --ui-bg-primary: #0a0a14;
+  --ui-bg-secondary: #111122;
 }
 
 html,
@@ -74,10 +78,20 @@ html.dark {
 
 body {
   color: var(--ui-text);
+  background-color: var(--ui-bg-primary);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.03), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(56, 189, 248, 0.02), transparent);
   transition:
     background-color var(--motion-base) var(--motion-ease),
     color var(--motion-base) var(--motion-ease),
     background-image var(--motion-slow) var(--motion-ease);
+}
+
+html.dark body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.04), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(56, 189, 248, 0.02), transparent);
 }
 
 /* Polished theme transitions */
@@ -157,9 +171,9 @@ a:focus-visible {
 .glass-card-ios {
   background-color: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
-  border-radius: 1rem;
-  -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(125%);
-  backdrop-filter: blur(var(--ui-blur)) saturate(125%);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(140%);
+  backdrop-filter: blur(var(--ui-blur)) saturate(140%);
   box-shadow: var(--ui-shadow);
 }
 
@@ -169,16 +183,16 @@ a:focus-visible {
 }
 
 .glass-card-ios-heavy {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.84);
   border: 1px solid var(--ui-border-glass);
-  border-radius: 1rem;
-  -webkit-backdrop-filter: blur(var(--ui-blur-heavy)) saturate(130%);
-  backdrop-filter: blur(var(--ui-blur-heavy)) saturate(130%);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(var(--ui-blur-heavy)) saturate(150%);
+  backdrop-filter: blur(var(--ui-blur-heavy)) saturate(150%);
   box-shadow: var(--ui-shadow);
 }
 
 html.dark .glass-card-ios-heavy {
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(24, 24, 36, 0.75);
 }
 
 html.dark .glass-card,

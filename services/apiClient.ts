@@ -71,10 +71,25 @@ export const getErrorMessage = (error: unknown, fallbackMessage: string): string
 };
 
 const parseResponseBody = async (response: Response): Promise<unknown> => {
-  const contentType = response.headers.get('content-type') || '';
+  const headers = response.headers as
+    | { get?: (name: string) => string | null; ['content-type']?: string }
+    | undefined;
+  const contentType =
+    (typeof headers?.get === 'function' ? headers.get('content-type') : headers?.['content-type']) ||
+    '';
+  const hasJsonBody = typeof response.json === 'function';
+  const hasTextBody = typeof response.text === 'function';
 
-  if (contentType.toLowerCase().includes('application/json')) {
+  if (contentType.toLowerCase().includes('application/json') && hasJsonBody) {
     return response.json().catch(() => null);
+  }
+
+  if (!contentType && hasJsonBody) {
+    return response.json().catch(() => null);
+  }
+
+  if (!hasTextBody) {
+    return null;
   }
 
   const text = await response.text().catch(() => '');

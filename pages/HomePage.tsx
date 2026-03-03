@@ -161,7 +161,7 @@ const HomePage: React.FC = () => {
 
       {/* Shop by Brand Section */}
       <section
-        className="py-8 md:py-16 bg-gray-100 dark:bg-slate-800/50"
+        className="py-8 md:py-16"
         aria-labelledby="brands-heading"
       >
         <div className="container mx-auto px-4 md:px-6 text-center">
@@ -171,19 +171,20 @@ const HomePage: React.FC = () => {
           >
             {t('section_brands')}
           </h2>
-          <div className="w-12 h-1 bg-blue-600 mx-auto mb-6 md:mb-10 rounded-full" />
+          <div className="w-12 h-1 bg-orange-500 mx-auto mb-6 md:mb-10 rounded-full" />
           <nav
-            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-2.5 sm:gap-4 md:gap-5"
+            className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2.5 sm:gap-4 md:gap-5"
             aria-label="Shop by brand"
           >
             {brands
               .filter((b) => ![8, 11, 12, 13, 16].includes(b.id))
+              .slice(0, 14)
               .map((brand) => (
                 <Link
                   key={brand.id}
                   to="/shop"
                   state={{ brand: brand.name }}
-                  className="group flex flex-col items-center justify-center bg-white dark:bg-slate-700 rounded-lg p-2 sm:p-3 md:p-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation"
+                  className="group flex flex-col items-center justify-center glass-card-ios p-2 sm:p-3 md:p-4 transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation"
                   aria-label={`Shop ${brand.name} products`}
                 >
                   <img
@@ -198,6 +199,29 @@ const HomePage: React.FC = () => {
                 </Link>
               ))}
           </nav>
+          {brands.filter((b) => ![8, 11, 12, 13, 16].includes(b.id)).length > 14 && (
+            <div className="mt-6 md:mt-8">
+              <Link
+                to="/shop"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold text-sm hover:bg-orange-500 hover:text-white transition-all duration-300 active:scale-95 touch-manipulation"
+              >
+                <span>See All Brands</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

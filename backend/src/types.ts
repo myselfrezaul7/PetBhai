@@ -151,6 +151,22 @@ export interface User {
   };
   petProfiles?: PetProfileRecord[];
   medicineReminders?: MedicineReminderRecord[];
+  bannedAt?: string;
+  banReason?: string;
+}
+
+export interface AdminUsersSummary {
+  id: number;
+  name: string;
+  email: string;
+  role?: 'customer' | 'admin';
+  emailVerified?: boolean;
+  isBanned: boolean;
+  bannedAt?: string;
+  banReason?: string;
+  postCount: number;
+  commentCount: number;
+  replyCount: number;
 }
 
 export interface CommentReply {

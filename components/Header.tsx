@@ -13,6 +13,7 @@ import { useAnimals } from '../contexts/AnimalContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { sanitizeInput } from '../lib/security';
 import { useGlobalSearch, type PageResult } from '../hooks/useGlobalSearch';
+import { useCart } from '../contexts/CartContext';
 
 // Extracted outside Header to prevent re-creation on every render
 const MobileNavLink: React.FC<{
@@ -25,7 +26,7 @@ const MobileNavLink: React.FC<{
     to={to}
     onClick={onClick}
     className={({ isActive }) =>
-      `block py-3.5 px-4 rounded-2xl border text-xl sm:text-2xl text-center transition-all touch-manipulation backdrop-blur-xl ${
+      `block py-3 px-4 rounded-xl border text-base sm:text-lg text-center transition-all touch-manipulation backdrop-blur-xl ${
         isActive
           ? 'text-orange-500 dark:text-orange-300 font-bold bg-white/55 dark:bg-slate-900/45 border-white/70 dark:border-white/20 shadow-lg'
           : 'text-slate-700 dark:text-slate-200 font-medium bg-white/35 dark:bg-slate-900/30 border-white/55 dark:border-white/15 hover:bg-white/55 dark:hover:bg-slate-900/45 hover:text-orange-500'
@@ -98,6 +99,7 @@ const Header: React.FC = () => {
   const { vets } = useVets();
   const { animals } = useAnimals();
   const { t, language, toggleLanguage } = useLanguage();
+  const { cartCount, openCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -619,14 +621,41 @@ const Header: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <button
+                  type="button"
+                  onClick={openCart}
+                  className="relative text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                  aria-label={`Open cart with ${cartCount} items`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                  </svg>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
+                </button>
                 <button
                   type="button"
                   onClick={handleOpenMobileSearch}
                   className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                   aria-label="Open search"
                 >
-                  <SearchIcon className="w-7 h-7" />
+                  <SearchIcon className="w-6 h-6" />
                 </button>
                 <button
                   type="button"
@@ -634,7 +663,7 @@ const Header: React.FC = () => {
                   className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                   aria-label="Open menu"
                 >
-                  <MenuIcon className="w-8 h-8" />
+                  <MenuIcon className="w-7 h-7" />
                 </button>
               </div>
             )}
@@ -644,7 +673,7 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl saturate-150 z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) lg:hidden flex flex-col`}
+        className={`fixed inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl saturate-150 z-50 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] lg:hidden flex flex-col`}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
@@ -679,7 +708,7 @@ const Header: React.FC = () => {
           </div>
         </div>
         <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8 overscroll-contain">
-          <nav className="flex flex-col space-y-6 w-full px-8 sm:px-10">
+          <nav className="flex flex-col space-y-3 w-full px-6 sm:px-8">
             <MobileNavLink to="/" onClick={handleMenuClose}>
               {t('nav_home')}
             </MobileNavLink>

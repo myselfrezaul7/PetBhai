@@ -59,6 +59,7 @@ interface DatabaseSchema {
   brands: Brand[];
   orders: Order[];
   posts: Post[];
+  bannedUsers: number[];
 }
 
 const buildPostSignature = (post: Pick<Post, 'author' | 'content'>): string => {
@@ -84,6 +85,7 @@ const INITIAL_DATA: DatabaseSchema = {
   brands: [...MOCK_BRANDS],
   orders: [],
   posts: [],
+  bannedUsers: [],
 };
 
 class Database {
@@ -94,6 +96,9 @@ class Database {
   constructor() {
     try {
       this.data = this.loadData();
+      if (!Array.isArray(this.data.bannedUsers)) {
+        this.data.bannedUsers = [];
+      }
 
       const { cleanedPosts, removedCount } = stripLegacyMockPosts(this.data.posts);
       if (removedCount > 0) {
@@ -245,6 +250,9 @@ class Database {
   }
   get posts() {
     return this.data.posts;
+  }
+  get bannedUsers() {
+    return this.data.bannedUsers;
   }
 }
 

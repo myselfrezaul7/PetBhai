@@ -127,7 +127,7 @@ const GlobalCartElements: React.FC = () => {
           </span>
         )}
       </button>
-      {isCartOpen && <CartSidebar isOpen={isCartOpen} onClose={closeCart} />}
+      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
     </>
   );
 };

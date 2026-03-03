@@ -457,11 +457,33 @@ const ProfilePage: React.FC = () => {
   ];
 
   const memberSince = new Date(Number(currentUser.id) || Date.now()).toLocaleDateString();
+  const profileCompletion = useMemo(() => {
+    const checks = [
+      Boolean((name || '').trim()),
+      Boolean((phone || '').trim()),
+      Boolean((bio || '').trim()),
+      Boolean(profilePicture || currentUser.profilePictureUrl),
+      Boolean((addressLine || '').trim()),
+      Boolean((addressCity || '').trim()),
+      Boolean((addressPhone || '').trim()),
+    ];
+    const completed = checks.filter(Boolean).length;
+    return Math.round((completed / checks.length) * 100);
+  }, [
+    addressCity,
+    addressLine,
+    addressPhone,
+    bio,
+    currentUser.profilePictureUrl,
+    name,
+    phone,
+    profilePicture,
+  ]);
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <main className="min-h-screen container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <div className="max-w-6xl mx-auto space-y-6">
-        <section className="glass-card-ios p-4 sm:p-6">
+        <section className="glass-card-ios-heavy p-4 sm:p-6 border border-white/40 dark:border-white/10">
           <div className="flex flex-col lg:flex-row lg:items-center gap-5">
             <div className="relative w-fit mx-auto lg:mx-0">
               <button
@@ -482,6 +504,8 @@ const ProfilePage: React.FC = () => {
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 accept="image/*"
+                aria-label="Upload profile picture"
+                title="Upload profile picture"
                 className="hidden"
               />
             </div>
@@ -503,28 +527,32 @@ const ProfilePage: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full lg:w-auto">
-              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 w-full lg:w-auto">
+              <div className="glass-card-ios p-3 text-center">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {currentUser.orderHistory.length}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Orders</p>
               </div>
-              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+              <div className="glass-card-ios p-3 text-center">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {wishlistedProducts.length}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Wishlist</p>
               </div>
-              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+              <div className="glass-card-ios p-3 text-center">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">{pets.length}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Pets</p>
               </div>
-              <div className="rounded-lg bg-white/50 dark:bg-slate-800/50 p-3 text-center">
+              <div className="glass-card-ios p-3 text-center">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {upcomingVaccinations.length}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Upcoming Shots</p>
+              </div>
+              <div className="glass-card-ios p-3 text-center">
+                <p className="text-xl font-bold text-slate-800 dark:text-white">{profileCompletion}%</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Profile Ready</p>
               </div>
             </div>
           </div>
@@ -542,16 +570,16 @@ const ProfilePage: React.FC = () => {
         </section>
 
         <section className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4">
-          <aside className="glass-card-ios p-2 sm:p-3 flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2">
+          <aside className="glass-card-ios p-2 sm:p-3 flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 rounded-full lg:rounded-2xl">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors ${
+                className={`px-3 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-orange-500 text-white'
-                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/70 dark:hover:bg-slate-700/70'
                 }`}
               >
                 {tab.label}

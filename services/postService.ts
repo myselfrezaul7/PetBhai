@@ -528,3 +528,85 @@ export const toggleReplyLike = async (
     throw toApiError(error, 'Failed to update like. Please try again.');
   }
 };
+
+const sanitizeReportReason = (reason: string): string => {
+  return sanitizeText(reason, 500);
+};
+
+export const reportPost = async (
+  postId: number,
+  reporterId: number,
+  reason: string
+): Promise<void> => {
+  const sanitizedReason = sanitizeReportReason(reason);
+  if (!sanitizedReason || sanitizedReason.length < 3) {
+    throw new ApiError('Please provide a valid report reason (minimum 3 characters).');
+  }
+
+  try {
+    await apiRequest(`/posts/${postId}/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
+      },
+      body: JSON.stringify({ reporterId: Number(reporterId), reason: sanitizedReason }),
+    });
+  } catch (error) {
+    console.error('Error reporting post:', error);
+    throw toApiError(error, 'Failed to submit report. Please try again.');
+  }
+};
+
+export const reportComment = async (
+  postId: number,
+  commentId: number,
+  reporterId: number,
+  reason: string
+): Promise<void> => {
+  const sanitizedReason = sanitizeReportReason(reason);
+  if (!sanitizedReason || sanitizedReason.length < 3) {
+    throw new ApiError('Please provide a valid report reason (minimum 3 characters).');
+  }
+
+  try {
+    await apiRequest(`/posts/${postId}/comments/${commentId}/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
+      },
+      body: JSON.stringify({ reporterId: Number(reporterId), reason: sanitizedReason }),
+    });
+  } catch (error) {
+    console.error('Error reporting comment:', error);
+    throw toApiError(error, 'Failed to submit report. Please try again.');
+  }
+};
+
+export const reportReply = async (
+  postId: number,
+  commentId: number,
+  replyId: number,
+  reporterId: number,
+  reason: string
+): Promise<void> => {
+  const sanitizedReason = sanitizeReportReason(reason);
+  if (!sanitizedReason || sanitizedReason.length < 3) {
+    throw new ApiError('Please provide a valid report reason (minimum 3 characters).');
+  }
+
+  try {
+    await apiRequest(`/posts/${postId}/comments/${commentId}/replies/${replyId}/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Idempotency-Key': createIdempotencyKey(),
+      },
+      body: JSON.stringify({ reporterId: Number(reporterId), reason: sanitizedReason }),
+    });
+  } catch (error) {
+    console.error('Error reporting reply:', error);
+    throw toApiError(error, 'Failed to submit report. Please try again.');
+  }
+};

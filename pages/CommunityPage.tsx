@@ -832,10 +832,10 @@ const CommunityPage: React.FC = () => {
   );
 
   return (
-    <main className="min-h-screen bg-slate-50/40 dark:bg-slate-950/50">
+    <main className="min-h-screen">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
         {/* Hero Section */}
-        <header className="text-center mb-6 md:mb-8 rounded-2xl border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900/80 p-5 md:p-8 shadow-sm">
+        <header className="text-center mb-6 md:mb-8 glass-card-ios-heavy p-5 md:p-8 border border-white/40 dark:border-white/10">
           <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-orange-50 dark:bg-orange-900/20 rounded-xl md:rounded-2xl mb-3 md:mb-4">
             <UserGroupIcon
               className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-orange-500"
@@ -865,7 +865,7 @@ const CommunityPage: React.FC = () => {
           className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
           aria-label="Community statistics"
         >
-          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="glass-card-ios p-2.5 sm:p-4 text-center">
             <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalPosts}
             </p>
@@ -873,7 +873,7 @@ const CommunityPage: React.FC = () => {
               Posts
             </p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="glass-card-ios p-2.5 sm:p-4 text-center">
             <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalComments}
             </p>
@@ -881,7 +881,7 @@ const CommunityPage: React.FC = () => {
               Comments
             </p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="glass-card-ios p-2.5 sm:p-4 text-center">
             <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalLikes}
             </p>
@@ -895,7 +895,7 @@ const CommunityPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:mb-8">
           {/* Trending Topics */}
           {trendingTopics.length > 0 && (
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div className="glass-card-ios p-4">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
                 <span className="text-lg">🔥</span>
                 Trending Topics
@@ -916,7 +916,7 @@ const CommunityPage: React.FC = () => {
           )}
 
           {/* Leaderboard Toggle */}
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="glass-card-ios p-4">
             <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
               <span className="text-lg">👑</span>
               Top Contributors

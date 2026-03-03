@@ -11,6 +11,7 @@ interface CreatePostFormProps {
 
 const MAX_IMAGE_SIZE_MB = 5;
 const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+const MAX_COMPRESSED_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const MAX_CONTENT_LENGTH = 5000;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -47,7 +48,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
         let { width, height } = img;
 
         // Max dimensions for mobile-friendly images
-        const MAX_DIMENSION = 1200;
+        const MAX_DIMENSION = 800;
         if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
           if (width > height) {
             height = (height / width) * MAX_DIMENSION;
@@ -68,8 +69,8 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Compress to JPEG with 0.8 quality
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        // Compress to JPEG with mobile-friendly quality
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
         resolve(dataUrl);
       };
       img.onerror = () => reject(new Error('Failed to load image'));
@@ -98,10 +99,9 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
           setIsCompressing(true);
           try {
             const compressedDataUrl = await compressImage(file);
-            // Check compressed size (rough estimate)
-            if (compressedDataUrl.length > MAX_IMAGE_SIZE_BYTES * 1.37) {
-              // Base64 overhead
-              throw new Error('Still too large');
+            const estimatedBytes = Math.ceil((compressedDataUrl.length * 3) / 4);
+            if (estimatedBytes > MAX_COMPRESSED_IMAGE_SIZE_BYTES) {
+              throw new Error('Still too large after compression');
             }
             setImage(compressedDataUrl);
             toast.success('Image compressed for faster upload! 📸');

@@ -13,12 +13,12 @@ const loginUser = {
 };
 
 const loginPayload = {
-  token: 'header.eyJleHAiIjo0NzQyMjYxNjAwfQ.signature',
+  token: 'header.eyJleHAiOjQ3NDIyNjE2MDB9.signature',
   user: loginUser,
 };
 
 const signupPayload = {
-  token: 'header.eyJleHAiIjo0NzQyMjYxNjAwfQ.signature',
+  token: 'header.eyJleHAiOjQ3NDIyNjE2MDB9.signature',
   user: {
     id: 3,
     name: 'New User',

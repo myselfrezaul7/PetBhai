@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useReducer, useMemo, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useMemo,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import type { Product, CartItem } from '../types';
 
 type CartState = {
@@ -132,27 +140,65 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [state.items]);
 
-  const contextValue = useMemo(() => {
-    const cartCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
-    const cartTotal = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const addToCart = useCallback((product: Product) => {
+    dispatch({ type: 'ADD_ITEM', payload: product });
+    setIsCartOpen(true);
+  }, []);
 
+  const updateQuantity = useCallback((id: number, quantity: number) => {
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+  }, []);
+
+  const removeFromCart = useCallback((id: number) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { id } });
+  }, []);
+
+  const clearCart = useCallback(() => {
+    dispatch({ type: 'CLEAR_CART' });
+  }, []);
+
+  const openCart = useCallback(() => {
+    setIsCartOpen(true);
+  }, []);
+
+  const closeCart = useCallback(() => {
+    setIsCartOpen(false);
+  }, []);
+
+  const cartCount = useMemo(() => state.items.reduce((sum, item) => sum + item.quantity, 0), [
+    state.items,
+  ]);
+
+  const cartTotal = useMemo(
+    () => state.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [state.items]
+  );
+
+  const contextValue = useMemo(() => {
     return {
       cartItems: state.items,
-      addToCart: (product: Product) => {
-        dispatch({ type: 'ADD_ITEM', payload: product });
-        setIsCartOpen(true); // Auto open cart when adding item
-      },
-      updateQuantity: (id: number, quantity: number) =>
-        dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }),
-      removeFromCart: (id: number) => dispatch({ type: 'REMOVE_ITEM', payload: { id } }),
-      clearCart: () => dispatch({ type: 'CLEAR_CART' }),
+      addToCart,
+      updateQuantity,
+      removeFromCart,
+      clearCart,
       cartCount,
       cartTotal,
       isCartOpen,
-      openCart: () => setIsCartOpen(true),
-      closeCart: () => setIsCartOpen(false),
+      openCart,
+      closeCart,
     };
-  }, [state.items, isCartOpen]);
+  }, [
+    state.items,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    cartCount,
+    cartTotal,
+    isCartOpen,
+    openCart,
+    closeCart,
+  ]);
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
 };

@@ -82,11 +82,13 @@ const AdminDashboard = () => {
   const [orderStats, setOrderStats] = useState({ total: 0, totalRevenue: 0, todayOrders: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
   const [moderationReports, setModerationReports] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingId, setSavingId] = useState(null);
   const [savingOrderId, setSavingOrderId] = useState('');
   const [savingModerationId, setSavingModerationId] = useState('');
+  const [savingUserActionId, setSavingUserActionId] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState({});
   const [orderNotes, setOrderNotes] = useState({});
   const [trackingNumbers, setTrackingNumbers] = useState({});
@@ -99,6 +101,7 @@ const AdminDashboard = () => {
   const [lastSyncAt, setLastSyncAt] = useState('');
   const [isLiveConnected, setIsLiveConnected] = useState(false);
   const [moderationStatusFilter, setModerationStatusFilter] = useState('open');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: 'Dog Food',
@@ -117,11 +120,12 @@ const AdminDashboard = () => {
 
     try {
       const headers = getAuthHeaders();
-      const [inventory, stats, ordersPayload, moderationPayload] = await Promise.all([
+      const [inventory, stats, ordersPayload, moderationPayload, usersPayload] = await Promise.all([
         apiRequest('/products/admin/inventory', { headers }),
         apiRequest('/orders/stats/summary', { headers }),
         apiRequest('/orders?limit=20&page=1', { headers }),
         apiRequest('/posts/moderation/reports', { headers }),
+        apiRequest('/admin/users', { headers }),
       ]);
 
       setInventoryRows(
@@ -138,8 +142,10 @@ const AdminDashboard = () => {
       setOrderStats(stats || { total: 0, totalRevenue: 0, todayOrders: 0 });
       const orders = Array.isArray(ordersPayload?.orders) ? ordersPayload.orders : [];
       const reports = Array.isArray(moderationPayload?.items) ? moderationPayload.items : [];
+      const users = Array.isArray(usersPayload?.items) ? usersPayload.items : [];
       setRecentOrders(orders);
       setModerationReports(reports);
+      setAdminUsers(users);
       setSelectedStatuses(
         orders.reduce((acc, order) => {
           acc[order.orderId] = order.status || 'pending';
@@ -533,6 +539,92 @@ const AdminDashboard = () => {
 
     return moderationReports.filter((report) => report.status === moderationStatusFilter);
   }, [moderationReports, moderationStatusFilter]);
+
+  const filteredAdminUsers = useMemo(() => {
+    const normalized = userSearchTerm.trim().toLowerCase();
+    if (!normalized) {
+      return adminUsers;
+    }
+
+    return adminUsers.filter(
+      (user) =>
+        String(user.name || '')
+          .toLowerCase()
+          .includes(normalized) ||
+        String(user.email || '')
+          .toLowerCase()
+          .includes(normalized)
+    );
+  }, [adminUsers, userSearchTerm]);
+
+  const handleBanUser = async (userId) => {
+    setSavingUserActionId(`ban-${userId}`);
+    setError('');
+
+    try {
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      };
+
+      await apiRequest(`/admin/users/${userId}/ban`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ reason: 'Banned by admin moderation' }),
+      });
+
+      setAdminUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId
+            ? {
+                ...user,
+                isBanned: true,
+                bannedAt: new Date().toISOString(),
+                banReason: 'Banned by admin moderation',
+              }
+            : user
+        )
+      );
+    } catch (requestError) {
+      setError(getErrorMessage(requestError, 'Failed to ban user.'));
+    } finally {
+      setSavingUserActionId('');
+    }
+  };
+
+  const handleUnbanUser = async (userId) => {
+    setSavingUserActionId(`unban-${userId}`);
+    setError('');
+
+    try {
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      };
+
+      await apiRequest(`/admin/users/${userId}/unban`, {
+        method: 'POST',
+        headers,
+      });
+
+      setAdminUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId
+            ? {
+                ...user,
+                isBanned: false,
+                bannedAt: undefined,
+                banReason: undefined,
+              }
+            : user
+        )
+      );
+    } catch (requestError) {
+      setError(getErrorMessage(requestError, 'Failed to unban user.'));
+    } finally {
+      setSavingUserActionId('');
+    }
+  };
 
   const secureLogout = () => {
     logout();
@@ -1180,10 +1272,115 @@ const AdminDashboard = () => {
     </section>
   );
 
+  const renderUsers = () => (
+    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
+            User Management
+          </h3>
+          <input
+            type="text"
+            value={userSearchTerm}
+            onChange={(event) =>
+              setUserSearchTerm(sanitizeInput(event.target.value, 120, { allowNewlines: false }))
+            }
+            placeholder="Search by name or email"
+            className="w-64 max-w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900"
+          />
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[860px] text-left text-sm">
+          <thead className="bg-slate-800 text-slate-100">
+            <tr>
+              <th className="px-4 py-3 font-semibold">User</th>
+              <th className="px-4 py-3 font-semibold">Role</th>
+              <th className="px-4 py-3 font-semibold">Verified</th>
+              <th className="px-4 py-3 font-semibold">Community Activity</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
+            {!loading &&
+              filteredAdminUsers.map((user) => {
+                const banning = savingUserActionId === `ban-${user.id}`;
+                const unbanning = savingUserActionId === `unban-${user.id}`;
+                return (
+                  <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                    <td className="px-4 py-3">
+                      <p className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200 capitalize">
+                      {user.role || 'customer'}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                      {user.emailVerified ? 'Yes' : 'No'}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                      {user.postCount} posts • {user.commentCount} comments • {user.replyCount} replies
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          user.isBanned
+                            ? 'bg-rose-100 text-rose-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                        }`}
+                      >
+                        {user.isBanned ? 'Banned' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {user.role === 'admin' ? (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">Protected</span>
+                      ) : user.isBanned ? (
+                        <button
+                          type="button"
+                          onClick={() => void handleUnbanUser(user.id)}
+                          disabled={unbanning}
+                          className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-60"
+                        >
+                          {unbanning ? 'Unbanning...' : 'Unban'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void handleBanUser(user.id)}
+                          disabled={banning}
+                          className="rounded-lg bg-rose-500 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-600 disabled:opacity-60"
+                        >
+                          {banning ? 'Banning...' : 'Ban'}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+
+            {!loading && filteredAdminUsers.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                >
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+
   return (
-    <div className="min-h-screen bg-slate-100/70 dark:bg-slate-900 px-4 py-6 md:px-6 lg:px-8">
+    <div className="min-h-screen px-4 py-6 md:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl gap-6">
-        <aside className="hidden w-64 shrink-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 lg:block">
+        <aside className="hidden w-64 shrink-0 glass-card-ios-heavy p-5 border border-white/40 dark:border-white/10 lg:block">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">PetBhai Admin</h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Operations Control Panel
@@ -1194,8 +1391,8 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab('overview')}
               className={`w-full rounded-xl px-3 py-2 text-left ${
                 activeTab === 'overview'
-                  ? 'bg-orange-100 font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
-                  : 'text-slate-600 dark:text-slate-300'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
               📊 Overview
@@ -1205,8 +1402,8 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab('inventory')}
               className={`w-full rounded-xl px-3 py-2 text-left ${
                 activeTab === 'inventory'
-                  ? 'bg-orange-100 font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
-                  : 'text-slate-600 dark:text-slate-300'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
               📦 Inventory
@@ -1216,8 +1413,8 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab('orders')}
               className={`w-full rounded-xl px-3 py-2 text-left ${
                 activeTab === 'orders'
-                  ? 'bg-orange-100 font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
-                  : 'text-slate-600 dark:text-slate-300'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
               🚚 Orders
@@ -1227,8 +1424,8 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab('create')}
               className={`w-full rounded-xl px-3 py-2 text-left ${
                 activeTab === 'create'
-                  ? 'bg-orange-100 font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
-                  : 'text-slate-600 dark:text-slate-300'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
               ➕ Add Product
@@ -1238,15 +1435,26 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab('moderation')}
               className={`w-full rounded-xl px-3 py-2 text-left ${
                 activeTab === 'moderation'
-                  ? 'bg-orange-100 font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
-                  : 'text-slate-600 dark:text-slate-300'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
               🛡️ Moderation
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('users')}
+              className={`w-full rounded-xl px-3 py-2 text-left ${
+                activeTab === 'users'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              👥 Users
+            </button>
           </nav>
 
-          <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300">
+          <div className="mt-8 rounded-xl border border-white/35 dark:border-white/10 bg-white/50 dark:bg-slate-900/40 px-3 py-3 text-xs dark:text-slate-300">
             <p className="font-semibold text-slate-700 dark:text-slate-100">Automation</p>
             <label className="mt-2 flex cursor-pointer items-center justify-between gap-2">
               <span>Auto-refresh (60s)</span>
@@ -1260,7 +1468,7 @@ const AdminDashboard = () => {
           </div>
         </aside>
 
-        <main className="flex-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-6">
+        <main className="flex-1 glass-card-ios-heavy border border-white/40 dark:border-white/10 p-5 md:p-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -1277,8 +1485,8 @@ const AdminDashboard = () => {
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                   isLiveConnected
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700'
+                    ? 'bg-emerald-100/80 text-emerald-700'
+                    : 'bg-amber-100/80 text-amber-700'
                 }`}
               >
                 {isLiveConnected ? 'SSE Live' : 'Reconnecting'}
@@ -1300,6 +1508,7 @@ const AdminDashboard = () => {
               { key: 'orders', label: 'Orders' },
               { key: 'create', label: 'Add Product' },
               { key: 'moderation', label: 'Moderation' },
+              { key: 'users', label: 'Users' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -1327,6 +1536,7 @@ const AdminDashboard = () => {
           {activeTab === 'orders' && renderOrders()}
           {activeTab === 'create' && renderCreateProduct()}
           {activeTab === 'moderation' && renderModeration()}
+          {activeTab === 'users' && renderUsers()}
         </main>
       </div>
     </div>

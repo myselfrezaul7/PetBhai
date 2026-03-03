@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import { sanitizeInput, validateContentLength } from '../lib/security';
+import * as postService from '../services/postService';
 
 // Constants for validation
 const MAX_CONTENT_LENGTH = 5000;
@@ -413,7 +414,7 @@ const PostCard: React.FC<PostCardProps> = ({
   );
 
   const handleShare = useCallback(async () => {
-    const shareUrl = window.location.href;
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/community?post=${post.id}`;
     const shareText = `Check out this post on PetBhai: "${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}"`;
 
     if (navigator.share) {
@@ -435,7 +436,77 @@ const PostCard: React.FC<PostCardProps> = ({
         toast.error('Failed to copy link');
       }
     }
-  }, [post.content, toast]);
+  }, [post.content, post.id, toast]);
+
+  const getReportReason = useCallback(() => {
+    const reason = window.prompt('Why are you reporting this content? (minimum 3 characters)');
+    if (!reason) return null;
+
+    const trimmed = reason.trim();
+    if (trimmed.length < 3) {
+      toast.error('Please provide a clearer reason (minimum 3 characters).');
+      return null;
+    }
+
+    return trimmed;
+  }, [toast]);
+
+  const handleReportPost = useCallback(async () => {
+    if (!currentUser) {
+      toast.error('Please sign in to report content.');
+      return;
+    }
+
+    const reason = getReportReason();
+    if (!reason) return;
+
+    try {
+      await postService.reportPost(post.id, currentUser.id, reason);
+      toast.success('Report submitted. Thank you for helping keep the community safe.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to report post.');
+    }
+  }, [currentUser, getReportReason, post.id, toast]);
+
+  const handleReportComment = useCallback(
+    async (commentId: number) => {
+      if (!currentUser) {
+        toast.error('Please sign in to report content.');
+        return;
+      }
+
+      const reason = getReportReason();
+      if (!reason) return;
+
+      try {
+        await postService.reportComment(post.id, commentId, currentUser.id, reason);
+        toast.success('Comment report submitted.');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to report comment.');
+      }
+    },
+    [currentUser, getReportReason, post.id, toast]
+  );
+
+  const handleReportReply = useCallback(
+    async (commentId: number, replyId: number) => {
+      if (!currentUser) {
+        toast.error('Please sign in to report content.');
+        return;
+      }
+
+      const reason = getReportReason();
+      if (!reason) return;
+
+      try {
+        await postService.reportReply(post.id, commentId, replyId, currentUser.id, reason);
+        toast.success('Reply report submitted.');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to report reply.');
+      }
+    },
+    [currentUser, getReportReason, post.id, toast]
+  );
 
   // Keyboard handlers for accessibility
   const handleKeyDown = useCallback((e: React.KeyboardEvent, action: () => void) => {
@@ -498,6 +569,14 @@ const PostCard: React.FC<PostCardProps> = ({
                   {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
+            )}
+            {!isAuthor && currentUser && !isEditing && (
+              <button
+                onClick={() => void handleReportPost()}
+                className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
+              >
+                Report
+              </button>
             )}
           </div>
           {isEditing ? (
@@ -838,6 +917,14 @@ const PostCard: React.FC<PostCardProps> = ({
                                 </button>
                               </>
                             )}
+                            {!isCommentAuthor && currentUser && (
+                              <button
+                                onClick={() => void handleReportComment(comment.id)}
+                                className="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                              >
+                                Report
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -956,6 +1043,14 @@ const PostCard: React.FC<PostCardProps> = ({
                                           </button>
                                         </>
                                       )}
+                                    {!isReplyAuthor && currentUser && (
+                                      <button
+                                        onClick={() => void handleReportReply(comment.id, reply.id)}
+                                        className="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                                      >
+                                        Report
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               </div>
