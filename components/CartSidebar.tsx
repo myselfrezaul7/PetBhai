@@ -10,7 +10,7 @@ interface CartSidebarProps {
 }
 
 const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
-  const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
+  const { cartItems, cartCount, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
   const { confirm } = useConfirmation();
   const navigate = useNavigate();
   const sidebarRef = useRef<HTMLElement>(null);
@@ -143,9 +143,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             >
               <ShoppingCartIcon className="w-6 h-6 text-orange-500" />
               Your Cart
-              {cartItems.length > 0 && (
+              {cartCount > 0 && (
                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})
+                  ({cartCount} {cartCount === 1 ? 'item' : 'items'})
                 </span>
               )}
             </h2>
@@ -204,7 +204,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                           type="button"
                           onClick={() => handleDecreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity <= 1}
-                          className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label={`Decrease quantity of ${item.name}`}
                         >
                           <MinusIcon className="w-4 h-4" />
@@ -219,7 +219,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                           type="button"
                           onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity >= 99}
-                          className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label={`Increase quantity of ${item.name}`}
                         >
                           <PlusIcon className="w-4 h-4" />
@@ -229,7 +229,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                     <button
                       type="button"
                       onClick={() => handleRemoveItem(item.id, item.name)}
-                      className="p-2 text-slate-400 hover:text-red-500 transition-colors self-start touch-manipulation active:scale-95"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors self-start touch-manipulation active:scale-95"
                       aria-label={`Remove ${item.name} from cart`}
                     >
                       <TrashIcon className="w-5 h-5" />

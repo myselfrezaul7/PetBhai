@@ -1,74 +1,45 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { PawIcon, HeartIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const DhakaHero: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm group will-change-transform">
-      <div className="absolute inset-0 md:hidden bg-gradient-to-br from-orange-100 via-amber-100 to-sky-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+    <div className="glass-card-ios-heavy relative w-full rounded-2xl md:rounded-3xl overflow-hidden p-6 md:p-12 text-center group">
+      <div className="flex flex-col items-center max-w-2xl mx-auto space-y-4">
+        {/* Icon Badge */}
+        <div className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center bg-orange-100 dark:bg-orange-500/20 rounded-full shadow-inner">
+          <HeartIcon className="absolute w-full h-full text-orange-200/50 dark:text-orange-500/10 scale-150 animate-pulse" />
+          <PawIcon className="w-8 h-8 md:w-10 md:h-10 text-orange-500 z-10" />
+        </div>
 
-      {/* Background Image - Desktop */}
-      <img
-        src="/landing-hero-dhaka.jpg"
-        alt="2D illustration of old Dhaka – a boy and girl holding a stray kitten and puppy"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 hidden md:block"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-black/5 md:from-black/45 md:to-black/20" />
+        <h1 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">
+          {t('hero_title')}
+        </h1>
+        
+        <p className="text-sm md:text-lg text-slate-600 dark:text-slate-300">
+          Shop essentials, book vet help, and adopt responsibly in one place.
+        </p>
 
-      {/* PetBhai Branding */}
-      <div className="absolute inset-0 flex items-center justify-center px-4 text-center z-10">
-        <div className="bg-white/50 dark:bg-slate-900/40 backdrop-blur-[10px] p-5 md:p-7 rounded-3xl shadow-xl border border-white/50 dark:border-white/15 w-full max-w-2xl">
-          <span className="inline-flex items-center rounded-full bg-white/45 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 px-3 py-1 text-xs md:text-sm font-semibold mb-3 backdrop-blur-[2px] border border-white/40 dark:border-white/10">
-            Bangladesh's Trusted Pet Care Platform
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black text-orange-600 tracking-tighter drop-shadow-sm mb-2">
-            PetBhai
-          </h1>
-          <p className="text-base md:text-xl font-bold text-slate-700 dark:text-slate-200">
-            {t('hero_title')}
-          </p>
-          <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 mt-2 md:mt-3">
-            Shop essentials, book vet help, and adopt responsibly in one place.
-          </p>
-          <div className="mt-5 md:mt-6 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3">
-            <Link
-              to="/shop"
-              className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105 touch-manipulation active:scale-95"
-            >
-              {t('btn_shop')}
-            </Link>
-            <Link
-              to="/adopt"
-              className="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105 touch-manipulation active:scale-95"
-            >
-              {t('btn_adopt')}
-            </Link>
-            <Link
-              to="/services"
-              className="px-6 py-2.5 bg-white/70 hover:bg-white/85 text-slate-800 rounded-full font-bold shadow-lg transition-transform hover:scale-105 backdrop-blur-[2px] border border-white/40 touch-manipulation active:scale-95"
-            >
-              Book Services
-            </Link>
-          </div>
-          <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs md:text-sm text-slate-600 dark:text-slate-300">
-            <span className="bg-white/45 dark:bg-slate-800/45 px-2.5 py-1 rounded-full border border-white/35 dark:border-white/10">
-              Fast Delivery
-            </span>
-            <span className="bg-white/45 dark:bg-slate-800/45 px-2.5 py-1 rounded-full border border-white/35 dark:border-white/10">
-              Verified Vets
-            </span>
-            <span className="bg-white/45 dark:bg-slate-800/45 px-2.5 py-1 rounded-full border border-white/35 dark:border-white/10">
-              Safe Adoption
-            </span>
-          </div>
+        <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-3 mt-4">
+          <Link
+            to="/shop"
+            className="w-full sm:w-auto px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold shadow-lg transition-all active:scale-95 touch-manipulation hover:shadow-orange-500/30"
+          >
+            {t('btn_shop')}
+          </Link>
+          <Link
+            to="/services"
+            className="w-full sm:w-auto px-8 py-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border-2 border-slate-200 dark:border-slate-700 hover:border-orange-500 rounded-full font-bold shadow-sm transition-all active:scale-95 touch-manipulation"
+          >
+            Book Services
+          </Link>
         </div>
       </div>
     </div>
   );
 };
-
-// --- Sub-Components (SVGs) ---
 
 export default DhakaHero;

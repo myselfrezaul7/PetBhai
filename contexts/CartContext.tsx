@@ -11,6 +11,7 @@ import type { Product, CartItem } from '../types';
 
 type CartState = {
   items: CartItem[];
+  lastActionTimestamp?: number;
 };
 
 type CartAction =
@@ -78,11 +79,13 @@ function cartReducer(state: CartState, action: CartAction): CartState {
               ? { ...item, quantity: clampQuantity(item.quantity + 1) }
               : item
           ),
+          lastActionTimestamp: Date.now(),
         };
       }
       return {
         ...state,
         items: [...state.items, { ...action.payload, quantity: 1 }],
+        lastActionTimestamp: Date.now(),
       };
     }
     case 'UPDATE_QUANTITY': {
@@ -95,12 +98,14 @@ function cartReducer(state: CartState, action: CartAction): CartState {
               : item
           )
           .filter((item) => item.quantity > 0), // Remove if quantity is 0
+        lastActionTimestamp: Date.now(),
       };
     }
     case 'REMOVE_ITEM': {
       return {
         ...state,
         items: state.items.filter((item) => item.id !== action.payload.id),
+        lastActionTimestamp: Date.now(),
       };
     }
     case 'CLEAR_CART': {
@@ -122,6 +127,7 @@ interface CartContextType {
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  lastActionTimestamp?: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -186,6 +192,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isCartOpen,
       openCart,
       closeCart,
+      lastActionTimestamp: state.lastActionTimestamp,
     };
   }, [
     state.items,
@@ -198,6 +205,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isCartOpen,
     openCart,
     closeCart,
+    state.lastActionTimestamp,
   ]);
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;

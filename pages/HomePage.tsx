@@ -171,7 +171,7 @@ const HomePage: React.FC = () => {
           >
             {t('section_brands')}
           </h2>
-          <div className="w-12 h-1 bg-orange-500 mx-auto mb-6 md:mb-10 rounded-full" />
+            <div className="w-12 h-1 bg-orange-500 mx-auto mb-6 md:mb-10 rounded-full" />
           <nav
             className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2.5 sm:gap-4 md:gap-5"
             aria-label="Shop by brand"
@@ -179,12 +179,14 @@ const HomePage: React.FC = () => {
             {brands
               .filter((b) => ![8, 11, 12, 13, 16].includes(b.id))
               .slice(0, 14)
-              .map((brand) => (
+              .map((brand, idx) => (
                 <Link
                   key={brand.id}
                   to="/shop"
                   state={{ brand: brand.name }}
-                  className="group flex flex-col items-center justify-center glass-card-ios p-2 sm:p-3 md:p-4 transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation"
+                  className={`group flex flex-col items-center justify-center glass-card-ios p-2 sm:p-3 md:p-4 transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation ${
+                    idx >= 8 ? 'hidden sm:flex' : 'flex'
+                  }`}
                   aria-label={`Shop ${brand.name} products`}
                 >
                   <img

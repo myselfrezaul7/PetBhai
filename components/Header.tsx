@@ -546,130 +546,135 @@ const Header: React.FC = () => {
           </div>
 
           {/* Mobile Menu Button & Search Toggle */}
-          <div className={`lg:hidden flex items-center ${isSearchOpen ? 'flex-grow' : ''}`}>
-            {isSearchOpen ? (
-              <div className="w-full flex items-center animate-fade-in" ref={searchRef}>
-                <div className="relative flex-grow">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+          <div className="lg:hidden flex items-center">
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={openCart}
+                className="relative text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                aria-label={`Open cart with ${cartCount} items`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                </svg>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {cartCount > 9 ? '9+' : cartCount}
                   </span>
-                  <input
-                    ref={mobileInputRef}
-                    type="text"
-                    placeholder={t('search_placeholder')}
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={handleSearchFocus}
-                    onKeyDown={handleKeyDown}
-                    className="w-full py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    aria-label="Search"
-                    autoFocus
-                    autoComplete="off"
-                    role="combobox"
-                    aria-haspopup="listbox"
-                    aria-autocomplete="list"
-                    aria-controls="search-results-mobile"
-                    aria-expanded="false"
-                    data-expanded={isSearchActive && searchQuery.length >= 2}
-                  />
-
-                  <span className="sr-only" aria-live="polite">
-                    {searchAnnouncement}
-                  </span>
-
-                  {isSearchActive && (
-                    <div className="animate-fade-in origin-top">
-                      {searchQuery.length >= 2 ? (
-                        <SearchResults
-                          id="search-results-mobile"
-                          query={deferredQuery}
-                          results={searchResults}
-                          loading={isSearching}
-                          onClose={closeSearchResults}
-                          activeIndex={activeIndex}
-                        />
-                      ) : (
-                        recentSearches.length > 0 && (
-                          <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 py-3 border border-slate-200 dark:border-slate-700 animate-scale-in">
-                            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-4">
-                              Recent Searches
-                            </h3>
-                            {recentSearches.map((s, i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={() => setSearchQuery(s)}
-                                className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2"
-                              >
-                                <SearchIcon className="w-3 h-3 opacity-50" />
-                                <span>{s}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCloseMobileSearch}
-                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 ml-2 p-1"
-                  aria-label="Close search"
-                >
-                  <CloseIcon className="w-8 h-8" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <button
-                  type="button"
-                  onClick={openCart}
-                  className="relative text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
-                  aria-label={`Open cart with ${cartCount} items`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="9" cy="21" r="1" />
-                    <circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                  </svg>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </span>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleOpenMobileSearch}
-                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
-                  aria-label="Open search"
-                >
-                  <SearchIcon className="w-6 h-6" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleMenuOpen}
-                  className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
-                  aria-label="Open menu"
-                >
-                  <MenuIcon className="w-7 h-7" />
-                </button>
-              </div>
-            )}
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenMobileSearch}
+                className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                aria-label="Open search"
+              >
+                <SearchIcon className="w-6 h-6" />
+              </button>
+              <button
+                type="button"
+                onClick={handleMenuOpen}
+                className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                aria-label="Open menu"
+              >
+                <MenuIcon className="w-7 h-7" />
+              </button>
+            </div>
           </div>
         </nav>
       </header>
+
+      {/* Full-screen Mobile Search Overlay */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 lg:hidden animate-fade-in">
+          <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+            <div className="relative flex-grow">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+              </span>
+              <input
+                ref={mobileInputRef}
+                type="text"
+                placeholder={t('search_placeholder')}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={handleSearchFocus}
+                onKeyDown={handleKeyDown}
+                className="w-full py-3 pl-10 pr-4 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+                aria-label="Search"
+                autoFocus
+                autoComplete="off"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleCloseMobileSearch}
+              className="ml-3 p-2 text-slate-600 dark:text-slate-400 hover:text-orange-500"
+              aria-label="Close search"
+            >
+              <CloseIcon className="w-7 h-7" />
+            </button>
+          </div>
+          <div className="flex-grow overflow-y-auto">
+            {searchQuery.length >= 2 ? (
+              <SearchResults
+                id="search-results-mobile"
+                query={deferredQuery}
+                results={searchResults}
+                loading={isSearching}
+                onClose={handleCloseMobileSearch}
+                activeIndex={activeIndex}
+                isFullScreen={true}
+              />
+            ) : (
+              recentSearches.length > 0 && (
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase">Recent Searches</h3>
+                    <button
+                      onClick={() => {
+                        setRecentSearches([]);
+                        localStorage.removeItem('petbhai_recent_searches');
+                      }}
+                      className="text-xs text-red-500 font-bold"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {recentSearches.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(s);
+                          mobileInputRef.current?.focus();
+                        }}
+                        className="w-full text-left p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 flex items-center space-x-3 active:scale-[0.98] transition-all"
+                      >
+                        <SearchIcon className="w-4 h-4 opacity-50" />
+                        <span className="font-medium">{s}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu Overlay */}
       <div
