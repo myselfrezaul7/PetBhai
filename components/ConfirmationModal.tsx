@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import { CloseIcon, ExclamationIcon } from './icons';
 
@@ -7,27 +7,26 @@ const ConfirmationModal: React.FC = () => {
   const modalRef = useRef<HTMLDivElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
-  if (!confirmationState.isOpen) {
-    return null;
-  }
+  const { isOpen, message, title, confirmText = 'Confirm', cancelText = 'Cancel' } = confirmationState;
 
-  const { message, title, confirmText = 'Confirm', cancelText = 'Cancel' } = confirmationState;
-
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     resolveConfirmation(true);
-  };
+  }, [resolveConfirmation]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     resolveConfirmation(false);
-  };
+  }, [resolveConfirmation]);
 
   // Determine if this is a destructive action (delete, reset, etc.)
   const isDestructive =
     confirmText.toLowerCase().includes('delete') ||
     confirmText.toLowerCase().includes('reset') ||
-    confirmText.toLowerCase().includes('remove');
+    confirmText.toLowerCase().includes('remove') ||
+    confirmText.toLowerCase().includes('clear');
 
   useEffect(() => {
+    if (!isOpen) return;
+
     cancelButtonRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -60,7 +59,11 @@ const ConfirmationModal: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isOpen, handleCancel]);
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div
