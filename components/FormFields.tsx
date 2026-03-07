@@ -43,7 +43,6 @@ export function FormField<T extends FieldValues>({
         placeholder={placeholder}
         disabled={disabled}
         autoComplete={autoComplete}
-        aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
           bg-white/50 dark:bg-slate-700/50
@@ -118,7 +117,6 @@ export function TextAreaField<T extends FieldValues>({
         placeholder={placeholder}
         disabled={disabled}
         maxLength={maxLength}
-        aria-invalid={!!error}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none
           bg-white/50 dark:bg-slate-700/50
@@ -188,7 +186,6 @@ export function SelectField<T extends FieldValues>({
       <select
         id={inputId}
         disabled={disabled}
-        aria-invalid={!!error}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
           bg-white/50 dark:bg-slate-700/50 appearance-none cursor-pointer
@@ -254,7 +251,6 @@ export function CheckboxField<T extends FieldValues>({
           id={inputId}
           type="checkbox"
           disabled={disabled}
-          aria-invalid={!!error}
           aria-describedby={error ? `${inputId}-error` : undefined}
           className={`mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 
             text-orange-500 focus:ring-orange-500 cursor-pointer

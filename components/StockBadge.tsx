@@ -53,6 +53,7 @@ const StockBadge: React.FC<StockBadgeProps> = ({
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${sizeClasses[size]} ${config.bgClass} ${config.textClass} ${className}`}
+      aria-label={config.text}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${config.dotClass}`} />
       {config.text}
@@ -75,6 +76,7 @@ export const StockIndicator: React.FC<{
   return (
     <span
       className={`absolute top-2 left-2 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md shadow-sm z-10 ${config.className} ${className}`}
+      aria-label={config.text}
     >
       {config.text}
     </span>

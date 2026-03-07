@@ -67,7 +67,7 @@ const ConfirmationModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex justify-center items-center p-4 transition-all duration-500 animate-fade-in"
+      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex justify-center items-center transition-all duration-500 animate-fade-in"
       onClick={handleCancel}
       role="alertdialog"
       aria-modal="true"
@@ -76,7 +76,7 @@ const ConfirmationModal: React.FC = () => {
     >
       <div
         ref={modalRef}
-        className="glass-card-ios w-full max-w-md transform transition-all duration-500 animate-scale-in"
+        className="glass-card-ios w-full max-w-md max-h-[min(92dvh,32rem)] overflow-y-auto transform transition-all duration-500 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 sm:p-8 text-center">

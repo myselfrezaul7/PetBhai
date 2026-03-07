@@ -210,6 +210,10 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     localStorage.setItem('petbhai_language', language);
   }, [language]);
 
+  useEffect(() => {
+    document.documentElement.lang = language === 'bn' ? 'bn' : 'en';
+  }, [language]);
+
   const toggleLanguage = useCallback(() => {
     setLanguage((prev) => (prev === 'en' ? 'bn' : 'en'));
   }, []);

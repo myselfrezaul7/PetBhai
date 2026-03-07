@@ -37,6 +37,17 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -131,7 +142,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="safe-modal-padding fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -139,13 +150,13 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     >
       <div
         ref={modalRef}
-        className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 relative animate-slide-up"
+        className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full max-h-[min(92dvh,34rem)] overflow-y-auto p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:p-8 relative animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+          className="absolute top-4 right-4 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 touch-manipulation active:scale-95"
           aria-label="Close modal"
         >
           <CloseIcon className="w-5 h-5" />

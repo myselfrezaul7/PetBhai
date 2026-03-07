@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { ShoppingCartIcon, EyeIcon } from './icons';
 import StockBadge from './StockBadge';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 interface ProductCardProps {
   product: Product;
@@ -69,6 +70,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
           loading="lazy"
           decoding="async"
+          sizes={getResponsiveImageSizes('card')}
+          onError={handleImageError}
         />
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 glass-card-ios bg-orange-500/90 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
           {product.category}
@@ -85,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
         {onQuickView && (
           <button
             onClick={handleQuickViewClick}
-            className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios text-slate-800 dark:text-slate-200 p-1.5 sm:p-2 rounded-full shadow-lg opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:text-orange-500 z-10 touch-manipulation active:scale-95"
+            className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios min-h-[44px] min-w-[44px] text-slate-800 dark:text-slate-200 p-2 sm:p-2.5 rounded-full shadow-lg opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:text-orange-500 z-10 touch-manipulation active:scale-95 flex items-center justify-center"
             title="Quick View"
             aria-label={`Quick view ${product.name}`}
           >
@@ -172,7 +175,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           aria-label={
             isOutOfStock ? t('aria_out_of_stock') : `${t('aria_add_to_cart')} ${product.name}`
           }
-          className={`w-full flex items-center justify-center space-x-1.5 py-1.5 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-500 ease-out touch-manipulation
+          className={`w-full min-h-[44px] flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-500 ease-out touch-manipulation
             ${
               isOutOfStock
                 ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 cursor-not-allowed'

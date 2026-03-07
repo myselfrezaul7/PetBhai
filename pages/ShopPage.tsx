@@ -10,6 +10,7 @@ import ProductQuickViewModal from '../components/ProductQuickViewModal';
 import { sanitizeInput } from '../lib/security';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchReorderSuggestions } from '../services/ecommerceService';
+import ApiStateCard from '../components/ApiStateCard';
 
 type CategoryFilter =
   | 'All'
@@ -53,7 +54,7 @@ const ShopPage: React.FC = () => {
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { products: allProducts, loading } = useProducts();
+  const { products: allProducts, loading, error, refetch } = useProducts();
   const { brands } = useBrands();
   const { isAuthenticated } = useAuth();
   const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]);
@@ -341,6 +342,8 @@ const ShopPage: React.FC = () => {
               placeholder={t('shop_search_placeholder')}
               value={searchQuery}
               onChange={handleSearchChange}
+              inputMode="search"
+              enterKeyHint="search"
               className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 border border-slate-300/50 dark:border-slate-700/50 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
               aria-label={t('shop_search_label')}
               autoComplete="off"
@@ -646,7 +649,7 @@ const ShopPage: React.FC = () => {
         {/* Visible Result Count + Active Filter Chips */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4 glass-card-ios border border-white/30 dark:border-white/10 bg-white/40 dark:bg-slate-900/25 backdrop-blur-lg p-3 md:p-4">
           {!loading && (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">
               <span className="font-bold text-slate-700 dark:text-slate-200">{resultCount}</span>{' '}
               {t('shop_products_found')}
             </p>
@@ -696,6 +699,17 @@ const ShopPage: React.FC = () => {
           {!loading && `${resultCount} ${t('shop_products_found')}`}
         </div>
 
+        {!loading && error && (
+          <div className="mb-6">
+            <ApiStateCard
+              title="Shop inventory is temporarily unavailable"
+              message={error}
+              actionLabel="Retry"
+              onAction={refetch}
+            />
+          </div>
+        )}
+
         {/* Loading State */}
         {loading ? (
           <div
@@ -706,7 +720,7 @@ const ShopPage: React.FC = () => {
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
             <span className="sr-only">{t('shop_loading')}</span>
           </div>
-        ) : resultCount === 0 ? (
+        ) : !error && resultCount === 0 ? (
           <div className="text-center py-16 glass-card-ios">
             <p className="text-lg text-slate-600 dark:text-slate-400">{t('shop_no_results')}</p>
             <button
@@ -716,13 +730,13 @@ const ShopPage: React.FC = () => {
               {t('shop_clear_filters')}
             </button>
           </div>
-        ) : (
+        ) : !error ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
             {sortedAndFilteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onQuickView={handleQuickView} />
             ))}
           </div>
-        )}
+        ) : null}
       </main>
 
       {/* Quick View Modal */}

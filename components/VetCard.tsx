@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Vet } from '../types';
 import { VideoCameraIcon } from './icons';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 interface VetCardProps {
   vet: Vet;
@@ -26,6 +27,8 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
           alt={`Dr. ${vet.name}`}
           loading="lazy"
           decoding="async"
+          sizes={getResponsiveImageSizes('avatar')}
+          onError={handleImageError}
         />
         <span
           className={`absolute bottom-0 right-0 block h-max w-max px-1.5 py-0.5 sm:px-2 border-2 border-white dark:border-slate-800 rounded-full text-[9px] sm:text-xs font-bold ${availabilityStyles[vet.availability]}`}
@@ -75,7 +78,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
       </p>
 
       <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-white/30 dark:border-slate-700/50">
-        <span className="w-full block bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[10px] sm:text-base group-hover:from-orange-600 group-hover:to-orange-700 transition-all duration-500 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25">
+        <span className="w-full min-h-[44px] flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[10px] sm:text-base group-hover:from-orange-600 group-hover:to-orange-700 transition-all duration-500 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25">
           Profile
         </span>
       </div>

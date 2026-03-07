@@ -15,6 +15,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const sidebarRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const touchStartYRef = useRef<number | null>(null);
+  const touchCurrentYRef = useRef<number | null>(null);
 
   // Focus management for accessibility
   useEffect(() => {
@@ -113,6 +115,29 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
     }
   }, [confirm, clearCart]);
 
+  const handleTouchStart = useCallback((event: React.TouchEvent<HTMLElement>) => {
+    touchStartYRef.current = event.touches[0]?.clientY ?? null;
+    touchCurrentYRef.current = touchStartYRef.current;
+  }, []);
+
+  const handleTouchMove = useCallback((event: React.TouchEvent<HTMLElement>) => {
+    touchCurrentYRef.current = event.touches[0]?.clientY ?? null;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (touchStartYRef.current === null || touchCurrentYRef.current === null) {
+      return;
+    }
+
+    const deltaY = touchCurrentYRef.current - touchStartYRef.current;
+    if (deltaY > 90) {
+      onClose();
+    }
+
+    touchStartYRef.current = null;
+    touchCurrentYRef.current = null;
+  }, [onClose]);
+
   return (
     <>
       {/* Overlay */}
@@ -127,12 +152,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`fixed top-0 right-0 h-full w-full max-w-md glass-card-ios shadow-2xl z-50 transform transition-all duration-500 ease-out ${
+        className={`safe-top safe-bottom fixed top-0 right-0 h-full w-full max-w-md glass-card-ios shadow-2xl z-50 transform transition-all duration-500 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="cart-heading"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -191,6 +219,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                       alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-slate-200 dark:bg-slate-700"
                       loading="lazy"
+                      decoding="async"
+                      sizes="80px"
+                      onError={(event) => {
+                        const target = event.currentTarget;
+                        target.onerror = null;
+                        target.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 80%22%3E%3Crect width=%2280%22 height=%2280%22 rx=%2212%22 fill=%22%23fed7aa%22/%3E%3Cpath d=%22M20 52h40M28 40l8-8 8 8 8-8 8 8%22 stroke=%22%23f97316%22 stroke-width=%224%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 fill=%22none%22/%3E%3C/svg%3E';
+                      }}
                     />
                     <div className="flex-grow min-w-0">
                       <h4 className="font-bold text-slate-800 dark:text-white leading-tight truncate">
@@ -242,7 +277,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <footer className="p-5 sm:p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+            <footer className="safe-bottom sticky bottom-0 p-5 sm:p-6 bg-white/95 dark:bg-slate-900/95 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl">
               <div className="flex justify-between items-center text-lg sm:text-xl font-bold mb-4 sm:mb-6">
                 <span className="text-slate-600 dark:text-slate-300">Subtotal</span>
                 <span className="text-slate-800 dark:text-white tabular-nums" aria-live="polite">

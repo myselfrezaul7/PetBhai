@@ -18,6 +18,7 @@ PetBhai is a hybrid web application for pet care (shop, vet services, adoption, 
 - **Backend First**: All data must come from the Backend API.
 - **No Frontend Fallbacks**: Do NOT use mock data fallbacks in \catch\ blocks in React components/contexts. If the API fails, display a proper error state or notification. This ensures we detect backend issues immediately.
 - **Persistence**: The backend must persist data modifications (orders, users, inventory) to disk (JSON DB) so changes survive server restarts.
+- **Mobile First**: The website should focus mainly on mobile users. Default to mobile-first layouts, tap targets, safe-area handling, and form UX before enhancing tablet or desktop views.
 
 ## Architecture & Data Flow
 
@@ -36,7 +37,8 @@ PetBhai is a hybrid web application for pet care (shop, vet services, adoption, 
 - **Location**: All server-side logic is in \ackend/\.
 - **Core Routes**: \src/routes/\ (\uth\, \i\, \product\, \et\, etc.).
 - **Data Source**: Use \src/db.ts\ which manages the persistent JSON store. DO NOT import from \mockData.ts\ directly in routes.
-- **Security**: Uses \helmet\, \cors\, and \ateLimiter\.
+- **Security**: Uses \helmet\, \cors\, and \
+ateLimiter\.
 - **AI Service**: The backend handles Gemini API calls (\@google/genai\) to protect secrets.
   - Frontend \services/geminiService.ts\ delegates to \POST /api/ai/*\.
 

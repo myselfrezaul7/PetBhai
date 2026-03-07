@@ -4,6 +4,8 @@ import { useVets } from '../contexts/VetContext';
 import { MapPinIcon, VideoCameraIcon, PawIcon } from '../components/icons';
 import VetBookingModal from '../components/VetBookingModal';
 import SEO from '../components/SEO';
+import ApiStateCard from '../components/ApiStateCard';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 const StarRating = memo(({ rating }: { rating: number }) => (
   <div className="flex items-center" aria-label={`Rating: ${rating} out of 5 stars`}>
@@ -24,7 +26,7 @@ StarRating.displayName = 'StarRating';
 
 const VetDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { vets, loading, error } = useVets();
+  const { vets, loading, error, refetch } = useVets();
   const vet = useMemo(() => vets.find((v) => v.id === Number(id)), [id, vets]);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
@@ -48,8 +50,12 @@ const VetDetailPage: React.FC = () => {
   if (error) {
     return (
       <main className="container mx-auto px-4 sm:px-6 py-16 text-center">
-        <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-4">Error Loading Vet</h2>
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{error}</p>
+        <ApiStateCard
+          title="Veterinarian details are unavailable"
+          message={error}
+          actionLabel="Retry"
+          onAction={refetch}
+        />
       </main>
     );
   }
@@ -110,6 +116,9 @@ const VetDetailPage: React.FC = () => {
             alt={vet.name}
             className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover ring-4 ring-orange-500/30 flex-shrink-0"
             loading="lazy"
+            decoding="async"
+            sizes={getResponsiveImageSizes('avatar')}
+            onError={handleImageError}
           />
           <div>
             <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 dark:text-white">

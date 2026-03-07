@@ -12,6 +12,7 @@ import {
 } from './icons';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 interface PageResult {
   name: string;
@@ -60,6 +61,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     [results]
   );
 
+  const totalResults =
+    results.products.length +
+    results.pages.length +
+    results.articles.length +
+    results.vets.length +
+    results.animals.length;
+
   const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   const highlightText = (text: string, highlight: string) => {
@@ -97,13 +105,22 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       }
       aria-label="Search results"
     >
+      <div className="sr-only" aria-live="polite">
+        {loading
+          ? `Searching for ${query}`
+          : hasResults
+            ? `${totalResults} results available for ${query}`
+            : `No results available for ${query}`}
+      </div>
       {isFullScreen && hasResults && !loading && (
         <div className="flex space-x-2 px-4 py-2 overflow-x-auto hide-scrollbar border-b border-slate-200 dark:border-slate-700/50">
-          {(['All', 'Products', 'Vets', 'Animals'] as const).map(filter => (
+          {(['All', 'Products', 'Vets', 'Animals'] as const).map((filter) => (
             <button
               key={filter}
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+              className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors touch-manipulation active:scale-95 ${
                 activeFilter === filter
                   ? 'bg-orange-500 text-white shadow-md'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -119,6 +136,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           isFullScreen ? 'flex-grow overflow-y-auto w-full p-4' : 'max-h-[70vh] overflow-y-auto custom-scrollbar'
         }
       >
+        {!loading && query && (
+          <p className="px-3 pb-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+            {totalResults} result{totalResults === 1 ? '' : 's'} for "{query}"
+          </p>
+        )}
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full motion-safe:animate-spin motion-reduce:animate-none mb-3"></div>
@@ -203,6 +225,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                             alt={product.name}
                             loading="lazy"
                             decoding="async"
+                            sizes={getResponsiveImageSizes('search')}
+                            onError={handleImageError}
                             className="w-12 h-12 object-cover rounded-lg shadow-sm"
                           />
                           {product.discount && (
@@ -264,6 +288,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           alt={vet.name}
                           loading="lazy"
                           decoding="async"
+                          sizes={getResponsiveImageSizes('search')}
+                          onError={handleImageError}
                           className="w-12 h-12 object-cover rounded-full border-2 border-white dark:border-slate-700 shadow-sm"
                         />
                         <div className="flex-grow min-w-0">
@@ -274,9 +300,19 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                             {vet.specialization} • {vet.clinicName}
                           </p>
                         </div>
-                        <div
-                          className={`w-2 h-2 rounded-full ${vet.availability === 'Available Now' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}
-                        ></div>
+                        <div className="flex items-center gap-1.5">
+                          <div
+                            className={`w-2 h-2 rounded-full ${vet.availability === 'Available Now' ? 'bg-green-500 animate-pulse' : vet.availability === 'Available Today' ? 'bg-blue-500' : 'bg-slate-300'}`}
+                            aria-hidden="true"
+                          ></div>
+                          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                            {vet.availability === 'Available Now'
+                              ? 'Now'
+                              : vet.availability === 'Available Today'
+                                ? 'Today'
+                                : 'Offline'}
+                          </span>
+                        </div>
                       </Link>
                     );
                   })}
@@ -311,6 +347,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           alt={animal.name}
                           loading="lazy"
                           decoding="async"
+                          sizes={getResponsiveImageSizes('search')}
+                          onError={handleImageError}
                           className="w-12 h-12 object-cover rounded-lg shadow-sm"
                         />
                         <div className="flex-grow min-w-0">

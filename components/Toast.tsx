@@ -37,7 +37,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
   return (
     <div
       role="alert"
-      className={`relative w-full max-w-sm glass-card-ios p-4 flex items-start space-x-3 shadow-2xl ${isExiting ? toastExitClass : toastEnterClass}`}
+      className={`pointer-events-auto relative w-full max-w-sm glass-card-ios p-4 flex items-start space-x-3 shadow-2xl ${isExiting ? toastExitClass : toastEnterClass}`}
     >
       <div className="flex-shrink-0">{icons[toast.type]}</div>
       <div className="flex-grow text-sm font-semibold text-slate-700 dark:text-slate-200">

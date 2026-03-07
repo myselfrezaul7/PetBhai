@@ -4,6 +4,7 @@ import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { CloseIcon, ShoppingCartIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 interface ProductQuickViewModalProps {
   product: Product | null;
@@ -31,6 +32,8 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
 
   useEffect(() => {
     closeButtonRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -60,6 +63,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose]);
@@ -81,7 +85,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center p-4 transition-opacity duration-300 animate-fade-in"
+      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center transition-opacity duration-300 animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -89,7 +93,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
     >
       <div
         ref={modalRef}
-        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[90vh] animate-scale-in"
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[min(92dvh,42rem)] landscape:max-h-[80dvh] animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -108,6 +112,8 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
             src={product.imageUrl}
             alt={product.name}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes={getResponsiveImageSizes('detail')}
+            onError={handleImageError}
           />
           <div className="absolute top-4 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
             {product.category}
@@ -115,7 +121,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
         </div>
 
         {/* Details Section - Scrollable content */}
-        <div className="w-full md:w-1/2 flex flex-col p-6 md:p-10 overflow-y-auto">
+        <div className="w-full md:w-1/2 flex flex-col p-6 md:p-10 overflow-y-auto overscroll-contain">
           <div className="flex-grow">
             <h2
               id="quick-view-title"

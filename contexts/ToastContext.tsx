@@ -24,23 +24,38 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-const MAX_TOASTS = 5;
+const MAX_VISIBLE_TOASTS = 3;
 
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const queueRef = useRef<Toast[]>([]);
   const idCounter = useRef(0);
 
   const addToast = useCallback((message: string, type: ToastType) => {
     const id = ++idCounter.current;
+    const nextToast = { id, message, type };
+
     setToasts((prevToasts) => {
-      const updated = [...prevToasts, { id, message, type }];
-      // Keep only the latest MAX_TOASTS
-      return updated.length > MAX_TOASTS ? updated.slice(-MAX_TOASTS) : updated;
+      if (prevToasts.length < MAX_VISIBLE_TOASTS) {
+        return [...prevToasts, nextToast];
+      }
+
+      queueRef.current = [...queueRef.current, nextToast];
+      return prevToasts;
     });
   }, []);
 
   const removeToast = useCallback((id: number) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+    setToasts((prevToasts) => {
+      const updated = prevToasts.filter((toast) => toast.id !== id);
+      if (updated.length >= MAX_VISIBLE_TOASTS || queueRef.current.length === 0) {
+        return updated;
+      }
+
+      const [nextToast, ...remainingQueue] = queueRef.current;
+      queueRef.current = remainingQueue;
+      return [...updated, nextToast];
+    });
   }, []);
 
   const value = useMemo(() => ({ toasts, addToast, removeToast }), [toasts, addToast, removeToast]);

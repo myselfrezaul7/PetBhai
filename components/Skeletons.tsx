@@ -56,20 +56,22 @@ export const ArticleCardSkeleton: React.FC = () => (
 
 // Vet card skeleton
 export const VetCardSkeleton: React.FC = () => (
-  <div className="glass-card-ios overflow-hidden flex flex-col h-full">
-    <div className="p-5 flex items-start gap-4">
-      <Skeleton className="w-20 h-20 rounded-full flex-shrink-0" />
-      <div className="flex-grow">
-        <Skeleton className="h-6 w-3/4 mb-2" />
-        <Skeleton className="h-4 w-1/2 mb-2" />
-        <Skeleton className="h-3 w-2/3" />
+  <div className="glass-card-ios overflow-hidden flex flex-col h-full p-3 sm:p-6 items-center text-center">
+    <div className="relative">
+      <Skeleton className="w-20 h-20 sm:w-32 sm:h-32 rounded-full flex-shrink-0" />
+      <Skeleton className="absolute bottom-0 right-0 h-5 w-14 rounded-full" />
+    </div>
+    <div className="mt-3 w-full">
+      <Skeleton className="h-5 sm:h-7 w-2/3 mx-auto mb-2" />
+      <Skeleton className="h-4 w-1/2 mx-auto mb-4" />
+      <div className="flex justify-center gap-3 mb-4">
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-4 w-14" />
       </div>
-    </div>
-    <div className="px-5 pb-5">
       <Skeleton className="h-4 w-full mb-2" />
-      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-3/4 mx-auto" />
     </div>
-    <div className="mt-auto p-4 border-t border-slate-200/50 dark:border-slate-700/50">
+    <div className="mt-auto pt-4 w-full border-t border-slate-200/50 dark:border-slate-700/50">
       <Skeleton className="h-10 w-full rounded-lg" />
     </div>
   </div>
@@ -78,17 +80,19 @@ export const VetCardSkeleton: React.FC = () => (
 // Animal card skeleton (for adoption)
 export const AnimalCardSkeleton: React.FC = () => (
   <div className="glass-card-ios overflow-hidden flex flex-col h-full">
-    <Skeleton className="w-full aspect-square rounded-none" />
-    <div className="p-4 flex flex-col flex-grow">
+    <Skeleton className="w-full aspect-[4/3] rounded-none" />
+    <div className="p-3 sm:p-5 flex flex-col flex-grow">
       <div className="flex justify-between items-start mb-2">
         <Skeleton className="h-6 w-1/2" />
-        <Skeleton className="h-5 w-16 rounded-full" />
+        <Skeleton className="h-10 w-10 rounded-full" />
       </div>
       <Skeleton className="h-4 w-3/4 mb-3" />
-      <div className="flex gap-2 mb-3">
-        <Skeleton className="h-6 w-16 rounded-full" />
-        <Skeleton className="h-6 w-16 rounded-full" />
-        <Skeleton className="h-6 w-16 rounded-full" />
+      <div className="flex gap-2 mb-3 items-center">
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-3 w-3 rounded-full" />
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-3 w-3 rounded-full hidden sm:block" />
+        <Skeleton className="h-4 w-14 hidden sm:block" />
       </div>
       <Skeleton className="h-4 w-full mb-1" />
       <Skeleton className="h-4 w-2/3" />

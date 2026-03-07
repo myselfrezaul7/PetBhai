@@ -289,6 +289,14 @@ const Header: React.FC = () => {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsSearchOpen(false);
+    setIsSearchActive(false);
+    setIsProfileMenuOpen(false);
+    setActiveIndex(-1);
+  }, [location.pathname]);
+
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // Sanitize search input to prevent XSS
     const sanitized = sanitizeInput(e.target.value);
@@ -358,7 +366,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="glass-card-ios-heavy sticky top-0 z-40 border-b border-white/20 dark:border-slate-700/30 !rounded-none shadow-lg transition-all duration-500">
+      <header className="glass-card-ios-heavy safe-top sticky top-0 z-40 border-b border-white/20 dark:border-slate-700/30 !rounded-none shadow-lg transition-all duration-500">
         <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
           <NavLink
             to="/"
@@ -402,6 +410,8 @@ const Header: React.FC = () => {
                 aria-controls="search-results-desktop"
                 aria-expanded="false"
                 data-expanded={isSearchActive && searchQuery.length >= 2}
+                inputMode="search"
+                enterKeyHint="search"
               />
 
               <span className="sr-only" aria-live="polite">
@@ -457,7 +467,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={toggleLanguage}
-                className="px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200 active:scale-95"
+                className="min-h-[44px] px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200 active:scale-95 touch-manipulation"
                 aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
               >
                 {language === 'en' ? 'BN' : 'EN'}
@@ -551,7 +561,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={openCart}
-                className="relative text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                 aria-label={`Open cart with ${cartCount} items`}
               >
                 <svg
@@ -578,7 +588,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenMobileSearch}
-                className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                 aria-label="Open search"
               >
                 <SearchIcon className="w-6 h-6" />
@@ -586,7 +596,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={handleMenuOpen}
-                className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors touch-manipulation active:scale-95"
                 aria-label="Open menu"
               >
                 <MenuIcon className="w-7 h-7" />
@@ -598,7 +608,7 @@ const Header: React.FC = () => {
 
       {/* Full-screen Mobile Search Overlay */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 lg:hidden animate-fade-in">
+        <div className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 lg:hidden animate-fade-in">
           <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-800">
             <div className="relative flex-grow">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -616,12 +626,14 @@ const Header: React.FC = () => {
                 aria-label="Search"
                 autoFocus
                 autoComplete="off"
+                inputMode="search"
+                enterKeyHint="search"
               />
             </div>
             <button
               type="button"
               onClick={handleCloseMobileSearch}
-              className="ml-3 p-2 text-slate-600 dark:text-slate-400 hover:text-orange-500"
+              className="ml-3 min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-slate-600 dark:text-slate-400 hover:text-orange-500 touch-manipulation active:scale-95"
               aria-label="Close search"
             >
               <CloseIcon className="w-7 h-7" />
@@ -683,7 +695,7 @@ const Header: React.FC = () => {
         aria-modal="true"
         aria-label="Mobile navigation menu"
       >
-        <div className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-800">
+        <div className="safe-top container mx-auto px-4 md:px-6 py-4 flex justify-between items-center flex-shrink-0 border-b border-slate-200 dark:border-slate-800">
           <NavLink
             to="/"
             onClick={handleLogoClick}
@@ -696,7 +708,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform touch-manipulation"
+              className="min-h-[44px] px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform touch-manipulation"
               aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
             >
               {language === 'en' ? 'BN' : 'EN'}
@@ -705,7 +717,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleMenuClose}
-              className="text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform touch-manipulation"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform touch-manipulation"
               aria-label="Close menu"
             >
               <CloseIcon className="w-8 h-8" />

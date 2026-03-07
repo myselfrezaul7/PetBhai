@@ -46,6 +46,8 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
     if (!isOpen) return;
 
     closeButtonRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -75,13 +77,14 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 transition-opacity duration-300 animate-fade-in"
+      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center transition-opacity duration-300 animate-fade-in"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -89,10 +92,10 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
     >
       <div
         ref={modalRef}
-        className="glass-card-ios w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="glass-card-ios w-full max-w-lg max-h-[min(92dvh,40rem)] landscape:max-h-[80dvh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-8">
+        <div className="p-6 sm:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2
@@ -128,7 +131,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                     key={time}
                     type="button"
                     onClick={() => handleTimeSelect(time)}
-                    className="p-3 text-center font-semibold bg-orange-100/50 dark:bg-orange-500/20 text-orange-700 dark:text-orange-200 rounded-lg hover:bg-orange-500 hover:text-white transition-colors"
+                    className="min-h-[44px] p-3 text-center font-semibold bg-orange-100/50 dark:bg-orange-500/20 text-orange-700 dark:text-orange-200 rounded-lg hover:bg-orange-500 hover:text-white transition-colors touch-manipulation active:scale-[0.98]"
                   >
                     {time}
                   </button>
@@ -156,8 +159,9 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                   value={issue}
                   onChange={(e) => setIssue(e.target.value)}
                   required
+                  autoComplete="off"
                   placeholder="e.g., My dog is lethargic and not eating."
-                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50 text-base"
                 ></textarea>
               </div>
               <div className="flex justify-between items-center mt-6">

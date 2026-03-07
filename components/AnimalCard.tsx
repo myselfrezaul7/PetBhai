@@ -4,6 +4,7 @@ import type { Animal } from '../types';
 import { HeartIcon } from './icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 interface AnimalCardProps {
   animal: Animal;
@@ -47,6 +48,8 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
             className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-110"
             loading="lazy"
             decoding="async"
+            sizes={getResponsiveImageSizes('card')}
+            onError={handleImageError}
           />
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 hidden sm:flex">
             <p className="text-white font-bold tracking-wider border-2 border-white px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
@@ -61,7 +64,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
         </div>
         <button
           onClick={handleFavoriteClick}
-          className={`absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:scale-110 active:scale-90
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:scale-110 active:scale-90 touch-manipulation
                 ${
                   isFavorited
                     ? 'bg-red-500 text-white'
@@ -107,7 +110,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
       <div className="p-2 sm:p-4 bg-white/50 dark:bg-black/20 mt-auto border-t border-white/20 dark:border-slate-700/30">
         <Link
           to={`/adopt/${animal.id}`}
-          className="w-full text-center block bg-orange-500 text-white font-bold py-1.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl text-xs sm:text-base hover:bg-orange-600 transition-all shadow-md active:scale-95"
+          className="w-full min-h-[44px] text-center block bg-orange-500 text-white font-bold py-2 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl text-xs sm:text-base hover:bg-orange-600 transition-all shadow-md active:scale-95 touch-manipulation"
         >
           Meet {animal.name}
         </Link>

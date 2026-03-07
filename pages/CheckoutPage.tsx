@@ -396,6 +396,8 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={20}
                 autoComplete="tel"
+                inputMode="tel"
+                enterKeyHint="next"
                 data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
@@ -426,6 +428,7 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={500}
                 autoComplete="street-address"
+                enterKeyHint="next"
                 placeholder="e.g. House No, Road No, Area, District"
                 data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
@@ -459,6 +462,8 @@ const CheckoutPage: React.FC = () => {
                 onBlur={handleInputBlur}
                 maxLength={255}
                 autoComplete="email"
+                inputMode="email"
+                enterKeyHint="done"
                 data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${

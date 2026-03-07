@@ -21,6 +21,10 @@
   --motion-base: 200ms;
   --motion-slow: 300ms;
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 html.dark {
@@ -49,6 +53,7 @@ html {
   color-scheme: light;
   scroll-behavior: smooth;
   overscroll-behavior-x: none;
+  scroll-padding-top: calc(5rem + var(--safe-top));
 }
 
 @supports (scrollbar-gutter: stable) {
@@ -86,6 +91,7 @@ body {
     background-color var(--motion-base) var(--motion-ease),
     color var(--motion-base) var(--motion-ease),
     background-image var(--motion-slow) var(--motion-ease);
+  padding-bottom: var(--safe-bottom);
 }
 
 html.dark body {
@@ -225,4 +231,32 @@ html.dark .glass-card-ios {
   #root {
     overflow-x: clip;
   }
+}
+
+.safe-top {
+  padding-top: var(--safe-top);
+}
+
+.safe-bottom {
+  padding-bottom: var(--safe-bottom);
+}
+
+.safe-top-offset {
+  top: calc(1.25rem + var(--safe-top));
+}
+
+.safe-bottom-offset {
+  bottom: calc(1.25rem + var(--safe-bottom));
+}
+
+.safe-x {
+  padding-left: max(1rem, var(--safe-left));
+  padding-right: max(1rem, var(--safe-right));
+}
+
+.safe-modal-padding {
+  padding-top: max(1rem, var(--safe-top));
+  padding-right: max(1rem, var(--safe-right));
+  padding-bottom: max(1rem, var(--safe-bottom));
+  padding-left: max(1rem, var(--safe-left));
 }

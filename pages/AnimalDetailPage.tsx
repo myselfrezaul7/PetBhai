@@ -5,10 +5,12 @@ import AdoptionForm from '../components/AdoptionForm';
 import { HeartIcon, PawIcon } from '../components/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import ApiStateCard from '../components/ApiStateCard';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 const AnimalDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { animals, loading, error } = useAnimals();
+  const { animals, loading, error, refetch } = useAnimals();
   const animal = useMemo(() => animals.find((a) => a.id === Number(id)), [id, animals]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { isAuthenticated, currentUser, favoritePet, unfavoritePet } = useAuth();
@@ -50,8 +52,12 @@ const AnimalDetailPage: React.FC = () => {
   if (error) {
     return (
       <main className="container mx-auto px-4 sm:px-6 py-16 text-center">
-        <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-4">Error Loading Animal</h2>
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">{error}</p>
+        <ApiStateCard
+          title="We couldn’t load this pet right now"
+          message={error}
+          actionLabel="Try Again"
+          onAction={refetch}
+        />
       </main>
     );
   }
@@ -86,6 +92,9 @@ const AnimalDetailPage: React.FC = () => {
             alt={animal.name}
             className="w-full h-full object-cover min-h-[300px]"
             loading="lazy"
+            decoding="async"
+            sizes={getResponsiveImageSizes('detail')}
+            onError={handleImageError}
           />
         </figure>
         <div className="p-6 sm:p-8 md:p-12 md:w-1/2 flex flex-col justify-between">
@@ -138,7 +147,6 @@ const AnimalDetailPage: React.FC = () => {
                           : 'bg-transparent border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-red-500/10 hover:border-red-500/20'
                       }`}
               aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              aria-pressed={isFavorited ? 'true' : 'false'}
             >
               <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </button>

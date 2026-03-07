@@ -6,9 +6,11 @@ import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PawIcon } from '../components/icons';
 import DhakaHero from '../components/DhakaHero';
+import ApiStateCard from '../components/ApiStateCard';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 const HomePage: React.FC = () => {
-  const { products, loading } = useProducts();
+  const { products, loading, error, refetch } = useProducts();
   const { brands } = useBrands();
   const { t } = useLanguage();
 
@@ -102,6 +104,13 @@ const HomePage: React.FC = () => {
               />
               <span className="sr-only">Loading...</span>
             </div>
+          ) : error ? (
+            <ApiStateCard
+              title="Products are unavailable right now"
+              message={error}
+              actionLabel="Try Again"
+              onAction={refetch}
+            />
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
               {bestSellers.map((product) => (
@@ -118,12 +127,19 @@ const HomePage: React.FC = () => {
           <div className="glass-card-ios p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
             <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full overflow-hidden">
               <div className="md:hidden w-full h-full bg-gradient-to-br from-orange-100 via-amber-100 to-sky-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
-              <img
-                src="/landing-hero-dhaka.jpg"
-                alt="Professional Pet Services"
-                className="w-full h-full object-cover transition-transform duration-700 hover:scale-110 hidden md:block"
-                loading="lazy"
-              />
+              <picture className="hidden h-full w-full md:block">
+                <source media="(max-width: 767px)" srcSet="/landing-hero-mobile.webp" type="image/webp" />
+                <source srcSet="/landing-hero.webp" type="image/webp" />
+                <img
+                  src="/landing-hero-dhaka.jpg"
+                  alt="Professional Pet Services"
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                  loading="lazy"
+                  decoding="async"
+                  sizes={getResponsiveImageSizes('detail')}
+                  onError={handleImageError}
+                />
+              </picture>
             </div>
             <div className="md:w-1/2 p-4 sm:p-6 md:p-16 text-center md:text-left">
               <h2
@@ -194,6 +210,9 @@ const HomePage: React.FC = () => {
                     alt={brand.name}
                     className="h-7 sm:h-9 md:h-11 w-auto max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
                     loading="lazy"
+                    decoding="async"
+                    sizes={getResponsiveImageSizes('brand')}
+                    onError={handleImageError}
                   />
                   <span className="mt-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate max-w-full">
                     {brand.name}
@@ -241,11 +260,20 @@ const HomePage: React.FC = () => {
               {t('section_new_arrivals_sub')}
             </p>
           </header>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {error ? (
+            <ApiStateCard
+              title="New arrivals could not be loaded"
+              message={error}
+              actionLabel="Reload Products"
+              onAction={refetch}
+            />
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
+              {newArrivals.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
           <div className="mt-8 md:mt-16">
             <Link
               to="/shop"

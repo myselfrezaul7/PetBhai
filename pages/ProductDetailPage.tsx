@@ -10,11 +10,13 @@ import { useProducts } from '../contexts/ProductContext';
 import { sanitizeInput } from '../lib/security';
 import SEO from '../components/SEO';
 import { fetchBundleOffer } from '../services/ecommerceService';
+import ApiStateCard from '../components/ApiStateCard';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { products, addProductReview, loading } = useProducts();
+  const { products, addProductReview, loading, error, refetch } = useProducts();
   const { brands } = useBrands();
 
   const product = useMemo(() => products.find((p) => p.id === Number(id)), [id, products]);
@@ -64,6 +66,19 @@ const ProductDetailPage: React.FC = () => {
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
         <span className="sr-only">Loading product...</span>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="container mx-auto px-4 sm:px-6 py-16">
+        <ApiStateCard
+          title="Product details are unavailable"
+          message={error}
+          actionLabel="Reload"
+          onAction={refetch}
+        />
+      </main>
     );
   }
 
@@ -258,6 +273,9 @@ const ProductDetailPage: React.FC = () => {
             alt={product.name}
             className="w-full h-auto object-cover rounded-2xl"
             loading="lazy"
+            decoding="async"
+            sizes={getResponsiveImageSizes('detail')}
+            onError={handleImageError}
           />
         </div>
         <div className="p-6 sm:p-8 lg:w-1/2 flex flex-col">
@@ -408,6 +426,9 @@ const ProductDetailPage: React.FC = () => {
                 alt={currentUser.name}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                 loading="lazy"
+                decoding="async"
+                sizes={getResponsiveImageSizes('search')}
+                onError={handleImageError}
               />
               <div className="flex-grow">
                 <h3 className="font-bold text-base sm:text-lg text-slate-800 dark:text-white">

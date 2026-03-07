@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { ImageIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 interface ArticleCardProps {
   article: Article;
@@ -28,10 +29,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
               loading="lazy"
               decoding="async"
+              sizes={isFeatured ? '(max-width: 768px) 100vw, 66vw' : getResponsiveImageSizes('card')}
               onLoad={() => setIsLoaded(true)}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/blog-images/blog-placeholder.png';
+              onError={(event) => {
+                handleImageError(event);
                 setIsLoaded(true);
               }}
             />
@@ -42,6 +43,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
               loading="lazy"
               decoding="async"
+              sizes={isFeatured ? '(max-width: 768px) 100vw, 66vw' : getResponsiveImageSizes('card')}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent opacity-70 group-hover:opacity-85 transition-opacity duration-500"></div>
