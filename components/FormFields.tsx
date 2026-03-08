@@ -27,6 +27,16 @@ export function FormField<T extends FieldValues>({
   className = '',
 }: FormFieldProps<T>) {
   const inputId = `field-${String(name)}`;
+  const inputMode =
+    type === 'email'
+      ? 'email'
+      : type === 'tel'
+        ? 'tel'
+        : type === 'number'
+          ? 'numeric'
+          : type === 'url'
+            ? 'url'
+            : undefined;
 
   return (
     <div className={`space-y-1 ${className}`}>
@@ -42,9 +52,10 @@ export function FormField<T extends FieldValues>({
         type={type}
         placeholder={placeholder}
         disabled={disabled}
+        inputMode={inputMode}
         autoComplete={autoComplete}
         aria-describedby={error ? `${inputId}-error` : undefined}
-        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
+        className={`w-full min-h-[44px] px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
           bg-white/50 dark:bg-slate-700/50
           ${
             error
@@ -118,7 +129,7 @@ export function TextAreaField<T extends FieldValues>({
         disabled={disabled}
         maxLength={maxLength}
         aria-describedby={error ? `${inputId}-error` : undefined}
-        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none
+        className={`w-full min-h-[44px] px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none
           bg-white/50 dark:bg-slate-700/50
           ${
             error
@@ -187,7 +198,7 @@ export function SelectField<T extends FieldValues>({
         id={inputId}
         disabled={disabled}
         aria-describedby={error ? `${inputId}-error` : undefined}
-        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
+        className={`w-full min-h-[44px] px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
           bg-white/50 dark:bg-slate-700/50 appearance-none cursor-pointer
           ${
             error

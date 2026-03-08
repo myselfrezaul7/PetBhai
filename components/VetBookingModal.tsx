@@ -39,7 +39,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
     }, 300);
   };
 
-  // Mock available time slots for today
+  // Temporary static slots until booking availability is served by the backend.
   const timeSlots = ['10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'];
 
   useEffect(() => {
@@ -123,9 +123,9 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
           {step === 1 && (
             <div>
               <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4">
-                Select an available time for today:
+                Select a preferred consultation time:
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 {timeSlots.map((time) => (
                   <button
                     key={time}
@@ -198,15 +198,14 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                 />
               </svg>
               <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
-                Booking Confirmed!
+                Consultation Request Received
               </h3>
               <p className="text-slate-700 dark:text-slate-200 mt-2">
-                Your online consultation with {vet.name} is scheduled for{' '}
-                <strong>{selectedTime} today</strong>.
+                Your request for an online consultation with {vet.name} at{' '}
+                <strong>{selectedTime}</strong> has been recorded.
               </p>
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-4">
-                You will receive an email confirmation with a video call link shortly. (This is a
-                demo).
+                We will confirm availability before sending your final consultation details.
               </p>
               <button
                 type="button"

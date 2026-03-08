@@ -125,34 +125,43 @@ Please contact the customer to confirm the booking.
 
                   <form onSubmit={handleBooking} className="flex-1 space-y-4">
                     <div>
-                      <label className="block text-sm font-bold mb-1">
+                      <label htmlFor="transport-mobile" className="block text-sm font-bold mb-1">
                         Mobile Number <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="transport-mobile"
                         type="tel"
                         name="mobile"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold mb-1">
+                      <label htmlFor="transport-email" className="block text-sm font-bold mb-1">
                         Email <span className="text-xs text-slate-500">(Optional)</span>
                       </label>
                       <input
+                        id="transport-email"
                         type="email"
                         name="email"
+                        autoComplete="email"
+                        inputMode="email"
                         placeholder="your@email.com"
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold mb-1">Pickup Location</label>
+                      <label htmlFor="transport-pickup-location" className="block text-sm font-bold mb-1">
+                        Pickup Location
+                      </label>
                       <select
+                        id="transport-pickup-location"
                         name="pickupLocation"
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       >
                         {BANGLADESH_DISTRICTS.map((d) => (
                           <option key={d}>{d}</option>
@@ -160,10 +169,13 @@ Please contact the customer to confirm the booking.
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold mb-1">Destination Type</label>
+                      <label htmlFor="transport-destination-type" className="block text-sm font-bold mb-1">
+                        Destination Type
+                      </label>
                       <select
+                        id="transport-destination-type"
                         name="destinationType"
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       >
                         <option>Veterinary Clinic</option>
                         <option>Boarding Center</option>
@@ -173,12 +185,15 @@ Please contact the customer to confirm the booking.
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold mb-1">Date & Time</label>
+                      <label htmlFor="transport-datetime" className="block text-sm font-bold mb-1">
+                        Date & Time
+                      </label>
                       <input
+                        id="transport-datetime"
                         type="datetime-local"
                         name="datetime"
                         required
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <button
@@ -210,27 +225,33 @@ Please contact the customer to confirm the booking.
 
                   <form onSubmit={handleBooking} className="flex-1 space-y-4">
                     <div>
-                      <label className="block text-sm font-bold mb-1">
+                      <label htmlFor="photography-mobile" className="block text-sm font-bold mb-1">
                         Mobile Number <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="photography-mobile"
                         type="tel"
                         name="mobile"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold mb-1">
+                      <label htmlFor="photography-email" className="block text-sm font-bold mb-1">
                         Email <span className="text-xs text-slate-500">(Optional)</span>
                       </label>
                       <input
+                        id="photography-email"
                         type="email"
                         name="email"
+                        autoComplete="email"
+                        inputMode="email"
                         placeholder="your@email.com"
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <div>
@@ -280,12 +301,15 @@ Please contact the customer to confirm the booking.
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold mb-1">Preferred Date</label>
+                      <label htmlFor="photography-date" className="block text-sm font-bold mb-1">
+                        Preferred Date
+                      </label>
                       <input
+                        id="photography-date"
                         type="date"
                         name="date"
                         required
-                        className="w-full p-2 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
+                        className="w-full min-h-[44px] p-3 rounded border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60"
                       />
                     </div>
                     <button

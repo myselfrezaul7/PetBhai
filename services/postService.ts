@@ -280,9 +280,9 @@ export const updatePost = async (
 };
 
 // Delete a post
-export const deletePost = async (postId: number, authorId: number): Promise<void> => {
+export const deletePost = async (postId: number, _authorId: number): Promise<void> => {
   try {
-    await apiRequest<void>(`/posts/${postId}?authorId=${Number(authorId)}`, { method: 'DELETE' });
+    await apiRequest<void>(`/posts/${postId}`, { method: 'DELETE' });
   } catch (error) {
     console.error('Error deleting post:', error);
     throw toApiError(error, 'Failed to delete post. Please try again.');
@@ -376,12 +376,10 @@ export const updateComment = async (
 export const deleteComment = async (
   postId: number,
   commentId: number,
-  userId: number
+  _userId: number
 ): Promise<void> => {
   try {
-    await apiRequest<void>(`/posts/${postId}/comments/${commentId}?userId=${Number(userId)}`, {
-      method: 'DELETE',
-    });
+    await apiRequest<void>(`/posts/${postId}/comments/${commentId}`, { method: 'DELETE' });
   } catch (error) {
     console.error('Error deleting comment:', error);
     throw toApiError(error, 'Failed to delete comment. Please try again.');
@@ -485,15 +483,12 @@ export const deleteReply = async (
   postId: number,
   commentId: number,
   replyId: number,
-  userId: number
+  _userId: number
 ): Promise<void> => {
   try {
-    await apiRequest<void>(
-      `/posts/${postId}/comments/${commentId}/replies/${replyId}?userId=${Number(userId)}`,
-      {
-        method: 'DELETE',
-      }
-    );
+    await apiRequest<void>(`/posts/${postId}/comments/${commentId}/replies/${replyId}`, {
+      method: 'DELETE',
+    });
   } catch (error) {
     console.error('Error deleting reply:', error);
     throw toApiError(error, 'Failed to delete reply. Please try again.');

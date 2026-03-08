@@ -1,34 +1,11 @@
-import { Router, type Request, type Response, type NextFunction } from 'express';
+import { Router } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import type { AdminUsersSummary } from '../types';
-import { verifyToken } from '../middleware/auth';
+import { requireAdmin, requireAuth, verifyToken } from '../middleware/auth';
 import { subscribeAdminClient } from '../realtime/adminEvents';
 
 const router = Router();
-
-const parseAdminFromAuthHeader = (authHeader?: string): { isAdmin: boolean; id?: number } => {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { isAdmin: false };
-  }
-
-  const token = authHeader.split(' ')[1];
-  const decoded = verifyToken(token);
-  const numericId = Number(decoded?.id);
-
-  return {
-    isAdmin: Boolean(decoded?.isAdmin),
-    id: Number.isFinite(numericId) ? numericId : undefined,
-  };
-};
-
-const requireAdminHeaderAuth = (req: Request, res: Response, next: NextFunction) => {
-  const auth = parseAdminFromAuthHeader(req.headers.authorization);
-  if (!auth.isAdmin) {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
-  next();
-};
 
 const buildAdminUserSummary = (): AdminUsersSummary[] => {
   const postStats = new Map<number, { postCount: number; commentCount: number; replyCount: number }>();
@@ -101,7 +78,7 @@ const buildAdminUserSummary = (): AdminUsersSummary[] => {
     });
 };
 
-router.get('/users', requireAdminHeaderAuth, (_req, res) => {
+router.get('/users', requireAuth, requireAdmin, (_req, res) => {
   return res.json({ items: buildAdminUserSummary(), total: db.users.length });
 });
 
@@ -111,7 +88,7 @@ const banPayloadSchema = z
   })
   .strict();
 
-router.post('/users/:id/ban', requireAdminHeaderAuth, (req, res) => {
+router.post('/users/:id/ban', requireAuth, requireAdmin, (req, res) => {
   const userId = Number(req.params.id);
   if (!Number.isFinite(userId) || userId <= 0) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -151,7 +128,7 @@ router.post('/users/:id/ban', requireAdminHeaderAuth, (req, res) => {
   });
 });
 
-router.post('/users/:id/unban', requireAdminHeaderAuth, (req, res) => {
+router.post('/users/:id/unban', requireAuth, requireAdmin, (req, res) => {
   const userId = Number(req.params.id);
   if (!Number.isFinite(userId) || userId <= 0) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -174,14 +151,14 @@ router.post('/users/:id/unban', requireAdminHeaderAuth, (req, res) => {
   return res.json({ message: 'User unbanned successfully', userId });
 });
 
-router.get('/posts', requireAdminHeaderAuth, (_req, res) => {
+router.get('/posts', requireAuth, requireAdmin, (_req, res) => {
   const items = [...db.posts].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
   return res.json({ items, total: items.length });
 });
 
-router.delete('/posts/:id', requireAdminHeaderAuth, (req, res) => {
+router.delete('/posts/:id', requireAuth, requireAdmin, (req, res) => {
   const postId = Number(req.params.id);
   if (!Number.isFinite(postId) || postId <= 0) {
     return res.status(400).json({ message: 'Invalid post ID' });

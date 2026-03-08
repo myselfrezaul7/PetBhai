@@ -367,7 +367,7 @@ const ShopPage: React.FC = () => {
 
           {/* Category Filter Buttons */}
           <div
-            className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 md:gap-3"
+            className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 md:gap-3 overflow-x-auto pb-1 hide-scrollbar"
             role="group"
             aria-label="Product categories"
           >
@@ -486,7 +486,9 @@ const ShopPage: React.FC = () => {
           <div
             id="advanced-filters"
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
-              showAdvancedFilters ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+              showAdvancedFilters
+                ? 'max-h-[70dvh] md:max-h-[500px] opacity-100 overflow-y-auto overscroll-contain'
+                : 'max-h-0 opacity-0'
             }`}
           >
             <div className="pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700/50 space-y-5">

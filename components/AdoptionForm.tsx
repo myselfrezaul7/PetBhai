@@ -77,7 +77,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
     >
       <div
         ref={modalRef}
-        className="glass-card-ios w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="glass-card-ios w-full max-w-2xl max-h-[min(90vh,calc(100vh-2rem))] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-8">
@@ -120,7 +120,8 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     type="text"
                     id="fullName"
                     required
-                    className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                    autoComplete="name"
+                    className="mt-1 block w-full min-h-[44px] p-3 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -136,7 +137,9 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     pattern="(\+8801|01)[3-9]\d{8}"
                     placeholder="+8801..."
                     required
-                    className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    className="mt-1 block w-full min-h-[44px] p-3 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -151,7 +154,9 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   type="email"
                   id="email"
                   required
-                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                    autoComplete="email"
+                    inputMode="email"
+                    className="mt-1 block w-full min-h-[44px] p-3 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                 />
               </div>
               <div className="mt-4">
@@ -165,7 +170,8 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   id="address"
                   rows={3}
                   required
-                  className="mt-1 block w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                  autoComplete="street-address"
+                  className="mt-1 block w-full min-h-[44px] p-3 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
                 ></textarea>
               </div>
             </fieldset>

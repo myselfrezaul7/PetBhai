@@ -2,11 +2,117 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
+import type { Order, Product, User } from '../types';
 
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
-const categoryOptions = [
+type OrderStatus = NonNullable<Order['status']>;
+type ActiveTab = 'overview' | 'inventory' | 'orders' | 'create' | 'moderation' | 'users';
+type StockFilter = 'all' | 'critical' | 'healthy';
+type SortMode = 'risk-desc' | 'stock-asc' | 'name';
+type ModerationQueueStatus = 'open' | 'reviewed' | 'dismissed';
+type ModerationStatusFilter = ModerationQueueStatus | 'all';
+type ModerationAction = 'hide' | 'restore' | 'none';
+type InventoryEditableField = 'stockLevel' | 'reorderPoint';
+
+interface DashboardStats {
+  total: number;
+  totalRevenue: number;
+  todayOrders: number;
+}
+
+interface InventoryProductResponse extends Product {
+  stockQuantity?: number;
+  reorderPoint?: number;
+  stockStatus?: Product['stockStatus'];
+}
+
+interface InventoryRow {
+  id: number;
+  sku: string;
+  productName: string;
+  category: Product['category'];
+  stockLevel: number;
+  reorderPoint: number;
+  stockStatus?: Product['stockStatus'];
+  riskScore?: number;
+}
+
+interface OrderStatusHistoryEntry {
+  status?: OrderStatus;
+  timestamp: string;
+  note?: string;
+}
+
+interface AdminOrder extends Order {
+  shippingAddress?: {
+    name?: string;
+  };
+  trackingNumber?: string;
+  statusHistory?: OrderStatusHistoryEntry[];
+}
+
+interface ModerationReportSummary {
+  id: string;
+  targetType: 'post' | 'comment' | 'reply';
+  targetPostId: number;
+  targetCommentId?: number;
+  targetReplyId?: number;
+  reporterId: number;
+  reason: string;
+  status: ModerationQueueStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AdminUserSummary {
+  id: number;
+  name: string;
+  email: string;
+  role?: User['role'];
+  emailVerified?: boolean;
+  isBanned: boolean;
+  bannedAt?: string;
+  banReason?: string;
+  postCount: number;
+  commentCount: number;
+  replyCount: number;
+}
+
+interface OrdersPayload {
+  orders: AdminOrder[];
+}
+
+interface ModerationPayload {
+  items: ModerationReportSummary[];
+}
+
+interface UsersPayload {
+  items: AdminUserSummary[];
+}
+
+interface OrderStatusResponse {
+  order?: AdminOrder;
+}
+
+interface ModerationResponse {
+  report?: ModerationReportSummary;
+}
+
+interface NewProductForm {
+  name: string;
+  category: Product['category'];
+  price: string;
+  imageUrl: string;
+  description: string;
+  weight: string;
+  brandId: string;
+  stockQuantity: string;
+  reorderPoint: string;
+}
+
+const categoryOptions: Product['category'][] = [
   'Cat Food',
   'Dog Food',
   'Cat Supplies',
@@ -15,7 +121,7 @@ const categoryOptions = [
   'Accessories',
 ];
 
-const orderStatusOptions = [
+const orderStatusOptions: OrderStatus[] = [
   'pending',
   'confirmed',
   'processing',
@@ -25,7 +131,20 @@ const orderStatusOptions = [
   'refunded',
 ];
 
-const getStatusMeta = (stockStatus, stockQuantity, reorderPoint) => {
+const mobileTabs: Array<{ key: ActiveTab; label: string }> = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'inventory', label: 'Inventory' },
+  { key: 'orders', label: 'Orders' },
+  { key: 'create', label: 'Add Product' },
+  { key: 'moderation', label: 'Moderation' },
+  { key: 'users', label: 'Users' },
+];
+
+const getStatusMeta = (
+  stockStatus: Product['stockStatus'] | undefined,
+  stockQuantity: number,
+  reorderPoint: number
+) => {
   if (stockStatus === 'out-of-stock' || stockQuantity <= 0) {
     return { label: 'Critical Low', badgeClass: 'bg-rose-100 text-rose-700' };
   }
@@ -40,7 +159,7 @@ const getStatusMeta = (stockStatus, stockQuantity, reorderPoint) => {
   return { label: 'Healthy', badgeClass: 'bg-emerald-100 text-emerald-700' };
 };
 
-const getAuthHeaders = () => {
+const getAuthHeaders = (): Record<'Authorization', string> => {
   const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
   if (!token) {
     throw new Error('Please log in with your admin account to manage inventory.');
@@ -51,7 +170,7 @@ const getAuthHeaders = () => {
   };
 };
 
-const getOrderStatusTone = (status) => {
+const getOrderStatusTone = (status: OrderStatus | undefined): string => {
   if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
   if (status === 'cancelled' || status === 'refunded') return 'bg-rose-100 text-rose-700';
   if (status === 'shipped') return 'bg-blue-100 text-blue-700';
@@ -59,18 +178,18 @@ const getOrderStatusTone = (status) => {
   return 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200';
 };
 
-const toNumeric = (value, fallback = 0) => {
+const toNumeric = (value: unknown, fallback = 0): number => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const toBoundedInteger = (value, min = 0, max = 100000) => {
+const toBoundedInteger = (value: unknown, min = 0, max = 100000): number => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return min;
   return Math.max(min, Math.min(max, Math.round(parsed)));
 };
 
-const isAdminUser = (user) => {
+const isAdminUser = (user: User | null): boolean => {
   if (!user) return false;
   const normalizedEmail = typeof user.email === 'string' ? user.email.trim().toLowerCase() : '';
   return user.role === 'admin' || normalizedEmail === DEFAULT_ADMIN_EMAIL;
@@ -78,31 +197,36 @@ const isAdminUser = (user) => {
 
 const AdminDashboard = () => {
   const { currentUser, logout } = useAuth();
-  const [inventoryRows, setInventoryRows] = useState([]);
-  const [orderStats, setOrderStats] = useState({ total: 0, totalRevenue: 0, todayOrders: 0 });
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [moderationReports, setModerationReports] = useState([]);
-  const [adminUsers, setAdminUsers] = useState([]);
+  const [inventoryRows, setInventoryRows] = useState<InventoryRow[]>([]);
+  const [orderStats, setOrderStats] = useState<DashboardStats>({
+    total: 0,
+    totalRevenue: 0,
+    todayOrders: 0,
+  });
+  const [recentOrders, setRecentOrders] = useState<AdminOrder[]>([]);
+  const [moderationReports, setModerationReports] = useState<ModerationReportSummary[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [savingId, setSavingId] = useState(null);
+  const [savingId, setSavingId] = useState<number | null>(null);
   const [savingOrderId, setSavingOrderId] = useState('');
   const [savingModerationId, setSavingModerationId] = useState('');
   const [savingUserActionId, setSavingUserActionId] = useState('');
-  const [selectedStatuses, setSelectedStatuses] = useState({});
-  const [orderNotes, setOrderNotes] = useState({});
-  const [trackingNumbers, setTrackingNumbers] = useState({});
+  const [selectedStatuses, setSelectedStatuses] = useState<Record<string, OrderStatus>>({});
+  const [orderNotes, setOrderNotes] = useState<Record<string, string>>({});
+  const [trackingNumbers, setTrackingNumbers] = useState<Record<string, string>>({});
   const [addingProduct, setAddingProduct] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [searchTerm, setSearchTerm] = useState('');
-  const [stockFilter, setStockFilter] = useState('all');
-  const [sortMode, setSortMode] = useState('risk-desc');
+  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  const [sortMode, setSortMode] = useState<SortMode>('risk-desc');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastSyncAt, setLastSyncAt] = useState('');
   const [isLiveConnected, setIsLiveConnected] = useState(false);
-  const [moderationStatusFilter, setModerationStatusFilter] = useState('open');
+  const [moderationStatusFilter, setModerationStatusFilter] =
+    useState<ModerationStatusFilter>('open');
   const [userSearchTerm, setUserSearchTerm] = useState('');
-  const [newProduct, setNewProduct] = useState({
+  const [newProduct, setNewProduct] = useState<NewProductForm>({
     name: '',
     category: 'Dog Food',
     price: '',
@@ -114,22 +238,23 @@ const AdminDashboard = () => {
     reorderPoint: '',
   });
 
-  const loadDashboardData = useCallback(async () => {
+  const loadDashboardData = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError('');
 
     try {
       const headers = getAuthHeaders();
-      const [inventory, stats, ordersPayload, moderationPayload, usersPayload] = await Promise.all([
-        apiRequest('/products/admin/inventory', { headers }),
-        apiRequest('/orders/stats/summary', { headers }),
-        apiRequest('/orders?limit=20&page=1', { headers }),
-        apiRequest('/posts/moderation/reports', { headers }),
-        apiRequest('/admin/users', { headers }),
-      ]);
+      const [inventory, stats, ordersPayload, moderationPayload, usersPayload] =
+        await Promise.all([
+          apiRequest<InventoryProductResponse[]>('/products/admin/inventory', { headers }),
+          apiRequest<DashboardStats>('/orders/stats/summary', { headers }),
+          apiRequest<OrdersPayload>('/orders?limit=20&page=1', { headers }),
+          apiRequest<ModerationPayload>('/posts/moderation/reports', { headers }),
+          apiRequest<UsersPayload>('/admin/users', { headers }),
+        ]);
 
       setInventoryRows(
-        inventory.map((product) => ({
+        inventory.map((product: InventoryProductResponse) => ({
           id: product.id,
           sku: `PB-${String(product.id).padStart(4, '0')}`,
           productName: product.name,
@@ -147,13 +272,13 @@ const AdminDashboard = () => {
       setModerationReports(reports);
       setAdminUsers(users);
       setSelectedStatuses(
-        orders.reduce((acc, order) => {
+        orders.reduce<Record<string, OrderStatus>>((acc, order) => {
           acc[order.orderId] = order.status || 'pending';
           return acc;
         }, {})
       );
       setOrderNotes(
-        orders.reduce((acc, order) => {
+        orders.reduce<Record<string, string>>((acc, order) => {
           const history = Array.isArray(order.statusHistory) ? order.statusHistory : [];
           const lastEntry = history.length > 0 ? history[history.length - 1] : null;
           acc[order.orderId] = lastEntry?.note ? sanitizeInput(String(lastEntry.note), 500) : '';
@@ -161,7 +286,7 @@ const AdminDashboard = () => {
         }, {})
       );
       setTrackingNumbers(
-        orders.reduce((acc, order) => {
+        orders.reduce<Record<string, string>>((acc, order) => {
           acc[order.orderId] = order.trackingNumber
             ? sanitizeInput(String(order.trackingNumber), 120, { allowNewlines: false })
             : '';
@@ -204,7 +329,7 @@ const AdminDashboard = () => {
     const streamUrl = `${API_BASE_URL}/admin/stream?token=${encodeURIComponent(token)}`;
     const eventSource = new EventSource(streamUrl, { withCredentials: true });
 
-    let refreshTimeout = null;
+    let refreshTimeout: number | null = null;
     const queueRefresh = () => {
       if (refreshTimeout) {
         window.clearTimeout(refreshTimeout);
@@ -250,7 +375,11 @@ const AdminDashboard = () => {
     };
   }, [currentUser, loadDashboardData]);
 
-  const handleInventoryFieldChange = (id, field, value) => {
+  const handleInventoryFieldChange = (
+    id: number,
+    field: InventoryEditableField,
+    value: string | number
+  ) => {
     setInventoryRows((prevRows) =>
       prevRows.map((row) =>
         row.id === id
@@ -263,7 +392,7 @@ const AdminDashboard = () => {
     );
   };
 
-  const handleSaveInventory = async (row) => {
+  const handleSaveInventory = async (row: InventoryRow): Promise<void> => {
     setSavingId(row.id);
     setError('');
 
@@ -273,7 +402,7 @@ const AdminDashboard = () => {
         'Content-Type': 'application/json',
       };
 
-      const updated = await apiRequest(`/products/${row.id}/inventory`, {
+      const updated = await apiRequest<InventoryProductResponse>(`/products/${row.id}/inventory`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify({
@@ -301,7 +430,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleOrderStatusSave = async (orderId) => {
+  const handleOrderStatusSave = async (orderId: string): Promise<void> => {
     setSavingOrderId(orderId);
     setError('');
 
@@ -317,7 +446,9 @@ const AdminDashboard = () => {
         'Content-Type': 'application/json',
       };
 
-      const response = await apiRequest(`/orders/${encodeURIComponent(orderId)}/status`, {
+      const response = await apiRequest<OrderStatusResponse>(
+        `/orders/${encodeURIComponent(orderId)}/status`,
+        {
         method: 'PATCH',
         headers,
         body: JSON.stringify({
@@ -325,7 +456,8 @@ const AdminDashboard = () => {
           note: safeNote || `Updated from admin dashboard (${currentUser?.email || 'admin'})`,
           trackingNumber: safeTracking || undefined,
         }),
-      });
+        }
+      );
 
       setRecentOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -345,7 +477,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleCreateProduct = async (event) => {
+  const handleCreateProduct = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setAddingProduct(true);
     setError('');
@@ -410,7 +542,12 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleModerationAction = async (reportId, status, action, note = '') => {
+  const handleModerationAction = async (
+    reportId: string,
+    status: ModerationQueueStatus,
+    action: ModerationAction,
+    note = ''
+  ): Promise<void> => {
     const reviewerId = Number(currentUser?.id);
     if (!Number.isFinite(reviewerId) || reviewerId <= 0) {
       setError('Unable to identify current admin account. Please log in again.');
@@ -426,7 +563,7 @@ const AdminDashboard = () => {
         'Content-Type': 'application/json',
       };
 
-      const response = await apiRequest(
+      const response = await apiRequest<ModerationResponse>(
         `/posts/moderation/reports/${encodeURIComponent(reportId)}`,
         {
           method: 'PATCH',
@@ -557,7 +694,7 @@ const AdminDashboard = () => {
     );
   }, [adminUsers, userSearchTerm]);
 
-  const handleBanUser = async (userId) => {
+  const handleBanUser = async (userId: number): Promise<void> => {
     setSavingUserActionId(`ban-${userId}`);
     setError('');
 
@@ -592,7 +729,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUnbanUser = async (userId) => {
+  const handleUnbanUser = async (userId: number): Promise<void> => {
     setSavingUserActionId(`unban-${userId}`);
     setError('');
 
@@ -754,7 +891,8 @@ const AdminDashboard = () => {
           />
           <select
             value={stockFilter}
-            onChange={(event) => setStockFilter(event.target.value)}
+            onChange={(event) => setStockFilter(event.target.value as StockFilter)}
+            aria-label="Filter inventory by stock status"
             className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
           >
             <option value="all">All Stock States</option>
@@ -763,7 +901,8 @@ const AdminDashboard = () => {
           </select>
           <select
             value={sortMode}
-            onChange={(event) => setSortMode(event.target.value)}
+            onChange={(event) => setSortMode(event.target.value as SortMode)}
+            aria-label="Sort inventory rows"
             className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
           >
             <option value="risk-desc">Sort by Risk</option>
@@ -803,6 +942,7 @@ const AdminDashboard = () => {
                       <input
                         type="number"
                         min="0"
+                        aria-label={`Stock level for ${row.productName}`}
                         value={row.stockLevel}
                         onChange={(event) =>
                           handleInventoryFieldChange(row.id, 'stockLevel', event.target.value)
@@ -821,6 +961,7 @@ const AdminDashboard = () => {
                       <input
                         type="number"
                         min="0"
+                        aria-label={`Reorder point for ${row.productName}`}
                         value={row.reorderPoint}
                         onChange={(event) =>
                           handleInventoryFieldChange(row.id, 'reorderPoint', event.target.value)
@@ -919,9 +1060,10 @@ const AdminDashboard = () => {
                         onChange={(event) =>
                           setSelectedStatuses((prev) => ({
                             ...prev,
-                            [order.orderId]: event.target.value,
+                            [order.orderId]: event.target.value as OrderStatus,
                           }))
                         }
+                        aria-label={`Update order status for ${order.orderId}`}
                         className="rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
                       >
                         {orderStatusOptions.map((status) => (
@@ -933,6 +1075,7 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         placeholder="Tracking"
+                        aria-label={`Tracking number for ${order.orderId}`}
                         value={trackingNumbers[order.orderId] || ''}
                         onChange={(event) =>
                           setTrackingNumbers((prev) => ({
@@ -947,6 +1090,7 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         placeholder="Note"
+                        aria-label={`Admin note for ${order.orderId}`}
                         value={orderNotes[order.orderId] || ''}
                         onChange={(event) =>
                           setOrderNotes((prev) => ({
@@ -1015,9 +1159,10 @@ const AdminDashboard = () => {
           onChange={(event) =>
             setNewProduct((prev) => ({
               ...prev,
-              category: event.target.value,
+              category: event.target.value as Product['category'],
             }))
           }
+          aria-label="New product category"
           required
         >
           {categoryOptions.map((category) => (
@@ -1126,7 +1271,10 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-2">
             <select
               value={moderationStatusFilter}
-              onChange={(event) => setModerationStatusFilter(event.target.value)}
+              onChange={(event) =>
+                setModerationStatusFilter(event.target.value as ModerationStatusFilter)
+              }
+              aria-label="Filter moderation reports"
               className="rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
             >
               <option value="open">Open</option>
@@ -1502,14 +1650,7 @@ const AdminDashboard = () => {
           </div>
 
           <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
-            {[
-              { key: 'overview', label: 'Overview' },
-              { key: 'inventory', label: 'Inventory' },
-              { key: 'orders', label: 'Orders' },
-              { key: 'create', label: 'Add Product' },
-              { key: 'moderation', label: 'Moderation' },
-              { key: 'users', label: 'Users' },
-            ].map((tab) => (
+            {mobileTabs.map((tab) => (
               <button
                 key={tab.key}
                 type="button"

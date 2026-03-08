@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { useCart } from './contexts/CartContext';
@@ -341,45 +342,47 @@ const AppContent: React.FC = () => {
       <Header />
       <main className="flex-grow app-main">
         <SwipeNavigationProvider>
-          <Suspense fallback={<PawHeartLoader />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/admin-dashboard"
-                element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                }
-              />
-              <Route path="/community" element={<CommunityPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
-              <Route path="/vet/:id" element={<VetDetailPage />} />
-              <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignUpPage />} />
-              <Route path="/shop" element={<ShopPage />} />
-              <Route path="/product/:id" element={<ProductDetailPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/blog/:id" element={<ArticleDetailPage />} />
-              <Route path="/plus-membership" element={<PlusMembershipPage />} />
-              <Route path="/adopt" element={<AdoptPage />} />
-              <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
-              <Route path="/adopt/:id" element={<AnimalDetailPage />} />
-              <Route path="/report" element={<ReportPage />} />
-              <Route path="/volunteer" element={<VolunteerPage />} />
-              <Route path="/faq" element={<FAQPage />} />
-              <Route path="/safety" element={<TrustPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/dashboard" element={<PetDashboardPage />} />
-              <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
-              <Route path="/services/booking" element={<ServicesBookingPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<PawHeartLoader />}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/admin-dashboard"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+                <Route path="/community" element={<CommunityPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
+                <Route path="/vet/:id" element={<VetDetailPage />} />
+                <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:id" element={<ArticleDetailPage />} />
+                <Route path="/plus-membership" element={<PlusMembershipPage />} />
+                <Route path="/adopt" element={<AdoptPage />} />
+                <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
+                <Route path="/adopt/:id" element={<AnimalDetailPage />} />
+                <Route path="/report" element={<ReportPage />} />
+                <Route path="/volunteer" element={<VolunteerPage />} />
+                <Route path="/faq" element={<FAQPage />} />
+                <Route path="/safety" element={<TrustPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/dashboard" element={<PetDashboardPage />} />
+                <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
+                <Route path="/services/booking" element={<ServicesBookingPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </SwipeNavigationProvider>
       </main>
       <GlobalCartElements />

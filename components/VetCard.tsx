@@ -31,6 +31,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
           onError={handleImageError}
         />
         <span
+          aria-label={`Availability: ${vet.availability}`}
           className={`absolute bottom-0 right-0 block h-max w-max px-1.5 py-0.5 sm:px-2 border-2 border-white dark:border-slate-800 rounded-full text-[9px] sm:text-xs font-bold ${availabilityStyles[vet.availability]}`}
         >
           {vet.availability === 'Available Now'

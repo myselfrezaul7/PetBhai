@@ -3,6 +3,8 @@ import { GoogleGenAI } from '@google/genai';
 import { db } from '../db';
 import fs from 'fs';
 import path from 'path';
+import { requireAuth } from '../middleware/auth';
+import { aiLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -60,6 +62,8 @@ Use asterisks for bullet points (e.g., * Item 1) and double asterisks for boldin
 // Chat Endpoint
 router.post(
   '/chat',
+  aiLimiter,
+  requireAuth,
   asyncHandler(async (req, res) => {
     const { prompt } = req.body;
 
@@ -128,6 +132,8 @@ router.post(
 // Image Generation Endpoint
 router.post(
   '/generate-image',
+  aiLimiter,
+  requireAuth,
   asyncHandler(async (req, res) => {
     const { prompt } = req.body;
 
@@ -178,6 +184,8 @@ router.post(
 // Thumbnail Generation Endpoint
 router.post(
   '/generate-thumbnail',
+  aiLimiter,
+  requireAuth,
   asyncHandler(async (req, res) => {
     const { title, subject, mood } = req.body;
 

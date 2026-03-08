@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import type { Post, Comment, CommentReply, ModerationReport, User } from '../types';
+import { requireAuth, type AuthRequest } from '../middleware/auth';
 import { postMutationLimiter } from '../middleware/rateLimiter';
 import { securityLog } from '../middleware/logger';
 
@@ -621,16 +622,16 @@ router.put('/:id(\\d+)', postMutationLimiter, (req, res) => {
 });
 
 // Delete a post
-router.delete('/:id(\\d+)', postMutationLimiter, (req, res) => {
+router.delete('/:id(\\d+)', requireAuth, postMutationLimiter, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    const authorId = validateId(req.query.authorId);
-    if (!authorId) {
-      return res.status(400).json({ message: 'Valid author ID is required' });
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const postIndex = db.posts.findIndex((p) => p.id === postId);
@@ -639,10 +640,10 @@ router.delete('/:id(\\d+)', postMutationLimiter, (req, res) => {
     }
 
     // Check if the user is the author
-    if (db.posts[postIndex].author.id !== authorId) {
+    if (Number(db.posts[postIndex].author.id) !== requesterId) {
       securityLog('POST_DELETE_FORBIDDEN', req, {
         postId,
-        requesterId: authorId,
+        requesterId,
         ownerId: db.posts[postIndex].author.id,
       });
       return res.status(403).json({ message: 'You can only delete your own posts' });
@@ -834,11 +835,15 @@ router.put('/:postId/comments/:commentId', postMutationLimiter, (req, res) => {
   }
 });
 
-router.delete('/:postId/comments/:commentId', postMutationLimiter, (req, res) => {
+router.delete(
+  '/:postId/comments/:commentId',
+  requireAuth,
+  postMutationLimiter,
+  (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
-    const userId = validateId(req.query.userId);
+    const userId = validateId(req.user?.id);
 
     if (!postId || !commentId) {
       return res.status(400).json({ message: 'Invalid post or comment ID' });
@@ -1074,12 +1079,16 @@ router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter,
   }
 });
 
-router.delete('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, (req, res) => {
+router.delete(
+  '/:postId/comments/:commentId/replies/:replyId',
+  requireAuth,
+  postMutationLimiter,
+  (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
     const replyId = validateId(req.params.replyId);
-    const userId = validateId(req.query.userId);
+    const userId = validateId(req.user?.id);
 
     if (!postId || !commentId || !replyId) {
       return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });

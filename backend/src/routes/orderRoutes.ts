@@ -86,6 +86,7 @@ interface ExtendedOrder extends Order {
     name: string;
     phone: string;
     address: string;
+    email?: string;
     city?: string;
     district?: string;
     postalCode?: string;
@@ -134,9 +135,14 @@ async function sendOrderEmail(order: ExtendedOrder) {
     },
   });
 
+  const customerEmail =
+    order.shippingAddress?.email ||
+    db.users.find((user) => Number(user.id) === Number(order.userId))?.email ||
+    process.env.EMAIL_USER;
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: 'petbhaibd@gmail.com',
+    to: customerEmail,
     subject: `New Order Placed: ${order.orderId}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -195,6 +201,14 @@ async function sendOrderEmail(order: ExtendedOrder) {
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log(`Order notification email sent: ${info.messageId}`);
+
+    if (customerEmail && customerEmail !== 'petbhaibd@gmail.com') {
+      await transporter.sendMail({
+        ...mailOptions,
+        to: 'petbhaibd@gmail.com',
+        subject: `Order Alert: ${order.orderId}`,
+      });
+    }
   } catch (error) {
     console.error('Error sending order email:', error);
   }

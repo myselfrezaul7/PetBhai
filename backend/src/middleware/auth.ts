@@ -6,8 +6,6 @@ const JWT_ISSUER = 'petbhai-api';
 const JWT_AUDIENCE = 'petbhai-client';
 const ACCESS_TOKEN_TTL = '15m';
 const REFRESH_TOKEN_TTL = '30d';
-const FALLBACK_JWT_SECRET = 'petbhai_prod_fallback_secret_change_immediately_2026';
-let hasLoggedJwtSecretWarning = false;
 
 const getJwtSecret = (): string => {
   const configuredSecret = process.env.JWT_SECRET;
@@ -17,13 +15,9 @@ const getJwtSecret = (): string => {
   }
 
   if (process.env.NODE_ENV === 'production') {
-    if (!hasLoggedJwtSecretWarning) {
-      console.error(
-        'SECURITY WARNING: JWT_SECRET is missing/weak in production. Using fallback secret. Set a strong JWT_SECRET (min 32 chars) immediately.'
-      );
-      hasLoggedJwtSecretWarning = true;
-    }
-    return FALLBACK_JWT_SECRET;
+    throw new Error(
+      'JWT_SECRET is missing or too weak in production. Configure a strong secret with at least 32 characters.'
+    );
   }
 
   return 'dev_secret_local_only_not_for_production_use';

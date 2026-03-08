@@ -51,22 +51,38 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const { t } = useLanguage();
   const [activeFilter, setActiveFilter] = React.useState<'All' | 'Products' | 'Vets' | 'Animals'>('All');
 
+  const filteredResults = useMemo(() => {
+    if (activeFilter === 'Products') {
+      return { ...results, pages: [], articles: [], vets: [], animals: [] };
+    }
+
+    if (activeFilter === 'Vets') {
+      return { ...results, pages: [], articles: [], products: [], animals: [] };
+    }
+
+    if (activeFilter === 'Animals') {
+      return { ...results, pages: [], articles: [], products: [], vets: [] };
+    }
+
+    return results;
+  }, [activeFilter, results]);
+
   const hasResults = useMemo(
     () =>
-      results.products.length > 0 ||
-      results.pages.length > 0 ||
-      results.articles.length > 0 ||
-      results.vets.length > 0 ||
-      results.animals.length > 0,
-    [results]
+      filteredResults.products.length > 0 ||
+      filteredResults.pages.length > 0 ||
+      filteredResults.articles.length > 0 ||
+      filteredResults.vets.length > 0 ||
+      filteredResults.animals.length > 0,
+    [filteredResults]
   );
 
   const totalResults =
-    results.products.length +
-    results.pages.length +
-    results.articles.length +
-    results.vets.length +
-    results.animals.length;
+    filteredResults.products.length +
+    filteredResults.pages.length +
+    filteredResults.articles.length +
+    filteredResults.vets.length +
+    filteredResults.animals.length;
 
   const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -169,14 +185,14 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {/* Pages Results */}
-            {(activeFilter === 'All') && results.pages.length > 0 && (
+            {filteredResults.pages.length > 0 && (
               <div className="p-3">
                 <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
                   <SearchIcon className="w-3 h-3 mr-1.5" />
                   {t('search_quick_links')}
                 </h3>
                 <div className="space-y-1">
-                  {results.pages.map((page, idx) => (
+                  {filteredResults.pages.map((page, idx) => (
                     <Link
                       key={`page-${page.path}`}
                       to={page.path}
@@ -198,15 +214,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             )}
 
             {/* Products Results */}
-            {(activeFilter === 'All' || activeFilter === 'Products') && results.products.length > 0 && (
+            {filteredResults.products.length > 0 && (
               <div className="p-3">
                 <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
                   <ShoppingCartIcon className="w-3 h-3 mr-1.5" />
                   {t('search_products')}
                 </h3>
                 <div className="space-y-1">
-                  {results.products.map((product, idx) => {
-                    const globalIdx = results.pages.length + idx;
+                  {filteredResults.products.map((product, idx) => {
+                    const globalIdx = filteredResults.pages.length + idx;
                     const isInCart = cartItems.some((item) => item.id === product.id);
                     return (
                       <Link
@@ -263,15 +279,16 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             )}
 
             {/* Vets Results */}
-            {(activeFilter === 'All' || activeFilter === 'Vets') && results.vets.length > 0 && (
+            {filteredResults.vets.length > 0 && (
               <div className="p-3">
                 <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
                   <UserIcon className="w-3 h-3 mr-1.5" />
                   {t('search_vets')}
                 </h3>
                 <div className="space-y-1">
-                  {results.vets.map((vet, idx) => {
-                    const globalIdx = results.pages.length + results.products.length + idx;
+                  {filteredResults.vets.map((vet, idx) => {
+                    const globalIdx =
+                      filteredResults.pages.length + filteredResults.products.length + idx;
                     return (
                       <Link
                         key={`vet-${vet.id}`}
@@ -321,16 +338,19 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             )}
 
             {/* Animals Results */}
-            {(activeFilter === 'All' || activeFilter === 'Animals') && results.animals.length > 0 && (
+            {filteredResults.animals.length > 0 && (
               <div className="p-3">
                 <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
                   <PawIcon className="w-3 h-3 mr-1.5" />
                   {t('search_adoption')}
                 </h3>
                 <div className="space-y-1">
-                  {results.animals.map((animal, idx) => {
+                  {filteredResults.animals.map((animal, idx) => {
                     const globalIdx =
-                      results.pages.length + results.products.length + results.vets.length + idx;
+                      filteredResults.pages.length +
+                      filteredResults.products.length +
+                      filteredResults.vets.length +
+                      idx;
                     return (
                       <Link
                         key={`animal-${animal.id}`}
@@ -376,19 +396,19 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             )}
 
             {/* Articles Results */}
-            {results.articles.length > 0 && (
+            {filteredResults.articles.length > 0 && (
               <div className="p-3">
                 <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
                   <BookOpenIcon className="w-3 h-3 mr-1.5" />
                   {t('search_blog')}
                 </h3>
                 <div className="space-y-1">
-                  {results.articles.map((article, idx) => {
+                  {filteredResults.articles.map((article, idx) => {
                     const globalIdx =
-                      results.pages.length +
-                      results.products.length +
-                      results.vets.length +
-                      results.animals.length +
+                      filteredResults.pages.length +
+                      filteredResults.products.length +
+                      filteredResults.vets.length +
+                      filteredResults.animals.length +
                       idx;
                     return (
                       <Link

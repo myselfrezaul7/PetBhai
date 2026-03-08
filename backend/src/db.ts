@@ -92,6 +92,8 @@ class Database {
   public data: DatabaseSchema;
   private isLoaded: boolean = false;
   private loadError: Error | null = null;
+  private writeQueue: Promise<boolean> = Promise.resolve(true);
+  private hasWarnedAboutServerlessPersistence = false;
 
   constructor() {
     try {
@@ -103,7 +105,7 @@ class Database {
       const { cleanedPosts, removedCount } = stripLegacyMockPosts(this.data.posts);
       if (removedCount > 0) {
         this.data.posts = cleanedPosts;
-        this.saveData(this.data);
+        this.persistToDisk(this.data);
         console.log(`Removed ${removedCount} legacy mock community posts from database`);
       }
 
@@ -154,14 +156,19 @@ class Database {
     console.log('Initializing new database...');
     // Deep copy implementation to ensure we don't mutate reference constants if we had any
     const initialClone = JSON.parse(JSON.stringify(INITIAL_DATA));
-    this.saveData(initialClone);
+    this.persistToDisk(initialClone);
     return initialClone;
   }
 
-  private saveData(data: DatabaseSchema, retries = 3): boolean {
-    // Skip file operations in serverless environment
+  private persistToDisk(data: DatabaseSchema, retries = 3): boolean {
     if (isServerless) {
-      return true; // Pretend success - data stays in memory only
+      if (!this.hasWarnedAboutServerlessPersistence) {
+        console.warn(
+          'Persistent writes are disabled in the current serverless environment. Data will reset between executions.'
+        );
+        this.hasWarnedAboutServerlessPersistence = true;
+      }
+      return false;
     }
 
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -209,21 +216,19 @@ class Database {
         } catch {
           // best effort cleanup
         }
-        if (attempt < retries) {
-          // Wait briefly before retry
-          const waitMs = attempt * 100;
-          const start = Date.now();
-          while (Date.now() - start < waitMs) {
-            /* busy wait */
-          }
-        }
       }
     }
     return false;
   }
 
+  private enqueueSave(data: DatabaseSchema): Promise<boolean> {
+    this.writeQueue = this.writeQueue.catch(() => false).then(() => this.persistToDisk(data));
+    return this.writeQueue;
+  }
+
   public write() {
-    this.saveData(this.data);
+    const snapshot = JSON.parse(JSON.stringify(this.data)) as DatabaseSchema;
+    void this.enqueueSave(snapshot);
   }
 
   // Getters for backward compatibility with existing code that expects db.users, etc.

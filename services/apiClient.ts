@@ -62,6 +62,14 @@ const buildUrl = (path: string): string => {
   return `${API_BASE_URL}${normalizedPath}`;
 };
 
+const getStoredAuthToken = (): string | null => {
+  try {
+    return window.localStorage.getItem('petbhai_token');
+  } catch {
+    return null;
+  }
+};
+
 export const getErrorMessage = (error: unknown, fallbackMessage: string): string => {
   if (error instanceof Error && error.message.trim().length > 0) {
     return error.message;
@@ -109,6 +117,13 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const requestHeaders = new Headers(headers);
   requestHeaders.set('X-Requested-With', 'XMLHttpRequest');
   requestHeaders.set('X-Session-Id', getSessionId());
+
+  if (!requestHeaders.has('Authorization')) {
+    const token = getStoredAuthToken();
+    if (token) {
+      requestHeaders.set('Authorization', `Bearer ${token}`);
+    }
+  }
 
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);

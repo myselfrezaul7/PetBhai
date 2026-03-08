@@ -156,7 +156,7 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         console.warn(`CORS blocked origin: ${origin}`);
@@ -223,22 +223,25 @@ app.use('/api/admin', adminRoutes);
 app.get('/api/health', (req, res) => {
   const dbStatus = db.getStatus();
   const memUsage = process.memoryUsage();
+  const isDevelopment = process.env.NODE_ENV !== 'production';
 
   res.json({
     status: dbStatus.loaded ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     uptime: Math.floor(process.uptime()),
-    environment: process.env.NODE_ENV || 'development',
-    database: {
-      loaded: dbStatus.loaded,
-      path: dbStatus.path,
-      error: dbStatus.error,
-      productCount: db.products?.length || 0,
-    },
-    memory: {
-      heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
-      heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + 'MB',
-    },
+    ...(isDevelopment && {
+      environment: process.env.NODE_ENV || 'development',
+      database: {
+        loaded: dbStatus.loaded,
+        path: dbStatus.path,
+        error: dbStatus.error,
+        productCount: db.products?.length || 0,
+      },
+      memory: {
+        heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+        heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + 'MB',
+      },
+    }),
   });
 });
 

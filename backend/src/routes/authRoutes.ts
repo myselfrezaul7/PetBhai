@@ -393,7 +393,7 @@ const shippingAddressSchema = z
 const profileUpdateSchema = z
   .object({
     name: z.string().trim().min(2).max(100).optional(),
-    profilePictureUrl: z.string().trim().max(100000).optional(),
+    profilePictureUrl: z.string().trim().max(5000).optional(),
     phone: z.string().trim().min(6).max(30).optional(),
     bio: z.string().trim().max(500).optional(),
     defaultShippingAddress: shippingAddressSchema.optional(),
@@ -488,6 +488,7 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 
     // Check password - support both hashed and legacy plain text (for migration)
+    const isLegacyPlainTextPassword = Boolean(user.password && !user.password.startsWith('$2'));
     const isValidPassword = user.password?.startsWith('$2')
       ? await comparePassword(password, user.password)
       : user.password === password;
@@ -508,6 +509,12 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 
     clearFailedLogin(sanitizedEmail, req);
+
+    if (isLegacyPlainTextPassword) {
+      user.password = await hashPassword(password);
+      persistChanges(res);
+      auditLog('LEGACY_PASSWORD_MIGRATED', user.id, { email: sanitizedEmail });
+    }
 
     if (syncRoleByEmail(user)) {
       persistChanges(res);
@@ -977,7 +984,7 @@ router.put('/:id', requireAuth, (req: AuthRequest, res) => {
       profilePictureUrl.startsWith('http://') || profilePictureUrl.startsWith('https://');
     const isDataImageUrl = profilePictureUrl.startsWith('data:image/');
     if (isHttpUrl || isDataImageUrl) {
-      updatedUser.profilePictureUrl = profilePictureUrl.slice(0, 100000);
+      updatedUser.profilePictureUrl = profilePictureUrl.slice(0, 5000);
     }
   }
   if (typeof phone === 'string') {

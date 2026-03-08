@@ -6,6 +6,7 @@ module.exports = {
   modulePaths: ['<rootDir>'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^@google/genai$': '<rootDir>/__mocks__/googleGenaiMock.ts',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
