@@ -341,37 +341,38 @@ const Header: React.FC = () => {
     {
       to: '/plus-membership',
       label: t('nav_plus'),
-      className:
-        'text-yellow-600 dark:text-yellow-400 font-bold hover:text-yellow-700 dark:hover:text-yellow-300',
     },
   ];
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 py-4 transition-all duration-300">
-        <nav className="w-full max-w-6xl flex items-center justify-between p-2 pl-6 pr-2 bg-white/70 dark:bg-[#1a1a1a]/70 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:bg-white/80 dark:hover:bg-[#1a1a1a]/80">
+      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3 py-3 sm:px-4 sm:py-4 transition-all duration-300">
+        <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-full shadow-sm transition-all duration-300">
           
           {/* Logo Section */}
           <NavLink
             to="/"
             onClick={handleLogoClick}
-            className="flex items-center space-x-2 text-xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-opacity hover:opacity-80"
+            className="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white flex-shrink-0 transition-opacity hover:opacity-80"
           >
-            <span className="sm:inline tracking-tight font-bold">PetBhai</span>
+            <Logo className="h-8 w-8 sm:h-9 sm:w-9" />
+            <span className="hidden sm:inline text-lg font-black tracking-[0.08em] text-slate-900 dark:text-white">
+              PETBHAI
+            </span>
           </NavLink>
 
           {/* Desktop Menu - Centered */}
-          <div className="hidden lg:flex items-center justify-center flex-1 px-8">
-            <ul className="flex items-center space-x-6">
+          <div className="hidden lg:flex items-center justify-center flex-1 px-4 xl:px-8">
+            <ul className="flex items-center space-x-4 xl:space-x-6">
               {desktopLinks.map((link) => (
                 <li key={link.to}>
                   <NavLink
                     to={link.to}
                     className={({ isActive }) =>
-                      `text-sm font-medium transition-colors tracking-wide ${
+                      `text-[0.78rem] xl:text-sm uppercase tracking-[0.14em] font-semibold transition-colors ${
                         isActive
-                          ? 'text-orange-600 dark:text-orange-400 font-semibold'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-300'
+                          ? 'text-slate-900 dark:text-white'
+                          : 'text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                       } ${link.className || ''}`
                     }
                   >
@@ -387,7 +388,7 @@ const Header: React.FC = () => {
             
             {/* Search (Collapsible on Desktop for clean look) */}
             <div className="relative group flex items-center" ref={searchRef}>
-               <div className={`flex items-center transition-all duration-300 ${isSearchActive || searchQuery ? 'w-48 sm:w-64 bg-slate-100/50 dark:bg-slate-800/50 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700' : 'w-8 bg-transparent'}`}>
+              <div className={`flex items-center transition-all duration-300 ${isSearchActive || searchQuery ? 'w-44 sm:w-56 lg:w-52 xl:w-60 bg-slate-100 dark:bg-slate-900 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700' : 'w-8 bg-transparent'}`}>
                   <SearchIcon 
                     className={`w-4 h-4 text-slate-500 cursor-pointer ${isSearchActive || searchQuery ? 'mr-2' : ''}`} 
                     onClick={() => {
@@ -449,14 +450,14 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-2xl text-[11px] font-bold bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
               aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
             >
               {language === 'en' ? 'BN' : 'EN'}
             </button>
 
             {/* Theme Toggle - Wrapped in a similar style */}
-            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-full w-9 h-9 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+            <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl w-10 h-10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
                <ThemeToggle />
             </div>
 
@@ -523,13 +524,13 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <NavLink
                   to="/login"
-                  className="font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+                  className="font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   {t('nav_login')}
                 </NavLink>
                 <NavLink
                   to="/signup"
-                  className="bg-orange-500 text-white font-bold py-2 px-5 rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-md hover:shadow-lg active:scale-95"
+                  className="bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full hover:bg-black transition-all active:scale-95"
                 >
                   {t('nav_signup')}
                 </NavLink>

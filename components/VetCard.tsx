@@ -18,11 +18,11 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   return (
     <Link
       to={`/vet/${vet.id}`}
-      className="glass-card-premium group flex h-full flex-col items-center rounded-3xl p-3 text-center transition-all duration-500 ease-out sm:p-6"
+      className="group flex h-full flex-col items-center rounded-3xl border border-slate-200 bg-white p-3 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950 sm:p-6"
     >
       <div className="relative">
         <img
-          className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-orange-500/30 transition-all duration-500 group-hover:ring-orange-500/50 group-hover:scale-105"
+          className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-slate-300 dark:ring-slate-700 transition-all duration-500 group-hover:ring-slate-400 dark:group-hover:ring-slate-500 group-hover:scale-105"
           src={vet.imageUrl}
           alt={`Dr. ${vet.name}`}
           loading="lazy"
@@ -41,10 +41,10 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
               : 'Offline'}
         </span>
       </div>
-      <h3 className="text-xs sm:text-xl font-bold text-slate-800 dark:text-white mt-2 sm:mt-4 group-hover:text-orange-500 transition-colors line-clamp-1">
+      <h3 className="text-xs sm:text-xl font-bold text-slate-800 dark:text-white mt-2 sm:mt-4 group-hover:text-slate-950 dark:group-hover:text-white transition-colors line-clamp-1">
         {vet.name}
       </h3>
-      <p className="text-[10px] sm:text-base text-orange-600 dark:text-orange-400 font-semibold line-clamp-1">
+      <p className="text-[10px] sm:text-base text-slate-600 dark:text-slate-300 font-semibold line-clamp-1">
         {vet.specialization}
       </p>
 
@@ -78,8 +78,8 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
         {vet.bio}
       </p>
 
-      <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-white/30 dark:border-slate-700/50">
-        <span className="flex min-h-[44px] w-full items-center justify-center rounded-full bg-orange-500 px-2 py-2 text-[10px] font-bold text-white shadow-lg transition-all duration-500 group-hover:bg-orange-600 group-hover:shadow-xl group-hover:shadow-orange-500/25 sm:px-4 sm:py-2.5 sm:text-base">
+      <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-slate-200 dark:border-slate-800">
+        <span className="flex min-h-[44px] w-full items-center justify-center rounded-full bg-slate-950 px-2 py-2 text-[10px] font-bold text-white shadow-sm transition-all duration-500 group-hover:bg-black sm:px-4 sm:py-2.5 sm:text-base">
           Profile
         </span>
       </div>

@@ -39,7 +39,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   };
 
   return (
-    <div className="glass-card-premium group flex h-full flex-col overflow-hidden rounded-3xl">
+    <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link to={`/adopt/${animal.id}`} className="block h-full">
           <img
@@ -68,7 +68,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
                 ${
                   isFavorited
                     ? 'bg-red-500 text-white'
-                    : 'glass-pill text-slate-700 hover:text-red-500 dark:text-zinc-300'
+                    : 'border border-slate-300 bg-white text-slate-700 hover:text-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-zinc-300'
                 }`}
           aria-label={isFavorited ? 'Unfavorite' : 'Favorite'}
         >
@@ -107,10 +107,10 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           {animal.description}
         </p>
       </div>
-      <div className="mt-auto border-t border-white/25 bg-white/40 p-2 dark:border-white/10 dark:bg-white/5 sm:p-4">
+      <div className="mt-auto border-t border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900 sm:p-4">
         <Link
           to={`/adopt/${animal.id}`}
-          className="block min-h-[44px] w-full rounded-full bg-orange-500 px-3 py-2 text-center text-xs font-bold text-white shadow-md transition-all hover:bg-orange-600 active:scale-95 touch-manipulation sm:px-4 sm:py-3 sm:text-base"
+          className="block min-h-[44px] w-full rounded-full bg-slate-950 px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition-all hover:bg-black active:scale-95 touch-manipulation sm:px-4 sm:py-3 sm:text-base"
         >
           Meet {animal.name}
         </Link>

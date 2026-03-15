@@ -5,7 +5,7 @@ import { MailIcon, FacebookIcon, InstagramIcon, YouTubeIcon } from './icons';
 const Footer: React.FC = () => {
   return (
     <footer className="mt-14 px-4 pb-6 md:px-6" role="contentinfo" aria-label="Site footer">
-      <div className="glass-card-premium mx-auto max-w-6xl rounded-[28px] p-6 md:p-10">
+      <div className="mx-auto max-w-6xl rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950 md:p-10">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4 md:gap-10">
           <div className="md:col-span-2">
             <p className="section-eyebrow">Pet Care x Community</p>
@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
             </p>
             <a
               href="mailto:petbhaibd@gmail.com"
-              className="glass-pill mt-5 inline-flex min-h-[44px] items-center gap-2 px-4 text-sm font-semibold text-slate-700 transition-colors hover:text-orange-600 dark:text-zinc-300 dark:hover:text-orange-400"
+              className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
             >
               <MailIcon className="h-4 w-4" />
               petbhaibd@gmail.com
@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
                 href="https://facebook.com/petbhai"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass-pill flex h-11 w-11 items-center justify-center text-slate-600 transition-colors hover:text-orange-600 dark:text-zinc-300"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
                 aria-label="Facebook"
               >
                 <FacebookIcon className="h-5 w-5" />
@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
                 href="https://instagram.com/petbhai"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass-pill flex h-11 w-11 items-center justify-center text-slate-600 transition-colors hover:text-orange-600 dark:text-zinc-300"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
                 aria-label="Instagram"
               >
                 <InstagramIcon className="h-5 w-5" />
@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
                 href="https://youtube.com/petbhai"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass-pill flex h-11 w-11 items-center justify-center text-slate-600 transition-colors hover:text-orange-600 dark:text-zinc-300"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
                 aria-label="YouTube"
               >
                 <YouTubeIcon className="h-5 w-5" />

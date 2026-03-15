@@ -3,20 +3,20 @@
 /* Custom application styles */
 
 :root {
-  --ui-text: #18181b;
-  --ui-muted: #52525b;
-  --ui-border: rgba(0, 0, 0, 0.08);
-  --ui-surface: rgba(255, 255, 255, 0.66);
-  --ui-surface-hover: rgba(255, 255, 255, 0.82);
-  --ui-input-bg: rgba(255, 255, 255, 0.84);
+  --ui-text: #111111;
+  --ui-muted: #5a5a5a;
+  --ui-border: rgba(17, 17, 17, 0.14);
+  --ui-surface: #ffffff;
+  --ui-surface-hover: #fcfcfc;
+  --ui-input-bg: #ffffff;
   --ui-focus-ring: rgba(249, 115, 22, 0.28);
-  --ui-border-glass: rgba(255, 255, 255, 0.5);
-  --ui-blur: 24px;
-  --ui-blur-heavy: 48px;
-  --ui-shadow: 0 8px 30px rgba(24, 24, 27, 0.08);
-  --ui-shadow-hover: 0 14px 38px rgba(24, 24, 27, 0.14);
-  --ui-bg-primary: #f4f4f5;
-  --ui-bg-secondary: #e4e4e7;
+  --ui-border-glass: rgba(17, 17, 17, 0.08);
+  --ui-blur: 0px;
+  --ui-blur-heavy: 0px;
+  --ui-shadow: 0 8px 24px rgba(17, 17, 17, 0.06);
+  --ui-shadow-hover: 0 14px 30px rgba(17, 17, 17, 0.1);
+  --ui-bg-primary: #ffffff;
+  --ui-bg-secondary: #f8f8f8;
   --motion-fast: 150ms;
   --motion-base: 200ms;
   --motion-slow: 300ms;
@@ -28,18 +28,18 @@
 }
 
 html.dark {
-  --ui-text: #f4f4f5;
-  --ui-muted: #a1a1aa;
-  --ui-border: rgba(255, 255, 255, 0.1);
-  --ui-surface: rgba(17, 17, 19, 0.58);
-  --ui-surface-hover: rgba(24, 24, 27, 0.78);
-  --ui-input-bg: rgba(24, 24, 27, 0.74);
+  --ui-text: #f8f8f8;
+  --ui-muted: #b5b5b5;
+  --ui-border: rgba(255, 255, 255, 0.16);
+  --ui-surface: #0f0f10;
+  --ui-surface-hover: #161618;
+  --ui-input-bg: #141416;
   --ui-focus-ring: rgba(251, 146, 60, 0.24);
   --ui-border-glass: rgba(255, 255, 255, 0.12);
-  --ui-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
-  --ui-shadow-hover: 0 18px 44px rgba(0, 0, 0, 0.45);
-  --ui-bg-primary: #09090b;
-  --ui-bg-secondary: #111113;
+  --ui-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --ui-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --ui-bg-primary: #070708;
+  --ui-bg-secondary: #111112;
 }
 
 html,
@@ -85,8 +85,8 @@ body {
   color: var(--ui-text);
   background-color: var(--ui-bg-primary);
   background-image:
-    radial-gradient(ellipse 82% 52% at 50% -20%, rgba(249, 115, 22, 0.09), transparent),
-    radial-gradient(ellipse 55% 35% at 82% 10%, rgba(251, 146, 60, 0.06), transparent);
+    radial-gradient(circle at 18% -10%, rgba(17, 17, 17, 0.035), transparent 52%),
+    radial-gradient(circle at 96% 4%, rgba(17, 17, 17, 0.03), transparent 36%);
   transition:
     background-color var(--motion-base) var(--motion-ease),
     color var(--motion-base) var(--motion-ease),
@@ -96,15 +96,15 @@ body {
 
 html.dark body {
   background-image:
-    radial-gradient(ellipse 82% 52% at 50% -20%, rgba(249, 115, 22, 0.12), transparent),
-    radial-gradient(ellipse 55% 35% at 82% 10%, rgba(251, 146, 60, 0.06), transparent);
+    radial-gradient(circle at 20% -14%, rgba(255, 255, 255, 0.06), transparent 45%),
+    radial-gradient(circle at 96% 6%, rgba(255, 255, 255, 0.03), transparent 38%);
 }
 
 .glass-panel {
   background: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
-  -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(140%);
-  backdrop-filter: blur(var(--ui-blur)) saturate(140%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow: var(--ui-shadow);
 }
 
@@ -112,16 +112,16 @@ html.dark body {
   border-radius: 9999px;
   background: var(--ui-input-bg);
   border: 1px solid var(--ui-border);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
-  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .glass-card-premium {
   border-radius: 1.5rem;
   background: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
-  -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(145%);
-  backdrop-filter: blur(var(--ui-blur)) saturate(145%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow: var(--ui-shadow);
   transition:
     transform var(--motion-slow) var(--motion-ease),
@@ -232,8 +232,8 @@ a:focus-visible {
   background-color: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
   border-radius: 1.25rem;
-  -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(140%);
-  backdrop-filter: blur(var(--ui-blur)) saturate(140%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow: var(--ui-shadow);
 }
 
@@ -243,11 +243,11 @@ a:focus-visible {
 }
 
 .glass-card-ios-heavy {
-  background-color: rgba(255, 255, 255, 0.84);
+  background-color: #ffffff;
   border: 1px solid var(--ui-border-glass);
   border-radius: 1.25rem;
-  -webkit-backdrop-filter: blur(var(--ui-blur-heavy)) saturate(150%);
-  backdrop-filter: blur(var(--ui-blur-heavy)) saturate(150%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow: var(--ui-shadow);
 }
 

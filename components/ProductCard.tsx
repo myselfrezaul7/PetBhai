@@ -59,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   );
 
   return (
-    <div className="glass-card-premium group relative flex h-full flex-col overflow-hidden rounded-3xl">
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">
       <Link
         to={`/product/${product.id}`}
         className="relative block overflow-hidden aspect-[4/3] sm:aspect-square"
@@ -73,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           sizes={getResponsiveImageSizes('card')}
           onError={handleImageError}
         />
-        <div className="glass-pill absolute right-2 top-2 z-10 px-2 py-0.5 text-[9px] font-bold text-slate-700 sm:right-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs dark:text-zinc-200">
+        <div className="absolute right-2 top-2 z-10 rounded-full border border-slate-300 bg-white/95 px-2 py-0.5 text-[9px] font-bold text-slate-700 sm:right-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs dark:border-slate-700 dark:bg-slate-950/95 dark:text-zinc-200">
           {product.category}
         </div>
 
@@ -88,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
         {onQuickView && (
           <button
             onClick={handleQuickViewClick}
-            className="glass-pill absolute left-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center p-2 text-slate-700 opacity-100 transition-all duration-500 hover:text-orange-500 active:scale-95 sm:left-3 sm:top-3 sm:opacity-0 sm:group-hover:opacity-100 dark:text-zinc-300"
+            className="absolute left-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-slate-300 bg-white/95 p-2 text-slate-700 opacity-100 transition-all duration-500 hover:text-slate-900 active:scale-95 sm:left-3 sm:top-3 sm:opacity-0 sm:group-hover:opacity-100 dark:border-slate-700 dark:bg-slate-950/95 dark:text-zinc-300 dark:hover:text-white"
             title="Quick View"
             aria-label={`Quick view ${product.name}`}
           >
@@ -98,7 +98,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
 
         {/* In Cart Badge */}
         {quantityInCart > 0 && (
-          <div className="absolute bottom-2 left-2 glass-card-ios bg-green-500/90 text-white text-[9px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg shadow-lg z-10 flex items-center gap-1 animate-scale-in">
+          <div className="absolute bottom-2 left-2 rounded-lg bg-green-600 text-white text-[9px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 shadow-md z-10 flex items-center gap-1 animate-scale-in">
             <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full animate-pulse"></span>
             <span className="hidden sm:inline">In Cart:</span> {quantityInCart}
           </div>
@@ -106,7 +106,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
 
         {/* Discount Badge */}
         {product.discount && product.discount > 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 glass-card-ios bg-red-500/90 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-600 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-md z-10">
             -{product.discount}%
           </div>
         )}
@@ -168,7 +168,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
           )}
         </div>
       </div>
-      <div className="mt-auto flex flex-col gap-2 border-t border-white/25 bg-white/35 p-2 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:p-4">
+      <div className="mt-auto flex flex-col gap-2 border-t border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900 sm:p-4">
         <button
           onClick={handleAddToCart}
           disabled={isAdding || isOutOfStock}
@@ -180,8 +180,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
               isOutOfStock
                 ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 cursor-not-allowed'
                 : isAdding
-                  ? 'bg-green-500 text-white cursor-default scale-95'
-                  : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl hover:shadow-orange-500/20 active:scale-95'
+                    ? 'bg-emerald-600 text-white cursor-default scale-95'
+                    : 'bg-slate-950 text-white hover:bg-black shadow-md active:scale-95'
             }`}
         >
           <ShoppingCartIcon className="w-3 h-3 sm:w-4 sm:h-4" />
