@@ -125,6 +125,7 @@ export interface User {
   id: number | string;
   name: string;
   email: string;
+  createdAt?: string;
   password?: string;
   profilePictureUrl?: string;
   phone?: string;

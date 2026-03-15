@@ -521,6 +521,11 @@ router.post('/login', authLimiter, async (req, res) => {
       auditLog('USER_ROLE_SYNCED', user.id, { email: sanitizedEmail, role: user.role });
     }
 
+    if (!user.createdAt) {
+      user.createdAt = new Date().toISOString();
+      persistChanges(res);
+    }
+
     const { accessToken, refreshToken } = issueAuthSession(user);
     persistChanges(res);
 
@@ -578,6 +583,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       id: getNextUserId(),
       name: sanitizedName,
       email: sanitizedEmail,
+      createdAt: new Date().toISOString(),
       password: hashedPassword,
       role: getRoleByEmail(sanitizedEmail),
       wishlist: [],
@@ -700,6 +706,11 @@ router.post('/social', authLimiter, async (req, res) => {
       user.name = sanitizedName;
       shouldPersist = true;
 
+      if (!user.createdAt) {
+        user.createdAt = new Date().toISOString();
+        shouldPersist = true;
+      }
+
       const rawUser = userWithAuthMetadata(user);
       const existingProviderUserId =
         typeof rawUser.socialProviderId === 'string' ? rawUser.socialProviderId : '';
@@ -736,6 +747,7 @@ router.post('/social', authLimiter, async (req, res) => {
         id: getNextUserId(),
         name: sanitizedName,
         email: sanitizedEmail,
+        createdAt: new Date().toISOString(),
         role: getRoleByEmail(sanitizedEmail),
         profilePictureUrl:
           typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)

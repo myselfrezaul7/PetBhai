@@ -456,7 +456,21 @@ const ProfilePage: React.FC = () => {
     { id: 'orders', label: `Orders (${currentUser.orderHistory.length})` },
   ];
 
-  const memberSince = new Date(Number(currentUser.id) || Date.now()).toLocaleDateString();
+  const memberSince = useMemo(() => {
+    if (currentUser.createdAt) {
+      const parsed = new Date(currentUser.createdAt);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed.toLocaleDateString();
+      }
+    }
+
+    const fallbackOrderDate = currentUser.orderHistory
+      .map((order) => new Date(order.date))
+      .filter((date) => !Number.isNaN(date.getTime()))
+      .sort((a, b) => a.getTime() - b.getTime())[0];
+
+    return (fallbackOrderDate || new Date()).toLocaleDateString();
+  }, [currentUser.createdAt, currentUser.orderHistory]);
   const profileCompletion = useMemo(() => {
     const checks = [
       Boolean((name || '').trim()),
@@ -483,7 +497,7 @@ const ProfilePage: React.FC = () => {
   return (
     <main className="min-h-screen container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <div className="max-w-6xl mx-auto space-y-6">
-        <section className="glass-card-ios-heavy p-4 sm:p-6 border border-white/40 dark:border-white/10">
+        <section className="rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-5">
             <div className="relative w-fit mx-auto lg:mx-0">
               <button
@@ -516,7 +530,7 @@ const ProfilePage: React.FC = () => {
                   {currentUser.name}
                 </h1>
                 {currentUser.socialProvider === 'google' && (
-                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-900/30 dark:text-blue-300">
                     Google Account
                   </span>
                 )}
@@ -528,29 +542,29 @@ const ProfilePage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 w-full lg:w-auto">
-              <div className="glass-card-ios p-3 text-center">
+              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {currentUser.orderHistory.length}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Orders</p>
               </div>
-              <div className="glass-card-ios p-3 text-center">
+              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {wishlistedProducts.length}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Wishlist</p>
               </div>
-              <div className="glass-card-ios p-3 text-center">
+              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">{pets.length}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Pets</p>
               </div>
-              <div className="glass-card-ios p-3 text-center">
+              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {upcomingVaccinations.length}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Upcoming Shots</p>
               </div>
-              <div className="glass-card-ios p-3 text-center">
+              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">{profileCompletion}%</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Profile Ready</p>
               </div>
@@ -562,7 +576,7 @@ const ProfilePage: React.FC = () => {
               type="button"
               onClick={() => void refreshProfile()}
               disabled={isRefreshing}
-              className="text-sm px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:bg-orange-300 transition-colors"
+              className="rounded-xl bg-slate-950 px-3 py-1.5 text-sm text-white transition-colors hover:bg-black disabled:bg-slate-500"
             >
               {isRefreshing ? 'Refreshing...' : 'Refresh Live Data'}
             </button>
@@ -570,7 +584,7 @@ const ProfilePage: React.FC = () => {
         </section>
 
         <section className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4">
-          <aside className="glass-card-ios p-2 sm:p-3 flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 rounded-full lg:rounded-2xl">
+          <aside className="flex gap-2 overflow-x-auto rounded-3xl border border-white/70 bg-white/70 p-2 shadow-lg shadow-slate-200/50 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 lg:flex-col lg:overflow-visible sm:p-3">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -578,8 +592,8 @@ const ProfilePage: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-3 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   activeTab === tab.id
-                    ? 'bg-orange-500 text-white'
-                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/70 dark:hover:bg-slate-700/70'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/80 dark:hover:bg-slate-800/70'
                 }`}
               >
                 {tab.label}
@@ -587,7 +601,7 @@ const ProfilePage: React.FC = () => {
             ))}
           </aside>
 
-          <div className="glass-card-ios p-4 sm:p-6 md:p-8 transition-all duration-300">
+          <div className="rounded-3xl border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 sm:p-6 md:p-8">
             {successMessage && (
               <p className="mb-4 bg-green-100/80 text-green-800 dark:bg-green-500/30 dark:text-green-200 p-3 rounded-lg text-center text-sm">
                 {successMessage}
@@ -611,25 +625,25 @@ const ProfilePage: React.FC = () => {
                 </div>
 
                 <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
                     <p className="text-xs text-slate-500">Recent Orders</p>
                     <p className="text-2xl font-bold text-slate-800 dark:text-white">
                       {recentOrders.length}
                     </p>
                   </div>
-                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
                     <p className="text-xs text-slate-500">Wishlist Items</p>
                     <p className="text-2xl font-bold text-slate-800 dark:text-white">
                       {wishlistedProducts.length}
                     </p>
                   </div>
-                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
                     <p className="text-xs text-slate-500">My Pets</p>
                     <p className="text-2xl font-bold text-slate-800 dark:text-white">
                       {pets.length}
                     </p>
                   </div>
-                  <div className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4">
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
                     <p className="text-xs text-slate-500">Vaccinations (30d)</p>
                     <p className="text-2xl font-bold text-slate-800 dark:text-white">
                       {upcomingVaccinations.length}
@@ -640,19 +654,19 @@ const ProfilePage: React.FC = () => {
                 <div className="grid sm:grid-cols-3 gap-3">
                   <Link
                     to="/shop"
-                    className="block text-center bg-orange-500 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                    className="block rounded-xl bg-slate-950 py-2.5 text-center font-semibold text-white transition-colors hover:bg-black"
                   >
                     Shop Now
                   </Link>
                   <Link
                     to="/services"
-                    className="block text-center bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-2.5 rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    className="block rounded-xl border border-slate-300 bg-white py-2.5 text-center font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
                   >
                     Book Vet
                   </Link>
                   <Link
                     to="/dashboard"
-                    className="block text-center bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-2.5 rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    className="block rounded-xl border border-slate-300 bg-white py-2.5 text-center font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
                   >
                     Manage Pets
                   </Link>

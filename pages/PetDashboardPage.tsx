@@ -499,11 +499,11 @@ const PetDashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="mb-6 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-600 p-6 text-white shadow-lg">
+      <header className="mb-6 rounded-[2rem] border border-white/70 bg-white/75 p-6 text-slate-900 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:text-white dark:shadow-black/30">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Pet Command Center</h1>
-            <p className="mt-1 text-sm text-white/90">
+            <h1 className="text-3xl font-black tracking-tight">Pet Command Center</h1>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               Welcome back{currentUser?.name ? `, ${currentUser.name.split(' ')[0]}` : ''}. Manage
               care, reminders, and health progress in one place.
             </p>
@@ -511,26 +511,26 @@ const PetDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('add-pet')}
-            className="rounded-full bg-white/20 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/30"
+            className="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
           >
             + Add Pet
           </button>
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl bg-white/20 px-4 py-3 backdrop-blur">
+          <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
             <p className="text-xs uppercase tracking-wide">Pets</p>
             <p className="mt-1 text-2xl font-bold">{healthMetrics.totalPets}</p>
           </div>
-          <div className="rounded-xl bg-white/20 px-4 py-3 backdrop-blur">
+          <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
             <p className="text-xs uppercase tracking-wide">Active Reminders</p>
             <p className="mt-1 text-2xl font-bold">{healthMetrics.activeReminders}</p>
           </div>
-          <div className="rounded-xl bg-white/20 px-4 py-3 backdrop-blur">
+          <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
             <p className="text-xs uppercase tracking-wide">Due Today</p>
             <p className="mt-1 text-2xl font-bold">{healthMetrics.dueToday}</p>
           </div>
-          <div className="rounded-xl bg-white/20 px-4 py-3 backdrop-blur">
+          <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
             <p className="text-xs uppercase tracking-wide">Avg. Weight</p>
             <p className="mt-1 text-2xl font-bold">{healthMetrics.avgWeight} kg</p>
           </div>
@@ -539,27 +539,27 @@ const PetDashboardPage: React.FC = () => {
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             to="/community"
-            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-center text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             Open Community
           </Link>
           <Link
             to="/profile"
-            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-center text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             Manage Account
           </Link>
           <button
             type="button"
             onClick={() => setActiveTab('reminders')}
-            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             View Reminders
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('profile')}
-            className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold backdrop-blur transition hover:bg-white/20"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             Update Pet Profile
           </button>
@@ -573,7 +573,7 @@ const PetDashboardPage: React.FC = () => {
       )}
 
       {pets.length === 0 && activeTab !== 'add-pet' ? (
-        <div className="rounded-2xl border border-slate-200 bg-white py-14 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div className="rounded-[2rem] border border-white/70 bg-white/75 py-14 text-center shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
           <PawIcon className="mx-auto h-16 w-16 text-slate-300" />
           <h2 className="mt-3 text-2xl font-bold text-slate-800 dark:text-white">No pets yet</h2>
           <p className="mt-1 text-slate-500 dark:text-slate-300">
@@ -582,7 +582,7 @@ const PetDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('add-pet')}
-            className="mt-5 rounded-full bg-orange-500 px-6 py-3 font-bold text-white hover:bg-orange-600"
+            className="mt-5 rounded-full bg-slate-950 px-6 py-3 font-bold text-white hover:bg-black"
           >
             Add Your First Pet
           </button>
@@ -590,7 +590,7 @@ const PetDashboardPage: React.FC = () => {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
           <aside className="space-y-5">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Pets</h3>
               <div className="mt-3 space-y-2">
                 {pets.map((pet) => (
@@ -603,8 +603,8 @@ const PetDashboardPage: React.FC = () => {
                     }}
                     className={`w-full rounded-xl border px-3 py-2 text-left transition ${
                       selectedPetId === pet.id
-                        ? 'border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-orange-900/30'
-                        : 'border-slate-200 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-700'
+                        ? 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
+                        : 'border-slate-200 bg-white/70 hover:bg-white dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-800'
                     }`}
                   >
                     <p className="font-bold text-slate-800 dark:text-white">{pet.name}</p>
@@ -616,25 +616,25 @@ const PetDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Care Queue
               </h3>
               <div className="mt-3 space-y-2 text-sm">
-                <div className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900">
+                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                   <p className="text-slate-500">Upcoming (7d)</p>
                   <p className="font-bold text-slate-800 dark:text-white">
                     {upcomingReminders.length}
                   </p>
                 </div>
-                <div className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900">
+                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                   <p className="text-slate-500">Overdue</p>
                   <p className="font-bold text-rose-600">{overdueReminders.length}</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Dashboard Shortcuts
               </h3>
@@ -664,9 +664,9 @@ const PetDashboardPage: React.FC = () => {
             </div>
           </aside>
 
-          <main className="space-y-5">
+          <main className="space-y-5 rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-5">
             <div
-              className="flex flex-wrap gap-2 border-b border-slate-200 pb-2 dark:border-slate-700"
+              className="flex flex-wrap gap-2 border-b border-slate-200/70 pb-2 dark:border-slate-700"
               role="tablist"
               aria-label="Pet dashboard sections"
             >
@@ -683,8 +683,8 @@ const PetDashboardPage: React.FC = () => {
                   role="tab"
                   className={`rounded-full px-4 py-2 text-sm font-semibold ${
                     activeTab === tab.key
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
+                      ? 'bg-slate-950 text-white'
+                      : 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-200'
                   }`}
                 >
                   {tab.label}
@@ -696,7 +696,7 @@ const PetDashboardPage: React.FC = () => {
 
             {activeTab === 'overview' && selectedPet && (
               <>
-                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <section className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
@@ -707,13 +707,13 @@ const PetDashboardPage: React.FC = () => {
                         • Activity: {selectedPet.activityLevel}
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-900/30 dark:text-emerald-300">
                       {selectedPet.weight ? `${selectedPet.weight} kg` : 'Weight pending'}
                     </span>
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-[11px] uppercase tracking-wide text-slate-500">
                         Profile Completion
                       </p>
@@ -721,7 +721,7 @@ const PetDashboardPage: React.FC = () => {
                         {profileCompletion}%
                       </p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-[11px] uppercase tracking-wide text-slate-500">
                         Weight Entries
                       </p>
@@ -729,7 +729,7 @@ const PetDashboardPage: React.FC = () => {
                         {weightHistory.length}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-[11px] uppercase tracking-wide text-slate-500">
                         Open Reminders
                       </p>
@@ -740,7 +740,7 @@ const PetDashboardPage: React.FC = () => {
                   </div>
 
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                    <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/65">
                       <p className="text-xs uppercase tracking-wide text-slate-500">
                         Nutrition Target
                       </p>
@@ -753,7 +753,7 @@ const PetDashboardPage: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 dark:border-indigo-800 dark:bg-slate-900">
+                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/65">
                       <h3 className="flex items-center gap-2 font-bold text-slate-800 dark:text-white">
                         <HeartIcon className="h-5 w-5 text-red-500" />
                         AI Health Insight
@@ -761,8 +761,8 @@ const PetDashboardPage: React.FC = () => {
                       <div className="mt-3 min-h-[110px] text-sm text-slate-700 dark:text-slate-200">
                         {loadingAi ? (
                           <div className="space-y-2 animate-pulse">
-                            <div className="h-2 w-4/5 rounded bg-indigo-200" />
-                            <div className="h-2 w-2/3 rounded bg-indigo-200" />
+                            <div className="h-2 w-4/5 rounded bg-slate-200" />
+                            <div className="h-2 w-2/3 rounded bg-slate-200" />
                           </div>
                         ) : aiInsight ? (
                           <p>{aiInsight}</p>
@@ -776,7 +776,7 @@ const PetDashboardPage: React.FC = () => {
                         type="button"
                         onClick={getAiHealthTip}
                         disabled={loadingAi}
-                        className="mt-3 rounded-full bg-indigo-500 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-600 disabled:opacity-60"
+                        className="mt-3 rounded-full bg-slate-950 px-4 py-2 text-xs font-bold text-white hover:bg-black disabled:opacity-60"
                       >
                         {loadingAi ? 'Generating...' : 'Generate Insight'}
                       </button>
@@ -784,7 +784,7 @@ const PetDashboardPage: React.FC = () => {
                   </div>
                 </section>
 
-                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <section className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       Weight Timeline
@@ -797,12 +797,12 @@ const PetDashboardPage: React.FC = () => {
                         placeholder="Add weight"
                         value={newWeightValue}
                         onChange={(event) => setNewWeightValue(event.target.value)}
-                        className="w-28 rounded-lg border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-900"
+                        className="w-28 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-900"
                       />
                       <button
                         type="button"
                         onClick={handleAddWeightEntry}
-                        className="rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-600"
+                        className="rounded-lg bg-slate-950 px-3 py-1.5 text-sm font-semibold text-white hover:bg-black"
                       >
                         Add
                       </button>
@@ -844,7 +844,7 @@ const PetDashboardPage: React.FC = () => {
               <section className="grid gap-5 lg:grid-cols-[360px_1fr]">
                 <form
                   onSubmit={handleAddReminder}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                  className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30"
                 >
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white">Add Reminder</h3>
                   <div className="mt-3 space-y-3">
@@ -931,14 +931,14 @@ const PetDashboardPage: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600"
+                      className="w-full rounded-xl bg-slate-950 px-4 py-2 font-bold text-white hover:bg-black"
                     >
                       Save Reminder
                     </button>
                   </div>
                 </form>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <div className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                     Reminder Queue
                   </h3>
@@ -1010,7 +1010,7 @@ const PetDashboardPage: React.FC = () => {
             {activeTab === 'profile' && selectedPet && (
               <form
                 onSubmit={handleUpdatePet}
-                className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2"
+                className="grid gap-4 rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30 md:grid-cols-2"
               >
                 <h3 className="md:col-span-2 text-lg font-bold text-slate-800 dark:text-white">
                   Profile Controls
@@ -1099,7 +1099,7 @@ const PetDashboardPage: React.FC = () => {
                 <div className="md:col-span-2 flex flex-wrap gap-2">
                   <button
                     type="submit"
-                    className="rounded-xl bg-orange-500 px-4 py-2 font-semibold text-white hover:bg-orange-600"
+                    className="rounded-xl bg-slate-950 px-4 py-2 font-semibold text-white hover:bg-black"
                   >
                     Save Profile Changes
                   </button>

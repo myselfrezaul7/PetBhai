@@ -67,6 +67,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  createdAt?: string;
   profilePictureUrl?: string;
   phone?: string;
   bio?: string;
