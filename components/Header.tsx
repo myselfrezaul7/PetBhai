@@ -26,10 +26,10 @@ const MobileNavLink: React.FC<{
     to={to}
     onClick={onClick}
     className={({ isActive }) =>
-      `block py-3 px-4 rounded-xl border text-base sm:text-lg text-center transition-all touch-manipulation backdrop-blur-xl ${
+      `block min-h-[44px] py-3 px-4 rounded-2xl border text-base sm:text-lg text-center transition-all touch-manipulation ${
         isActive
-          ? 'text-orange-500 dark:text-orange-300 font-bold bg-white/55 dark:bg-slate-900/45 border-white/70 dark:border-white/20 shadow-lg'
-          : 'text-slate-700 dark:text-slate-200 font-medium bg-white/35 dark:bg-slate-900/30 border-white/55 dark:border-white/15 hover:bg-white/55 dark:hover:bg-slate-900/45 hover:text-orange-500'
+          ? 'text-slate-900 dark:text-white font-bold bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 shadow-sm'
+          : 'text-slate-700 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
       } ${className || ''}`
     }
   >
@@ -384,7 +384,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Right Actions: Search, Theme, Language, Profile */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="hidden lg:flex items-center space-x-2 sm:space-x-3">
             
             {/* Search (Collapsible on Desktop for clean look) */}
             <div className="relative group flex items-center" ref={searchRef}>
@@ -456,10 +456,8 @@ const Header: React.FC = () => {
               {language === 'en' ? 'BN' : 'EN'}
             </button>
 
-            {/* Theme Toggle - Wrapped in a similar style */}
-            <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl w-10 h-10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-               <ThemeToggle />
-            </div>
+            {/* Theme Toggle */}
+            <ThemeToggle mode="icon" className="h-10 w-10 rounded-2xl" />
 
             {/* User Profile / Login */}
             {isAuthenticated && currentUser ? (
@@ -687,27 +685,16 @@ const Header: React.FC = () => {
             <Logo className="w-10 h-10 text-orange-500" />
             <span>PetBhai</span>
           </NavLink>
-          <div className="flex items-center space-x-4">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className="min-h-[44px] px-3 py-1 rounded-md text-base font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition-transform touch-manipulation"
-              aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
-            >
-              {language === 'en' ? 'BN' : 'EN'}
-            </button>
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleMenuClose}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 active:scale-95 transition-transform touch-manipulation"
-              aria-label="Close menu"
-            >
-              <CloseIcon className="w-8 h-8" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleMenuClose}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white active:scale-95 transition-transform touch-manipulation"
+            aria-label="Close menu"
+          >
+            <CloseIcon className="w-8 h-8" />
+          </button>
         </div>
-        <div className="flex flex-col justify-center items-center flex-grow overflow-y-auto py-8 overscroll-contain">
+        <div className="flex flex-col flex-grow overflow-y-auto py-6 overscroll-contain">
           <nav className="flex flex-col space-y-3 w-full px-6 sm:px-8">
             <MobileNavLink to="/" onClick={handleMenuClose}>
               {t('nav_home')}
@@ -735,20 +722,21 @@ const Header: React.FC = () => {
               {t('nav_plus')}
             </MobileNavLink>
           </nav>
-          <div className="mt-10 flex flex-col space-y-4 w-full px-8 sm:px-10">
+
+          <div className="mt-8 flex flex-col space-y-3 w-full px-6 sm:px-8">
             {isAuthenticated && currentUser ? (
               <>
                 <Link
                   to="/dashboard"
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full text-center py-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold text-lg border-2 border-orange-200 dark:border-orange-800"
+                  className="w-full min-h-[44px] text-center py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-base border border-slate-200 dark:border-slate-700"
                 >
                   My Pet Dashboard
                 </Link>
                 <Link
                   to="/profile"
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full text-center py-3 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg"
+                  className="w-full min-h-[44px] text-center py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-base"
                 >
                   {t('nav_profile')}
                 </Link>
@@ -756,7 +744,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/admin-dashboard"
                     onClick={() => setIsMenuOpen(false)}
-                    className="w-full text-center py-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold text-lg border-2 border-orange-200 dark:border-orange-800"
+                    className="w-full min-h-[44px] text-center py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-base border border-slate-200 dark:border-slate-700"
                   >
                     Admin Dashboard
                   </Link>
@@ -764,7 +752,7 @@ const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full text-center py-3 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-lg"
+                  className="w-full min-h-[44px] text-center py-3 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-base"
                 >
                   {t('nav_logout')}
                 </button>
@@ -774,19 +762,38 @@ const Header: React.FC = () => {
                 <Link
                   to="/login"
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full text-center py-3 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg"
+                  className="w-full min-h-[44px] text-center py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-base"
                 >
                   {t('nav_login')}
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full text-center py-3 rounded-full bg-orange-500 text-white font-bold text-lg shadow-lg"
+                  className="w-full min-h-[44px] text-center py-3 rounded-2xl bg-slate-950 text-white font-bold text-base shadow-sm"
                 >
                   {t('nav_signup')}
                 </Link>
               </>
             )}
+          </div>
+
+          <div className="mt-6 w-full px-6 sm:px-8">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+                Settings
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={toggleLanguage}
+                  className="min-h-[44px] w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-transform touch-manipulation"
+                  aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
+                >
+                  {language === 'en' ? 'Language: BN' : 'Language: EN'}
+                </button>
+                <ThemeToggle mode="labeled" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
