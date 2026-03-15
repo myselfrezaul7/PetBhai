@@ -84,7 +84,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
 
   return (
     <div
-      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center transition-opacity duration-300 animate-fade-in"
+      className="safe-modal-padding fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-2xl transition-opacity duration-300 animate-fade-in"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -92,7 +92,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
     >
       <div
         ref={modalRef}
-        className="glass-card-ios w-full max-w-lg max-h-[min(92dvh,40rem)] landscape:max-h-[80dvh] overflow-y-auto overscroll-contain"
+        className="glass-card-premium w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto rounded-3xl overscroll-contain landscape:max-h-[80dvh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 sm:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
@@ -112,7 +112,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
               ref={closeButtonRef}
               type="button"
               onClick={handleClose}
-              className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              className="glass-pill p-2 text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
               aria-label="Close booking modal"
             >
               <CloseIcon className="w-7 h-7" />
@@ -131,7 +131,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                     key={time}
                     type="button"
                     onClick={() => handleTimeSelect(time)}
-                    className="min-h-[44px] p-3 text-center font-semibold bg-orange-100/50 dark:bg-orange-500/20 text-orange-700 dark:text-orange-200 rounded-lg hover:bg-orange-500 hover:text-white transition-colors touch-manipulation active:scale-[0.98]"
+                    className="glass-pill min-h-[44px] p-3 text-center font-semibold text-orange-700 transition-colors hover:bg-orange-500 hover:text-white active:scale-[0.98] touch-manipulation dark:text-orange-300"
                   >
                     {time}
                   </button>
@@ -161,20 +161,20 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                   required
                   autoComplete="off"
                   placeholder="e.g., My dog is lethargic and not eating."
-                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50 text-base"
+                  className="glass-panel w-full rounded-2xl border border-white/20 p-3 text-base focus:ring-2 focus:ring-orange-500 dark:border-white/10"
                 ></textarea>
               </div>
               <div className="flex justify-between items-center mt-6">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:underline"
+                  className="text-sm font-semibold text-slate-600 hover:underline dark:text-zinc-300"
                 >
                   Back to time selection
                 </button>
                 <button
                   type="submit"
-                  className="bg-orange-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-600"
+                  className="rounded-full bg-orange-500 px-6 py-2 font-bold text-white hover:bg-orange-600"
                 >
                   Proceed to Confirmation
                 </button>
@@ -210,7 +210,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
               <button
                 type="button"
                 onClick={handleClose}
-                className="mt-6 bg-orange-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-orange-600"
+                className="mt-6 rounded-full bg-orange-500 px-8 py-2 font-bold text-white hover:bg-orange-600"
               >
                 Close
               </button>

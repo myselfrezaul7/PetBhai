@@ -142,7 +142,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 backdrop-blur-sm ${
+        className={`fixed inset-0 z-40 bg-black/55 backdrop-blur-xl transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
@@ -152,7 +152,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`safe-top safe-bottom fixed top-0 right-0 h-full w-full max-w-md glass-card-ios shadow-2xl z-50 transform transition-all duration-500 ease-out ${
+        className={`safe-top safe-bottom glass-panel fixed right-0 top-0 z-50 h-full w-full max-w-md transform border-l border-white/20 transition-all duration-500 ease-out dark:border-white/10 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
@@ -164,7 +164,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <header className="flex items-center justify-between p-5 border-b border-white/30 dark:border-slate-700/50">
+          <header className="flex items-center justify-between border-b border-white/20 p-5 dark:border-white/10">
             <h2
               id="cart-heading"
               className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"
@@ -181,7 +181,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
               ref={closeButtonRef}
               type="button"
               onClick={onClose}
-              className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-300 touch-manipulation active:scale-95"
+              className="glass-pill p-2 text-slate-500 transition-all duration-300 touch-manipulation active:scale-95 dark:text-zinc-400"
               aria-label="Close cart"
             >
               <CloseIcon className="w-6 h-6" />
@@ -210,10 +210,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             ) : (
               <ul className="space-y-4" role="list" aria-label="Cart items">
                 {cartItems.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center space-x-4 glass-card-ios p-4 rounded-2xl border border-white/30 dark:border-slate-700/50"
-                  >
+                  <li key={item.id} className="glass-card-premium flex items-center space-x-4 rounded-2xl p-4">
                     <img
                       src={item.imageUrl}
                       alt={item.name}
@@ -239,7 +236,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                           type="button"
                           onClick={() => handleDecreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity <= 1}
-                          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="glass-pill flex min-h-[44px] min-w-[44px] items-center justify-center text-slate-600 transition-colors touch-manipulation active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300"
                           aria-label={`Decrease quantity of ${item.name}`}
                         >
                           <MinusIcon className="w-4 h-4" />
@@ -254,7 +251,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                           type="button"
                           onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
                           disabled={item.quantity >= 99}
-                          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="glass-pill flex min-h-[44px] min-w-[44px] items-center justify-center text-slate-600 transition-colors touch-manipulation active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300"
                           aria-label={`Increase quantity of ${item.name}`}
                         >
                           <PlusIcon className="w-4 h-4" />
@@ -277,7 +274,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <footer className="safe-bottom sticky bottom-0 p-5 sm:p-6 bg-white/95 dark:bg-slate-900/95 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl">
+            <footer className="safe-bottom sticky bottom-0 border-t border-white/20 bg-white/85 p-5 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/85 sm:p-6">
               <div className="flex justify-between items-center text-lg sm:text-xl font-bold mb-4 sm:mb-6">
                 <span className="text-slate-600 dark:text-slate-300">Subtotal</span>
                 <span className="text-slate-800 dark:text-white tabular-nums" aria-live="polite">
@@ -287,7 +284,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={handleCheckout}
-                className="w-full bg-orange-500 text-white font-bold py-3.5 sm:py-4 px-4 rounded-xl text-base sm:text-lg hover:bg-orange-600 transition-colors shadow-lg touch-manipulation active:scale-[0.98] transform duration-150 focus:outline-none focus:ring-4 focus:ring-orange-300"
+                className="w-full rounded-full bg-orange-500 px-4 py-3.5 text-base font-bold text-white shadow-lg transition-colors duration-150 hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-300 active:scale-[0.98] touch-manipulation sm:py-4 sm:text-lg"
               >
                 Proceed to Checkout
               </button>

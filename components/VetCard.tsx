@@ -18,7 +18,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   return (
     <Link
       to={`/vet/${vet.id}`}
-      className="glass-card-ios flex flex-col text-center items-center p-3 sm:p-6 group transition-all duration-500 ease-out transform hover:-translate-y-2 hover:shadow-2xl h-full"
+      className="glass-card-premium group flex h-full flex-col items-center rounded-3xl p-3 text-center transition-all duration-500 ease-out sm:p-6"
     >
       <div className="relative">
         <img
@@ -79,7 +79,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
       </p>
 
       <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-white/30 dark:border-slate-700/50">
-        <span className="w-full min-h-[44px] flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[10px] sm:text-base group-hover:from-orange-600 group-hover:to-orange-700 transition-all duration-500 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25">
+        <span className="flex min-h-[44px] w-full items-center justify-center rounded-full bg-orange-500 px-2 py-2 text-[10px] font-bold text-white shadow-lg transition-all duration-500 group-hover:bg-orange-600 group-hover:shadow-xl group-hover:shadow-orange-500/25 sm:px-4 sm:py-2.5 sm:text-base">
           Profile
         </span>
       </div>

@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -282,6 +283,7 @@ const RouteSEO: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { consent } = useCookieConsent();
+  const location = useLocation();
 
   useEffect(() => {
     // Robust Service Worker Registration
@@ -340,47 +342,60 @@ const AppContent: React.FC = () => {
       <RouteSEO />
       <OfflineIndicator />
       <Header />
-      <main className="flex-grow app-main">
+      <main className="flex-grow app-main pt-24 md:pt-28">
         <SwipeNavigationProvider>
           <ErrorBoundary>
             <Suspense fallback={<PawHeartLoader />}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route
-                  path="/admin-dashboard"
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  }
-                />
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
-                <Route path="/vet/:id" element={<VetDetailPage />} />
-                <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignUpPage />} />
-                <Route path="/shop" element={<ShopPage />} />
-                <Route path="/product/:id" element={<ProductDetailPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:id" element={<ArticleDetailPage />} />
-                <Route path="/plus-membership" element={<PlusMembershipPage />} />
-                <Route path="/adopt" element={<AdoptPage />} />
-                <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
-                <Route path="/adopt/:id" element={<AnimalDetailPage />} />
-                <Route path="/report" element={<ReportPage />} />
-                <Route path="/volunteer" element={<VolunteerPage />} />
-                <Route path="/faq" element={<FAQPage />} />
-                <Route path="/safety" element={<TrustPage />} />
-                <Route path="/terms" element={<TermsPage />} />
-                <Route path="/dashboard" element={<PetDashboardPage />} />
-                <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
-                <Route path="/services/booking" element={<ServicesBookingPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={location.pathname}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Routes location={location}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route
+                      path="/admin-dashboard"
+                      element={
+                        <AdminRoute>
+                          <AdminDashboard />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route path="/community" element={<CommunityPage />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route
+                      path="/services/professional/:id"
+                      element={<ProfessionalDetailPage />}
+                    />
+                    <Route path="/vet/:id" element={<VetDetailPage />} />
+                    <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/shop" element={<ShopPage />} />
+                    <Route path="/product/:id" element={<ProductDetailPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/blog" element={<BlogPage />} />
+                    <Route path="/blog/:id" element={<ArticleDetailPage />} />
+                    <Route path="/plus-membership" element={<PlusMembershipPage />} />
+                    <Route path="/adopt" element={<AdoptPage />} />
+                    <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
+                    <Route path="/adopt/:id" element={<AnimalDetailPage />} />
+                    <Route path="/report" element={<ReportPage />} />
+                    <Route path="/volunteer" element={<VolunteerPage />} />
+                    <Route path="/faq" element={<FAQPage />} />
+                    <Route path="/safety" element={<TrustPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/dashboard" element={<PetDashboardPage />} />
+                    <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
+                    <Route path="/services/booking" element={<ServicesBookingPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                </motion.div>
+              </AnimatePresence>
             </Suspense>
           </ErrorBoundary>
         </SwipeNavigationProvider>

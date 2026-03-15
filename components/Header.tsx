@@ -38,24 +38,6 @@ const MobileNavLink: React.FC<{
 ));
 MobileNavLink.displayName = 'MobileNavLink';
 
-const DesktopNavLink: React.FC<{
-  to: string;
-  children: React.ReactNode;
-  className?: string;
-}> = React.memo(({ to, children, className }) => (
-  <li>
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `${isActive ? 'text-orange-500 dark:text-orange-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-500 font-medium transition-colors'} ${className || ''} touch-manipulation`
-      }
-    >
-      {children}
-    </NavLink>
-  </li>
-));
-DesktopNavLink.displayName = 'DesktopNavLink';
-
 const ALL_PAGES: PageResult[] = [
   { name: 'Home', path: '/', keywords: ['home', 'bari', 'বাড়ি', 'নীড়', 'hom'] },
   {
@@ -366,61 +348,71 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="glass-card-ios-heavy safe-top sticky top-0 z-40 border-b border-white/20 dark:border-slate-700/30 !rounded-none shadow-lg transition-all duration-500">
-        <nav className="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
+      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 py-4 transition-all duration-300">
+        <nav className="w-full max-w-6xl flex items-center justify-between p-2 pl-6 pr-2 bg-white/70 dark:bg-[#1a1a1a]/70 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:bg-white/80 dark:hover:bg-[#1a1a1a]/80">
+          
+          {/* Logo Section */}
           <NavLink
             to="/"
             onClick={handleLogoClick}
-            className={`flex items-center space-x-2 text-2xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 ${isSearchOpen ? 'hidden md:flex' : 'flex'}`}
+            className="flex items-center space-x-2 text-xl font-bold text-slate-800 dark:text-white flex-shrink-0 transition-opacity hover:opacity-80"
           >
-            <Logo className="w-10 h-10 text-orange-500" />
-            <span className="sm:inline tracking-tight">PetBhai</span>
+            <span className="sm:inline tracking-tight font-bold">PetBhai</span>
           </NavLink>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <ul className="flex items-center space-x-8 text-[15px]">
+          {/* Desktop Menu - Centered */}
+          <div className="hidden lg:flex items-center justify-center flex-1 px-8">
+            <ul className="flex items-center space-x-6">
               {desktopLinks.map((link) => (
-                <DesktopNavLink key={link.to} to={link.to} className={link.className}>
-                  {link.label}
-                </DesktopNavLink>
+                <li key={link.to}>
+                  <NavLink
+                    to={link.to}
+                    className={({ isActive }) =>
+                      `text-sm font-medium transition-colors tracking-wide ${
+                        isActive
+                          ? 'text-orange-600 dark:text-orange-400 font-semibold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-300'
+                      } ${link.className || ''}`
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                </li>
               ))}
             </ul>
           </div>
-          {/* Search Bar & Profile */}
-          <div className="hidden lg:flex items-center space-x-5">
-            <div className="relative group" ref={searchRef}>
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500 group-focus-within:text-orange-500 transition-colors" />
-              </span>
-              <input
-                ref={desktopInputRef}
-                type="text"
-                placeholder={t('search_placeholder')}
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                onKeyDown={handleKeyDown}
-                className="w-48 focus:w-64 transition-all duration-300 ease-out py-2 pl-10 pr-4 text-slate-700 dark:text-slate-200 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/30 dark:border-slate-700/30 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white/60 dark:focus:bg-slate-900/60 shadow-inner"
-                aria-label="Search"
-                autoComplete="off"
-                role="combobox"
-                aria-haspopup="listbox"
-                aria-autocomplete="list"
-                aria-controls="search-results-desktop"
-                aria-expanded="false"
-                data-expanded={isSearchActive && searchQuery.length >= 2}
-                inputMode="search"
-                enterKeyHint="search"
-              />
 
-              <span className="sr-only" aria-live="polite">
-                {searchAnnouncement}
-              </span>
+          {/* Right Actions: Search, Theme, Language, Profile */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            
+            {/* Search (Collapsible on Desktop for clean look) */}
+            <div className="relative group flex items-center" ref={searchRef}>
+               <div className={`flex items-center transition-all duration-300 ${isSearchActive || searchQuery ? 'w-48 sm:w-64 bg-slate-100/50 dark:bg-slate-800/50 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700' : 'w-8 bg-transparent'}`}>
+                  <SearchIcon 
+                    className={`w-4 h-4 text-slate-500 cursor-pointer ${isSearchActive || searchQuery ? 'mr-2' : ''}`} 
+                    onClick={() => {
+                      if (!isSearchActive) {
+                        setIsSearchActive(true);
+                        setTimeout(() => desktopInputRef.current?.focus(), 100);
+                      }
+                    }}
+                  />
+                  <input
+                    ref={desktopInputRef}
+                    type="text"
+                    placeholder={t('search_placeholder')}
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={handleSearchFocus}
+                    onKeyDown={handleKeyDown}
+                    className={`bg-transparent border-none outline-none text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 w-full ${isSearchActive || searchQuery ? 'block' : 'hidden'}`}
+                  />
+               </div>
 
+              {/* Search Results Dropdown */}
               {isSearchActive && (
-                <div className="animate-fade-in origin-top">
-                  {searchQuery.length >= 2 ? (
+                <div className="absolute top-full right-0 mt-4 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-fade-in origin-top-right z-50">
+                   {searchQuery.length >= 2 ? (
                     <SearchResults
                       id="search-results-desktop"
                       query={deferredQuery}
@@ -431,31 +423,21 @@ const Header: React.FC = () => {
                     />
                   ) : (
                     recentSearches.length > 0 && (
-                      <div className="absolute top-full mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl z-50 py-3 border border-slate-200 dark:border-slate-700 animate-scale-in">
-                        <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-4">
+                      <div className="p-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 pt-2">
                           {t('search_recent')}
-                        </h3>
+                        </div>
                         {recentSearches.map((s, i) => (
                           <button
                             key={i}
                             type="button"
                             onClick={() => setSearchQuery(s)}
-                            className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2"
+                            className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg flex items-center space-x-2 transition-colors"
                           >
                             <SearchIcon className="w-3 h-3 opacity-50" />
                             <span>{s}</span>
                           </button>
                         ))}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setRecentSearches([]);
-                            localStorage.removeItem('petbhai_recent_searches');
-                          }}
-                          className="w-full text-center mt-2 pt-2 border-t border-slate-100 dark:border-slate-700 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"
-                        >
-                          {t('search_clear_history')}
-                        </button>
                       </div>
                     )
                   )}
@@ -463,41 +445,41 @@ const Header: React.FC = () => {
               )}
             </div>
 
-            <div className="flex items-center space-x-3">
-              <button
-                type="button"
-                onClick={toggleLanguage}
-                className="min-h-[44px] px-2.5 py-1 rounded-md text-sm font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-orange-500 hover:text-white transition-all duration-200 active:scale-95 touch-manipulation"
-                aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
-              >
-                {language === 'en' ? 'BN' : 'EN'}
-              </button>
-              <ThemeToggle />
+            {/* Language Toggle */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
+            >
+              {language === 'en' ? 'BN' : 'EN'}
+            </button>
+
+            {/* Theme Toggle - Wrapped in a similar style */}
+            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-full w-9 h-9 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+               <ThemeToggle />
             </div>
 
+            {/* User Profile / Login */}
             {isAuthenticated && currentUser ? (
               <div className="relative" ref={profileMenuRef}>
                 <button
                   type="button"
                   onClick={handleProfileMenuToggle}
-                  className="relative flex items-center space-x-2 focus:outline-none group touch-manipulation"
-                  aria-label="User menu"
-                  data-expanded={isProfileMenuOpen}
-                  aria-haspopup="true"
+                  className="flex items-center justify-center w-9 h-9 rounded-full ring-2 ring-transparent hover:ring-orange-500/50 transition-all p-0.5 overflow-hidden"
+                  aria-label="Open user menu"
                 >
-                  <div className="ring-2 ring-transparent group-hover:ring-orange-500 rounded-full transition-all duration-200 p-0.5">
-                    <Avatar
+                   <Avatar
                       src={currentUser.profilePictureUrl}
                       name={currentUser.name}
-                      size="md"
-                      showPlusBadge={currentUser.isPlusMember}
+                      size="sm"
+                      showPlusBadge={false} // Small size, hide badge
                     />
-                  </div>
                 </button>
-                {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-56 glass-card-ios backdrop-blur-xl rounded-xl shadow-2xl z-20 py-2 border border-white/30 dark:border-slate-700/30 transform origin-top-right animate-scale-in">
-                    <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 mb-2">
-                      <p className="font-bold text-slate-800 dark:text-white">
+                 {isProfileMenuOpen && (
+                  <div className="absolute right-0 mt-4 w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-2xl z-50 p-2 border border-white/20 dark:border-slate-800 animate-scale-in origin-top-right">
+                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-2">
+                      <p className="font-bold text-slate-800 dark:text-white truncate">
                         Hi, {currentUser.name.split(' ')[0]}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 truncate">

@@ -39,7 +39,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   };
 
   return (
-    <div className="glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl h-full">
+    <div className="glass-card-premium group flex h-full flex-col overflow-hidden rounded-3xl">
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link to={`/adopt/${animal.id}`} className="block h-full">
           <img
@@ -58,17 +58,17 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           </div>
         </Link>
         <div
-          className={`absolute top-2 left-2 sm:top-3 sm:left-3 px-1.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-xs font-bold rounded-full backdrop-blur-md shadow-sm ${statusColors[animal.status]}`}
+          className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[9px] font-bold shadow-sm sm:left-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs ${statusColors[animal.status]}`}
         >
           {animal.status}
         </div>
         <button
           onClick={handleFavoriteClick}
-          className={`absolute top-2 right-2 sm:top-3 sm:right-3 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:scale-110 active:scale-90 touch-manipulation
+          className={`absolute right-2 top-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-all duration-300 shadow-md hover:scale-110 active:scale-90 touch-manipulation sm:right-3 sm:top-3
                 ${
                   isFavorited
                     ? 'bg-red-500 text-white'
-                    : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 hover:text-red-500'
+                    : 'glass-pill text-slate-700 hover:text-red-500 dark:text-zinc-300'
                 }`}
           aria-label={isFavorited ? 'Unfavorite' : 'Favorite'}
         >
@@ -107,10 +107,10 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           {animal.description}
         </p>
       </div>
-      <div className="p-2 sm:p-4 bg-white/50 dark:bg-black/20 mt-auto border-t border-white/20 dark:border-slate-700/30">
+      <div className="mt-auto border-t border-white/25 bg-white/40 p-2 dark:border-white/10 dark:bg-white/5 sm:p-4">
         <Link
           to={`/adopt/${animal.id}`}
-          className="w-full min-h-[44px] text-center block bg-orange-500 text-white font-bold py-2 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl text-xs sm:text-base hover:bg-orange-600 transition-all shadow-md active:scale-95 touch-manipulation"
+          className="block min-h-[44px] w-full rounded-full bg-orange-500 px-3 py-2 text-center text-xs font-bold text-white shadow-md transition-all hover:bg-orange-600 active:scale-95 touch-manipulation sm:px-4 sm:py-3 sm:text-base"
         >
           Meet {animal.name}
         </Link>
