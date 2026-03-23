@@ -22,10 +22,12 @@ const MobileNavLink: React.FC<{
   icon?: React.ReactNode;
   className?: string;
   onClick?: () => void;
-}> = React.memo(({ to, children, icon, className, onClick }) => (
+  style?: React.CSSProperties;
+}> = React.memo(({ to, children, icon, className, onClick, style }) => (
   <NavLink
     to={to}
     onClick={onClick}
+    style={style}
     className={({ isActive }) =>
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
@@ -824,8 +826,17 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="space-y-3 pb-4">
-            {mobileLinks.map((link) => (
-              <MobileNavLink key={link.to} to={link.to} onClick={handleMenuClose} icon={link.icon}>
+            {mobileLinks.map((link, index) => (
+              <MobileNavLink
+                key={link.to}
+                to={link.to}
+                onClick={handleMenuClose}
+                icon={link.icon}
+                style={{ transitionDelay: isMenuOpen ? `${80 + index * 55}ms` : '0ms' }}
+                className={`transform-gpu duration-300 ease-out ${
+                  isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+                }`}
+              >
                 {link.label}
               </MobileNavLink>
             ))}

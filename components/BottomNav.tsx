@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -50,6 +50,7 @@ const ProfileGlyph: React.FC<{ className?: string }> = ({ className }) => (
 const BottomNav: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
+  const location = useLocation();
 
   const items = [
     { to: '/', label: t('nav_home'), icon: HomeGlyph },
@@ -66,19 +67,25 @@ const BottomNav: React.FC = () => {
       <ul className="grid grid-cols-4 gap-1">
         {items.map((item) => {
           const Icon = item.icon;
+          const isActive =
+            item.to === '/'
+              ? location.pathname === '/'
+              : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
+
           return (
             <li key={item.label}>
               <NavLink
                 to={item.to}
-                className={({ isActive }) =>
-                  `flex min-h-[52px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-[11px] font-semibold transition-all duration-300 ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700 shadow-inner dark:bg-blue-900/30 dark:text-blue-300'
-                      : 'text-slate-500 hover:bg-slate-100/70 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100'
-                  }`
-                }
+                className={`group relative flex min-h-[52px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-700 shadow-inner dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'text-slate-500 hover:bg-slate-100/70 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100'
+                }`}
               >
-                <Icon className="mb-1 h-5 w-5" />
+                {isActive && (
+                  <span className="absolute top-1.5 h-1.5 w-1.5 rounded-full bg-blue-500 dark:bg-blue-300" aria-hidden="true" />
+                )}
+                <Icon className={`mb-1 h-5 w-5 transition-transform duration-300 ${isActive ? 'animate-badge-pop' : 'group-hover:-translate-y-0.5'}`} />
                 <span className="truncate">{item.label}</span>
               </NavLink>
             </li>

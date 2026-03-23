@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -22,7 +23,12 @@ const HomePage: React.FC = () => {
   return (
     <main className="w-full pb-6 md:pb-12">
       <section className="container mx-auto px-4 pb-6 pt-4 md:px-6 md:pb-10 md:pt-8" aria-label="Hero banner">
-        <div className="relative overflow-hidden rounded-[2.1rem] border border-white/60 p-4 shadow-[0_22px_40px_rgba(30,64,175,0.16)] md:p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.65, ease: 'easeOut' }}
+          className="relative overflow-hidden rounded-[2.1rem] border border-white/60 p-4 shadow-[0_22px_40px_rgba(30,64,175,0.16)] md:p-8"
+        >
           <img
             src="/landing-hero-mobile.webp"
             alt="A loving home for every animal"
@@ -41,20 +47,26 @@ const HomePage: React.FC = () => {
               </p>
               <Link
                 to="/shop"
-                className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 px-4 text-xl font-semibold text-white shadow-lg shadow-blue-900/30 transition-transform active:scale-95"
+                className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 px-4 text-xl font-semibold text-white shadow-lg shadow-blue-900/30 transition-all duration-300 hover:scale-[1.02] active:scale-95"
               >
                 Explore Now
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       <section className="container mx-auto px-4 pb-5 md:px-6 md:pb-8" aria-label="Quick actions">
         <div className="grid grid-cols-2 gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5, delay: 0.04 }}
+          >
           <Link
             to="/shop"
-            className="rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm"
+            className="block rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
           >
             <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -64,10 +76,17 @@ const HomePage: React.FC = () => {
             <h3 className="text-[2rem] font-semibold leading-none text-slate-900">Shop</h3>
             <p className="mt-2 text-sm text-slate-500">Premium pet supplies</p>
           </Link>
+          </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5, delay: 0.12 }}
+          >
           <Link
             to="/services"
-            className="rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm"
+            className="block rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
           >
             <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-100 text-orange-700">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -77,10 +96,18 @@ const HomePage: React.FC = () => {
             <h3 className="text-[2rem] font-semibold leading-none text-slate-900">Services</h3>
             <p className="mt-2 text-sm text-slate-500">Vets and grooming</p>
           </Link>
+          </motion.div>
 
+          <motion.div
+            className="col-span-2"
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
           <Link
             to="/adopt"
-            className="relative col-span-2 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm"
+            className="relative block overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -108,10 +135,18 @@ const HomePage: React.FC = () => {
               </svg>
             </span>
           </Link>
+          </motion.div>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 pb-8 md:px-6 md:pb-10" aria-labelledby="best-sellers-heading">
+      <motion.section
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="container mx-auto px-4 pb-8 md:px-6 md:pb-10"
+        aria-labelledby="best-sellers-heading"
+      >
         <div className="mb-3 flex items-center justify-between">
           <h2 id="best-sellers-heading" className="text-[2.2rem] font-bold leading-none text-slate-900">
             {t('section_best_sellers')}
@@ -135,15 +170,29 @@ const HomePage: React.FC = () => {
         ) : (
           <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
             {bestSellers.map((product) => (
-              <div key={product.id} className="w-[48%] min-w-[9.8rem] shrink-0 snap-start">
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.45, delay: 0.04 }}
+                className="w-[48%] min-w-[9.8rem] shrink-0 snap-start"
+              >
                 <ProductCard product={product} variant="mobile-featured" />
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
-      </section>
+      </motion.section>
 
-      <section className="container mx-auto px-4 pb-4 md:px-6" aria-labelledby="new-arrivals-heading">
+      <motion.section
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="container mx-auto px-4 pb-4 md:px-6"
+        aria-labelledby="new-arrivals-heading"
+      >
         <h2 id="new-arrivals-heading" className="mb-4 text-[2.2rem] font-bold leading-none text-slate-900">
           {t('section_new_arrivals')}
         </h2>
@@ -157,12 +206,20 @@ const HomePage: React.FC = () => {
           />
         ) : (
           <div className="space-y-3">
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} variant="mobile-list" />
+            {newArrivals.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.42, delay: index * 0.05 }}
+              >
+                <ProductCard product={product} variant="mobile-list" />
+              </motion.div>
             ))}
           </div>
         )}
-      </section>
+      </motion.section>
     </main>
   );
 };

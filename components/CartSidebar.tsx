@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import { CloseIcon, PlusIcon, MinusIcon, TrashIcon, ShoppingCartIcon } from './icons';
@@ -208,9 +209,38 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                 </button>
               </div>
             ) : (
-              <ul className="space-y-4" role="list" aria-label="Cart items">
+              <motion.ul
+                className="space-y-4"
+                role="list"
+                aria-label="Cart items"
+                initial="hidden"
+                animate={isOpen ? 'visible' : 'hidden'}
+                variants={{
+                  hidden: { opacity: 1 },
+                  visible: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
+                  },
+                }}
+              >
                 {cartItems.map((item) => (
-                  <li key={item.id} className="glass-card-premium flex items-center space-x-4 rounded-2xl p-4">
+                  <motion.li
+                    key={item.id}
+                    className="glass-card-premium flex items-center space-x-4 rounded-2xl p-4"
+                    variants={{
+                      hidden: { opacity: 0, y: 14, scale: 0.98 },
+                      visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.26, ease: 'easeOut' } },
+                    }}
+                    drag="x"
+                    dragDirectionLock
+                    dragConstraints={{ left: -140, right: 40 }}
+                    dragElastic={0.12}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x < -100) {
+                        handleRemoveItem(item.id, item.name);
+                      }
+                    }}
+                  >
                     <img
                       src={item.imageUrl}
                       alt={item.name}
@@ -266,9 +296,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                     >
                       <TrashIcon className="w-5 h-5" />
                     </button>
-                  </li>
+                  </motion.li>
                 ))}
-              </ul>
+              </motion.ul>
             )}
           </div>
 

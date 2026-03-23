@@ -80,9 +80,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
             {product.name}
           </h3>
           <p className="mt-1 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{product.description}</p>
-          <p className="mt-2 text-3xl font-bold leading-none text-blue-700 dark:text-blue-300">
-            ${product.price.toFixed(2)}
-          </p>
+          <div className="mt-2 flex items-end gap-2">
+            <p className="text-3xl font-bold leading-none text-blue-700 dark:text-blue-300">
+              ৳{product.price.toLocaleString('en-BD')}
+            </p>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <p className="text-sm font-medium text-slate-400 line-through dark:text-slate-500">
+                ৳{product.originalPrice.toLocaleString('en-BD')}
+              </p>
+            )}
+          </div>
         </div>
 
         <button
@@ -95,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
             isOutOfStock
               ? 'bg-slate-400/80 cursor-not-allowed'
               : isAdding
-                ? 'bg-emerald-600 scale-95'
+                ? 'bg-emerald-600 scale-95 animate-badge-pop'
                 : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
           }`}
         >
@@ -134,9 +141,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <Link to={`/product/${product.id}`}>
             <h3 className="line-clamp-1 text-xl font-semibold text-slate-900 dark:text-white">{product.name}</h3>
           </Link>
-          <p className="mt-1 text-3xl font-bold leading-none text-blue-700 dark:text-blue-300">
-            ${product.price.toFixed(2)}
-          </p>
+          <div className="mt-1 flex items-end gap-2">
+            <p className="text-3xl font-bold leading-none text-blue-700 dark:text-blue-300">
+              ৳{product.price.toLocaleString('en-BD')}
+            </p>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <p className="text-sm font-medium text-slate-400 line-through dark:text-slate-500">
+                ৳{product.originalPrice.toLocaleString('en-BD')}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );

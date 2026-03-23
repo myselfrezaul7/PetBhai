@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { CloseIcon, ShoppingCartIcon } from './icons';
@@ -84,17 +85,25 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   );
 
   return (
-    <div
-      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center transition-opacity duration-300 animate-fade-in"
+    <motion.div
+      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="quick-view-title"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
     >
-      <div
+      <motion.div
         ref={modalRef}
-        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[min(92dvh,42rem)] landscape:max-h-[80dvh] animate-scale-in"
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[min(92dvh,42rem)] landscape:max-h-[80dvh]"
         onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 24 }}
       >
         <button
           ref={closeButtonRef}
@@ -121,7 +130,8 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
         </div>
 
         {/* Details Section - Scrollable content */}
-        <div className="w-full md:w-1/2 flex flex-col p-6 md:p-10 overflow-y-auto overscroll-contain">
+        <div className="w-full md:w-1/2 flex flex-col overflow-y-auto overscroll-contain">
+          <div className="p-6 md:p-10">
           <div className="flex-grow">
             <h2
               id="quick-view-title"
@@ -149,8 +159,10 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
               <p>{product.description}</p>
             </div>
           </div>
+          </div>
 
-          <div className="pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-4 mt-auto">
+          <div className="sticky bottom-0 z-10 mt-auto border-t border-slate-200 bg-white/92 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/92 md:static md:border-t md:bg-transparent md:p-6 md:pt-6 md:backdrop-blur-0">
+            <div className="flex flex-col gap-4">
             <button
               type="button"
               onClick={handleAddToCart}
@@ -178,10 +190,11 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
             >
               {t('btn_view_full_details')}
             </Link>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
