@@ -10,9 +10,10 @@ import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 interface ProductCardProps {
   product: Product;
   onQuickView?: (product: Product) => void;
+  variant?: 'default' | 'mobile-featured' | 'mobile-list';
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant = 'default' }) => {
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
   const [isAdding, setIsAdding] = useState(false);
@@ -57,6 +58,89 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
     },
     [onQuickView, product]
   );
+
+  if (variant === 'mobile-list') {
+    return (
+      <Link
+        to={`/product/${product.id}`}
+        className="group relative flex items-center gap-3 rounded-3xl border border-white/80 bg-white/75 p-3 shadow-[0_12px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(30,64,175,0.14)] dark:border-slate-700/70 dark:bg-slate-900/75"
+      >
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className={`h-20 w-20 shrink-0 rounded-2xl object-cover transition-all duration-500 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+          loading="lazy"
+          decoding="async"
+          sizes={getResponsiveImageSizes('card')}
+          onError={handleImageError}
+        />
+
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-slate-900 dark:text-white">
+            {product.name}
+          </h3>
+          <p className="mt-1 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{product.description}</p>
+          <p className="mt-2 text-3xl font-bold leading-none text-blue-700 dark:text-blue-300">
+            ${product.price.toFixed(2)}
+          </p>
+        </div>
+
+        <button
+          onClick={handleAddToCart}
+          disabled={isAdding || isOutOfStock}
+          aria-label={
+            isOutOfStock ? t('aria_out_of_stock') : `${t('aria_add_to_cart')} ${product.name}`
+          }
+          className={`absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-md transition-all ${
+            isOutOfStock
+              ? 'bg-slate-400/80 cursor-not-allowed'
+              : isAdding
+                ? 'bg-emerald-600 scale-95'
+                : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
+          }`}
+        >
+          <ShoppingCartIcon className="h-4 w-4" />
+        </button>
+      </Link>
+    );
+  }
+
+  if (variant === 'mobile-featured') {
+    return (
+      <div className="group relative overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 p-2 shadow-[0_14px_30px_rgba(30,64,175,0.12)] backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/75">
+        <Link to={`/product/${product.id}`} className="block overflow-hidden rounded-[1.5rem]">
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            className={`aspect-[4/5] w-full object-cover transition-all duration-700 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+            loading="lazy"
+            decoding="async"
+            sizes={getResponsiveImageSizes('card')}
+            onError={handleImageError}
+          />
+        </Link>
+
+        <button
+          type="button"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/80 bg-white/80 text-slate-700 shadow-sm dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200"
+          aria-label={`Save ${product.name} to wishlist`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+            <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 12 5.08 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />
+          </svg>
+        </button>
+
+        <div className="px-2 pb-2 pt-3">
+          <Link to={`/product/${product.id}`}>
+            <h3 className="line-clamp-1 text-xl font-semibold text-slate-900 dark:text-white">{product.name}</h3>
+          </Link>
+          <p className="mt-1 text-3xl font-bold leading-none text-blue-700 dark:text-blue-300">
+            ${product.price.toFixed(2)}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">

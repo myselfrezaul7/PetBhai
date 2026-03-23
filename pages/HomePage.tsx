@@ -1,314 +1,167 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useBrands } from '../contexts/BrandContext';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../contexts/ProductContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PawIcon } from '../components/icons';
-import DhakaHero from '../components/DhakaHero';
 import ApiStateCard from '../components/ApiStateCard';
-import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 
 const HomePage: React.FC = () => {
   const { products, loading, error, refetch } = useProducts();
-  const { brands } = useBrands();
   const { t } = useLanguage();
 
-  // Memoize computed product lists to prevent unnecessary re-renders
   const bestSellers = useMemo(
-    () => [...products].sort((a, b) => b.rating - a.rating).slice(0, 4),
+    () => [...products].sort((a, b) => b.rating - a.rating).slice(0, 6),
     [products]
   );
 
   const newArrivals = useMemo(
-    () => [...products].sort((a, b) => b.id - a.id).slice(0, 4),
+    () => [...products].sort((a, b) => b.id - a.id).slice(0, 5),
     [products]
   );
 
   return (
-    <main className="w-full">
-      {/* Hero Section */}
-      <section
-        className="container mx-auto px-4 md:px-6 pt-6 md:pt-12 pb-8 md:pb-12"
-        aria-label="Hero banner"
-      >
-        <DhakaHero />
-      </section>
-
-      <section className="container mx-auto px-4 md:px-6 pb-4 md:pb-10" aria-label="Quick actions">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5">
-          <Link
-            to="/shop"
-            className="glass-card-ios p-4 md:p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
-          >
-            <p className="text-xs uppercase tracking-wide text-orange-500 font-bold">Shop</p>
-            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
-              Daily Pet Essentials
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-              Food, toys, grooming and more.
-            </p>
-          </Link>
-          <Link
-            to="/services"
-            className="glass-card-ios p-4 md:p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
-          >
-            <p className="text-xs uppercase tracking-wide text-sky-500 font-bold">Services</p>
-            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
-              Book Trusted Care
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-              Vet, grooming, training in one flow.
-            </p>
-          </Link>
-          <Link
-            to="/adopt"
-            className="glass-card-ios p-4 md:p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
-          >
-            <p className="text-xs uppercase tracking-wide text-emerald-500 font-bold">Adoption</p>
-            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mt-1">
-              Find Your Companion
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-              Browse verified rescue and adoption listings.
-            </p>
-          </Link>
-        </div>
-      </section>
-
-      {/* Best Sellers Section */}
-      <section className="py-8 md:py-20" aria-labelledby="best-sellers-heading">
-        <div className="container mx-auto px-3 md:px-6">
-          <header className="text-center mb-6 md:mb-12">
-            <h2
-              id="best-sellers-heading"
-              className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4"
-            >
-              {t('section_best_sellers')}
-            </h2>
-            <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-lg text-slate-600 dark:text-slate-400 px-2">
-              {t('section_best_sellers_sub')}
-            </p>
-          </header>
-          {/* Mobile optimized grid: gap-3 for mobile, gap-8 for desktop */}
-          {loading ? (
-            <div
-              className="flex justify-center items-center py-10"
-              role="status"
-              aria-label="Loading best sellers"
-            >
-              <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-orange-500"></div>
-              <PawIcon
-                className="absolute w-5 h-5 text-orange-500 animate-pulse"
-                aria-hidden="true"
-              />
-              <span className="sr-only">Loading...</span>
-            </div>
-          ) : error ? (
-            <ApiStateCard
-              title="Products are unavailable right now"
-              message={error}
-              actionLabel="Try Again"
-              onAction={refetch}
-            />
-          ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
-              {bestSellers.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Vet Consultation CTA -> Services CTA */}
-      <section className="py-8 md:py-20" aria-labelledby="services-heading">
-        <div className="container mx-auto px-3 sm:px-4 md:px-6">
-          <div className="glass-card-ios p-0 overflow-hidden flex flex-col md:flex-row-reverse items-center">
-            <div className="md:w-1/2 h-40 sm:h-48 md:h-auto w-full overflow-hidden">
-              <div className="md:hidden w-full h-full bg-gradient-to-br from-orange-100 via-amber-100 to-sky-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
-              <picture className="hidden h-full w-full md:block">
-                <source media="(max-width: 767px)" srcSet="/landing-hero-mobile.webp" type="image/webp" />
-                <source srcSet="/landing-hero.webp" type="image/webp" />
-                <img
-                  src="/landing-hero-dhaka.jpg"
-                  alt="Professional Pet Services"
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
-                  loading="lazy"
-                  decoding="async"
-                  sizes={getResponsiveImageSizes('detail')}
-                  onError={handleImageError}
-                />
-              </picture>
-            </div>
-            <div className="md:w-1/2 p-4 sm:p-6 md:p-16 text-center md:text-left">
-              <h2
-                id="services-heading"
-                className="text-xl sm:text-2xl md:text-5xl font-bold text-slate-800 dark:text-white leading-tight"
-              >
-                {t('section_services_title')}
-              </h2>
-              <p className="text-xs sm:text-sm md:text-lg text-slate-600 dark:text-slate-300 mt-2 sm:mt-4 md:mt-6 leading-relaxed">
-                {t('section_services_desc')}
+    <main className="w-full pb-6 md:pb-12">
+      <section className="container mx-auto px-4 pb-6 pt-4 md:px-6 md:pb-10 md:pt-8" aria-label="Hero banner">
+        <div className="relative overflow-hidden rounded-[2.1rem] border border-white/60 p-4 shadow-[0_22px_40px_rgba(30,64,175,0.16)] md:p-8">
+          <img
+            src="/landing-hero-mobile.webp"
+            alt="A loving home for every animal"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#0c1633]/72 via-[#0c1633]/36 to-transparent" />
+          <div className="relative z-10 flex min-h-[19rem] items-end">
+            <div className="w-full max-w-[17.5rem] rounded-[1.6rem] border border-white/25 bg-white/12 p-5 text-white backdrop-blur-md">
+              <h1 className="text-[2.1rem] font-bold leading-[1.08] tracking-tight md:text-5xl">
+                A Loving Home For Every Animal
+              </h1>
+              <p className="mt-3 text-base text-white/78">
+                Discover premium care, organic food, and adoption centers near you.
               </p>
               <Link
-                to="/services"
-                className="mt-4 sm:mt-6 md:mt-8 inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-2 px-5 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-full text-sm sm:text-base md:text-lg hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 active:scale-95 duration-500 shadow-lg hover:shadow-xl hover:shadow-orange-500/25 touch-manipulation"
-              >
-                <span>{t('btn_explore_services')}</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Shop by Brand Section */}
-      <section
-        className="py-8 md:py-16"
-        aria-labelledby="brands-heading"
-      >
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <h2
-            id="brands-heading"
-            className="text-lg sm:text-xl md:text-3xl font-extrabold text-slate-800 dark:text-white uppercase tracking-wider mb-2 md:mb-3"
-          >
-            {t('section_brands')}
-          </h2>
-            <div className="w-12 h-1 bg-orange-500 mx-auto mb-6 md:mb-10 rounded-full" />
-          <nav
-            className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2.5 sm:gap-4 md:gap-5"
-            aria-label="Shop by brand"
-          >
-            {brands
-              .filter((b) => ![8, 11, 12, 13, 16].includes(b.id))
-              .slice(0, 14)
-              .map((brand, idx) => (
-                <Link
-                  key={brand.id}
-                  to="/shop"
-                  state={{ brand: brand.name }}
-                  className={`group flex flex-col items-center justify-center glass-card-ios p-2 sm:p-3 md:p-4 transition-all duration-300 transform hover:scale-105 active:scale-95 touch-manipulation ${
-                    idx >= 8 ? 'hidden sm:flex' : 'flex'
-                  }`}
-                  aria-label={`Shop ${brand.name} products`}
-                >
-                  <img
-                    src={brand.logoUrl}
-                    alt={brand.name}
-                    className="h-7 sm:h-9 md:h-11 w-auto max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                    loading="lazy"
-                    decoding="async"
-                    sizes={getResponsiveImageSizes('brand')}
-                    onError={handleImageError}
-                  />
-                  <span className="mt-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate max-w-full">
-                    {brand.name}
-                  </span>
-                </Link>
-              ))}
-          </nav>
-          {brands.filter((b) => ![8, 11, 12, 13, 16].includes(b.id)).length > 14 && (
-            <div className="mt-6 md:mt-8">
-              <Link
                 to="/shop"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold text-sm hover:bg-orange-500 hover:text-white transition-all duration-300 active:scale-95 touch-manipulation"
+                className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 px-4 text-xl font-semibold text-white shadow-lg shadow-blue-900/30 transition-transform active:scale-95"
               >
-                <span>See All Brands</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                Explore Now
               </Link>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* New Arrivals Section */}
-      <section className="py-8 md:py-20 glass-card-ios" aria-labelledby="new-arrivals-heading">
-        <div className="container mx-auto px-3 md:px-6 text-center">
-          <header>
-            <h2
-              id="new-arrivals-heading"
-              className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4"
-            >
-              {t('section_new_arrivals')}
-            </h2>
-            <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-lg text-slate-600 dark:text-slate-400 mb-6 md:mb-12 px-2">
-              {t('section_new_arrivals_sub')}
-            </p>
-          </header>
-          {error ? (
-            <ApiStateCard
-              title="New arrivals could not be loaded"
-              message={error}
-              actionLabel="Reload Products"
-              onAction={refetch}
-            />
-          ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-8">
-              {newArrivals.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+      <section className="container mx-auto px-4 pb-5 md:px-6 md:pb-8" aria-label="Quick actions">
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            to="/shop"
+            className="rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm"
+          >
+            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 2.75A1.75 1.75 0 0 0 4.25 4.5V7H3a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1h-1.25V4.5A1.75 1.75 0 0 0 18 2.75H6zm.25 4.25V4.75h11.5V7H6.25z" />
+              </svg>
             </div>
-          )}
-          <div className="mt-8 md:mt-16">
-            <Link
-              to="/shop"
-              className="inline-block border-2 border-orange-500 text-orange-600 dark:text-orange-400 font-bold py-2 px-6 sm:py-2.5 sm:px-8 md:py-3 md:px-10 rounded-full text-sm sm:text-base md:text-lg hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-600 hover:text-white hover:border-transparent transition-all transform hover:scale-105 active:scale-95 duration-500 touch-manipulation shadow-lg hover:shadow-xl hover:shadow-orange-500/25"
+            <h3 className="text-[2rem] font-semibold leading-none text-slate-900">Shop</h3>
+            <p className="mt-2 text-sm text-slate-500">Premium pet supplies</p>
+          </Link>
+
+          <Link
+            to="/services"
+            className="rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm"
+          >
+            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-100 text-orange-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 8h-1V6a1 1 0 0 0-1-1h-2V4a1 1 0 1 0-2 0v1h-2V4a1 1 0 1 0-2 0v1H7a1 1 0 0 0-1 1v2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-7 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+              </svg>
+            </div>
+            <h3 className="text-[2rem] font-semibold leading-none text-slate-900">Services</h3>
+            <p className="mt-2 text-sm text-slate-500">Vets and grooming</p>
+          </Link>
+
+          <Link
+            to="/adopt"
+            className="relative col-span-2 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 100 100"
+              className="absolute -right-2 bottom-1 h-24 w-24 text-slate-200"
+              fill="currentColor"
+              aria-hidden="true"
             >
-              {t('btn_explore_shop')}
-            </Link>
-          </div>
+              <circle cx="24" cy="20" r="8" />
+              <circle cx="44" cy="12" r="8" />
+              <circle cx="62" cy="20" r="8" />
+              <circle cx="78" cy="30" r="8" />
+              <path d="M44 38c-11 0-24 11-24 25 0 10 7 16 16 16 8 0 13-4 18-4s10 4 18 4c9 0 16-6 16-16 0-15-15-25-26-25-5 0-9 2-12 5-3-3-7-5-12-5z" />
+            </svg>
+            <h3 className="text-[2rem] font-semibold leading-none text-slate-900">Adoption</h3>
+            <p className="mt-2 max-w-xs text-sm text-slate-500">Find your new best friend today.</p>
+            <span className="mt-4 inline-flex items-center gap-2 text-xl font-semibold text-blue-700">
+              View Pets
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          </Link>
         </div>
       </section>
 
-      {/* PetBhai+ CTA */}
-      <section className="py-8 md:py-20" aria-labelledby="plus-membership-heading">
-        <div className="container mx-auto px-3 sm:px-4 md:px-6">
-          <div className="glass-card-ios text-center p-5 sm:p-8 md:p-20 bg-gradient-to-br from-yellow-100/55 via-orange-100/45 to-rose-100/45 dark:from-yellow-900/25 dark:via-orange-900/20 dark:to-rose-900/20 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-2xl">
-            <span className="inline-flex items-center rounded-full bg-white/60 dark:bg-slate-800/60 border border-white/60 dark:border-white/10 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 px-3 py-1 mb-3 md:mb-5">
-              PetBhai+ Premium
-            </span>
-            <h2
-              id="plus-membership-heading"
-              className="text-xl sm:text-2xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-3 md:mb-6"
-            >
-              {t('section_plus_title')}
-            </h2>
-            <p className="max-w-3xl mx-auto text-xs sm:text-sm md:text-xl text-slate-700 dark:text-slate-200 mb-5 sm:mb-8 md:mb-10 leading-relaxed">
-              {t('section_plus_desc')}
-            </p>
-            <Link
-              to="/plus-membership"
-              className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-2.5 px-6 sm:py-3 sm:px-8 md:py-4 md:px-12 rounded-full text-sm sm:text-base md:text-lg hover:from-orange-600 hover:to-amber-600 transition-all transform hover:scale-105 active:scale-95 duration-500 shadow-xl hover:shadow-2xl hover:shadow-orange-500/30 touch-manipulation"
-            >
-              {t('btn_join_plus')}
-            </Link>
-          </div>
+      <section className="container mx-auto px-4 pb-8 md:px-6 md:pb-10" aria-labelledby="best-sellers-heading">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 id="best-sellers-heading" className="text-[2.2rem] font-bold leading-none text-slate-900">
+            {t('section_best_sellers')}
+          </h2>
+          <Link to="/shop" className="text-base font-semibold text-blue-700">
+            See all
+          </Link>
         </div>
+
+        {loading ? (
+          <div className="rounded-3xl border border-white/80 bg-white/75 p-6 text-center text-slate-500">
+            Loading products...
+          </div>
+        ) : error ? (
+          <ApiStateCard
+            title="Products are unavailable right now"
+            message={error}
+            actionLabel="Try Again"
+            onAction={refetch}
+          />
+        ) : (
+          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+            {bestSellers.map((product) => (
+              <div key={product.id} className="w-[48%] min-w-[9.8rem] shrink-0 snap-start">
+                <ProductCard product={product} variant="mobile-featured" />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="container mx-auto px-4 pb-4 md:px-6" aria-labelledby="new-arrivals-heading">
+        <h2 id="new-arrivals-heading" className="mb-4 text-[2.2rem] font-bold leading-none text-slate-900">
+          {t('section_new_arrivals')}
+        </h2>
+
+        {error ? (
+          <ApiStateCard
+            title="New arrivals could not be loaded"
+            message={error}
+            actionLabel="Reload Products"
+            onAction={refetch}
+          />
+        ) : (
+          <div className="space-y-3">
+            {newArrivals.map((product) => (
+              <ProductCard key={product.id} product={product} variant="mobile-list" />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

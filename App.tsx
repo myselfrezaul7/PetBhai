@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import BottomNav from './components/BottomNav';
 import { useCart } from './contexts/CartContext';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
@@ -116,11 +117,11 @@ const GlobalCartElements: React.FC = () => {
       <button
         key={lastActionTimestamp || 'initial'}
         onClick={openCart}
-        className={`fixed bottom-24 right-5 w-14 h-14 md:w-16 md:h-16 bg-orange-500 rounded-full text-white shadow-xl shadow-orange-500/30 z-30 flex items-center justify-center transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 animate-badge-pop ${
+        className={`fixed right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-24 md:h-16 md:w-16 ${
           isVisible
             ? 'translate-y-0 opacity-100'
             : 'translate-y-20 opacity-0 pointer-events-none'
-        }`}
+        } bottom-[calc(5.75rem+var(--safe-bottom))]`}
         aria-label={`Open shopping cart with ${cartCount} items`}
       >
         <ShoppingCartIcon className="w-7 h-7 md:w-8 md:h-8" />
@@ -342,7 +343,7 @@ const AppContent: React.FC = () => {
       <RouteSEO />
       <OfflineIndicator />
       <Header />
-      <main className="flex-grow app-main pt-24 md:pt-28">
+      <main className="flex-grow app-main pb-24 pt-24 md:pb-0 md:pt-28">
         <SwipeNavigationProvider>
           <ErrorBoundary>
             <Suspense fallback={<PawHeartLoader />}>
@@ -405,9 +406,12 @@ const AppContent: React.FC = () => {
         <WhatsAppButton />
         {consent === 'all' && <MessengerPlugin />}
       </Suspense>
+      <BottomNav />
       <ScrollToTop />
       <ScrollToTopOnNavigate />
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
       <SpeedInsights />
       <ToastContainer />
       <ConfirmationModal />

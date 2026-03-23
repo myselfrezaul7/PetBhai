@@ -6,17 +6,17 @@
   --ui-text: #111111;
   --ui-muted: #5a5a5a;
   --ui-border: rgba(17, 17, 17, 0.14);
-  --ui-surface: #ffffff;
-  --ui-surface-hover: #fcfcfc;
+  --ui-surface: rgba(255, 255, 255, 0.8);
+  --ui-surface-hover: rgba(255, 255, 255, 0.92);
   --ui-input-bg: #ffffff;
   --ui-focus-ring: rgba(249, 115, 22, 0.28);
-  --ui-border-glass: rgba(17, 17, 17, 0.08);
-  --ui-blur: 0px;
-  --ui-blur-heavy: 0px;
-  --ui-shadow: 0 8px 24px rgba(17, 17, 17, 0.06);
-  --ui-shadow-hover: 0 14px 30px rgba(17, 17, 17, 0.1);
-  --ui-bg-primary: #ffffff;
-  --ui-bg-secondary: #f8f8f8;
+  --ui-border-glass: rgba(148, 163, 184, 0.34);
+  --ui-blur: 12px;
+  --ui-blur-heavy: 26px;
+  --ui-shadow: 0 14px 30px rgba(30, 64, 175, 0.12);
+  --ui-shadow-hover: 0 20px 38px rgba(30, 64, 175, 0.18);
+  --ui-bg-primary: #f2f6ff;
+  --ui-bg-secondary: #edf2fc;
   --motion-fast: 150ms;
   --motion-base: 200ms;
   --motion-slow: 300ms;
@@ -31,13 +31,13 @@ html.dark {
   --ui-text: #f8f8f8;
   --ui-muted: #b5b5b5;
   --ui-border: rgba(255, 255, 255, 0.16);
-  --ui-surface: #0f0f10;
-  --ui-surface-hover: #161618;
+  --ui-surface: rgba(15, 23, 42, 0.74);
+  --ui-surface-hover: rgba(30, 41, 59, 0.82);
   --ui-input-bg: #141416;
   --ui-focus-ring: rgba(251, 146, 60, 0.24);
-  --ui-border-glass: rgba(255, 255, 255, 0.12);
-  --ui-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --ui-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --ui-border-glass: rgba(148, 163, 184, 0.26);
+  --ui-shadow: 0 12px 30px rgba(2, 6, 23, 0.42);
+  --ui-shadow-hover: 0 18px 40px rgba(2, 6, 23, 0.52);
   --ui-bg-primary: #070708;
   --ui-bg-secondary: #111112;
 }
@@ -85,8 +85,8 @@ body {
   color: var(--ui-text);
   background-color: var(--ui-bg-primary);
   background-image:
-    radial-gradient(circle at 18% -10%, rgba(17, 17, 17, 0.035), transparent 52%),
-    radial-gradient(circle at 96% 4%, rgba(17, 17, 17, 0.03), transparent 36%);
+    radial-gradient(circle at 14% -12%, rgba(56, 189, 248, 0.15), transparent 48%),
+    radial-gradient(circle at 92% 6%, rgba(59, 130, 246, 0.12), transparent 34%);
   transition:
     background-color var(--motion-base) var(--motion-ease),
     color var(--motion-base) var(--motion-ease),
@@ -103,8 +103,8 @@ html.dark body {
 .glass-panel {
   background: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(var(--ui-blur));
+  backdrop-filter: blur(var(--ui-blur));
   box-shadow: var(--ui-shadow);
 }
 
@@ -112,16 +112,16 @@ html.dark body {
   border-radius: 9999px;
   background: var(--ui-input-bg);
   border: 1px solid var(--ui-border);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(var(--ui-blur));
+  backdrop-filter: blur(var(--ui-blur));
 }
 
 .glass-card-premium {
   border-radius: 1.5rem;
   background: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(var(--ui-blur));
+  backdrop-filter: blur(var(--ui-blur));
   box-shadow: var(--ui-shadow);
   transition:
     transform var(--motion-slow) var(--motion-ease),
@@ -232,8 +232,8 @@ a:focus-visible {
   background-color: var(--ui-surface);
   border: 1px solid var(--ui-border-glass);
   border-radius: 1.25rem;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(var(--ui-blur));
+  backdrop-filter: blur(var(--ui-blur));
   box-shadow: var(--ui-shadow);
 }
 
@@ -246,8 +246,8 @@ a:focus-visible {
   background-color: #ffffff;
   border: 1px solid var(--ui-border-glass);
   border-radius: 1.25rem;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(var(--ui-blur-heavy));
+  backdrop-filter: blur(var(--ui-blur-heavy));
   box-shadow: var(--ui-shadow);
 }
 
