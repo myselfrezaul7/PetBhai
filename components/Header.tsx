@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useDeferredValue, useMemo } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { MenuIcon, CloseIcon, SearchIcon } from './icons';
 import Logo from './Logo';
 import Avatar from './Avatar';
@@ -97,6 +98,8 @@ const Header: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const desktopInputRef = useRef<HTMLInputElement | null>(null);
   const mobileInputRef = useRef<HTMLInputElement | null>(null);
+  const menuTouchStartXRef = useRef<number | null>(null);
+  const menuTouchCurrentXRef = useRef<number | null>(null);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -337,6 +340,29 @@ const Header: React.FC = () => {
     setIsProfileMenuOpen((prev) => !prev);
   }, []);
 
+  const handleMenuTouchStart = useCallback((event: React.TouchEvent<HTMLElement>) => {
+    menuTouchStartXRef.current = event.touches[0]?.clientX ?? null;
+    menuTouchCurrentXRef.current = menuTouchStartXRef.current;
+  }, []);
+
+  const handleMenuTouchMove = useCallback((event: React.TouchEvent<HTMLElement>) => {
+    menuTouchCurrentXRef.current = event.touches[0]?.clientX ?? null;
+  }, []);
+
+  const handleMenuTouchEnd = useCallback(() => {
+    if (menuTouchStartXRef.current === null || menuTouchCurrentXRef.current === null) {
+      return;
+    }
+
+    const deltaX = menuTouchCurrentXRef.current - menuTouchStartXRef.current;
+    if (deltaX < -80) {
+      handleMenuClose();
+    }
+
+    menuTouchStartXRef.current = null;
+    menuTouchCurrentXRef.current = null;
+  }, [handleMenuClose]);
+
   const desktopLinks = [
     { to: '/', label: t('nav_home') },
     { to: '/shop', label: t('nav_shop') },
@@ -415,6 +441,53 @@ const Header: React.FC = () => {
       ),
     },
   ];
+
+  const mobileSections = useMemo(
+    () => [
+      {
+        title: 'Discover',
+        links: mobileLinks.filter((link) => ['/', '/shop', '/adopt'].includes(link.to)),
+      },
+      {
+        title: 'Care & Community',
+        links: mobileLinks.filter((link) => ['/services', '/community', '/blog'].includes(link.to)),
+      },
+      {
+        title: 'Support',
+        links: mobileLinks.filter((link) => ['/report'].includes(link.to)),
+      },
+    ],
+    [mobileLinks]
+  );
+
+  const menuContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.2 } },
+    exit: { opacity: 0, transition: { duration: 0.18 } },
+  };
+
+  const menuPanelVariants = {
+    hidden: { x: '-102%', opacity: 0.9 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 320, damping: 34, mass: 0.8 },
+    },
+    exit: {
+      x: '-102%',
+      opacity: 0.95,
+      transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
+
+  const menuItemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: (index: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.26, ease: 'easeOut', delay: 0.08 + index * 0.045 },
+    }),
+  };
 
   return (
     <>
@@ -768,131 +841,167 @@ const Header: React.FC = () => {
       )}
 
       {/* Mobile Menu Drawer */}
-      <div
-        className={`fixed inset-0 z-50 lg:hidden ${isMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation menu"
-      >
-        <button
-          type="button"
-          onClick={handleMenuClose}
-          className={`absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
-          aria-label="Close menu backdrop"
-        />
-
-        <aside
-          className={`safe-top safe-bottom relative h-full w-[86%] max-w-sm rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.95),rgba(236,243,255,0.92))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass transition-transform duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] dark:border-slate-700/70 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        >
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-[2.35rem] font-black leading-none tracking-tight text-blue-700 dark:text-blue-300">
-              PetBhai
-            </h2>
-            <button
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation menu"
+            variants={menuContainerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <motion.button
               type="button"
               onClick={handleMenuClose}
-              className="min-h-[44px] min-w-[44px] rounded-full text-slate-500 transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
-              aria-label="Close menu"
-            >
-              <CloseIcon className="h-8 w-8" />
-            </button>
-          </div>
+              className="absolute inset-0 bg-slate-900/35 backdrop-blur-sm"
+              aria-label="Close menu backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
 
-          <div className="mb-6 rounded-3xl border border-white/80 bg-white/70 p-4 backdrop-blur-md shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:border-slate-700/70 dark:bg-slate-900/75">
-            <div className="flex items-center gap-3">
-              <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-blue-400/60 bg-white shadow-sm dark:bg-slate-800">
-                {isAuthenticated && currentUser ? (
-                  <Avatar
-                    src={currentUser.profilePictureUrl}
-                    name={currentUser.name}
-                    size="md"
-                    showPlusBadge={false}
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-slate-500">
-                    PetBhai
+            <motion.aside
+              className="safe-top safe-bottom relative h-full w-[88%] max-w-sm rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(233,243,255,0.93))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass dark:border-slate-700/70 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))]"
+              variants={menuPanelVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onTouchStart={handleMenuTouchStart}
+              onTouchMove={handleMenuTouchMove}
+              onTouchEnd={handleMenuTouchEnd}
+            >
+              <div className="mb-5 flex items-center justify-between">
+                <h2 className="text-[2.35rem] font-black leading-none tracking-tight text-blue-700 dark:text-blue-300">
+                  PetBhai
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleMenuClose}
+                  className="min-h-[44px] min-w-[44px] rounded-full text-slate-500 transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                  aria-label="Close menu"
+                >
+                  <CloseIcon className="h-8 w-8" />
+                </button>
+              </div>
+
+              <motion.div
+                className="mb-6 rounded-3xl border border-white/80 bg-white/70 p-4 backdrop-blur-md shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:border-slate-700/70 dark:bg-slate-900/75"
+                custom={0}
+                variants={menuItemVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-blue-400/60 bg-white shadow-sm dark:bg-slate-800">
+                    {isAuthenticated && currentUser ? (
+                      <Avatar
+                        src={currentUser.profilePictureUrl}
+                        name={currentUser.name}
+                        size="md"
+                        showPlusBadge={false}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-slate-500">
+                        PetBhai
+                      </div>
+                    )}
                   </div>
+                  <div>
+                    <p className="max-w-[11rem] truncate text-2xl font-extrabold leading-none tracking-tight text-slate-900 dark:text-white">
+                      {isAuthenticated && currentUser ? currentUser.name : 'Guardian Name'}
+                    </p>
+                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-300">
+                      {isAuthenticated ? 'Premium Member' : 'Pet Parent'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <nav className="space-y-4 pb-4">
+                {mobileSections.map((section, sectionIndex) => (
+                  <motion.div
+                    key={section.title}
+                    custom={sectionIndex + 1}
+                    variants={menuItemVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <p className="mb-2 px-1 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                      {section.title}
+                    </p>
+                    <div className="space-y-2.5">
+                      {section.links.map((link) => (
+                        <MobileNavLink key={link.to} to={link.to} onClick={handleMenuClose} icon={link.icon}>
+                          {link.label}
+                        </MobileNavLink>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </nav>
+
+              <motion.div
+                className="mt-4 space-y-3"
+                custom={5}
+                variants={menuItemVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  to={isAuthenticated ? '/profile' : '/login'}
+                  onClick={handleMenuClose}
+                  className="flex min-h-[56px] items-center gap-4 rounded-2xl border border-white/70 bg-white/65 px-4 py-3 text-[1.05rem] font-semibold text-slate-700 transition-colors hover:bg-white/90 dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800/90"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-800/80">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c-3.31 0-6 1.79-6 4v1h12v-1c0-2.21-2.69-4-6-4z" />
+                    </svg>
+                  </span>
+                  {isAuthenticated ? t('nav_profile') : t('nav_login')}
+                </Link>
+
+                {isAuthenticated ? (
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex min-h-[56px] w-full items-center gap-4 rounded-2xl border border-red-200/80 bg-red-50/85 px-4 py-3 text-[1.05rem] font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700/60 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/40"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-800/80">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2H5V5h5V3zm8.71 8.29-2-2-1.42 1.42L16.59 12H9v2h7.59l-1.3 1.29 1.42 1.42 2-2a1 1 0 0 0 0-1.42z" />
+                      </svg>
+                    </span>
+                    {t('nav_logout')}
+                  </button>
+                ) : (
+                  <Link
+                    to="/signup"
+                    onClick={handleMenuClose}
+                    className="flex min-h-[56px] items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-[1.05rem] font-bold text-white shadow-md transition-colors hover:bg-blue-700"
+                  >
+                    {t('nav_signup')}
+                  </Link>
                 )}
-              </div>
-              <div>
-                <p className="max-w-[11rem] truncate text-2xl font-extrabold leading-none tracking-tight text-slate-900 dark:text-white">
-                  {isAuthenticated && currentUser ? currentUser.name : 'Guardian Name'}
-                </p>
-                <p className="text-xl font-semibold text-blue-600 dark:text-blue-300">
-                  {isAuthenticated ? 'Premium Member' : 'Pet Parent'}
-                </p>
-              </div>
-            </div>
-          </div>
 
-          <nav className="space-y-3 pb-4">
-            {mobileLinks.map((link, index) => (
-              <MobileNavLink
-                key={link.to}
-                to={link.to}
-                onClick={handleMenuClose}
-                icon={link.icon}
-                style={{ transitionDelay: isMenuOpen ? `${80 + index * 55}ms` : '0ms' }}
-                className={`transform-gpu duration-300 ease-out ${
-                  isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-                }`}
-              >
-                {link.label}
-              </MobileNavLink>
-            ))}
-          </nav>
-
-          <div className="mt-5 space-y-3">
-            <Link
-              to={isAuthenticated ? '/profile' : '/login'}
-              onClick={handleMenuClose}
-              className="flex min-h-[56px] items-center gap-4 rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-[1.15rem] font-medium text-slate-700 transition-colors hover:bg-white/90 dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800/90"
-            >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-800/80">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c-3.31 0-6 1.79-6 4v1h12v-1c0-2.21-2.69-4-6-4z" />
-                </svg>
-              </span>
-              Settings
-            </Link>
-
-            {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex min-h-[56px] w-full items-center gap-4 rounded-2xl border border-red-200/80 bg-red-50/80 px-4 py-3 text-[1.15rem] font-medium text-red-700 transition-colors hover:bg-red-100 dark:border-red-700/60 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/40"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-800/80">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2H5V5h5V3zm8.71 8.29-2-2-1.42 1.42L16.59 12H9v2h7.59l-1.3 1.29 1.42 1.42 2-2a1 1 0 0 0 0-1.42z" />
-                  </svg>
-                </span>
-                {t('nav_logout')}
-              </button>
-            ) : (
-              <Link
-                to="/signup"
-                onClick={handleMenuClose}
-                className="flex min-h-[56px] items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-[1.15rem] font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
-              >
-                {t('nav_signup')}
-              </Link>
-            )}
-
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <button
-                type="button"
-                onClick={toggleLanguage}
-                className="min-h-[44px] w-full rounded-xl border border-white/80 bg-white/60 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
-                aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
-              >
-                {language === 'en' ? 'Language: BN' : 'Language: EN'}
-              </button>
-              <ThemeToggle mode="labeled" />
-            </div>
-          </div>
-        </aside>
-      </div>
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={toggleLanguage}
+                    className="min-h-[44px] w-full rounded-xl border border-white/80 bg-white/60 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
+                    aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
+                  >
+                    {language === 'en' ? 'Language: BN' : 'Language: EN'}
+                  </button>
+                  <ThemeToggle mode="labeled" />
+                </div>
+              </motion.div>
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

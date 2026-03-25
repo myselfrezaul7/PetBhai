@@ -153,7 +153,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`safe-top safe-bottom glass-panel fixed right-0 top-0 z-50 h-full w-full max-w-md transform border-l border-white/20 transition-all duration-500 ease-out dark:border-white/10 ${
+        className={`safe-top safe-bottom fixed right-0 top-0 z-50 h-full w-full max-w-md transform rounded-l-[2.2rem] border-l border-white/55 bg-[linear-gradient(165deg,rgba(255,255,255,0.96),rgba(235,243,252,0.93))] shadow-[0_24px_60px_rgba(30,64,175,0.2)] backdrop-blur-glass transition-all duration-500 ease-out dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
@@ -233,10 +233,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                     }}
                     drag="x"
                     dragDirectionLock
-                    dragConstraints={{ left: -140, right: 40 }}
-                    dragElastic={0.12}
+                    dragConstraints={{ left: -120, right: 0 }}
+                    dragElastic={0.08}
+                    dragMomentum={false}
                     onDragEnd={(_, info) => {
-                      if (info.offset.x < -100) {
+                      if (info.offset.x < -112) {
                         handleRemoveItem(item.id, item.name);
                       }
                     }}
@@ -261,7 +262,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                       <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mt-1">
                         ৳{item.price.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
                       </p>
-                      <div className="flex items-center space-x-3 mt-3">
+                      <div className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                        Swipe left to remove
+                      </div>
+                      <div className="flex items-center space-x-3 mt-2.5">
                         <button
                           type="button"
                           onClick={() => handleDecreaseQuantity(item.id, item.quantity)}
@@ -304,7 +308,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <footer className="safe-bottom sticky bottom-0 border-t border-white/20 bg-white/85 p-5 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/85 sm:p-6">
+            <footer className="safe-bottom sticky bottom-0 border-t border-white/20 bg-white/85 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/85 sm:px-6 sm:pt-6">
               <div className="flex justify-between items-center text-lg sm:text-xl font-bold mb-4 sm:mb-6">
                 <span className="text-slate-600 dark:text-slate-300">Subtotal</span>
                 <span className="text-slate-800 dark:text-white tabular-nums" aria-live="polite">
