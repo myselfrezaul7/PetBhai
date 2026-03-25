@@ -497,7 +497,15 @@ const ProfilePage: React.FC = () => {
   return (
     <main className="min-h-screen container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <div className="max-w-6xl mx-auto space-y-6">
-        <section className="rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-6">
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-6">
+          <div
+            className="pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full bg-orange-300/35 blur-3xl dark:bg-orange-500/20"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute -left-16 -bottom-16 h-52 w-52 rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-500/20"
+            aria-hidden="true"
+          />
           <div className="flex flex-col lg:flex-row lg:items-center gap-5">
             <div className="relative w-fit mx-auto lg:mx-0">
               <button
@@ -622,6 +630,53 @@ const ProfilePage: React.FC = () => {
                   <p className="text-slate-600 dark:text-slate-300 text-sm">
                     Your latest activity and quick actions in one place.
                   </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('orders')}
+                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
+                  >
+                    <p className="text-2xl" aria-hidden="true">
+                      📦
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">My Orders</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Track and reorder</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('wishlist')}
+                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
+                  >
+                    <p className="text-2xl" aria-hidden="true">
+                      💖
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">Wishlist</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Saved favorites</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('pets')}
+                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
+                  >
+                    <p className="text-2xl" aria-hidden="true">
+                      🐶
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">My Pets</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Profiles and care</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('vaccinations')}
+                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
+                  >
+                    <p className="text-2xl" aria-hidden="true">
+                      💉
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">Shots</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Upcoming reminders</p>
+                  </button>
                 </div>
 
                 <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">

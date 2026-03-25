@@ -55,6 +55,7 @@ const ProductDetailPage: React.FC = () => {
   }, [cartItems, product]);
 
   const quantityInCart = cartItem ? cartItem.quantity : 0;
+  const isOutOfStock = product?.stockStatus === 'out-of-stock';
 
   if (loading) {
     return (
@@ -255,7 +256,7 @@ const ProductDetailPage: React.FC = () => {
   };
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <main className="container mx-auto px-4 pb-32 pt-8 sm:px-6 sm:pb-12 sm:pt-12">
       <SEO
         title={`${product.name} - Shop`}
         description={product.description}
@@ -320,19 +321,21 @@ const ProductDetailPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="mt-6 sm:mt-8 flex items-center space-x-3 sm:space-x-4">
+          <div className="mt-6 hidden items-center space-x-3 sm:mt-8 sm:flex sm:space-x-4">
             <button
               onClick={handleAddToCart}
-              disabled={isAdding}
+              disabled={isAdding || isOutOfStock}
               className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl text-base sm:text-lg hover:from-orange-600 hover:to-amber-600 transition-all duration-300 flex items-center justify-center space-x-2 sm:space-x-3 disabled:from-green-500 disabled:to-green-500 touch-manipulation active:scale-95 shadow-lg hover:shadow-orange-500/30"
             >
               <ShoppingCartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
               <span>
-                {isAdding
-                  ? 'Added!'
-                  : quantityInCart > 0
-                    ? `Add More (${quantityInCart} in Cart)`
-                    : 'Add to Cart'}
+                {isOutOfStock
+                  ? 'Out of Stock'
+                  : isAdding
+                    ? 'Added!'
+                    : quantityInCart > 0
+                      ? `Add More (${quantityInCart} in Cart)`
+                      : 'Add to Cart'}
               </span>
             </button>
             <button
@@ -525,6 +528,43 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </section>
       )}
+
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/65 bg-white/90 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/88 sm:hidden">
+        <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+          <div className="min-w-[6.8rem] rounded-xl border border-white/70 bg-white/75 px-2.5 py-2 dark:border-slate-700/70 dark:bg-slate-800/75">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              Price
+            </p>
+            <p className="text-base font-bold text-slate-800 dark:text-white">৳{product.price}</p>
+          </div>
+
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding || isOutOfStock}
+            className="min-h-[48px] flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98] disabled:from-slate-400 disabled:to-slate-500"
+          >
+            {isOutOfStock
+              ? 'Out of Stock'
+              : isAdding
+                ? 'Added!'
+                : quantityInCart > 0
+                  ? `Add More (${quantityInCart})`
+                  : 'Add to Cart'}
+          </button>
+
+          <button
+            onClick={handleWishlistClick}
+            className={`min-h-[48px] min-w-[48px] rounded-xl border-2 transition-colors active:scale-[0.98] ${
+              isWishlisted
+                ? 'border-red-500 bg-red-500 text-white'
+                : 'border-slate-300 bg-white/80 text-slate-600 dark:border-slate-600 dark:bg-slate-800/75 dark:text-slate-300'
+            }`}
+            aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+          >
+            <HeartIcon className="mx-auto h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
     </main>
   );
 };

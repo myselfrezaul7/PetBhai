@@ -57,16 +57,21 @@ const HomePage: React.FC = () => {
       </section>
 
       <section className="container mx-auto px-4 pb-5 md:px-6 md:pb-8" aria-label="Quick actions">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[1.75rem] font-bold leading-none text-slate-900">Quick Actions</h2>
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Swipe</span>
+        </div>
+        <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
           <motion.div
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.5, delay: 0.04 }}
+            className="w-[84%] min-w-[16rem] shrink-0 snap-start"
           >
           <Link
             to="/shop"
-            className="block rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
+            className="block min-h-[126px] rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
           >
             <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -83,10 +88,11 @@ const HomePage: React.FC = () => {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.5, delay: 0.12 }}
+            className="w-[84%] min-w-[16rem] shrink-0 snap-start"
           >
           <Link
             to="/services"
-            className="block rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
+            className="block min-h-[126px] rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
           >
             <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-100 text-orange-700">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -99,7 +105,7 @@ const HomePage: React.FC = () => {
           </motion.div>
 
           <motion.div
-            className="col-span-2"
+            className="w-[92%] min-w-[17.5rem] shrink-0 snap-start"
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
@@ -107,7 +113,7 @@ const HomePage: React.FC = () => {
           >
           <Link
             to="/adopt"
-            className="relative block overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
+            className="relative block min-h-[126px] overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/72 p-4 shadow-[0_10px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(30,64,175,0.14)]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

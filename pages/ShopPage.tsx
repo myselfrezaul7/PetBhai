@@ -50,6 +50,8 @@ const ShopPage: React.FC = () => {
   const [activeWeight, setActiveWeight] = useState<string>('All');
   const [minRating, setMinRating] = useState<number>(0);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isMobileAdvancedOpen, setIsMobileAdvancedOpen] = useState(false);
 
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -159,6 +161,19 @@ const ShopPage: React.FC = () => {
     setMinRating(0);
     setSortOption('default');
   }, []);
+
+  useEffect(() => {
+    if (!isFilterSheetOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFilterSheetOpen]);
 
   const sortedAndFilteredProducts = useMemo(() => {
     if (loading) return [];
@@ -328,7 +343,7 @@ const ShopPage: React.FC = () => {
         )}
 
         {/* Filters & Sorting */}
-        <div className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 space-y-4 sm:space-y-6 sticky top-20 z-20 border border-white/35 dark:border-white/10 bg-white/55 dark:bg-slate-900/40 backdrop-blur-xl shadow-xl">
+        <div className="glass-card-ios mb-8 space-y-4 border border-white/35 bg-white/55 p-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/40 md:sticky md:top-20 md:mb-12 md:space-y-6 md:p-6">
           {/* Search Bar */}
           <div className="relative max-w-lg mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
@@ -376,8 +391,44 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
 
+          <div className="md:hidden flex items-center justify-between gap-3 border-t border-white/40 pt-4 dark:border-slate-700/60">
+            <button
+              onClick={() => setIsFilterSheetOpen(true)}
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors active:scale-95 dark:bg-slate-100 dark:text-slate-900"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                />
+              </svg>
+              Filter & Sort
+              {activeFiltersCount > 0 && (
+                <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold leading-none text-slate-900">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={resetAllFilters}
+                className="text-xs font-semibold text-orange-500 underline underline-offset-2"
+              >
+                {t('shop_clear_filters')}
+              </button>
+            )}
+          </div>
+
           {/* Brand, Sort & Advanced Filters Toggle */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-white/40 dark:border-slate-700/60">
+          <div className="hidden md:flex flex-col items-stretch justify-center gap-3 border-t border-white/40 pt-4 dark:border-slate-700/60 sm:flex-row sm:items-center sm:gap-4 sm:pt-6">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="brand-filter"
@@ -485,7 +536,7 @@ const ShopPage: React.FC = () => {
           {/* Advanced Filters Panel */}
           <div
             id="advanced-filters"
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${
+            className={`hidden overflow-hidden transition-all duration-500 ease-in-out md:block ${
               showAdvancedFilters
                 ? 'max-h-[70dvh] md:max-h-[500px] opacity-100 overflow-y-auto overscroll-contain'
                 : 'max-h-0 opacity-0'
@@ -744,6 +795,182 @@ const ShopPage: React.FC = () => {
       {/* Quick View Modal */}
       {selectedProduct && (
         <ProductQuickViewModal product={selectedProduct} onClose={handleCloseQuickView} />
+      )}
+
+      {isFilterSheetOpen && (
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Filters and sorting">
+          <button
+            type="button"
+            onClick={() => setIsFilterSheetOpen(false)}
+            className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm"
+            aria-label="Close filter overlay"
+          />
+
+          <aside className="safe-bottom absolute bottom-0 left-0 right-0 max-h-[84dvh] overflow-y-auto rounded-t-[2rem] border-t border-white/70 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(236,243,255,0.93))] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 shadow-[0_-18px_48px_rgba(15,23,42,0.24)] dark:border-slate-700/70 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.96),rgba(30,41,59,0.93))]">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Filter Products</h2>
+              <button
+                type="button"
+                onClick={() => setIsFilterSheetOpen(false)}
+                className="min-h-[44px] min-w-[44px] rounded-full text-slate-500"
+                aria-label="Close filters"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <label htmlFor="brand-filter-mobile" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {t('filter_brand')}
+                </label>
+                <select
+                  id="brand-filter-mobile"
+                  value={activeBrand}
+                  onChange={handleBrandChange}
+                  className="w-full rounded-lg border border-slate-300 bg-white/70 px-3 py-2.5 text-sm dark:border-slate-600 dark:bg-slate-700/50"
+                >
+                  <option value="All">{t('filter_brand_all')}</option>
+                  {brands.map((brand) => (
+                    <option key={brand.id} value={brand.name}>
+                      {brand.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort-by-mobile" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {t('filter_sort')}
+                </label>
+                <select
+                  id="sort-by-mobile"
+                  value={sortOption}
+                  onChange={handleSortChange}
+                  className="w-full rounded-lg border border-slate-300 bg-white/70 px-3 py-2.5 text-sm dark:border-slate-600 dark:bg-slate-700/50"
+                >
+                  <option value="default">{t('filter_sort_default')}</option>
+                  <option value="price-asc">{t('filter_sort_price_asc')}</option>
+                  <option value="price-desc">{t('filter_sort_price_desc')}</option>
+                  <option value="rating-desc">{t('filter_sort_rating')}</option>
+                  <option value="top-sold">{t('filter_sort_top_sold')}</option>
+                </select>
+              </div>
+
+              <button
+                onClick={() => setIsMobileAdvancedOpen((prev) => !prev)}
+                className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-white/70 bg-white/70 px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-700/70 dark:bg-slate-900/65 dark:text-slate-200"
+              >
+                <span>Advanced Filters</span>
+                <span>{isMobileAdvancedOpen ? 'Hide' : 'Show'}</span>
+              </button>
+
+              {isMobileAdvancedOpen && (
+                <div className="space-y-4 rounded-2xl border border-white/70 bg-white/70 p-3 dark:border-slate-700/70 dark:bg-slate-900/65">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      {t('filter_price_range')}
+                    </label>
+                    <p className="text-xs font-semibold text-orange-600 dark:text-orange-300">
+                      ৳{priceRange[0].toLocaleString('en-BD')} - ৳{priceRange[1].toLocaleString('en-BD')}
+                    </p>
+                    <input
+                      type="range"
+                      min={PRICE_MIN}
+                      max={PRICE_MAX}
+                      step={10}
+                      value={priceRange[0]}
+                      aria-label="Minimum price"
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setPriceRange((prev) => [Math.min(val, prev[1] - 10), prev[1]]);
+                      }}
+                      className="w-full accent-orange-500"
+                    />
+                    <input
+                      type="range"
+                      min={PRICE_MIN}
+                      max={PRICE_MAX}
+                      step={10}
+                      value={priceRange[1]}
+                      aria-label="Maximum price"
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setPriceRange((prev) => [prev[0], Math.max(val, prev[0] + 10)]);
+                      }}
+                      className="w-full accent-orange-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="weight-filter-mobile" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      {t('filter_weight')}
+                    </label>
+                    <select
+                      id="weight-filter-mobile"
+                      value={activeWeight}
+                      onChange={(e) => setActiveWeight(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-white/70 px-3 py-2.5 text-sm dark:border-slate-600 dark:bg-slate-700/50"
+                    >
+                      <option value="All">{t('filter_weight_all')}</option>
+                      {weightOptions.map((w) => (
+                        <option key={w} value={w}>
+                          {w}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">{t('filter_min_rating')}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {[0, 1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setMinRating(star)}
+                          className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
+                            minRating === star
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                          }`}
+                        >
+                          {star === 0 ? t('filter_min_rating_all') : `${star}★+`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={resetAllFilters}
+                  className="min-h-[44px] rounded-xl border border-orange-200 bg-orange-50 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-orange-900/20 dark:text-orange-300"
+                >
+                  {t('shop_clear_filters')}
+                </button>
+                <button
+                  onClick={() => setIsFilterSheetOpen(false)}
+                  className="min-h-[44px] rounded-xl bg-slate-900 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
       )}
     </>
   );

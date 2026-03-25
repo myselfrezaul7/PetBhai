@@ -7,6 +7,29 @@ type ServiceTab = 'Vets' | 'Groomers' | 'Trainers' | 'Sitters';
 // Tab options for consistency
 const SERVICE_TABS: ServiceTab[] = ['Vets', 'Groomers', 'Trainers', 'Sitters'];
 
+const SERVICE_PREVIEWS: Record<ServiceTab, Array<{ title: string; subtitle: string; icon: string }>> = {
+  Vets: [
+    { title: 'Home Consultation', subtitle: 'Doctor visits your home in Dhaka zones', icon: '🩺' },
+    { title: 'Video Vet Session', subtitle: 'Quick telehealth follow-up for mild issues', icon: '📹' },
+    { title: 'Emergency Support', subtitle: 'Priority queue for urgent requests', icon: '🚑' },
+  ],
+  Groomers: [
+    { title: 'At-Home Grooming', subtitle: 'Bath, trim, and hygiene care at your doorstep', icon: '✂️' },
+    { title: 'Spa & Coat Care', subtitle: 'Skin-safe treatment for sensitive pets', icon: '🫧' },
+    { title: 'Nail & Ear Care', subtitle: 'Quick maintenance appointments', icon: '🐾' },
+  ],
+  Trainers: [
+    { title: 'Puppy Basics', subtitle: 'Leash, potty, and social behavior training', icon: '🎯' },
+    { title: 'Behavior Reset', subtitle: 'Targeted plans for barking and anxiety', icon: '🧠' },
+    { title: 'Obedience Program', subtitle: 'Structured 4-week guided sessions', icon: '🏅' },
+  ],
+  Sitters: [
+    { title: 'Drop-In Sitting', subtitle: 'Daily check-ins and meal support', icon: '🏠' },
+    { title: 'Overnight Care', subtitle: 'Trusted pet companion through the night', icon: '🌙' },
+    { title: 'Walk & Play', subtitle: 'Walk sessions for active dogs', icon: '🐕' },
+  ],
+};
+
 // Memoized tab button component
 const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => void }>(
   ({ label, isActive, onClick }) => {
@@ -40,11 +63,10 @@ const ServicesPage: React.FC = () => {
     setLocationFilter(e.target.value);
   }, []);
 
-  // All services are currently in "Coming Soon" state
-  const isComingSoon = true;
+  const servicePreview = SERVICE_PREVIEWS[activeTab];
 
   return (
-    <div className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+    <main className="container mx-auto px-3 pb-28 pt-8 md:px-6 md:py-16">
       <header className="text-center mb-8 md:mb-12 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8">
         <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
           Trusted Professionals
@@ -99,18 +121,42 @@ const ServicesPage: React.FC = () => {
         </div>
       </div>
 
-      {isComingSoon && (
-        <div className="text-center py-16 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl">
-          <div className="text-6xl mb-6">🚧</div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-4">
-            Coming Soon!
-          </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-md mx-auto mb-6">
-            We're working hard to bring you the best {activeTab.toLowerCase()} in Bangladesh. Stay
-            tuned!
-          </p>
-        </div>
-      )}
+      <section className="space-y-3">
+        {servicePreview.map((service) => (
+          <article
+            key={service.title}
+            className="glass-card-ios rounded-2xl border border-white/35 bg-white/55 p-4 shadow-md backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/40"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-2xl dark:bg-slate-800/75">
+                <span aria-hidden="true">{service.icon}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{service.title}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{service.subtitle}</p>
+              </div>
+              <Link
+                to="/services/booking"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-orange-500 text-white shadow-sm transition-colors hover:bg-orange-600"
+                aria-label={`Request ${service.title}`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </Link>
+            </div>
+          </article>
+        ))}
+      </section>
 
       {/* Specialized Services CTA */}
       <div className="mt-16 text-center">
@@ -132,7 +178,16 @@ const ServicesPage: React.FC = () => {
           </Link>
         </div>
       </div>
-    </div>
+
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/65 bg-white/90 px-3 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/90 md:hidden">
+        <Link
+          to="/services/booking"
+          className="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg"
+        >
+          Request {activeTab} Service
+        </Link>
+      </div>
+    </main>
   );
 };
 

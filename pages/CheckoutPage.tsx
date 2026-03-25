@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -53,6 +53,11 @@ const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [isSocialLoading, setIsSocialLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const cartTotal = useMemo(
+    () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
+    [cartItems]
+  );
 
   useEffect(() => {
     // Redirect to shop if cart is empty
@@ -301,7 +306,7 @@ const CheckoutPage: React.FC = () => {
   }, [socialLogin, toast]);
 
   return (
-    <main className="container mx-auto px-4 py-8 sm:py-12">
+    <main className="container mx-auto px-4 pb-32 pt-8 sm:pb-12 sm:pt-12">
       <header className="text-center mb-6 sm:mb-10 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-5 md:p-8 max-w-5xl mx-auto">
         <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
           Secure Checkout
@@ -345,7 +350,7 @@ const CheckoutPage: React.FC = () => {
             </>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form id="checkout-form" onSubmit={handleSubmit} className="space-y-5">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
               Contact & Shipping
             </h2>
@@ -367,7 +372,7 @@ const CheckoutPage: React.FC = () => {
                 autoComplete="name"
                 data-invalid={Boolean(formErrors.name)}
                 aria-describedby={formErrors.name ? 'name-error' : undefined}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
+                className={`h-14 w-full rounded-lg border bg-white/50 px-4 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.name
                     ? 'border-red-500 dark:border-red-500'
                     : 'border-slate-300 dark:border-slate-600'
@@ -400,7 +405,7 @@ const CheckoutPage: React.FC = () => {
                 enterKeyHint="next"
                 data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
+                className={`h-14 w-full rounded-lg border bg-white/50 px-4 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.phone
                     ? 'border-red-500 dark:border-red-500'
                     : 'border-slate-300 dark:border-slate-600'
@@ -432,7 +437,7 @@ const CheckoutPage: React.FC = () => {
                 placeholder="e.g. House No, Road No, Area, District"
                 data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation resize-none ${
+                className={`min-h-[112px] w-full resize-none rounded-lg border bg-white/50 px-4 py-3 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.address
                     ? 'border-red-500 dark:border-red-500'
                     : 'border-slate-300 dark:border-slate-600'
@@ -466,7 +471,7 @@ const CheckoutPage: React.FC = () => {
                 enterKeyHint="done"
                 data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-slate-700/50 touch-manipulation ${
+                className={`h-14 w-full rounded-lg border bg-white/50 px-4 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
                   formErrors.email
                     ? 'border-red-500 dark:border-red-500'
                     : 'border-slate-300 dark:border-slate-600'
@@ -542,7 +547,7 @@ const CheckoutPage: React.FC = () => {
                 </label>
               </div>
             </div>
-            <div className="pt-4">
+            <div className="hidden pt-4 md:block">
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -629,6 +634,28 @@ const CheckoutPage: React.FC = () => {
             </div>
           </div>
         </aside>
+      </div>
+
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/60 bg-white/90 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/90 md:hidden">
+        <div className="mx-auto flex max-w-3xl items-center gap-3">
+          <div className="min-w-[8rem] rounded-xl border border-white/70 bg-white/75 px-3 py-2 dark:border-slate-700/70 dark:bg-slate-800/70">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              Total
+            </p>
+            <p className="text-base font-bold text-slate-800 dark:text-white">
+              ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            form="checkout-form"
+            disabled={isSubmitting}
+            className="min-h-[50px] flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? 'Processing...' : 'Place Order'}
+          </button>
+        </div>
       </div>
     </main>
   );
