@@ -1,41 +1,46 @@
-import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import React, { useState, useEffect, createContext, useContext, useCallback, useMemo } from 'react';
 import CookiePolicyModal from './CookiePolicyModal';
+import {
+  clearOptionalActivityStorage,
+  COOKIE_CONSENT_KEY,
+  hasOptionalCookieConsent,
+  readCookieConsent,
+  type CookieConsentStatus,
+} from '../lib/cookieConsent';
 
 // --- Context Definition ---
-const COOKIE_CONSENT_KEY = 'petbhai_cookie_consent';
-
-type ConsentStatus = 'necessary' | 'all' | null;
-
 interface CookieConsentContextType {
-  consent: ConsentStatus;
+  consent: CookieConsentStatus;
   setConsent: (consent: 'necessary' | 'all') => void;
+  hasOptionalConsent: boolean;
 }
 
 const CookieConsentContext = createContext<CookieConsentContextType | undefined>(undefined);
 
-const getInitialConsent = (): ConsentStatus => {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    const storedConsent = window.localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (storedConsent === 'necessary' || storedConsent === 'all') {
-      return storedConsent;
-    }
-  }
-  return null;
-};
-
 export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [consent, setConsentState] = useState<ConsentStatus>(getInitialConsent);
+  const [consent, setConsentState] = useState<CookieConsentStatus>(readCookieConsent);
 
   const setConsent = useCallback((newConsent: 'necessary' | 'all') => {
     try {
       window.localStorage.setItem(COOKIE_CONSENT_KEY, newConsent);
       setConsentState(newConsent);
+
+      if (newConsent === 'necessary') {
+        clearOptionalActivityStorage();
+      }
     } catch (error) {
       console.error('Could not save cookie consent to localStorage', error);
     }
   }, []);
 
-  const value = { consent, setConsent };
+  const value = useMemo(
+    () => ({
+      consent,
+      setConsent,
+      hasOptionalConsent: hasOptionalCookieConsent(consent),
+    }),
+    [consent, setConsent]
+  );
 
   return <CookieConsentContext.Provider value={value}>{children}</CookieConsentContext.Provider>;
 };
@@ -52,7 +57,7 @@ export const useCookieConsent = () => {
 const CookieConsentBanner: React.FC = () => {
   const { consent, setConsent } = useCookieConsent();
   const [isVisible, setIsVisible] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (consent === null) {
@@ -87,9 +92,9 @@ const CookieConsentBanner: React.FC = () => {
         >
           <div className="container mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-slate-700 dark:text-slate-200 text-center md:text-left">
-              We use cookies to improve your experience. "Necessary only" uses cookies essential for
-              the site to function. "Accept all" enables additional cookies for analytics and
-              third-party features like live chat.{' '}
+              We use cookies to improve your experience. "Reject optional" keeps only strictly
+              necessary cookies. "Accept all" enables optional activity memory and third-party
+              features like live chat.{' '}
               <button
                 type="button"
                 onClick={handleLearnMoreClick}
@@ -105,7 +110,7 @@ const CookieConsentBanner: React.FC = () => {
                 onClick={() => handleConsent('necessary')}
                 className="px-5 py-2 rounded-full font-semibold text-slate-700 dark:text-slate-200 bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-300/50 dark:hover:bg-slate-600/50 transition-colors"
               >
-                Necessary only
+                Reject optional
               </button>
               <button
                 type="button"

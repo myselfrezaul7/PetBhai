@@ -14,6 +14,7 @@ import ConfirmationModal from './components/ConfirmationModal';
 import { PawIcon, ShoppingCartIcon, HeartIcon } from './components/icons';
 import CartSidebar from './components/CartSidebar';
 import OfflineIndicator from './components/OfflineIndicator';
+import PWAInstallBanner from './components/PWAInstallBanner';
 import { SwipeNavigationProvider } from './hooks/useSwipeNavigation';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import SEO, {
@@ -406,6 +407,7 @@ const AppContent: React.FC = () => {
         <WhatsAppButton />
         {consent === 'all' && <MessengerPlugin />}
       </Suspense>
+      <PWAInstallBanner />
       <BottomNav />
       <ScrollToTop />
       <ScrollToTopOnNavigate />

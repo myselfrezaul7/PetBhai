@@ -6,6 +6,7 @@ import { useCart } from '../contexts/CartContext';
 import { CloseIcon, ShoppingCartIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
+import useHaptics from '../hooks/useHaptics';
 
 interface ProductQuickViewModalProps {
   product: Product | null;
@@ -15,7 +16,11 @@ interface ProductQuickViewModalProps {
 const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, onClose }) => {
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
+  const { triggerHaptic } = useHaptics();
   const [isAdding, setIsAdding] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
+  );
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -26,10 +31,27 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = () => {
+    triggerHaptic('medium');
     setIsAdding(true);
     addToCart(product);
     setTimeout(() => setIsAdding(false), 800);
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const handleMediaChange = (event: MediaQueryListEvent) => {
+      setIsDesktop(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleMediaChange);
+    return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
+    };
+  }, []);
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -86,7 +108,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
 
   return (
     <motion.div
-      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-center"
+      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-end md:items-center"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -98,13 +120,25 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
     >
       <motion.div
         ref={modalRef}
-        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[min(92dvh,42rem)] landscape:max-h-[80dvh]"
+        className="bg-white dark:bg-slate-900 rounded-t-3xl md:rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row max-h-[min(92dvh,42rem)] landscape:max-h-[80dvh]"
         onClick={(e) => e.stopPropagation()}
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.98 }}
+        initial={isDesktop ? { opacity: 0, y: 20, scale: 0.98 } : { opacity: 0, y: 80 }}
+        animate={isDesktop ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: 0 }}
+        exit={isDesktop ? { opacity: 0, y: 20, scale: 0.98 } : { opacity: 0, y: 90 }}
         transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+        drag={isDesktop ? false : 'y'}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={isDesktop ? 0 : 0.2}
+        dragMomentum={false}
+        onDragEnd={(_, info) => {
+          if (!isDesktop && info.offset.y > 120) {
+            onClose();
+          }
+        }}
       >
+        {!isDesktop && (
+          <div className="absolute left-1/2 top-2.5 z-20 h-1.5 w-12 -translate-x-1/2 rounded-full bg-slate-300/90 dark:bg-slate-600/90" />
+        )}
         <button
           ref={closeButtonRef}
           type="button"

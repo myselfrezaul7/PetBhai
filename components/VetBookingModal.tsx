@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Vet } from '../types';
 import { CloseIcon } from './icons';
+import useHaptics from '../hooks/useHaptics';
 
 interface VetBookingModalProps {
   vet: Vet;
@@ -10,15 +11,20 @@ interface VetBookingModalProps {
 }
 
 const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose }) => {
+  const { triggerHaptic } = useHaptics();
   const [step, setStep] = useState(1);
   const [selectedTime, setSelectedTime] = useState('');
   const [issue, setIssue] = useState('');
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
+  );
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!isOpen) return null;
 
   const handleTimeSelect = (time: string) => {
+    triggerHaptic('light');
     setSelectedTime(time);
     setStep(2);
   };
@@ -31,6 +37,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   };
 
   const handleClose = () => {
+    triggerHaptic('light');
     onClose();
     // Reset state after a short delay to allow closing animation
     setTimeout(() => {
@@ -42,6 +49,22 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
 
   // Temporary static slots until booking availability is served by the backend.
   const timeSlots = ['10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'];
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const handleMediaChange = (event: MediaQueryListEvent) => {
+      setIsDesktop(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleMediaChange);
+    return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -85,7 +108,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
 
   return (
     <motion.div
-      className="safe-modal-padding fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-2xl"
+      className="safe-modal-padding fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-2xl"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -97,13 +120,25 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
     >
       <motion.div
         ref={modalRef}
-        className="glass-card-premium w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto rounded-3xl overscroll-contain landscape:max-h-[80dvh]"
+        className="glass-card-premium w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto rounded-t-3xl md:rounded-3xl overscroll-contain landscape:max-h-[80dvh]"
         onClick={(e) => e.stopPropagation()}
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.98 }}
+        initial={isDesktop ? { opacity: 0, y: 20, scale: 0.98 } : { opacity: 0, y: 80 }}
+        animate={isDesktop ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: 0 }}
+        exit={isDesktop ? { opacity: 0, y: 20, scale: 0.98 } : { opacity: 0, y: 90 }}
         transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+        drag={isDesktop ? false : 'y'}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={isDesktop ? 0 : 0.22}
+        dragMomentum={false}
+        onDragEnd={(_, info) => {
+          if (!isDesktop && info.offset.y > 110) {
+            handleClose();
+          }
+        }}
       >
+        {!isDesktop && (
+          <div className="absolute left-1/2 top-2.5 z-20 h-1.5 w-12 -translate-x-1/2 rounded-full bg-slate-300/90 dark:bg-slate-600/90" />
+        )}
         <div className="p-6 sm:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div className="flex justify-between items-start mb-4">
             <div>

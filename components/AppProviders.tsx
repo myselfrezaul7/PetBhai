@@ -6,6 +6,7 @@ import { ConfirmationProvider } from '../contexts/ConfirmationContext';
 import { ToastProvider } from '../contexts/ToastContext';
 import { ArticleProvider } from '../contexts/ArticleContext';
 import { ProductProvider } from '../contexts/ProductContext';
+import { RecentlyViewedProvider } from '../contexts/RecentlyViewedContext';
 import { VetProvider } from '../contexts/VetContext';
 import { AnimalProvider } from '../contexts/AnimalContext';
 import { BrandProvider } from '../contexts/BrandContext';
@@ -44,6 +45,7 @@ const AppProviders = composeProviders(
   ToastProvider,
   ArticleProvider,
   ProductProvider,
+  RecentlyViewedProvider,
   VetProvider,
   AnimalProvider,
   BrandProvider,

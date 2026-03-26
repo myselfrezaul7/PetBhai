@@ -16,8 +16,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const sidebarRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const touchStartYRef = useRef<number | null>(null);
-  const touchCurrentYRef = useRef<number | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchCurrentXRef = useRef<number | null>(null);
 
   // Focus management for accessibility
   useEffect(() => {
@@ -117,26 +117,26 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   }, [confirm, clearCart]);
 
   const handleTouchStart = useCallback((event: React.TouchEvent<HTMLElement>) => {
-    touchStartYRef.current = event.touches[0]?.clientY ?? null;
-    touchCurrentYRef.current = touchStartYRef.current;
+    touchStartXRef.current = event.touches[0]?.clientX ?? null;
+    touchCurrentXRef.current = touchStartXRef.current;
   }, []);
 
   const handleTouchMove = useCallback((event: React.TouchEvent<HTMLElement>) => {
-    touchCurrentYRef.current = event.touches[0]?.clientY ?? null;
+    touchCurrentXRef.current = event.touches[0]?.clientX ?? null;
   }, []);
 
   const handleTouchEnd = useCallback(() => {
-    if (touchStartYRef.current === null || touchCurrentYRef.current === null) {
+    if (touchStartXRef.current === null || touchCurrentXRef.current === null) {
       return;
     }
 
-    const deltaY = touchCurrentYRef.current - touchStartYRef.current;
-    if (deltaY > 90) {
+    const deltaX = touchCurrentXRef.current - touchStartXRef.current;
+    if (deltaX > 80) {
       onClose();
     }
 
-    touchStartYRef.current = null;
-    touchCurrentYRef.current = null;
+    touchStartXRef.current = null;
+    touchCurrentXRef.current = null;
   }, [onClose]);
 
   return (
@@ -166,18 +166,23 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
         <div className="flex flex-col h-full">
           {/* Header */}
           <header className="flex items-center justify-between border-b border-white/20 p-5 dark:border-white/10">
-            <h2
-              id="cart-heading"
-              className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"
-            >
-              <ShoppingCartIcon className="w-6 h-6 text-orange-500" />
-              Your Cart
-              {cartCount > 0 && (
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  ({cartCount} {cartCount === 1 ? 'item' : 'items'})
-                </span>
-              )}
-            </h2>
+            <div>
+              <h2
+                id="cart-heading"
+                className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"
+              >
+                <ShoppingCartIcon className="w-6 h-6 text-orange-500" />
+                Your Cart
+                {cartCount > 0 && (
+                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    ({cartCount} {cartCount === 1 ? 'item' : 'items'})
+                  </span>
+                )}
+              </h2>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+                Swipe right to close
+              </p>
+            </div>
             <button
               ref={closeButtonRef}
               type="button"

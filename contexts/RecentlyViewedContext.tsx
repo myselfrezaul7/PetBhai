@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import type { Product } from '../types';
+import {
+  COOKIE_CONSENT_KEY,
+  clearOptionalActivityStorage,
+  hasOptionalCookieConsent,
+  readCookieConsent,
+} from '../lib/cookieConsent';
 
 interface RecentlyViewedContextType {
   recentlyViewed: Product[];
@@ -15,8 +21,13 @@ const MAX_ITEMS = 10;
 export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
 
-  // Load from localStorage on mount
+  // Load from localStorage only when optional consent is granted.
   useEffect(() => {
+    if (!hasOptionalCookieConsent(readCookieConsent())) {
+      setRecentlyViewed([]);
+      return;
+    }
+
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -31,8 +42,13 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
     }
   }, []);
 
-  // Save to localStorage whenever recentlyViewed changes
+  // Save to localStorage only when optional consent is granted.
   useEffect(() => {
+    if (!hasOptionalCookieConsent(readCookieConsent())) {
+      clearOptionalActivityStorage();
+      return;
+    }
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(recentlyViewed));
     } catch (error) {
@@ -40,7 +56,30 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
     }
   }, [recentlyViewed]);
 
+  // React to consent updates from other tabs and remove optional data if rejected.
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key !== COOKIE_CONSENT_KEY) {
+        return;
+      }
+
+      if (!hasOptionalCookieConsent(readCookieConsent())) {
+        setRecentlyViewed([]);
+        clearOptionalActivityStorage();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   const addToRecentlyViewed = useCallback((product: Product) => {
+    if (!hasOptionalCookieConsent(readCookieConsent())) {
+      return;
+    }
+
     setRecentlyViewed((prev) => {
       // Remove the product if it already exists
       const filtered = prev.filter((p) => p.id !== product.id);

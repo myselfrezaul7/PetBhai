@@ -15,6 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { sanitizeInput } from '../lib/security';
 import { useGlobalSearch, type PageResult } from '../hooks/useGlobalSearch';
 import { useCart } from '../contexts/CartContext';
+import { useCookieConsent } from './CookieConsentBanner';
 
 // Extracted outside Header to prevent re-creation on every render
 const MobileNavLink: React.FC<{
@@ -83,6 +84,7 @@ const isAdminUser = (user?: { role?: string; email?: string }): boolean => {
 
 const Header: React.FC = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
+  const { hasOptionalConsent } = useCookieConsent();
   const { products } = useProducts();
   const { articles } = useArticles();
   const { vets } = useVets();
@@ -100,21 +102,16 @@ const Header: React.FC = () => {
   const mobileInputRef = useRef<HTMLInputElement | null>(null);
   const menuTouchStartXRef = useRef<number | null>(null);
   const menuTouchCurrentXRef = useRef<number | null>(null);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchAnnouncement, setSearchAnnouncement] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('petbhai_recent_searches');
-      const parsed = saved ? (JSON.parse(saved) as unknown) : [];
-      return Array.isArray(parsed) ? (parsed.filter((v) => typeof v === 'string') as string[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const deferredQuery = useDeferredValue(searchQuery);
   const computedResults = useGlobalSearch({
@@ -165,15 +162,36 @@ const Header: React.FC = () => {
     };
   }, [profileMenuRef, searchRef]);
 
+  useEffect(() => {
+    if (!hasOptionalConsent) {
+      setRecentSearches([]);
+      localStorage.removeItem('petbhai_recent_searches');
+      return;
+    }
+
+    try {
+      const saved = localStorage.getItem('petbhai_recent_searches');
+      const parsed = saved ? (JSON.parse(saved) as unknown) : [];
+      const normalized = Array.isArray(parsed)
+        ? (parsed.filter((value) => typeof value === 'string') as string[])
+        : [];
+      setRecentSearches(normalized.slice(0, 5));
+    } catch {
+      setRecentSearches([]);
+    }
+  }, [hasOptionalConsent]);
+
   const addToRecentSearches = useCallback((query: string) => {
+    if (!hasOptionalConsent) return;
     if (!query.trim() || query.length < 2) return;
+
     setRecentSearches((prev) => {
       const filtered = prev.filter((s) => s.toLowerCase() !== query.toLowerCase());
       const updated = [query, ...filtered].slice(0, 5);
       localStorage.setItem('petbhai_recent_searches', JSON.stringify(updated));
       return updated;
     });
-  }, []);
+  }, [hasOptionalConsent]);
 
   useEffect(() => {
     setActiveIndex(-1);
@@ -286,7 +304,43 @@ const Header: React.FC = () => {
     setIsSearchActive(false);
     setIsProfileMenuOpen(false);
     setActiveIndex(-1);
+    setIsHeaderHidden(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (tickingRef.current) return;
+
+      tickingRef.current = true;
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const scrollingDown = currentScrollY > lastScrollYRef.current;
+        const scrolledBeyondHeader = currentScrollY > 90;
+
+        if (isMenuOpen || isSearchOpen) {
+          setIsHeaderHidden(false);
+        } else if (scrollingDown && scrolledBeyondHeader) {
+          setIsHeaderHidden(true);
+        } else if (!scrollingDown || currentScrollY < 28) {
+          setIsHeaderHidden(false);
+        }
+
+        lastScrollYRef.current = currentScrollY;
+        tickingRef.current = false;
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isMenuOpen, isSearchOpen]);
+
+  useEffect(() => {
+    if (isMenuOpen || isSearchOpen) {
+      setIsHeaderHidden(false);
+    }
+  }, [isMenuOpen, isSearchOpen]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // Sanitize search input to prevent XSS
@@ -491,7 +545,11 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3 py-3 sm:px-4 sm:py-4 transition-all duration-300">
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 flex justify-center px-3 py-3 sm:px-4 sm:py-4 transition-all duration-300 ${
+          isHeaderHidden ? '-translate-y-[120%] lg:translate-y-0' : 'translate-y-0'
+        }`}
+      >
         <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-full shadow-sm transition-all duration-300">
           
           {/* Logo Section */}
@@ -568,7 +626,7 @@ const Header: React.FC = () => {
                       activeIndex={activeIndex}
                     />
                   ) : (
-                    recentSearches.length > 0 && (
+                    hasOptionalConsent && recentSearches.length > 0 && (
                       <div className="p-2">
                         <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 pt-2">
                           {t('search_recent')}
@@ -787,11 +845,12 @@ const Header: React.FC = () => {
                 isFullScreen={true}
               />
             ) : (
-              recentSearches.length > 0 && (
+              hasOptionalConsent && recentSearches.length > 0 && (
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-slate-500 uppercase">Recent Searches</h3>
                     <button
+                      type="button"
                       onClick={() => {
                         setRecentSearches([]);
                         localStorage.removeItem('petbhai_recent_searches');
