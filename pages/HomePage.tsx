@@ -21,7 +21,7 @@ const HomePage: React.FC = () => {
   );
 
   return (
-    <main className="w-full pb-6 md:pb-12">
+    <main className="w-full pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-12">
       <section className="container mx-auto px-4 pb-6 pt-4 md:px-6 md:pb-10 md:pt-8" aria-label="Hero banner">
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.96 }}
@@ -37,9 +37,9 @@ const HomePage: React.FC = () => {
             decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-tr from-[#0c1633]/72 via-[#0c1633]/36 to-transparent" />
-          <div className="relative z-10 flex min-h-[19rem] items-end">
+          <div className="relative z-10 flex min-h-[15.5rem] items-end sm:min-h-[17rem]">
             <div className="w-full max-w-[17.5rem] rounded-[1.6rem] border border-white/25 bg-white/12 p-5 text-white backdrop-blur-md">
-              <h1 className="text-[2.1rem] font-bold leading-[1.08] tracking-tight md:text-5xl">
+              <h1 className="text-[1.8rem] font-bold leading-[1.08] tracking-tight sm:text-[2rem] md:text-5xl">
                 A Loving Home For Every Animal
               </h1>
               <p className="mt-3 text-base text-white/78">
@@ -56,18 +56,18 @@ const HomePage: React.FC = () => {
         </motion.div>
       </section>
 
-      <section className="container mx-auto px-4 pb-5 md:px-6 md:pb-8" aria-label="Quick actions">
+      <section className="container mx-auto px-4 pb-6 md:px-6 md:pb-8" aria-label="Quick actions">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[1.75rem] font-bold leading-none text-slate-900">Quick Actions</h2>
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Swipe</span>
+          <h2 className="text-[1.55rem] font-bold leading-none text-slate-900">Quick Actions</h2>
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Top Picks</span>
         </div>
-        <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <motion.div
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.5, delay: 0.04 }}
-            className="w-[84%] min-w-[16rem] shrink-0 snap-start"
+            className="w-full"
           >
           <Link
             to="/shop"
@@ -88,7 +88,7 @@ const HomePage: React.FC = () => {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.5, delay: 0.12 }}
-            className="w-[84%] min-w-[16rem] shrink-0 snap-start"
+            className="w-full"
           >
           <Link
             to="/services"
@@ -105,7 +105,7 @@ const HomePage: React.FC = () => {
           </motion.div>
 
           <motion.div
-            className="w-[92%] min-w-[17.5rem] shrink-0 snap-start"
+            className="w-full"
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
@@ -154,7 +154,7 @@ const HomePage: React.FC = () => {
         aria-labelledby="best-sellers-heading"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h2 id="best-sellers-heading" className="text-[2.2rem] font-bold leading-none text-slate-900">
+          <h2 id="best-sellers-heading" className="text-[1.75rem] font-bold leading-none text-slate-900 sm:text-[2rem]">
             {t('section_best_sellers')}
           </h2>
           <Link to="/shop" className="text-base font-semibold text-blue-700">
@@ -174,7 +174,7 @@ const HomePage: React.FC = () => {
             onAction={refetch}
           />
         ) : (
-          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {bestSellers.map((product) => (
               <motion.div
                 key={product.id}
@@ -182,7 +182,7 @@ const HomePage: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.45, delay: 0.04 }}
-                className="w-[48%] min-w-[9.8rem] shrink-0 snap-start"
+                className="w-full"
               >
                 <ProductCard product={product} variant="mobile-featured" />
               </motion.div>
@@ -196,10 +196,10 @@ const HomePage: React.FC = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="container mx-auto px-4 pb-4 md:px-6"
+        className="container mx-auto px-4 pb-2 md:px-6"
         aria-labelledby="new-arrivals-heading"
       >
-        <h2 id="new-arrivals-heading" className="mb-4 text-[2.2rem] font-bold leading-none text-slate-900">
+        <h2 id="new-arrivals-heading" className="mb-4 text-[1.75rem] font-bold leading-none text-slate-900 sm:text-[2rem]">
           {t('section_new_arrivals')}
         </h2>
 

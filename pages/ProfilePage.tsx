@@ -13,6 +13,7 @@ import VaccinationReminder from '../components/VaccinationReminder';
 import PetTools from '../components/PetTools';
 import Avatar from '../components/Avatar';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const REORDER_THRESHOLD_DAYS = 15;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -444,16 +445,36 @@ const ProfilePage: React.FC = () => {
     return null;
   }
 
-  const tabs: Array<{ id: ProfileTab; label: string }> = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'profile', label: 'Edit Profile' },
-    { id: 'address', label: 'Address' },
-    { id: 'security', label: 'Security' },
-    { id: 'pets', label: `My Pets (${pets.length})` },
-    { id: 'vaccinations', label: '🐾 Vaccinations' },
-    { id: 'tools', label: '✨ Tools' },
-    { id: 'wishlist', label: `Wishlist (${wishlistedProducts.length})` },
-    { id: 'orders', label: `Orders (${currentUser.orderHistory.length})` },
+  const tabs: Array<{ id: ProfileTab; label: string; mobileLabel: string; hint: string }> = [
+    { id: 'overview', label: 'Overview', mobileLabel: 'Overview', hint: 'Quick snapshot' },
+    { id: 'profile', label: 'Edit Profile', mobileLabel: 'Profile', hint: 'Personal details' },
+    { id: 'address', label: 'Address', mobileLabel: 'Address', hint: 'Shipping info' },
+    { id: 'security', label: 'Security', mobileLabel: 'Security', hint: 'Password and account' },
+    {
+      id: 'pets',
+      label: `My Pets (${pets.length})`,
+      mobileLabel: 'My Pets',
+      hint: 'Profiles and care logs',
+    },
+    {
+      id: 'vaccinations',
+      label: 'Vaccinations',
+      mobileLabel: 'Vaccines',
+      hint: 'Upcoming reminders',
+    },
+    { id: 'tools', label: 'Pet Tools', mobileLabel: 'Tools', hint: 'Smart utilities' },
+    {
+      id: 'wishlist',
+      label: `Wishlist (${wishlistedProducts.length})`,
+      mobileLabel: 'Wishlist',
+      hint: 'Saved favorites',
+    },
+    {
+      id: 'orders',
+      label: `Orders (${currentUser.orderHistory.length})`,
+      mobileLabel: 'Orders',
+      hint: 'Track and reorder',
+    },
   ];
 
   const memberSince = useMemo(() => {
@@ -495,7 +516,7 @@ const ProfilePage: React.FC = () => {
   ]);
 
   return (
-    <main className="min-h-screen container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <main className="min-h-screen container mx-auto px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:pb-12 sm:pt-12">
       <div className="max-w-6xl mx-auto space-y-6">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-6">
           <div
@@ -591,22 +612,41 @@ const ProfilePage: React.FC = () => {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4">
-          <aside className="flex gap-2 overflow-x-auto rounded-3xl border border-white/70 bg-white/70 p-2 shadow-lg shadow-slate-200/50 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 lg:flex-col lg:overflow-visible sm:p-3">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-3 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'bg-slate-950 text-white shadow-sm'
-                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/80 dark:hover:bg-slate-800/70'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-[240px_1fr]">
+          <aside className="rounded-3xl border border-white/70 bg-white/70 p-3 shadow-lg shadow-slate-200/50 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 sm:p-4">
+            <div className="mb-3 lg:hidden">
+              <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                Profile Sections
+              </p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+                Choose a section to manage your account smoothly.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? 'border-slate-900 bg-slate-950 text-white shadow-[0_10px_20px_rgba(15,23,42,0.2)] dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                      : 'border-white/80 bg-white/70 text-slate-700 hover:bg-white/90 dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800/80'
+                  }`}
+                >
+                  <p className="text-sm font-semibold leading-tight lg:text-[0.92rem]">{tab.mobileLabel}</p>
+                  <p
+                    className={`mt-1 text-[0.72rem] leading-tight ${
+                      activeTab === tab.id
+                        ? 'text-white/80 dark:text-slate-700'
+                        : 'text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    {tab.hint}
+                  </p>
+                </button>
+              ))}
+            </div>
           </aside>
 
           <div className="rounded-3xl border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 sm:p-6 md:p-8">
@@ -621,6 +661,14 @@ const ProfilePage: React.FC = () => {
               </p>
             )}
 
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 20, y: 4 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0, x: -16, y: 4 }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
+              >
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 <div>
@@ -1095,6 +1143,8 @@ const ProfilePage: React.FC = () => {
                 <PetTools />
               </div>
             )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </section>
       </div>

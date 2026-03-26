@@ -710,49 +710,33 @@ const Header: React.FC = () => {
               >
                 <SearchIcon className="w-6 h-6" />
               </button>
-              {isAuthenticated && currentUser ? (
-                <button
-                  type="button"
-                  onClick={() => navigate('/profile')}
-                  className="h-10 w-10 overflow-hidden rounded-full ring-2 ring-blue-100 dark:ring-blue-900"
-                  aria-label="Open profile"
+              <button
+                type="button"
+                onClick={openCart}
+                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
+                aria-label={`Open cart with ${cartCount} items`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
                 >
-                  <Avatar
-                    src={currentUser.profilePictureUrl}
-                    name={currentUser.name}
-                    size="sm"
-                    showPlusBadge={false}
-                  />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={openCart}
-                  className="relative min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
-                  aria-label={`Open cart with ${cartCount} items`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="9" cy="21" r="1" />
-                    <circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                  </svg>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </span>
-                  )}
-                </button>
-              )}
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                </svg>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </nav>
@@ -864,7 +848,7 @@ const Header: React.FC = () => {
             />
 
             <motion.aside
-              className="safe-top safe-bottom relative h-full w-[88%] max-w-sm rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(233,243,255,0.93))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass dark:border-slate-700/70 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))]"
+              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(233,243,255,0.93))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass dark:border-slate-700/70 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))]"
               variants={menuPanelVariants}
               initial="hidden"
               animate="visible"
@@ -918,9 +902,36 @@ const Header: React.FC = () => {
                     </p>
                   </div>
                 </div>
+
+                {isAuthenticated ? (
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <Link
+                      to="/profile"
+                      onClick={handleMenuClose}
+                      className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-slate-800 transition-colors hover:bg-white dark:border-slate-700/70 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/dashboard"
+                      onClick={handleMenuClose}
+                      className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-slate-800 transition-colors hover:bg-white dark:border-slate-700/70 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Dashboard
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={handleMenuClose}
+                    className="mt-4 flex min-h-[44px] items-center justify-center rounded-xl bg-blue-600 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-blue-700"
+                  >
+                    {t('nav_login')}
+                  </Link>
+                )}
               </motion.div>
 
-              <nav className="space-y-4 pb-4">
+              <nav className="flex-1 space-y-4 overflow-y-auto pb-4 pr-1">
                 {mobileSections.map((section, sectionIndex) => (
                   <motion.div
                     key={section.title}
@@ -950,19 +961,6 @@ const Header: React.FC = () => {
                 initial="hidden"
                 animate="visible"
               >
-                <Link
-                  to={isAuthenticated ? '/profile' : '/login'}
-                  onClick={handleMenuClose}
-                  className="flex min-h-[56px] items-center gap-4 rounded-2xl border border-white/70 bg-white/65 px-4 py-3 text-[1.05rem] font-semibold text-slate-700 transition-colors hover:bg-white/90 dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800/90"
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-800/80">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c-3.31 0-6 1.79-6 4v1h12v-1c0-2.21-2.69-4-6-4z" />
-                    </svg>
-                  </span>
-                  {isAuthenticated ? t('nav_profile') : t('nav_login')}
-                </Link>
-
                 {isAuthenticated ? (
                   <button
                     type="button"
@@ -980,7 +978,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/signup"
                     onClick={handleMenuClose}
-                    className="flex min-h-[56px] items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-[1.05rem] font-bold text-white shadow-md transition-colors hover:bg-blue-700"
+                    className="flex min-h-[56px] items-center justify-center rounded-2xl border border-blue-600 bg-blue-600 px-4 py-3 text-[1.05rem] font-bold text-white shadow-md transition-colors hover:bg-blue-700"
                   >
                     {t('nav_signup')}
                   </Link>
