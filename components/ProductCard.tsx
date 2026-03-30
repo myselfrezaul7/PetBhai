@@ -65,7 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         to={`/product/${product.id}`}
         className="group relative flex items-center gap-3 rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 shadow-[0_12px_26px_rgba(0,0,0,0.04)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(0,0,0,0.08)] dark:border-amber-100/10 dark:bg-zinc-900/95"
       >
-        <img loading='lazy' decoding='async'
+        <img 
           src={product.imageUrl}
           alt={product.name}
           className={`h-20 w-20 shrink-0 rounded-2xl object-cover transition-all duration-500 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
@@ -116,7 +116,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
     return (
       <div className="group relative overflow-hidden rounded-[2rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-2 shadow-[0_14px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm dark:border-amber-100/10 dark:bg-zinc-900/95">
         <Link to={`/product/${product.id}`} className="block overflow-hidden rounded-[1.5rem]">
-          <img loading='lazy' decoding='async'
+          <img 
             src={product.imageUrl}
             alt={product.name}
             className={`aspect-[4/5] w-full object-cover transition-all duration-700 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
@@ -162,7 +162,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         to={`/product/${product.id}`}
         className="relative block overflow-hidden aspect-[4/3] sm:aspect-square"
       >
-        <img loading='lazy' decoding='async'
+        <img 
           src={product.imageUrl}
           alt={product.name}
           className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}

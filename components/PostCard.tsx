@@ -530,7 +530,7 @@ const PostCard: React.FC<PostCardProps> = ({
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-md">
                 {post.author.profilePictureUrl ? (
-                  <img loading='lazy' decoding='async' 
+                  <img  
                     src={post.author.profilePictureUrl}
                     alt={post.author.name}
                     className="w-full h-full object-cover"
@@ -651,7 +651,7 @@ const PostCard: React.FC<PostCardProps> = ({
             tabIndex={0}
             aria-label="View full image"
           >
-            <img loading='lazy' decoding='async' 
+            <img  
               src={post.imageUrl}
               alt="Post content"
               className="w-full max-h-[400px] sm:max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
@@ -737,7 +737,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 <div className="flex items-start gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                     {currentUser.profilePictureUrl ? (
-                      <img loading='lazy' decoding='async' 
+                      <img  
                         src={currentUser.profilePictureUrl}
                         alt="You"
                         className="w-full h-full object-cover"
@@ -826,7 +826,7 @@ const PostCard: React.FC<PostCardProps> = ({
                       <div className="flex items-start space-x-3">
                         <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                           {comment.author.profilePictureUrl ? (
-                            <img loading='lazy' decoding='async' 
+                            <img  
                               src={comment.author.profilePictureUrl}
                               alt={comment.author.name}
                               className="w-full h-full object-cover"
@@ -945,7 +945,7 @@ const PostCard: React.FC<PostCardProps> = ({
                               >
                                 <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                                   {reply.author.profilePictureUrl ? (
-                                    <img loading='lazy' decoding='async' 
+                                    <img  
                                       src={reply.author.profilePictureUrl}
                                       alt={reply.author.name}
                                       className="w-full h-full object-cover"
@@ -1068,7 +1068,7 @@ const PostCard: React.FC<PostCardProps> = ({
                           <div className="flex items-start gap-2 sm:gap-3">
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                               {currentUser.profilePictureUrl ? (
-                                <img loading='lazy' decoding='async' 
+                                <img  
                                   src={currentUser.profilePictureUrl}
                                   alt="You"
                                   className="w-full h-full object-cover"
@@ -1166,7 +1166,7 @@ const PostCard: React.FC<PostCardProps> = ({
           >
             <CloseIcon className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
-          <img loading='lazy' decoding='async' 
+          <img  
             src={post.imageUrl}
             alt="Post content - full size"
             className="max-w-full max-h-[90vh] object-contain rounded-lg select-none"

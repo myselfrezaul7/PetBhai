@@ -5,7 +5,6 @@ import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 
-import BlogHero from '../components/BlogHero';
 
 const BlogPage: React.FC = () => {
   const { articles, loading, error, refetch } = useArticles();
@@ -44,7 +43,6 @@ const BlogPage: React.FC = () => {
   if (loading) {
     return (
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
-        <BlogHero />
         <div className="space-y-8">
           {/* Simulate Featured Article Loading */}
           <div className="mb-12 h-80 bg-slate-200 dark:bg-zinc-900/95 rounded-2xl animate-pulse" />
@@ -57,9 +55,9 @@ const BlogPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-6 py-16 text-center text-zinc-500 dark:text-zinc-400" role="alert">
+      <div className="container mx-auto px-6 py-16 text-center text-zinc-500 dark:text-zinc-200" role="alert">
         <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Blog</h2>
-        <p className="text-zinc-500 dark:text-zinc-400 mb-6">{error}</p>
+        <p className="text-zinc-500 dark:text-zinc-200 mb-6">{error}</p>
         <button
           onClick={() => refetch()}
           className="min-h-[48px] min-w-[120px] px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
@@ -92,8 +90,6 @@ const BlogPage: React.FC = () => {
         url={`${window.location.origin}/#/blog`}
       />
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
-        <BlogHero />
-
         {/* Articles Section */}
         {sortedArticles.length > 0 ? (
           <section aria-label="Blog articles">
@@ -121,8 +117,8 @@ const BlogPage: React.FC = () => {
                       disabled={currentPage === 1}
                       className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         currentPage === 1
-                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-zinc-900/95 dark:text-slate-600'
-                          : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95 dark:text-slate-300'
+                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
                       }`}
                     >
                       Prev
@@ -141,13 +137,13 @@ const BlogPage: React.FC = () => {
 
                         return (
                           <React.Fragment key={page}>
-                            {showEllipsisStart && <span className="text-slate-400 px-1">...</span>}
+                            {showEllipsisStart && <span className="text-zinc-500 dark:text-zinc-300 px-1">...</span>}
                             <button
                               onClick={() => handlePageChange(page)}
                               className={`min-w-[48px] min-h-[48px] w-12 h-12 rounded-lg text-sm font-medium transition-all ${
                                 currentPage === page
                                   ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-md transform scale-105'
-                                  : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                                  : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
                               }`}
                             >
                               {page}
@@ -161,8 +157,8 @@ const BlogPage: React.FC = () => {
                       disabled={currentPage === totalOtherPages}
                       className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         currentPage === totalOtherPages
-                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-zinc-900/95 dark:text-slate-600'
-                          : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95 dark:text-slate-300'
+                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
                       }`}
                     >
                       Next
@@ -174,7 +170,7 @@ const BlogPage: React.FC = () => {
           </section>
         ) : (
           <div className="text-center py-16 px-4 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 rounded-2xl glass-card-ios max-w-2xl mx-auto">
-            <p className="text-xl text-zinc-500 dark:text-zinc-400 font-medium mb-4">No articles found right now.</p>
+            <p className="text-xl text-zinc-500 dark:text-zinc-200 font-medium mb-4">No articles found right now.</p>
             <button
               onClick={() => refetch()}
               className="min-h-[48px] min-w-[120px] px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"

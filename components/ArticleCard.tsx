@@ -23,7 +23,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           className={`relative overflow-hidden bg-slate-200 dark:bg-slate-700 w-full ${isFeatured ? 'h-56 sm:h-72 md:h-80 aspect-video sm:aspect-auto' : 'h-40 sm:h-56 aspect-[4/3] sm:aspect-auto'}`}
         >
           {article.imageUrl ? (
-            <img loading='lazy' decoding='async' 
+            <img  
               src={article.imageUrl}
               alt={article.title}
               className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
@@ -37,7 +37,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               }}
             />
           ) : (
-            <img loading='lazy' decoding='async' 
+            <img  
               src="/blog-images/blog-placeholder.png"
               alt={article.title}
               className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
@@ -69,11 +69,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           </h3>
           {/* Hide description on mobile for standard cards to prevent overlap in 2-col layout */}
           <p
-            className={`text-zinc-500 dark:text-zinc-400 flex-grow text-sm leading-relaxed line-clamp-3 ${!isFeatured ? 'hidden sm:block' : 'block'}`}
+            className={`text-zinc-500 dark:text-zinc-200 flex-grow text-sm leading-relaxed line-clamp-3 ${!isFeatured ? 'hidden sm:block' : 'block'}`}
           >
             {article.content.split('\n')[0]}
           </p>
-          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-zinc-500 dark:text-zinc-200">
             <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 dark:text-zinc-900 dark:text-zinc-50">
               {article.author}
             </span>
