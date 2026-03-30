@@ -655,7 +655,7 @@ const PostCard: React.FC<PostCardProps> = ({
               src={post.imageUrl}
               alt="Post content"
               className="w-full max-h-[400px] sm:max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
-              loading="lazy"
+              
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
               <span className="opacity-0 group-hover:opacity-100 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium transition-opacity">
@@ -1072,7 +1072,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                   src={currentUser.profilePictureUrl}
                                   alt="You"
                                   className="w-full h-full object-cover"
-                                  loading="lazy"
+                                  
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">

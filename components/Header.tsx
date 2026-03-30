@@ -34,8 +34,8 @@ const MobileNavLink: React.FC<{
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
           ? 'bg-amber-500/10 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:bg-amber-500/20 dark:bg-amber-500/20 dark:text-amber-600 dark:text-amber-500 dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
-          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-zinc-50 border-amber-900/10 dark:border-amber-100/10 hover:bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-900/95 dark:text-zinc-900 dark:text-zinc-50 dark:border-amber-100/10 dark:hover:bg-amber-50/80 dark:bg-zinc-800/80'
-      } ${className || ''}`
+          :'bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-zinc-50 border-amber-900/10 dark:border-white/10 hover:bg-amber-50/80 dark:hover:bg-zinc-800/80 backdrop-blur-xl'
+        } ${className || ''}`
     }
   >
     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fdfbf7] dark:bg-zinc-950 text-current dark:bg-[#fdfbf7] dark:bg-zinc-950">
@@ -550,7 +550,7 @@ const Header: React.FC = () => {
           isHeaderHidden ? '-translate-y-[120%] lg:translate-y-0' : 'translate-y-0'
         }`}
       >
-        <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-amber-900/10 dark:border-amber-100/10 rounded-full shadow-sm transition-all duration-300">
+        <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm rounded-full shadow-sm transition-all duration-300">
           
           {/* Logo Section */}
           <NavLink
@@ -907,7 +907,7 @@ const Header: React.FC = () => {
             />
 
             <motion.aside
-              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-white/95 px-5 py-5 shadow-[0_26px_64px_rgba(0,0,0,0.08)] backdrop-blur-glass dark:border-white/10 dark:bg-[linear-gradient(160deg,rgba(9,9,11,0.95),rgba(15,23,42,0.95))] dark:shadow-[0_26px_64px_rgba(0,0,0,0.7)]"
+              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-white/80 px-5 py-5 shadow-[0_26px_64px_rgba(0,0,0,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-900/80 dark:shadow-[0_26px_64px_rgba(0,0,0,0.7)]"
               variants={menuPanelVariants}
               initial="hidden"
               animate="visible"

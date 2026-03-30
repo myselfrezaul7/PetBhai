@@ -41,8 +41,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               src="/blog-images/blog-placeholder.png"
               alt={article.title}
               className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"
-              loading="lazy"
-              decoding="async"
+              
+              
               sizes={isFeatured ? '(max-width: 768px) 100vw, 66vw' : getResponsiveImageSizes('card')}
             />
           )}

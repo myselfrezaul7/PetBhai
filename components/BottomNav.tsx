@@ -62,7 +62,7 @@ const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-[1.85rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 px-2 py-2.5 shadow-[0_18px_46px_rgba(0,0,0,0.12)] backdrop-blur-glass dark:border-amber-100/10 dark:bg-zinc-900/95 md:hidden"
+      className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-full border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 px-2 py-1.5 shadow-lg backdrop-blur-xl md:hidden"
       aria-label="Mobile bottom navigation"
     >
       <ul className="grid grid-cols-4 gap-1">
@@ -77,10 +77,10 @@ const BottomNav: React.FC = () => {
             <li key={item.label}>
               <NavLink
                 to={item.to}
-                className={`group relative isolate flex min-h-[56px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
+                className={`group relative isolate flex min-h-[48px] flex-col items-center justify-center rounded-full px-1 py-1 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
                   isActive
                     ? 'text-amber-600 dark:text-amber-500'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-amber-50/80 dark:bg-zinc-800/80 hover:text-zinc-900 dark:text-zinc-50 dark:text-zinc-500 dark:text-zinc-400 dark:hover:bg-amber-50/80 dark:bg-zinc-800/80 dark:hover:text-zinc-900 dark:text-zinc-50'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-amber-50/80 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-50'
                 }`}
               >
                 {isActive && (

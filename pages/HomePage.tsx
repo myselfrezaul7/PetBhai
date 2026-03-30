@@ -37,12 +37,7 @@ const HomePage: React.FC = () => {
             <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">
               Discover premium care, organic food, and adoption centers near you.
             </p>
-            <Link
-              to="/shop"
-              className="mt-6 inline-flex min-h-[48px] w-full max-w-[16rem] items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 text-[1.1rem] font-bold text-white shadow-lg shadow-amber-900/30 transition-all duration-300 hover:scale-[1.02] active:scale-95"
-            >
-              Explore Now
-            </Link>
+            
           </div>
 
           {/* Hero Image Section After text */}
