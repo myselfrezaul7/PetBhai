@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 const HomeGlyph: React.FC<{ className?: string }> = ({ className }) => (
   <svg
@@ -62,7 +63,9 @@ const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-full border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 px-2 py-1.5 shadow-lg backdrop-blur-xl md:hidden"
+      className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] rounded-full border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 px-2 py-1.5 shadow-lg backdrop-blur-xl md:hidden transition-transform duration-300 ease-in-out ${
+          scrollDirection === 'down' && !isAtTop ? 'translate-y-[150%] -translate-x-1/2' : 'translate-y-0 -translate-x-1/2'
+        }"
       aria-label="Mobile bottom navigation"
     >
       <ul className="grid grid-cols-4 gap-1">

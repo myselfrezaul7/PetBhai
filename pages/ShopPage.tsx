@@ -403,7 +403,7 @@ const ShopPage: React.FC = () => {
 
           {/* Category Filter Buttons */}
           <div
-            className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 md:gap-3 overflow-x-auto pb-1 hide-scrollbar"
+            className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 md:gap-3 overflow-x-auto overflow-y-hidden pb-2 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
             role="group"
             aria-label="Product categories"
           >
@@ -412,41 +412,36 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="md:hidden flex items-center justify-between gap-3 border-t border-amber-900/10 dark:border-amber-100/10 pt-4 dark:border-amber-100/10">
-            <button
-              onClick={() => setIsFilterSheetOpen(true)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors active:scale-95 dark:bg-zinc-900/95 dark:text-slate-900"
-            >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                />
-              </svg>
-              Filter & Sort
-              {activeFiltersCount > 0 && (
-                <span className="rounded-full bg-white/95 dark:bg-zinc-900/95 px-1.5 py-0.5 text-[10px] font-bold leading-none text-slate-900">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </button>
-            {activeFiltersCount > 0 && (
+          
+            {/* Filter & Sort Floating Pill button */}
+            <div className="md:hidden fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-30">
               <button
-                onClick={resetAllFilters}
-                className="text-xs font-semibold text-orange-500 underline underline-offset-2"
+                onClick={() => setIsFilterSheetOpen(true)}
+                className="flex items-center justify-center gap-2 rounded-full bg-slate-900 dark:bg-amber-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl shadow-slate-900/20 transition-transform active:scale-95 hover:scale-105"
               >
-                {t('shop_clear_filters')}
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  />
+                </svg>
+                Filter & Sort
+                {activeFiltersCount > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold leading-none text-white">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </button>
-            )}
-          </div>
+            </div>
+
 
           {/* Brand, Sort & Advanced Filters Toggle */}
           <div className="hidden md:flex flex-col items-stretch justify-center gap-3 border-t border-amber-900/10 dark:border-amber-100/10 pt-4 dark:border-amber-100/10 sm:flex-row sm:items-center sm:gap-4 sm:pt-6">

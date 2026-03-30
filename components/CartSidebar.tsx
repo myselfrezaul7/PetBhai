@@ -153,8 +153,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`safe-top safe-bottom fixed right-0 top-0 z-50 h-full w-full max-w-md transform rounded-l-[2.2rem] border-l border-white/55 bg-white/95 shadow-[0_24px_60px_rgba(0,0,0,0.08)] backdrop-blur-glass transition-all duration-500 ease-out dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`safe-top safe-bottom fixed inset-x-0 bottom-0 top-auto z-50 h-[85vh] w-full transform rounded-t-[2.2rem] border-t border-white/55 bg-white/95 shadow-[0_-24px_60px_rgba(0,0,0,0.15)] backdrop-blur-glass transition-transform duration-500 ease-out dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-full md:w-full md:max-w-md md:rounded-l-[2.2rem] md:rounded-tr-none md:border-l md:border-t-0 md:shadow-[0_24px_60px_rgba(0,0,0,0.08)] ${
+          isOpen ? 'translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-y-0 md:translate-x-full'
         }`}
         role="dialog"
         aria-modal="true"
