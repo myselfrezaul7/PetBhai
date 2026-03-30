@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 interface FAQItemProps {
   question: string;
@@ -81,6 +82,7 @@ const FAQPage: React.FC = () => {
                 processed within 24 hours and you&apos;ll receive tracking information via email.
               </p>
             ),
+              schemaAnswer: 'Browse our shop, add items to your cart, proceed to checkout, and complete payment. Orders are processed within 24 hours and you\'ll receive tracking information via email.',
           },
           {
             id: 'delivery-areas',
@@ -92,6 +94,7 @@ const FAQPage: React.FC = () => {
                 check delivery availability for your area during checkout.
               </p>
             ),
+              schemaAnswer: 'We deliver across Bangladesh including Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Rangpur, Barisal, and other major cities. Delivery times vary by location. You can check delivery availability for your area during checkout.',
           },
           {
             id: 'product-authenticity',
@@ -103,6 +106,7 @@ const FAQPage: React.FC = () => {
                 quality standards, we&apos;ll replace it.
               </p>
             ),
+              schemaAnswer: 'Yes! We guarantee 100% authentic products from verified suppliers. We do not sell counterfeit or expired items. If you receive a product that doesn\'t meet quality standards, we\'ll replace it.',
           },
           {
             id: 'payment-methods',
@@ -113,6 +117,7 @@ const FAQPage: React.FC = () => {
                 areas within Bangladesh.
               </p>
             ),
+              schemaAnswer: 'We accept bKash, Nagad, credit/debit cards, and cash on delivery (COD) for most areas within Bangladesh.',
           },
           {
             id: 'return-policy',
@@ -125,6 +130,7 @@ const FAQPage: React.FC = () => {
                 quality issue.
               </p>
             ),
+              schemaAnswer: 'We accept returns for unopened and unused products within 7 days of purchase. Please contact our customer service with your order number to initiate a return. Note that perishable items like food are generally not eligible for return unless there is a quality issue.',
           },
         ],
       },
@@ -145,6 +151,7 @@ const FAQPage: React.FC = () => {
                 meet-and-greet with the pet.
               </p>
             ),
+              schemaAnswer: 'Visit our Adopt page, browse available pets, fill out the adoption application, and our team will contact you for next steps including an interview, a home check, and a meet-and-greet with the pet.',
           },
           {
             id: 'adoption-fee',
@@ -166,6 +173,7 @@ const FAQPage: React.FC = () => {
                 </p>
               </div>
             ),
+              schemaAnswer: 'PetBhai does not charge any adoption fee. We believe every animal deserves a loving home, not a price tag. However, adopters are expected to: Keep vaccinations up to date, Spay or neuter the adopted pet, Provide a safe and caring environment.',
           },
           {
             id: 'stray-rescue',
@@ -180,6 +188,7 @@ const FAQPage: React.FC = () => {
                 animal&apos;s condition. Your report will alert our rescue team to the situation.
               </p>
             ),
+              schemaAnswer: 'If you find an animal in need of rescue, please fill out our rescue report form immediately. Provide as much detail as possible, including the location and the animal\'s condition. Your report will alert our rescue team to the situation.',
           },
         ],
       },
@@ -199,6 +208,7 @@ const FAQPage: React.FC = () => {
                 video call. You&apos;ll receive advice and prescriptions digitally.
               </p>
             ),
+              schemaAnswer: 'Book a consultation through our Services page, describe your pet\'s symptoms, and connect with a licensed vet via chat or video call. You\'ll receive advice and prescriptions digitally.',
           },
           {
             id: 'ai-vs-vet',
@@ -213,6 +223,7 @@ const FAQPage: React.FC = () => {
                 concerns, always consult a licensed veterinarian.
               </p>
             ),
+              schemaAnswer: 'No. Our AI Assistant provides general pet care guidance only. For medical emergencies or serious health concerns, always consult a licensed veterinarian.',
           },
         ],
       },
@@ -232,6 +243,7 @@ const FAQPage: React.FC = () => {
                 , and our team will get in touch with you about available opportunities.
               </p>
             ),
+              schemaAnswer: 'We are always looking for passionate volunteers! You can help with shelter care, adoption events, transportation, and more. Please fill out our volunteer application form, and our team will get in touch with you about available opportunities.',
           },
           {
             id: 'contact-support',
@@ -249,6 +261,7 @@ const FAQPage: React.FC = () => {
                 . We typically respond within 24 hours.
               </p>
             ),
+              schemaAnswer: 'Use our AI Assistant for instant help, or reach us via email at petbhaibd@gmail.com. We typically respond within 24 hours.',
           },
         ],
       },
@@ -264,8 +277,27 @@ const FAQPage: React.FC = () => {
   // Track cumulative index across sections
   let cumulativeIndex = 0;
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqSections.flatMap(s => s.faqs).map((faq: any) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.schemaAnswer,
+      },
+    })),
+  };
+
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <>
+      <SEO 
+        title="FAQ | PetBhai" 
+        description="Frequently asked questions about PetBhai's services, adoption, shipping, and more."
+        structuredData={faqSchema}
+      />
+      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <header className="text-center mb-8 sm:mb-12 max-w-3xl mx-auto">
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">
           Frequently Asked Questions
@@ -327,6 +359,7 @@ const FAQPage: React.FC = () => {
         </div>
       </div>
     </main>
+    </>
   );
 };
 

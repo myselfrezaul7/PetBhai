@@ -266,6 +266,8 @@ const ProductDetailPage: React.FC = () => {
         currency="BDT"
         availability={product.stockStatus === 'in-stock' ? 'in stock' : 'out of stock'}
         brand={brand?.name}
+        ratingValue={product.rating}
+        reviewCount={product.reviews?.length}
       />
       <article className="glass-card-ios overflow-hidden lg:flex border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl shadow-2xl">
         <div className="lg:w-1/2 p-4 sm:p-6">

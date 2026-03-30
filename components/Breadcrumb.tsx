@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 interface BreadcrumbItem {
   label: string;
@@ -66,9 +67,24 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
     return null;
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: item.path ? `https://petbhai.com${item.path}` : undefined,
+    })),
+  };
+
   return (
-    <nav aria-label="Breadcrumb" className={`py-3 px-4 md:px-6 ${className}`}>
-      <ol
+    <>
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
+      <nav aria-label="Breadcrumb" className={`py-3 px-4 md:px-6 ${className}`}>
+        <ol
         className="flex items-center flex-wrap gap-1 text-sm"
         itemScope
         itemType="https://schema.org/BreadcrumbList"
@@ -119,10 +135,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
         ))}
       </ol>
     </nav>
-  );
-};
-
-// Compact version for mobile or tight spaces
+    </>
 export const BreadcrumbCompact: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
   const location = useLocation();
   const breadcrumbItems = items || generateBreadcrumbs(location.pathname);

@@ -17,6 +17,9 @@ interface SEOProps {
   currency?: string;
   availability?: 'in stock' | 'out of stock' | 'preorder';
   brand?: string;
+  sku?: string | number;
+  ratingValue?: number;
+  reviewCount?: number;
   // Article-specific
   section?: string;
   tags?: string[];
@@ -48,6 +51,9 @@ const SEO: React.FC<SEOProps> = ({
   currency = 'BDT',
   availability,
   brand,
+  sku,
+  ratingValue,
+  reviewCount,
   section,
   tags,
   twitterCard = 'summary_large_image',
@@ -114,6 +120,15 @@ const SEO: React.FC<SEOProps> = ({
         ...baseData,
         '@type': 'Product',
         brand: brand ? { '@type': 'Brand', name: brand } : undefined,
+        sku: sku,
+        aggregateRating:
+          ratingValue && reviewCount
+            ? {
+                '@type': 'AggregateRating',
+                ratingValue,
+                reviewCount,
+              }
+            : undefined,
         offers: {
           '@type': 'Offer',
           price,
@@ -132,6 +147,11 @@ const SEO: React.FC<SEOProps> = ({
       return {
         ...baseData,
         '@type': 'Article',
+        headline: title,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': currentUrl,
+        },
         author: author ? { '@type': 'Person', name: author } : undefined,
         datePublished: publishedTime,
         dateModified: modifiedTime || publishedTime,
@@ -224,14 +244,21 @@ const SEO: React.FC<SEOProps> = ({
         {JSON.stringify(structuredData || getStructuredData())}
       </script>
 
-      {/* Organization Schema */}
+      {/* Organization & LocalBusiness Schema */}
       <script type="application/ld+json">
         {JSON.stringify({
           '@context': 'https://schema.org',
-          '@type': 'Organization',
+          '@type': ['Organization', 'PetStore', 'VeterinaryCare'],
           name: 'PetBhai',
           url: normalizedBaseUrl,
           logo: new URL(`icon-192x192.png?v=${assetVersion}`, normalizedBaseUrl).toString(),
+          image: new URL(`icon-512x512.png?v=${assetVersion}`, normalizedBaseUrl).toString(),
+          description: 'Bangladesh\'s leading pet care platform. Shop premium pet food, supplies, find trusted vets, and adopt pets.',
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Dhaka',
+            addressCountry: 'BD'
+          },
           sameAs: [
             'https://www.facebook.com/petbhaibd',
             'https://www.instagram.com/petbhai_bd',
