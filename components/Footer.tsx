@@ -25,65 +25,67 @@ const Footer: React.FC = () => {
             </a>
           </div>
 
-          <nav aria-label="Quick links">
-            <p className="section-eyebrow">Explore</p>
-            <div className="mt-3 flex flex-col gap-2">
-              <Link to="/shop" className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300">
-                Shop
-              </Link>
-              <Link
-                to="/services"
-                className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
-              >
-                Services
-              </Link>
-              <Link
-                to="/adopt"
-                className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
-              >
-                Adopt
-              </Link>
-              <Link to="/blog" className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300">
-                Blog
-              </Link>
-            </div>
-          </nav>
+          <div className="grid grid-cols-2 gap-6 md:col-span-2 md:gap-10">
+            <nav aria-label="Quick links">
+              <p className="section-eyebrow">Explore</p>
+              <div className="mt-3 flex flex-col gap-2">
+                <Link to="/shop" className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300">
+                  Shop
+                </Link>
+                <Link
+                  to="/services"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
+                  Services
+                </Link>
+                <Link
+                  to="/adopt"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
+                  Adopt
+                </Link>
+                <Link to="/blog" className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300">
+                  Blog
+                </Link>
+              </div>
+            </nav>
 
-          <div>
-            <p className="section-eyebrow">Connect</p>
-            <div className="mt-3 flex items-center gap-2">
-              <a
-                href="https://facebook.com/petbhai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
-                aria-label="Facebook"
-              >
-                <FacebookIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://instagram.com/petbhai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
-                aria-label="Instagram"
-              >
-                <InstagramIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://youtube.com/petbhai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
-                aria-label="YouTube"
-              >
-                <YouTubeIcon className="h-5 w-5" />
-              </a>
+            <div>
+              <p className="section-eyebrow">Connect</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <a
+                  href="https://facebook.com/petbhai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
+                  aria-label="Facebook"
+                >
+                  <FacebookIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </a>
+                <a
+                  href="https://instagram.com/petbhai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
+                  aria-label="Instagram"
+                >
+                  <InstagramIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </a>
+                <a
+                  href="https://youtube.com/petbhai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
+                  aria-label="YouTube"
+                >
+                  <YouTubeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </a>
+              </div>
+              <p className="mt-4 text-xs text-slate-500 dark:text-zinc-300">Payments: bKash, Nagad, COD</p>
+              <Link to="/terms" className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-300">
+                Terms & Conditions
+              </Link>
             </div>
-            <p className="mt-4 text-xs text-slate-500 dark:text-zinc-300">Payments: bKash, Nagad, COD</p>
-            <Link to="/terms" className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-300">
-              Terms & Conditions
-            </Link>
           </div>
         </div>
       </div>
