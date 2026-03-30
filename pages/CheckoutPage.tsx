@@ -516,12 +516,7 @@ const CheckoutPage: React.FC = () => {
                   />
                   <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
                     bKash
-                    <img
-                      src="https://i.ibb.co/27wH07C/bkash.png"
-                      alt="bKash"
-                      className="h-5 ml-2"
-                      loading="lazy"
-                    />
+                    
                   </span>
                 </label>
                 <label
@@ -537,12 +532,7 @@ const CheckoutPage: React.FC = () => {
                   />
                   <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
                     Nagad
-                    <img
-                      src="https://i.ibb.co/qjqBcf5/nagad.png"
-                      alt="Nagad"
-                      className="h-5 ml-2"
-                      loading="lazy"
-                    />
+                    
                   </span>
                 </label>
               </div>

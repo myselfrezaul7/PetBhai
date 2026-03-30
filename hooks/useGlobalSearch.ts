@@ -32,7 +32,7 @@ type UseGlobalSearchArgs = {
   };
 };
 
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 1;
 
 export function useGlobalSearch({
   query,
@@ -65,7 +65,7 @@ export function useGlobalSearch({
 
     return new Fuse(products, {
       includeScore: true,
-      threshold: 0.35,
+      threshold: 0.3,
       ignoreLocation: true,
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'category', 'searchTags'],
@@ -79,7 +79,7 @@ export function useGlobalSearch({
 
     return new Fuse(pages, {
       includeScore: true,
-      threshold: 0.35,
+      threshold: 0.3,
       ignoreLocation: true,
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'keywords'],
@@ -93,7 +93,7 @@ export function useGlobalSearch({
 
     return new Fuse(vets, {
       includeScore: true,
-      threshold: 0.35,
+      threshold: 0.3,
       ignoreLocation: true,
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'specialization', 'clinicName'],
@@ -107,7 +107,7 @@ export function useGlobalSearch({
 
     return new Fuse(limitedArticles, {
       includeScore: true,
-      threshold: 0.35,
+      threshold: 0.3,
       ignoreLocation: true,
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['title', 'content', 'author'],
@@ -121,7 +121,7 @@ export function useGlobalSearch({
 
     return new Fuse(animals, {
       includeScore: true,
-      threshold: 0.35,
+      threshold: 0.3,
       ignoreLocation: true,
       minMatchCharLength: MIN_QUERY_LENGTH,
       keys: ['name', 'breed', 'description'],

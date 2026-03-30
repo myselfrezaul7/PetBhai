@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useDeferredValue, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MenuIcon, CloseIcon, SearchIcon } from './icons';
@@ -113,9 +113,9 @@ const Header: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-  const deferredQuery = useDeferredValue(searchQuery);
+  
   const computedResults = useGlobalSearch({
-    query: deferredQuery,
+    query: searchQuery,
     products,
     pages: ALL_PAGES,
     articles,
@@ -135,9 +135,9 @@ const Header: React.FC = () => {
   );
 
   const isSearching =
-    searchQuery.trim().length >= 2 &&
-    deferredQuery.trim().length >= 2 &&
-    deferredQuery !== searchQuery;
+    searchQuery.trim().length >= 1 &&
+    searchQuery.trim().length >= 1 &&
+    false;
 
   const handleLogout = useCallback(() => {
     logout();
@@ -183,7 +183,7 @@ const Header: React.FC = () => {
 
   const addToRecentSearches = useCallback((query: string) => {
     if (!hasOptionalConsent) return;
-    if (!query.trim() || query.length < 2) return;
+    if (!query.trim() || query.length < 1) return;
 
     setRecentSearches((prev) => {
       const filtered = prev.filter((s) => s.toLowerCase() !== query.toLowerCase());
@@ -196,8 +196,8 @@ const Header: React.FC = () => {
   useEffect(() => {
     setActiveIndex(-1);
 
-    const effectiveQuery = deferredQuery.trim();
-    if (effectiveQuery.length < 2) {
+    const effectiveQuery = searchQuery.trim();
+    if (effectiveQuery.length < 1) {
       setSearchAnnouncement('');
       return;
     }
@@ -219,7 +219,7 @@ const Header: React.FC = () => {
     } else {
       setSearchAnnouncement(`${t('search_no_results')} "${effectiveQuery}"`);
     }
-  }, [deferredQuery, isSearching, searchResults, t]);
+  }, [searchQuery, isSearching, searchResults, t]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isSearchActive) return;
@@ -616,10 +616,10 @@ const Header: React.FC = () => {
               {/* Search Results Dropdown */}
               {isSearchActive && (
                 <div className="absolute top-full right-0 mt-4 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-fade-in origin-top-right z-50">
-                   {searchQuery.length >= 2 ? (
+                   {searchQuery.length >= 1 ? (
                     <SearchResults
                       id="search-results-desktop"
-                      query={deferredQuery}
+                      query={searchQuery}
                       results={searchResults}
                       loading={isSearching}
                       onClose={closeSearchResults}
@@ -834,10 +834,10 @@ const Header: React.FC = () => {
             </button>
           </div>
           <div className="flex-grow overflow-y-auto">
-            {searchQuery.length >= 2 ? (
+            {searchQuery.length >= 1 ? (
               <SearchResults
                 id="search-results-mobile"
-                query={deferredQuery}
+                query={searchQuery}
                 results={searchResults}
                 loading={isSearching}
                 onClose={handleCloseMobileSearch}
