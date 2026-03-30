@@ -33,8 +33,8 @@ const MobileNavLink: React.FC<{
     className={({ isActive }) =>
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
-          ? 'bg-blue-100/70 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 border-blue-200/80 dark:border-blue-700/60 font-semibold shadow-[0_8px_24px_rgba(37,99,235,0.18)]'
-          : 'bg-white/60 text-slate-700 dark:bg-slate-900/70 dark:text-slate-200 border-white/70 dark:border-slate-700/70 hover:bg-white/90 dark:hover:bg-slate-800/90'
+          ? 'bg-blue-100/70 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 border-blue-200/80 dark:border-blue-500/30 font-semibold shadow-[0_8px_24px_rgba(37,99,235,0.18)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
+          : 'bg-white/60 text-slate-700 dark:bg-white/5 dark:text-slate-100 border-white/70 dark:border-white/10 hover:bg-white/90 dark:hover:bg-white/10'
       } ${className || ''}`
     }
   >
@@ -744,7 +744,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleMenuOpen}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
               aria-label="Open menu"
             >
               <MenuIcon className="w-7 h-7" />
@@ -907,7 +907,7 @@ const Header: React.FC = () => {
             />
 
             <motion.aside
-              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(233,243,255,0.93))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass dark:border-slate-700/70 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))]"
+              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(233,243,255,0.93))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass dark:border-white/10 dark:bg-[linear-gradient(160deg,rgba(9,9,11,0.95),rgba(15,23,42,0.95))] dark:shadow-[0_26px_64px_rgba(0,0,0,0.7)]"
               variants={menuPanelVariants}
               initial="hidden"
               animate="visible"
@@ -931,7 +931,7 @@ const Header: React.FC = () => {
               </div>
 
               <motion.div
-                className="mb-6 rounded-3xl border border-white/80 bg-white/70 p-4 backdrop-blur-md shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:border-slate-700/70 dark:bg-slate-900/75"
+                className="mb-6 rounded-3xl border border-white/80 bg-white/70 p-4 backdrop-blur-md shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-white/5 dark:shadow-[0_10px_24px_rgba(0,0,0,0.5)]"
                 custom={0}
                 variants={menuItemVariants}
                 initial="hidden"
@@ -967,14 +967,14 @@ const Header: React.FC = () => {
                     <Link
                       to="/profile"
                       onClick={handleMenuClose}
-                      className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-slate-800 transition-colors hover:bg-white dark:border-slate-700/70 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-slate-800 transition-colors hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10"
                     >
                       Profile
                     </Link>
                     <Link
                       to="/dashboard"
                       onClick={handleMenuClose}
-                      className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-slate-800 transition-colors hover:bg-white dark:border-slate-700/70 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-slate-800 transition-colors hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10"
                     >
                       Dashboard
                     </Link>
