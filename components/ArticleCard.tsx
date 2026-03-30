@@ -23,7 +23,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           className={`relative overflow-hidden bg-slate-200 dark:bg-slate-700 w-full ${isFeatured ? 'h-56 sm:h-72 md:h-80 aspect-video sm:aspect-auto' : 'h-40 sm:h-56 aspect-[4/3] sm:aspect-auto'}`}
         >
           {article.imageUrl ? (
-            <img
+            <img loading='lazy' decoding='async' 
               src={article.imageUrl}
               alt={article.title}
               className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
@@ -37,7 +37,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               }}
             />
           ) : (
-            <img
+            <img loading='lazy' decoding='async' 
               src="/blog-images/blog-placeholder.png"
               alt={article.title}
               className="w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110"

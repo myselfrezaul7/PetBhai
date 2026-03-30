@@ -546,11 +546,11 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 flex justify-center px-3 py-3 sm:px-4 sm:py-4 transition-all duration-300 ${
+        className={`fixed top-[max(env(safe-area-inset-top),0px)] left-0 right-0 z-50 flex justify-center px-3 py-3 sm:px-4 sm:py-4 transition-all duration-300 ${
           isHeaderHidden ? '-translate-y-[120%] lg:translate-y-0' : 'translate-y-0'
         }`}
       >
-        <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-full shadow-sm transition-all duration-300">
+        <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-amber-900/10 dark:border-amber-100/10 rounded-full shadow-sm transition-all duration-300">
           
           {/* Logo Section */}
           <NavLink

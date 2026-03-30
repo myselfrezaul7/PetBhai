@@ -62,7 +62,7 @@ const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="safe-bottom fixed bottom-2 left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-[1.85rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 px-2 py-2.5 shadow-[0_18px_46px_rgba(0,0,0,0.12)] backdrop-blur-glass dark:border-amber-100/10 dark:bg-zinc-900/95 md:hidden"
+      className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-[1.85rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 px-2 py-2.5 shadow-[0_18px_46px_rgba(0,0,0,0.12)] backdrop-blur-glass dark:border-amber-100/10 dark:bg-zinc-900/95 md:hidden"
       aria-label="Mobile bottom navigation"
     >
       <ul className="grid grid-cols-4 gap-1">
