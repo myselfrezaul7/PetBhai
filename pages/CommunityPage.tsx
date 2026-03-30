@@ -225,7 +225,7 @@ const CommunityPage: React.FC = () => {
 
     try {
       const updatedPost = await postService.updatePost(postId, newContent, currentUser.id);
-      setPosts(posts.map((p) => (p.id === postId ? updatedPost : p)));
+      setPosts((prev) => prev.map((p) => (p.id === postId ? updatedPost : p)));
       toast.success('Post updated!');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update post.';
@@ -247,7 +247,7 @@ const CommunityPage: React.FC = () => {
 
     try {
       await postService.deletePost(postId, currentUser.id);
-      setPosts(posts.filter((p) => p.id !== postId));
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
       toast.success('Post deleted successfully.');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to delete post.';
@@ -262,7 +262,6 @@ const CommunityPage: React.FC = () => {
       return;
     }
 
-    const previousPosts = posts;
     setPosts((prevPosts) =>
       prevPosts.map((post) => {
         if (post.id !== postId) return post;
@@ -278,9 +277,21 @@ const CommunityPage: React.FC = () => {
 
     try {
       const updatedPost = await postService.togglePostLike(postId, currentUser.id);
-      setPosts(posts.map((p) => (p.id === postId ? updatedPost : p)));
+      setPosts((prev) => prev.map((p) => (p.id === postId ? updatedPost : p)));
     } catch (error) {
-      setPosts(previousPosts);
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          // Revert optimistic toggle
+          const wasLiked = post.likes.includes(currentUser.id);
+          return {
+            ...post,
+            likes: wasLiked
+              ? post.likes.filter((id) => id !== currentUser.id)
+              : [...post.likes, currentUser.id],
+          };
+        })
+      );
       postService.enqueueFailedMutation({
         type: 'togglePostLike',
         payload: {
@@ -302,16 +313,17 @@ const CommunityPage: React.FC = () => {
 
     try {
       const updatedComment = await postService.toggleCommentLike(postId, commentId, currentUser.id);
-      const updated = posts.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            comments: p.comments.map((c) => (c.id === commentId ? updatedComment : c)),
-          };
-        }
-        return p;
-      });
-      setPosts(updated);
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              comments: p.comments.map((c) => (c.id === commentId ? updatedComment : c)),
+            };
+          }
+          return p;
+        })
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update comment like.';
       toast.error(message);
@@ -332,24 +344,25 @@ const CommunityPage: React.FC = () => {
         replyId,
         currentUser.id
       );
-      const updated = posts.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            comments: p.comments.map((c) => {
-              if (c.id === commentId) {
-                return {
-                  ...c,
-                  replies: c.replies.map((r) => (r.id === replyId ? updatedReply : r)),
-                };
-              }
-              return c;
-            }),
-          };
-        }
-        return p;
-      });
-      setPosts(updated);
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              comments: p.comments.map((c) => {
+                if (c.id === commentId) {
+                  return {
+                    ...c,
+                    replies: c.replies.map((r) => (r.id === replyId ? updatedReply : r)),
+                  };
+                }
+                return c;
+              }),
+            };
+          }
+          return p;
+        })
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update reply like.';
       toast.error(message);

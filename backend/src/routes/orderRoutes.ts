@@ -293,6 +293,29 @@ router.post('/', orderLimiter, optionalAuth, (req: AuthRequest, res) => {
     return res.status(400).json({ message: 'Invalid order total' });
   }
 
+  const updatedProductsInfo: Array<{id: number; stockQuantity: number; stockStatus: string}> = [];
+  validatedItems.forEach((item) => {
+    const productList = db.products as Array<Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }>;
+    const dbProduct = productList.find((p) => p.id === item.id);
+    if (dbProduct && typeof dbProduct.stockQuantity === 'number') {
+      dbProduct.stockQuantity = Math.max(0, dbProduct.stockQuantity - item.quantity);
+      
+      if (dbProduct.stockQuantity <= 0) {
+        dbProduct.stockStatus = 'out-of-stock';
+      } else if (dbProduct.reorderPoint !== undefined && dbProduct.stockQuantity <= dbProduct.reorderPoint) {
+        dbProduct.stockStatus = 'low-stock';
+      } else {
+        dbProduct.stockStatus = 'in-stock';
+      }
+
+      updatedProductsInfo.push({
+        id: dbProduct.id,
+        stockQuantity: dbProduct.stockQuantity,
+        stockStatus: dbProduct.stockStatus,
+      });
+    }
+  });
+
   const orderId = generateOrderId();
   const now = new Date().toISOString();
 
@@ -340,6 +363,7 @@ router.post('/', orderLimiter, optionalAuth, (req: AuthRequest, res) => {
   res.status(201).json({
     message: 'Order placed successfully',
     order: newOrder,
+    inventoryUpdates: updatedProductsInfo,
   });
 });
 

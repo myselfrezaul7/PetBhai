@@ -17,26 +17,48 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchArticles = useCallback(async () => {
+  const fetchArticles = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await apiRequest<Article[]>('/articles');
       if (!Array.isArray(data)) {
         throw new Error('Invalid article data received');
       }
       setArticles(data);
-      setError(null);
+      if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);
-      setError(getErrorMessage(err, 'Failed to load articles. Please try again.'));
-      setArticles([]);
+      if (!silent) {
+        setError(getErrorMessage(err, 'Failed to load articles. Please try again.'));
+        setArticles([]);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     fetchArticles();
+  }, [fetchArticles]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchArticles(true);
+      }
+    };
+    const handleFocus = () => void fetchArticles(true);
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    const intervalId = setInterval(() => void fetchArticles(true), 5 * 60 * 1000);
+
+    return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(intervalId);
+    };
   }, [fetchArticles]);
 
   const updateArticleImage = useCallback((articleId: number, imageUrl: string) => {

@@ -17,26 +17,48 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await apiRequest<Product[]>('/products');
       if (!Array.isArray(data)) {
         throw new Error('Invalid products data received');
       }
       setProducts(data);
-      setError(null);
+      if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError(getErrorMessage(err, 'Failed to load products. Please try again.'));
-      setProducts([]);
+      if (!silent) {
+        setError(getErrorMessage(err, 'Failed to load products. Please try again.'));
+        setProducts([]);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchProducts(true);
+      }
+    };
+    const handleFocus = () => void fetchProducts(true);
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    const intervalId = setInterval(() => void fetchProducts(true), 5 * 60 * 1000);
+
+    return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(intervalId);
+    };
   }, [fetchProducts]);
 
   const addProductReview = useCallback(async (productId: number, review: Review) => {

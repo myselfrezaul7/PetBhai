@@ -45,6 +45,16 @@ const ArticleDetailPage: React.FC = () => {
     );
   }
 
+  const metaDescription = useMemo(() => {
+    if (!article) return '';
+    // Strip markdown formatting using regex for basic clean up
+    let cleanText = article.content.replace(/[#*`_\[\]()]/g, '');
+    cleanText = cleanText.replace(/\s+/g, ' ').trim();
+    // Get up to ~160 characters, ideally cutting at the last full word
+    const truncated = cleanText.length > 155 ? cleanText.substring(0, 155) + '...' : cleanText;
+    return truncated;
+  }, [article]);
+
   if (!article) {
     return (
       <main className="text-center py-16 sm:py-20 container mx-auto px-4 md:px-6">
@@ -70,7 +80,7 @@ const ArticleDetailPage: React.FC = () => {
     <main className="container mx-auto px-4 md:px-6 py-8 md:py-12">
       <SEO
         title={article.title}
-        description={article.content.substring(0, 150)}
+        description={metaDescription}
         image={article.imageUrl || `https://www.petbhai.com/blog-images/blog-placeholder.png`}
         type="article"
         author={article.author}
@@ -164,10 +174,13 @@ const ArticleDetailPage: React.FC = () => {
                   <div className="flex items-start space-x-3">
                     <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700">
                       <img
-                        src={a.imageUrl}
-                        alt=""
+                        src={a.imageUrl || '/blog-images/blog-placeholder.png'}
+                        alt={`Thumbnail for ${a.title}`}
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         loading="lazy"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
+                        }}
                       />
                     </div>
                     <div className="min-w-0">

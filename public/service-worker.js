@@ -21,8 +21,8 @@ const DYNAMIC_CACHE_LIMIT = 75;
 const IMAGE_CACHE_LIMIT = 150;
 const API_CACHE_LIMIT = 50;
 
-// API cache TTL (5 minutes for most data)
-const API_CACHE_TTL = 5 * 60 * 1000;
+// API cache TTL
+const API_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 // Trim cache to limit (FIFO eviction)
 const trimCache = async (cacheName, maxItems) => {
@@ -155,24 +155,29 @@ self.addEventListener('fetch', (event) => {
       return;
     }
 
-    // Cache-then-network for product/article data with short TTL
+    // Stale-while-revalidate for product/article data to improve perceived load speed
     event.respondWith(
       caches.open(API_CACHE).then(async (cache) => {
-        try {
-          const networkResponse = await fetch(event.request);
+        const cachedResponse = await cache.match(event.request);
+        
+        const fetchPromise = fetch(event.request).then(async (networkResponse) => {
           if (networkResponse.ok) {
             const responseWithTimestamp = await addCacheTimestamp(networkResponse.clone());
             cache.put(event.request, responseWithTimestamp);
             trimCache(API_CACHE, API_CACHE_LIMIT);
           }
           return networkResponse;
+        }).catch((err) => {
+          if (!cachedResponse) throw err;
+        });
+
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        try {
+          return await fetchPromise;
         } catch {
-          // Network failed, try cache
-          const cachedResponse = await cache.match(event.request);
-          if (cachedResponse && isCacheValid(cachedResponse, API_CACHE_TTL)) {
-            return cachedResponse;
-          }
-          // Return a basic error response
           return new Response(JSON.stringify({ error: 'Offline' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' },

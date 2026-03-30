@@ -130,7 +130,7 @@ interface AuthContextType {
       answer: number;
     }
   ) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   signup: (
     name: string,
     email: string,
@@ -200,24 +200,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
+    // Return existing inflight promise if available
+    if ((window as any)._inflightRefreshPromise) {
+      return (window as any)._inflightRefreshPromise;
+    }
+
     const refreshToken = getStoredRefreshToken();
     if (!refreshToken) {
       return false;
     }
 
-    try {
-      const data = await apiRequest<AuthResponse>('/auth/refresh', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      });
+    const refreshTask = async () => {
+      try {
+        const data = await apiRequest<AuthResponse>('/auth/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        });
 
-      persistSession(data);
-      return true;
-    } catch {
-      clearSession();
-      return false;
-    }
+        persistSession(data);
+        return true;
+      } catch {
+        clearSession();
+        return false;
+      } finally {
+        (window as any)._inflightRefreshPromise = null;
+      }
+    };
+
+    (window as any)._inflightRefreshPromise = refreshTask();
+    return (window as any)._inflightRefreshPromise;
   }, [clearSession, persistSession]);
 
   useEffect(() => {
@@ -300,15 +312,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [persistSession]
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async (): Promise<void> => {
     const token = getStoredToken();
     if (token && !isTokenExpired(token)) {
-      void apiRequest('/auth/logout', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).catch(() => undefined);
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        await apiRequest('/auth/logout', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+      } catch (err) {
+        // Ignore timeout or network errors during logout
+      }
     }
     clearSession();
   }, [clearSession]);

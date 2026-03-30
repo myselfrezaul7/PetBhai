@@ -122,11 +122,13 @@ class Database {
     }
   }
 
-  public getStatus(): { loaded: boolean; error: string | null; path: string } {
+  public getStatus(): { loaded: boolean; error: string | null; path: string; writeCapable: boolean; mode: string } {
     return {
       loaded: this.isLoaded,
       error: this.loadError?.message || null,
       path: DB_PATH,
+      writeCapable: !isServerless,
+      mode: isServerless ? 'ephemeral' : 'persistent',
     };
   }
 
@@ -168,6 +170,11 @@ class Database {
         );
         this.hasWarnedAboutServerlessPersistence = true;
       }
+      
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Database writes are disabled in production serverless mode to prevent silent data loss.');
+      }
+      
       return false;
     }
 
@@ -227,6 +234,9 @@ class Database {
   }
 
   public write() {
+    if (isServerless && process.env.NODE_ENV === 'production') {
+      throw new Error('Database writes are disabled in production serverless mode to prevent silent data loss. Please use a persistent database.');
+    }
     const snapshot = JSON.parse(JSON.stringify(this.data)) as DatabaseSchema;
     void this.enqueueSave(snapshot);
   }

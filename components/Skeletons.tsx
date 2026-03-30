@@ -38,8 +38,8 @@ export const ProductCardSkeleton: React.FC = () => (
 
 // Article card skeleton
 export const ArticleCardSkeleton: React.FC = () => (
-  <div className="glass-card-ios overflow-hidden flex flex-col h-full">
-    <Skeleton className="w-full h-48 rounded-none" />
+  <div className="glass-card-ios overflow-hidden flex flex-col h-full border border-white/30 dark:border-white/10">
+    <Skeleton className="w-full h-48 sm:h-56 rounded-none" />
     <div className="p-5 flex flex-col flex-grow">
       <Skeleton className="h-3 w-1/4 mb-3" />
       <Skeleton className="h-6 w-full mb-2" />

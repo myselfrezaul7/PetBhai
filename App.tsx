@@ -58,6 +58,7 @@ const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'));
 const MessengerPlugin = lazy(() => import('./components/MessengerPlugin'));
+const AIAssistantPage = lazy(() => import('./pages/AIAssistantPage'));
 
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
@@ -170,6 +171,15 @@ const RouteSEO: React.FC = () => {
         title="Frequently Asked Questions"
         description="Find answers to common PetBhai questions about orders, deliveries, adoption, and services."
         keywords={['petbhai faq', 'pet care questions', 'pet services help']}
+      />
+    );
+  }
+  if (path === '/ai-assistant') {
+    return (
+      <SEO
+        title="AI Vet Assistant"
+        description="Chat with PetBhai's AI assistant for helpful guidance on pet health, behavior, and care."
+        keywords={['ai vet', 'pet health advice', 'petbhai ai', 'pet care assistant']}
       />
     );
   }
@@ -394,6 +404,7 @@ const AppContent: React.FC = () => {
                     <Route path="/dashboard" element={<PetDashboardPage />} />
                     <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
                     <Route path="/services/booking" element={<ServicesBookingPage />} />
+                    <Route path="/ai-assistant" element={<AIAssistantPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </motion.div>

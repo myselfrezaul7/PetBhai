@@ -207,12 +207,21 @@ app.post('/api/auth/signup', recaptchaMiddleware);
 app.post('/api/auth/register', recaptchaMiddleware);
 app.post('/api/orders', recaptchaMiddleware);
 
+// Public GET data cache middleware
+const publicCache = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (req.method === 'GET') {
+    // Cache for 5 minutes (300 seconds), allow stale-while-revalidate for 1 hour
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
+  }
+  next();
+};
+
 // Routes
-app.use('/api/products', productRoutes);
-app.use('/api/articles', articleRoutes);
-app.use('/api/vets', vetRoutes);
-app.use('/api/animals', animalRoutes);
-app.use('/api/brands', brandRoutes);
+app.use('/api/products', publicCache, productRoutes);
+app.use('/api/articles', publicCache, articleRoutes);
+app.use('/api/vets', publicCache, vetRoutes);
+app.use('/api/animals', publicCache, animalRoutes);
+app.use('/api/brands', publicCache, brandRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/ai', aiRoutes);
