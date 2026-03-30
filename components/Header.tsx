@@ -744,7 +744,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleMenuOpen}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95 border border-slate-200/60 dark:border-slate-700/60"
               aria-label="Open menu"
             >
               <MenuIcon className="w-7 h-7" />
@@ -763,7 +763,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenMobileSearch}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 transition-colors hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 touch-manipulation active:scale-95"
                 aria-label="Open search"
               >
                 <SearchIcon className="w-6 h-6" />
@@ -771,7 +771,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={openCart}
-                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95"
+                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 transition-colors hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 touch-manipulation active:scale-95"
                 aria-label={`Open cart with ${cartCount} items`}
               >
                 <svg

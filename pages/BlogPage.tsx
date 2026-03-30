@@ -115,7 +115,7 @@ const BlogPage: React.FC = () => {
               {/* Pagination Controls */}
               {totalOtherPages > 1 && (
                 <div className="flex justify-center mt-12 overflow-x-auto padding-x-2 py-2">
-                  <div className="glass-card-ios px-2 sm:px-4 py-3 flex items-center space-x-1 flex-nowrap border border-white/30 dark:border-white/10 backdrop-blur-xl bg-white/45 dark:bg-slate-900/35">
+                  <div className="glass-card-ios px-2 sm:px-4 py-3 flex items-center space-x-1 flex-nowrap border border-white/30 dark:border-white/10 backdrop-blur-xl bg-white/85 dark:bg-slate-900/85">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}

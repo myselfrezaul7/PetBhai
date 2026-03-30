@@ -94,7 +94,7 @@ const ArticleDetailPage: React.FC = () => {
         {/* Main Article Content */}
         <article className="lg:col-span-2">
           {/* Article Header */}
-          <header className="mb-6 md:mb-8 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-4 md:p-8">
+          <header className="mb-6 md:mb-8 glass-card-ios border border-white/35 dark:border-white/10 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl p-4 md:p-8">
             <span className="inline-flex items-center rounded-full bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 px-3 py-1 text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-300 mb-3">
               PetBhai Insights
             </span>
@@ -150,14 +150,14 @@ const ArticleDetailPage: React.FC = () => {
           </figure>
 
           {/* Article Body */}
-          <section className="glass-card-ios p-4 md:p-8 bg-white/45 dark:bg-slate-900/40 backdrop-blur-xl border border-white/35 dark:border-white/10">
+          <section className="glass-card-ios p-4 md:p-8 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-white/35 dark:border-white/10">
             <MarkdownRenderer content={article.content} />
           </section>
         </article>
 
         {/* Sidebar */}
         <aside className="lg:col-span-1 mt-8 lg:mt-0" aria-labelledby="recent-articles-heading">
-          <div className="lg:sticky lg:top-24 glass-card-ios border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl p-4 md:p-5">
+          <div className="lg:sticky lg:top-24 glass-card-ios border border-white/35 dark:border-white/10 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl p-4 md:p-5">
             <h2
               id="recent-articles-heading"
               className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50"

@@ -58,7 +58,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             </span>
           )}
         </div>
-        <div className="p-3 sm:p-6 flex flex-col flex-grow relative bg-white/35 dark:bg-slate-900/25 backdrop-blur-lg">
+        <div className="p-3 sm:p-6 flex flex-col flex-grow relative bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl">
           <div className="mb-2 sm:mb-3 text-xs sm:text-sm font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
             PetBhai Journal
           </div>
@@ -74,10 +74,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             {article.content.split('\n')[0]}
           </p>
           <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-white/45 dark:bg-slate-800/55">
+            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {article.author}
             </span>
-            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-white/45 dark:bg-slate-800/55">
+            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {new Date(article.date).toLocaleDateString()}
             </span>
           </div>
