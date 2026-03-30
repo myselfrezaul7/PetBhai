@@ -39,7 +39,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   };
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">
+    <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-kw-border bg-kw-bg-surface shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-kw-border dark:bg-kw-bg-surface">
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link to={`/adopt/${animal.id}`} className="block h-full">
           <img
@@ -68,7 +68,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
                 ${
                   isFavorited
                     ? 'bg-red-500 text-white'
-                    : 'border border-slate-300 bg-white text-slate-700 hover:text-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-zinc-300'
+                    : 'border border-kw-border bg-kw-bg-surface text-slate-700 hover:text-kw-primary dark:border-kw-border dark:bg-kw-bg-surface dark:text-zinc-300'
                 }`}
           aria-label={isFavorited ? 'Unfavorite' : 'Favorite'}
         >
@@ -78,36 +78,36 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
       <div className="p-3 sm:p-5 flex flex-col flex-grow">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-sm sm:text-2xl font-bold text-slate-800 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+            <h3 className="text-sm sm:text-2xl font-bold text-kw-text-main group-hover:text-kw-primary transition-colors">
               {animal.name}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-[10px] sm:text-sm mt-0.5 sm:mt-1 line-clamp-1">
+            <p className="text-kw-text-muted font-medium text-[10px] sm:text-sm mt-0.5 sm:mt-1 line-clamp-1">
               {animal.breed}
             </p>
           </div>
           <div className="text-right hidden sm:block">
-            <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+            <span className="block text-xs font-bold text-kw-text-muted uppercase tracking-wide">
               Age
             </span>
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <span className="text-sm font-semibold text-kw-text-main">
               {animal.age}
             </span>
           </div>
         </div>
 
-        <div className="mt-1 sm:mt-4 pt-1 sm:pt-4 border-t border-slate-200 dark:border-slate-700/50 flex flex-wrap items-center justify-between text-[10px] sm:text-sm text-slate-600 dark:text-slate-300 gap-1">
+        <div className="mt-1 sm:mt-4 pt-1 sm:pt-4 border-t border-kw-border dark:border-kw-border/50 flex flex-wrap items-center justify-between text-[10px] sm:text-sm text-kw-text-muted gap-1">
           <span className="sm:hidden font-semibold">{animal.age}</span>
-          <span className="sm:hidden text-slate-400">&bull;</span>
+          <span className="sm:hidden text-kw-text-muted">&bull;</span>
           <span>{animal.gender}</span>
           <span className="w-1 h-1 bg-slate-400 rounded-full hidden sm:block"></span>
           <span>{animal.size}</span>
         </div>
 
-        <p className="text-slate-600 dark:text-slate-400 mt-1 sm:mt-4 flex-grow text-[10px] sm:text-sm line-clamp-2 leading-relaxed">
+        <p className="text-kw-text-muted mt-1 sm:mt-4 flex-grow text-[10px] sm:text-sm line-clamp-2 leading-relaxed">
           {animal.description}
         </p>
       </div>
-      <div className="mt-auto border-t border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900 sm:p-4">
+      <div className="mt-auto border-t border-kw-border bg-slate-50 p-2 dark:border-kw-border dark:bg-kw-bg-surface sm:p-4">
         <Link
           to={`/adopt/${animal.id}`}
           className="block min-h-[44px] w-full rounded-full bg-slate-950 px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition-all hover:bg-black active:scale-95 touch-manipulation sm:px-4 sm:py-3 sm:text-base"

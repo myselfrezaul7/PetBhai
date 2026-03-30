@@ -74,6 +74,21 @@ export default {
         ios: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
         'ios-bounce': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
+      colors: {
+        kw: {
+          primary: 'var(--kw-primary)',
+          'primary-hover': 'var(--kw-primary-hover)',
+          secondary: 'var(--kw-secondary)',
+          'bg-page': 'var(--kw-bg-page)',
+          'bg-surface': 'var(--kw-bg-surface)',
+          'bg-surface-hover': 'var(--kw-bg-surface-hover)',
+          'text-main': 'var(--kw-text-main)',
+          'text-muted': 'var(--kw-text-muted)',
+          'text-inverse': 'var(--kw-text-inverse)',
+          border: 'var(--kw-border)',
+          'border-strong': 'var(--kw-border-strong)',
+        }
+      },
       backdropBlur: {
         glass: '20px',
         'glass-heavy': '40px',

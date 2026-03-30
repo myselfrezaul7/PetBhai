@@ -11,18 +11,18 @@ interface VetCardProps {
 const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   const availabilityStyles: { [key in Vet['availability']]: string } = {
     'Available Now': 'bg-green-500 text-green-50 animate-pulse',
-    'Available Today': 'bg-blue-500 text-blue-50',
-    Offline: 'bg-slate-500 text-slate-50',
+    'Available Today': 'bg-kw-primary text-white',
+    Offline: 'bg-kw-text-muted text-white',
   };
 
   return (
     <Link
       to={`/vet/${vet.id}`}
-      className="group flex h-full flex-col items-center rounded-3xl border border-slate-200 bg-white p-3 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950 sm:p-6"
+      className="group flex h-full flex-col items-center rounded-3xl border border-kw-border bg-kw-bg-surface p-3 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-kw-border dark:bg-kw-bg-surface sm:p-6"
     >
       <div className="relative">
         <img
-          className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-slate-300 dark:ring-slate-700 transition-all duration-500 group-hover:ring-slate-400 dark:group-hover:ring-slate-500 group-hover:scale-105"
+          className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-kw-border dark:ring-kw-border transition-all duration-500 group-hover:ring-slate-400 dark:group-hover:ring-slate-500 group-hover:scale-105"
           src={vet.imageUrl}
           alt={`Dr. ${vet.name}`}
           loading="lazy"
@@ -32,7 +32,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
         />
         <span
           aria-label={`Availability: ${vet.availability}`}
-          className={`absolute bottom-0 right-0 block h-max w-max px-1.5 py-0.5 sm:px-2 border-2 border-white dark:border-slate-800 rounded-full text-[9px] sm:text-xs font-bold ${availabilityStyles[vet.availability]}`}
+          className={`absolute bottom-0 right-0 block h-max w-max px-1.5 py-0.5 sm:px-2 border-2 border-white dark:border-kw-border rounded-full text-[9px] sm:text-xs font-bold ${availabilityStyles[vet.availability]}`}
         >
           {vet.availability === 'Available Now'
             ? 'Now'
@@ -41,14 +41,14 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
               : 'Offline'}
         </span>
       </div>
-      <h3 className="text-xs sm:text-xl font-bold text-slate-800 dark:text-white mt-2 sm:mt-4 group-hover:text-slate-950 dark:group-hover:text-white transition-colors line-clamp-1">
+      <h3 className="text-xs sm:text-xl font-bold text-kw-text-main mt-2 sm:mt-4 group-hover:text-slate-950 dark:group-hover:text-white transition-colors line-clamp-1">
         {vet.name}
       </h3>
-      <p className="text-[10px] sm:text-base text-slate-600 dark:text-slate-300 font-semibold line-clamp-1">
+      <p className="text-[10px] sm:text-base text-kw-text-muted font-semibold line-clamp-1">
         {vet.specialization}
       </p>
 
-      <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-1 sm:mt-4 text-slate-600 dark:text-slate-300">
+      <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-1 sm:mt-4 text-kw-text-muted">
         {vet.services.some((s) => s.type === 'in-clinic') && (
           <div className="flex items-center space-x-1 text-[10px] sm:text-sm">
             <svg
@@ -74,11 +74,11 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
         )}
       </div>
 
-      <p className="text-[10px] sm:text-sm text-slate-700 dark:text-slate-300 mt-2 sm:mt-4 flex-grow line-clamp-2 leading-tight">
+      <p className="text-[10px] sm:text-sm text-kw-text-muted mt-2 sm:mt-4 flex-grow line-clamp-2 leading-tight">
         {vet.bio}
       </p>
 
-      <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-slate-200 dark:border-slate-800">
+      <div className="mt-2 sm:mt-4 w-full pt-2 sm:pt-4 border-t border-kw-border dark:border-kw-border">
         <span className="flex min-h-[44px] w-full items-center justify-center rounded-full bg-slate-950 px-2 py-2 text-[10px] font-bold text-white shadow-sm transition-all duration-500 group-hover:bg-black sm:px-4 sm:py-2.5 sm:text-base">
           Profile
         </span>

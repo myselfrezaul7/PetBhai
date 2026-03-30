@@ -53,31 +53,31 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
           </div>
 
           {isFeatured && (
-            <span className="absolute top-3 left-3 md:top-4 md:left-4 glass-card-ios bg-orange-500/85 text-white text-xs md:text-sm font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg backdrop-blur-md border border-white/20">
+            <span className="absolute top-3 left-3 md:top-4 md:left-4 glass-card-ios bg-kw-primary/90 text-white text-xs md:text-sm font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg backdrop-blur-md border border-white/20">
               {t('blog_latest_post')}
             </span>
           )}
         </div>
-        <div className="p-3 sm:p-6 flex flex-col flex-grow relative bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl">
-          <div className="mb-2 sm:mb-3 text-xs sm:text-sm font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+        <div className="p-3 sm:p-6 flex flex-col flex-grow relative bg-kw-bg-surface dark:bg-kw-bg-surface backdrop-blur-xl">
+          <div className="mb-2 sm:mb-3 text-xs sm:text-sm font-bold text-kw-primary uppercase tracking-wider">
             PetBhai Journal
           </div>
           <h3
-            className={`font-bold text-slate-800 dark:text-white leading-tight group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300 break-words line-clamp-2 ${isFeatured ? 'text-lg sm:text-2xl mb-2 sm:mb-3' : 'text-sm sm:text-lg mb-1 sm:mb-2'}`}
+            className={`font-bold text-kw-text-main leading-tight group-hover:text-kw-primary dark:group-hover:text-orange-400 transition-colors duration-300 break-words line-clamp-2 ${isFeatured ? 'text-lg sm:text-2xl mb-2 sm:mb-3' : 'text-sm sm:text-lg mb-1 sm:mb-2'}`}
           >
             {article.title}
           </h3>
           {/* Hide description on mobile for standard cards to prevent overlap in 2-col layout */}
           <p
-            className={`text-slate-600 dark:text-slate-300 flex-grow text-sm leading-relaxed line-clamp-3 ${!isFeatured ? 'hidden sm:block' : 'block'}`}
+            className={`text-kw-text-muted flex-grow text-sm leading-relaxed line-clamp-3 ${!isFeatured ? 'hidden sm:block' : 'block'}`}
           >
             {article.content.split('\n')[0]}
           </p>
-          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+          <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-kw-text-muted">
+            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-kw-bg-surface-hover dark:bg-kw-bg-surface-hover text-kw-text-main dark:text-kw-text-main">
               {article.author}
             </span>
-            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-kw-bg-surface-hover dark:bg-kw-bg-surface-hover text-kw-text-main dark:text-kw-text-main">
               {new Date(article.date).toLocaleDateString()}
             </span>
           </div>

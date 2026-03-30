@@ -3,20 +3,41 @@
 /* Custom application styles */
 
 :root {
-  --ui-text: #111111;
-  --ui-muted: #5a5a5a;
-  --ui-border: rgba(17, 17, 17, 0.14);
-  --ui-surface: rgba(255, 255, 255, 0.8);
-  --ui-surface-hover: rgba(255, 255, 255, 0.92);
+  /* Kuttawaala-inspired Semantic Tokens */
+  --kw-primary: #ff6b35; /* Warm coral/orange */
+  --kw-primary-hover: #e55a2b;
+  --kw-secondary: #004e64; /* Teal contrast */
+  
+  --kw-text-main: #2d2a26;
+  --kw-text-muted: #6b6965;
+  --kw-text-inverse: #ffffff;
+  
+  --kw-bg-page: #fdfbf7; /* Soft cream */
+  --kw-bg-surface: rgba(255, 255, 255, 0.95);
+  --kw-bg-surface-hover: #f5f2ed;
+  
+  --kw-border: rgba(45, 42, 38, 0.08);
+  --kw-border-strong: rgba(45, 42, 38, 0.16);
+
+  /* Shared UI variables mapped to Semantic Tokens */
+  --ui-text: var(--kw-text-main);
+  --ui-muted: var(--kw-text-muted);
+  --ui-border: var(--kw-border);
+  --ui-surface: var(--kw-bg-surface);
+  --ui-surface-hover: var(--kw-bg-surface-hover);
   --ui-input-bg: #ffffff;
-  --ui-focus-ring: rgba(249, 115, 22, 0.28);
-  --ui-border-glass: rgba(148, 163, 184, 0.34);
-  --ui-blur: 12px;
-  --ui-blur-heavy: 26px;
-  --ui-shadow: 0 14px 30px rgba(30, 64, 175, 0.12);
-  --ui-shadow-hover: 0 20px 38px rgba(30, 64, 175, 0.18);
-  --ui-bg-primary: #f2f6ff;
-  --ui-bg-secondary: #edf2fc;
+  --ui-focus-ring: rgba(255, 107, 53, 0.3);
+  --ui-border-glass: var(--kw-border);
+  
+  --ui-blur: 16px;
+  --ui-blur-heavy: 32px;
+  --ui-shadow: 0 14px 28px rgba(0, 0, 0, 0.05);
+  --ui-shadow-hover: 0 20px 36px rgba(0, 0, 0, 0.08);
+  --ui-bg-primary: var(--kw-bg-page);
+  --ui-bg-secondary: #f4f0ea;
+  --ui-accent: var(--kw-primary);
+  --ui-accent-hover: var(--kw-primary-hover);
+  
   --motion-fast: 150ms;
   --motion-base: 200ms;
   --motion-slow: 300ms;
@@ -28,18 +49,33 @@
 }
 
 html.dark {
-  --ui-text: #f8f8f8;
-  --ui-muted: #b5b5b5;
-  --ui-border: rgba(255, 255, 255, 0.16);
-  --ui-surface: rgba(15, 23, 42, 0.74);
-  --ui-surface-hover: rgba(30, 41, 59, 0.82);
-  --ui-input-bg: #141416;
-  --ui-focus-ring: rgba(251, 146, 60, 0.24);
-  --ui-border-glass: rgba(148, 163, 184, 0.26);
-  --ui-shadow: 0 12px 30px rgba(2, 6, 23, 0.42);
-  --ui-shadow-hover: 0 18px 40px rgba(2, 6, 23, 0.52);
-  --ui-bg-primary: #070708;
-  --ui-bg-secondary: #111112;
+  --kw-primary: #ff8c61;
+  --kw-primary-hover: #ffa07a;
+  
+  --kw-text-main: #fcfcfc;
+  --kw-text-muted: #a3a19e;
+  
+  --kw-bg-page: #161514;
+  --kw-bg-surface: rgba(34, 32, 30, 0.95);
+  --kw-bg-surface-hover: #2d2a28;
+  
+  --kw-border: rgba(255, 255, 255, 0.1);
+  --kw-border-strong: rgba(255, 255, 255, 0.18);
+
+  --ui-text: var(--kw-text-main);
+  --ui-muted: var(--kw-text-muted);
+  --ui-border: var(--kw-border);
+  --ui-surface: var(--kw-bg-surface);
+  --ui-surface-hover: var(--kw-bg-surface-hover);
+  --ui-input-bg: #1c1a19;
+  --ui-focus-ring: rgba(255, 140, 97, 0.25);
+  --ui-border-glass: var(--kw-border);
+  --ui-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
+  --ui-shadow-hover: 0 20px 36px rgba(0, 0, 0, 0.6);
+  --ui-bg-primary: var(--kw-bg-page);
+  --ui-bg-secondary: #1a1817;
+  --ui-accent: var(--kw-primary);
+  --ui-accent-hover: var(--kw-primary-hover);
 }
 
 html,

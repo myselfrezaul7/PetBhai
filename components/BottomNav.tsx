@@ -62,7 +62,7 @@ const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="safe-bottom fixed bottom-2 left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-[1.85rem] border border-white/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(235,245,255,0.92))] px-2 py-2.5 shadow-[0_18px_46px_rgba(37,99,235,0.2)] backdrop-blur-glass dark:border-slate-700/70 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(30,41,59,0.9))] md:hidden"
+      className="safe-bottom fixed bottom-2 left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] -translate-x-1/2 rounded-[1.85rem] border border-kw-border bg-kw-bg-surface px-2 py-2.5 shadow-[0_18px_46px_rgba(0,0,0,0.12)] backdrop-blur-glass dark:border-kw-border dark:bg-kw-bg-surface md:hidden"
       aria-label="Mobile bottom navigation"
     >
       <ul className="grid grid-cols-4 gap-1">
@@ -79,21 +79,21 @@ const BottomNav: React.FC = () => {
                 to={item.to}
                 className={`group relative isolate flex min-h-[56px] flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
                   isActive
-                    ? 'text-blue-700 dark:text-blue-200'
-                    : 'text-slate-500 hover:bg-slate-100/70 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100'
+                    ? 'text-kw-primary'
+                    : 'text-kw-text-muted hover:bg-kw-bg-surface-hover hover:text-kw-text-main dark:text-kw-text-muted dark:hover:bg-kw-bg-surface-hover dark:hover:text-kw-text-main'
                 }`}
               >
                 {isActive && (
                   <motion.span
                     layoutId="mobile-bottom-nav-active"
-                    className="absolute inset-0 -z-10 rounded-2xl border border-blue-200/80 bg-blue-100/90 shadow-inner dark:border-blue-700/60 dark:bg-blue-900/30"
+                    className="absolute inset-0 -z-10 rounded-2xl border border-kw-primary/20 bg-kw-primary/10 shadow-inner"
                     transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.55 }}
                     aria-hidden="true"
                   />
                 )}
                 {isActive && (
                   <span
-                    className="absolute top-1.5 h-1.5 w-1.5 rounded-full bg-blue-500 dark:bg-blue-300"
+                    className="absolute top-1.5 h-1.5 w-1.5 rounded-full bg-kw-primary"
                     aria-hidden="true"
                   />
                 )}

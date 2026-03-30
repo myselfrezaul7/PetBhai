@@ -33,12 +33,12 @@ const MobileNavLink: React.FC<{
     className={({ isActive }) =>
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
-          ? 'bg-blue-100/70 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 border-blue-200/80 dark:border-blue-500/30 font-semibold shadow-[0_8px_24px_rgba(37,99,235,0.18)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
-          : 'bg-white/60 text-slate-700 dark:bg-white/5 dark:text-slate-100 border-white/70 dark:border-white/10 hover:bg-white/90 dark:hover:bg-white/10'
+          ? 'bg-kw-primary/10 text-kw-primary border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:bg-kw-primary/20 dark:text-kw-primary dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
+          : 'bg-kw-bg-surface text-kw-text-main border-kw-border hover:bg-kw-bg-surface-hover dark:bg-kw-bg-surface dark:text-kw-text-main dark:border-kw-border dark:hover:bg-kw-bg-surface-hover'
       } ${className || ''}`
     }
   >
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/80 text-current dark:bg-slate-800/80">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-kw-bg-page text-current dark:bg-kw-bg-page">
       {icon}
     </span>
     {children}
@@ -744,7 +744,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleMenuOpen}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors touch-manipulation active:scale-95 border border-slate-200/60 dark:border-slate-700/60"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-kw-bg-surface-hover text-kw-text-main hover:bg-kw-primary/10 hover:text-kw-primary transition-colors touch-manipulation active:scale-95 border border-kw-border dark:bg-kw-bg-surface-hover dark:text-kw-text-main dark:hover:bg-kw-primary/20 dark:hover:text-kw-primary dark:border-kw-border"
               aria-label="Open menu"
             >
               <MenuIcon className="w-7 h-7" />
@@ -753,7 +753,7 @@ const Header: React.FC = () => {
             <NavLink
               to="/"
               onClick={handleLogoClick}
-              className="flex items-center gap-2 text-xl font-bold text-blue-700 dark:text-blue-300"
+              className="flex items-center gap-2 text-xl font-bold text-kw-primary dark:text-kw-primary"
             >
               <Logo className="h-7 w-7" />
               <span className="text-2xl font-black tracking-tight">PetBhai</span>
@@ -763,7 +763,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenMobileSearch}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 transition-colors hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 touch-manipulation active:scale-95"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-kw-bg-surface-hover text-kw-text-main transition-colors hover:text-kw-primary hover:bg-kw-primary/10 border border-kw-border touch-manipulation active:scale-95 dark:bg-kw-bg-surface-hover dark:text-kw-text-main dark:hover:text-kw-primary dark:hover:bg-kw-primary/20 dark:border-kw-border"
                 aria-label="Open search"
               >
                 <SearchIcon className="w-6 h-6" />
@@ -771,7 +771,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={openCart}
-                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 transition-colors hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 touch-manipulation active:scale-95"
+                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-kw-bg-surface-hover text-kw-text-main transition-colors hover:text-kw-primary hover:bg-kw-primary/10 border border-kw-border touch-manipulation active:scale-95 dark:bg-kw-bg-surface-hover dark:text-kw-text-main dark:hover:text-kw-primary dark:hover:bg-kw-primary/20 dark:border-kw-border"
                 aria-label={`Open cart with ${cartCount} items`}
               >
                 <svg
@@ -816,7 +816,7 @@ const Header: React.FC = () => {
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 onKeyDown={handleKeyDown}
-                className="w-full py-3 pl-10 pr-4 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full py-3 pl-10 pr-4 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-kw-primary"
                 aria-label="Search"
                 autoFocus
                 autoComplete="off"
@@ -917,7 +917,7 @@ const Header: React.FC = () => {
               onTouchEnd={handleMenuTouchEnd}
             >
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-[2.35rem] font-black leading-none tracking-tight text-blue-700 dark:text-blue-300">
+                <h2 className="text-[2.35rem] font-black leading-none tracking-tight text-kw-primary dark:text-kw-primary">
                   PetBhai
                 </h2>
                 <button
