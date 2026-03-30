@@ -744,7 +744,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleMenuOpen}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 hover:bg-amber-500/10 dark:bg-amber-500/10 hover:text-amber-600 dark:text-amber-500 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-zinc-900 dark:text-zinc-50 dark:hover:bg-amber-500/20 dark:bg-amber-500/20 dark:hover:text-amber-600 dark:text-amber-500 dark:border-amber-100/10"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
               aria-label="Open menu"
             >
               <MenuIcon className="w-7 h-7" />
@@ -763,7 +763,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenMobileSearch}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 transition-colors hover:text-amber-600 dark:text-amber-500 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 touch-manipulation active:scale-95 dark:bg-zinc-800/80 dark:text-zinc-900 dark:text-zinc-50 dark:hover:text-amber-600 dark:text-amber-500 dark:hover:bg-amber-500/20 dark:bg-amber-500/20 dark:border-amber-100/10"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
                 aria-label="Open search"
               >
                 <SearchIcon className="w-6 h-6" />
@@ -771,7 +771,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={openCart}
-                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 transition-colors hover:text-amber-600 dark:text-amber-500 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 touch-manipulation active:scale-95 dark:bg-zinc-800/80 dark:text-zinc-900 dark:text-zinc-50 dark:hover:text-amber-600 dark:text-amber-500 dark:hover:bg-amber-500/20 dark:bg-amber-500/20 dark:border-amber-100/10"
+                  className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
                 aria-label={`Open cart with ${cartCount} items`}
               >
                 <svg
@@ -983,7 +983,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/login"
                     onClick={handleMenuClose}
-                    className="mt-4 flex min-h-[44px] items-center justify-center rounded-xl bg-amber-600 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-700"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
                   >
                     {t('nav_login')}
                   </Link>
@@ -1047,7 +1047,7 @@ const Header: React.FC = () => {
                   <button
                     type="button"
                     onClick={toggleLanguage}
-                    className="min-h-[44px] w-full rounded-xl border border-white/80 bg-white/60 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
                     aria-label={language === 'en' ? 'Switch to Bengali' : 'Switch to English'}
                   >
                     {language === 'en' ? 'Language: BN' : 'Language: EN'}

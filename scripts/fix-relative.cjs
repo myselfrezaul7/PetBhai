@@ -1,0 +1,1 @@
+const fs=require('fs'); let c=fs.readFileSync('components/Header.tsx', 'utf8'); c=c.replace(/onClick=\{openCart\}\r?\n\s*className="min-h-\[44px\]/, 'onClick={openCart}\n                  className="relative min-h-[44px]'); fs.writeFileSync('components/Header.tsx', c);
