@@ -212,8 +212,7 @@ const LoginPage: React.FC = () => {
         )}
 
         <div className="space-y-3">
-          <button
-            onClick={handleSocialLogin}
+          <button type="button" onClick={handleSocialLogin}
             disabled={isSocialLoading || isLoading}
             className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
             aria-label="Sign in with Google"
@@ -433,3 +432,4 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+

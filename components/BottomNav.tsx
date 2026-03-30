@@ -53,19 +53,20 @@ const BottomNav: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
+  const { scrollDirection, isAtTop } = useScrollDirection();
 
   const items = [
     { to: '/', label: t('nav_home'), icon: HomeGlyph },
     { to: '/shop', label: t('nav_shop'), icon: ShopGlyph },
-    { to: '/community', label: t('nav_community'), icon: CommunityGlyph },
+    { to: '/community', label: t('nav_community'), icon: CommunityGlyph },      
     { to: isAuthenticated ? '/profile' : '/login', label: t('nav_profile'), icon: ProfileGlyph },
   ];
 
   return (
     <nav
-      className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] rounded-full border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 px-2 py-1.5 shadow-lg backdrop-blur-xl md:hidden transition-transform duration-300 ease-in-out ${
+      className={`fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] rounded-full border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 px-2 py-1.5 shadow-lg backdrop-blur-xl md:hidden transition-transform duration-300 ease-in-out ${
           scrollDirection === 'down' && !isAtTop ? 'translate-y-[150%] -translate-x-1/2' : 'translate-y-0 -translate-x-1/2'
-        }"
+        }`}
       aria-label="Mobile bottom navigation"
     >
       <ul className="grid grid-cols-4 gap-1">

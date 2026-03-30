@@ -10,12 +10,13 @@ export function useScrollDirection() {
 
     const updateScrollDir = () => {
       const scrollY = window.pageYOffset;
-      
-      if (Math.abs(scrollY - lastScrollY) < 10) {
+
+      // Ignore small scroll jumps (often caused by UI layout shifts like Toasts or dynamic updates)
+      if (Math.abs(scrollY - lastScrollY) < 30) {
         ticking = false;
         return;
       }
-      
+
       setScrollDirection(scrollY > lastScrollY ? 'down' : 'up');
       setIsAtTop(scrollY < 50);
       lastScrollY = scrollY > 0 ? scrollY : 0;
@@ -29,7 +30,8 @@ export function useScrollDirection() {
       }
     };
 
-    window.addEventListener('scroll', onScroll);
+    // Use passive listener for better scroll performance
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 

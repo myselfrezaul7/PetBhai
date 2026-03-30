@@ -1,1155 +1,271 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
-import type { Order } from '../types';
 import { useProducts } from '../contexts/ProductContext';
 import { useToast } from '../contexts/ToastContext';
 import { usePetManagement } from '../contexts/PetManagementContext';
-import { useVaccination } from '../contexts/VaccinationContext';
-import { useConfirmation } from '../contexts/ConfirmationContext';
 import ProductCard from '../components/ProductCard';
-import VaccinationReminder from '../components/VaccinationReminder';
-import PetTools from '../components/PetTools';
 import Avatar from '../components/Avatar';
-import { sanitizeInput, sanitizeUrl } from '../lib/security';
-import { AnimatePresence, motion } from 'framer-motion';
+import PetTools from '../components/PetTools';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PackageIcon, HeartIcon, SettingsIcon, UserIcon, LogOutIcon, EditIcon, LoaderIcon } from '../components/icons';
 
-const REORDER_THRESHOLD_DAYS = 15;
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+type ProfileTab = 'overview' | 'orders' | 'wishlist' | 'settings';
 
-type ProfileTab =
-  | 'overview'
-  | 'profile'
-  | 'address'
-  | 'security'
-  | 'pets'
-  | 'vaccinations'
-  | 'tools'
-  | 'wishlist'
-  | 'orders';
+const InlineEditField: React.FC<{
+  label: string;
+  value: string;
+  onSave: (val: string) => Promise<void>;
+  type?: string;
+  multiline?: boolean;
+}> = ({ label, value, onSave, type = 'text', multiline = false }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentValue, setCurrentValue] = useState(value);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => { setCurrentValue(value); }, [value]);
+
+  const handleSave = async () => {
+    if (currentValue === value || (!currentValue.trim() && !value)) {
+      setIsEditing(false);
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await onSave(currentValue);
+      setIsEditing(false);
+    } catch (err) {
+      setCurrentValue(value);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) handleSave();
+    if (e.key === 'Escape') { setCurrentValue(value); setIsEditing(false); }
+  };
+
+  return (
+    <div className="group flex flex-col gap-1 transition-all">
+      <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">{label}</label>
+      <div className="flex items-start gap-2 max-w-lg">
+        {isEditing ? (
+          <div className="relative flex-1 flex items-center gap-2 animate-fade-in">
+            {multiline ? (
+              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" rows={3} />
+            ) : (
+              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" />
+            )}
+            {isSaving && <div className="absolute right-3"><LoaderIcon className="w-4 h-4 animate-spin text-amber-500" /></div>}
+          </div>
+        ) : (
+          <div onClick={() => setIsEditing(true)} className="flex-1 flex items-center justify-between p-2 -mx-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors">
+            <span className={`text-sm ${currentValue ? 'text-slate-800 dark:text-zinc-200' : 'text-slate-400 italic'}`}>{currentValue || 'Click to add ' + label.toLowerCase()}</span>
+            <EditIcon className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ProfilePage: React.FC = () => {
-  const {
-    currentUser,
-    updateProfile,
-    isAuthenticated,
-    fetchProfile,
-    changePassword,
-    deleteAccount,
-  } = useAuth();
-  const { addToCart } = useCart();
+  const { currentUser, updateProfile, isAuthenticated, fetchProfile, logout } = useAuth();
   const { products } = useProducts();
   const { pets } = usePetManagement();
-  const { getUpcomingVaccinations } = useVaccination();
-  const { confirm } = useConfirmation();
   const navigate = useNavigate();
   const toast = useToast();
-
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [name, setName] = useState(currentUser?.name || '');
-  const [phone, setPhone] = useState(currentUser?.phone || '');
-  const [bio, setBio] = useState(currentUser?.bio || '');
-  const [profilePicture, setProfilePicture] = useState<string | null>(
-    currentUser?.profilePictureUrl || null
-  );
-  const [newProfilePictureFile, setNewProfilePictureFile] = useState<File | null>(null);
-
-  const [addressFullName, setAddressFullName] = useState(
-    currentUser?.defaultShippingAddress?.fullName || ''
-  );
-  const [addressLine, setAddressLine] = useState(
-    currentUser?.defaultShippingAddress?.address || ''
-  );
-  const [addressCity, setAddressCity] = useState(currentUser?.defaultShippingAddress?.city || '');
-  const [addressPhone, setAddressPhone] = useState(
-    currentUser?.defaultShippingAddress?.phone || ''
-  );
-
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [nameError, setNameError] = useState<string | undefined>();
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!isAuthenticated && !isRefreshing) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, isRefreshing, navigate]);
-
-  useEffect(() => {
-    if (!currentUser) {
-      return;
-    }
-
-    setName(currentUser.name || '');
-    setPhone(currentUser.phone || '');
-    setBio(currentUser.bio || '');
-    setProfilePicture(currentUser.profilePictureUrl || null);
-    setAddressFullName(currentUser.defaultShippingAddress?.fullName || '');
-    setAddressLine(currentUser.defaultShippingAddress?.address || '');
-    setAddressCity(currentUser.defaultShippingAddress?.city || '');
-    setAddressPhone(currentUser.defaultShippingAddress?.phone || '');
-  }, [currentUser]);
-
-  const refreshProfile = useCallback(async () => {
-    if (!isAuthenticated) {
-      return;
-    }
-
-    setIsRefreshing(true);
-    try {
-      await fetchProfile();
-    } catch {
-      // intentionally silent; page already has user data from context/local storage
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [fetchProfile, isAuthenticated]);
-
-  useEffect(() => {
-    void refreshProfile();
-  }, [refreshProfile]);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      void refreshProfile();
-    }, 45000);
-
-    return () => window.clearInterval(intervalId);
-  }, [refreshProfile]);
+  useEffect(() => { if (!isAuthenticated) navigate('/login'); }, [isAuthenticated, navigate]);
+  useEffect(() => { void fetchProfile(); }, [fetchProfile]);
 
   const wishlistedProducts = useMemo(() => {
     if (!currentUser) return [];
-    return products.filter((product) => currentUser.wishlist.includes(product.id));
+    return products.filter((p) => currentUser.wishlist.includes(p.id));
   }, [currentUser, products]);
 
-  const recentOrders = useMemo(() => {
-    if (!currentUser) return [];
-    return currentUser.orderHistory.slice(0, 3);
-  }, [currentUser]);
-
-  const reorderSuggestions = useMemo(() => {
-    if (!currentUser) return [];
-    const thresholdDate = new Date();
-    thresholdDate.setDate(thresholdDate.getDate() - REORDER_THRESHOLD_DAYS);
-    return currentUser.orderHistory.filter((order) => new Date(order.date) < thresholdDate);
-  }, [currentUser]);
-
-  const upcomingVaccinations = useMemo(() => {
-    return getUpcomingVaccinations(30).slice(0, 5);
-  }, [getUpcomingVaccinations]);
-
-  const validateName = useCallback((value: string): string | undefined => {
-    const trimmed = value.trim();
-    if (!trimmed) return 'Name is required';
-    if (trimmed.length < 2) return 'Name must be at least 2 characters';
-    if (trimmed.length > 100) return 'Name is too long (max 100 characters)';
-    if (!/^[\p{L}\p{M}\s'-]+$/u.test(trimmed)) {
-      return 'Name contains invalid characters';
-    }
-    return undefined;
-  }, []);
-
-  const validatePhone = useCallback((value: string): string | undefined => {
-    const trimmed = value.trim();
-    if (!trimmed) return undefined;
-    if (trimmed.length < 6) return 'Phone must be at least 6 characters';
-    if (trimmed.length > 30) return 'Phone is too long (max 30 characters)';
-    return undefined;
-  }, []);
-
-  const validateShippingAddress = useCallback(
-    (data: {
-      fullName: string;
-      address: string;
-      city: string;
-      phone: string;
-    }): string | undefined => {
-      if (data.fullName.length < 2) return 'Full name must be at least 2 characters';
-      if (data.address.length < 5) return 'Address must be at least 5 characters';
-      if (data.city.length < 2) return 'City must be at least 2 characters';
-      if (data.phone.length < 6) return 'Phone must be at least 6 characters';
-      if (data.fullName.length > 120) return 'Full name is too long (max 120 characters)';
-      if (data.address.length > 240) return 'Address is too long (max 240 characters)';
-      if (data.city.length > 80) return 'City is too long (max 80 characters)';
-      if (data.phone.length > 30) return 'Phone is too long (max 30 characters)';
-      return undefined;
-    },
-    []
-  );
-
-  const handleNameBlur = useCallback(() => {
-    setNameError(validateName(name));
-  }, [name, validateName]);
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setErrorMessage('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
-      setTimeout(() => setErrorMessage(''), 5000);
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      setErrorMessage('Image file is too large (max 5MB)');
-      setTimeout(() => setErrorMessage(''), 5000);
-      return;
-    }
-
-    setNewProfilePictureFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePicture(reader.result as string);
-    };
-    reader.onerror = () => {
-      setErrorMessage('Failed to read the image file');
-      setTimeout(() => setErrorMessage(''), 5000);
-    };
-    reader.readAsDataURL(file);
-  }, []);
-
-  const clearMessagesSoon = useCallback(() => {
-    setTimeout(() => setSuccessMessage(''), 3000);
-    setTimeout(() => setErrorMessage(''), 5000);
-  }, []);
-
-  const handleSaveProfile = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!currentUser) return;
-
-      const sanitizedName = sanitizeInput(name.trim());
-      const sanitizedPhone = sanitizeInput(phone.trim());
-      const sanitizedBio = sanitizeInput(bio.trim());
-      const nameValidationError = validateName(sanitizedName);
-      const phoneValidationError = validatePhone(sanitizedPhone);
-
-      if (nameValidationError) {
-        setNameError(nameValidationError);
-        return;
-      }
-
-      if (phoneValidationError) {
-        setErrorMessage(phoneValidationError);
-        clearMessagesSoon();
-        return;
-      }
-
-      setIsLoading(true);
-      setErrorMessage('');
-      setSuccessMessage('');
-
-      try {
-        const payload: {
-          name?: string;
-          profilePictureUrl?: string;
-          phone?: string;
-          bio?: string;
-        } = {};
-
-        if (sanitizedName !== currentUser.name) {
-          payload.name = sanitizedName;
-        }
-
-        if (sanitizedPhone !== (currentUser.phone || '')) {
-          payload.phone = sanitizedPhone;
-        }
-
-        if (sanitizedBio !== (currentUser.bio || '')) {
-          payload.bio = sanitizedBio;
-        }
-
-        if (newProfilePictureFile && profilePicture) {
-          const sanitizedImage = sanitizeUrl(profilePicture) || profilePicture;
-          payload.profilePictureUrl = sanitizedImage;
-        }
-
-        if (Object.keys(payload).length > 0) {
-          await updateProfile(payload);
-          setSuccessMessage('Profile updated successfully!');
-          setNewProfilePictureFile(null);
-        } else {
-          setSuccessMessage('No changes to save.');
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to save profile';
-        setErrorMessage(message);
-      } finally {
-        setIsLoading(false);
-        clearMessagesSoon();
-      }
-    },
-    [
-      bio,
-      clearMessagesSoon,
-      currentUser,
-      name,
-      newProfilePictureFile,
-      phone,
-      profilePicture,
-      updateProfile,
-      validateName,
-    ]
-  );
-
-  const handleSaveAddress = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!currentUser) return;
-
-      const sanitizedAddress = {
-        fullName: sanitizeInput(addressFullName.trim()),
-        address: sanitizeInput(addressLine.trim()),
-        city: sanitizeInput(addressCity.trim()),
-        phone: sanitizeInput(addressPhone.trim()),
-      };
-
-      const validationError = validateShippingAddress(sanitizedAddress);
-      if (validationError) {
-        setErrorMessage(validationError);
-        clearMessagesSoon();
-        return;
-      }
-
-      setIsLoading(true);
-      setErrorMessage('');
-      setSuccessMessage('');
-
-      try {
-        await updateProfile({
-          defaultShippingAddress: sanitizedAddress,
-        });
-
-        setSuccessMessage('Address saved successfully!');
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to save address';
-        setErrorMessage(message);
-      } finally {
-        setIsLoading(false);
-        clearMessagesSoon();
-      }
-    },
-    [
-      addressCity,
-      addressFullName,
-      addressLine,
-      addressPhone,
-      clearMessagesSoon,
-      currentUser,
-      updateProfile,
-      validateShippingAddress,
-    ]
-  );
-
-  const handleChangePassword = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!currentPassword || !newPassword || !confirmPassword) {
-        setErrorMessage('Please fill out all password fields');
-        clearMessagesSoon();
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        setErrorMessage('New password and confirmation do not match');
-        clearMessagesSoon();
-        return;
-      }
-
-      setIsLoading(true);
-      setErrorMessage('');
-      setSuccessMessage('');
-
-      try {
-        await changePassword(currentPassword, newPassword);
-        setSuccessMessage('Password changed successfully!');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to change password';
-        setErrorMessage(message);
-      } finally {
-        setIsLoading(false);
-        clearMessagesSoon();
-      }
-    },
-    [changePassword, clearMessagesSoon, confirmPassword, currentPassword, newPassword]
-  );
-
-  const handleDeleteAccount = useCallback(async () => {
-    const approved = await confirm({
-      title: 'Delete Account',
-      message: 'This action is permanent and cannot be undone. Do you want to continue?',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-    });
-
-    if (!approved) {
-      return;
-    }
-
-    const password = currentUser?.socialProvider ? undefined : currentPassword;
-
-    setIsLoading(true);
-    try {
-      await deleteAccount(password);
-      toast.success('Your account has been deleted');
-      navigate('/');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete account';
-      setErrorMessage(message);
-      clearMessagesSoon();
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
-    clearMessagesSoon,
-    confirm,
-    currentPassword,
-    currentUser?.socialProvider,
-    deleteAccount,
-    navigate,
-    toast,
-  ]);
-
-  const handleReorder = useCallback(
-    (order: Order) => {
-      order.items.forEach((item) => {
-        for (let count = 0; count < item.quantity; count += 1) {
-          addToCart(item);
-        }
-      });
-      toast.success('Items from your past order were added to your cart!');
-    },
-    [addToCart, toast]
-  );
-
-  const handleProfilePictureClick = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
+  const recentOrders = useMemo(() => currentUser?.orderHistory || [], [currentUser]);
 
   if (!currentUser) {
-    return null;
+    return <div className="min-h-screen flex items-center justify-center"><LoaderIcon className="w-8 h-8 animate-spin text-amber-500" /></div>;
   }
 
-  const tabs: Array<{ id: ProfileTab; label: string; mobileLabel: string; hint: string }> = [
-    { id: 'overview', label: 'Overview', mobileLabel: 'Overview', hint: 'Quick snapshot' },
-    { id: 'profile', label: 'Edit Profile', mobileLabel: 'Profile', hint: 'Personal details' },
-    { id: 'address', label: 'Address', mobileLabel: 'Address', hint: 'Shipping info' },
-    { id: 'security', label: 'Security', mobileLabel: 'Security', hint: 'Password and account' },
-    {
-      id: 'pets',
-      label: `My Pets (${pets.length})`,
-      mobileLabel: 'My Pets',
-      hint: 'Profiles and care logs',
-    },
-    {
-      id: 'vaccinations',
-      label: 'Vaccinations',
-      mobileLabel: 'Vaccines',
-      hint: 'Upcoming reminders',
-    },
-    { id: 'tools', label: 'Pet Tools', mobileLabel: 'Tools', hint: 'Smart utilities' },
-    {
-      id: 'wishlist',
-      label: `Wishlist (${wishlistedProducts.length})`,
-      mobileLabel: 'Wishlist',
-      hint: 'Saved favorites',
-    },
-    {
-      id: 'orders',
-      label: `Orders (${currentUser.orderHistory.length})`,
-      mobileLabel: 'Orders',
-      hint: 'Track and reorder',
-    },
-  ];
-
-  const memberSince = useMemo(() => {
-    if (currentUser.createdAt) {
-      const parsed = new Date(currentUser.createdAt);
-      if (!Number.isNaN(parsed.getTime())) {
-        return parsed.toLocaleDateString();
-      }
+  const handleUpdate = async (field: string, value: string, isAddress = false) => {
+    try {
+      const payload = isAddress ? { defaultShippingAddress: { ...currentUser.defaultShippingAddress, [field]: value } } : { [field]: value };
+      const updatedUser = await updateProfile(payload as any);
+      if (updatedUser) toast.success(`${field} updated successfully`);
+    } catch {
+      toast.error('Failed to update. Try again.');
     }
+  };
 
-    const fallbackOrderDate = currentUser.orderHistory
-      .map((order) => new Date(order.date))
-      .filter((date) => !Number.isNaN(date.getTime()))
-      .sort((a, b) => a.getTime() - b.getTime())[0];
-
-    return (fallbackOrderDate || new Date()).toLocaleDateString();
-  }, [currentUser.createdAt, currentUser.orderHistory]);
-  const profileCompletion = useMemo(() => {
-    const checks = [
-      Boolean((name || '').trim()),
-      Boolean((phone || '').trim()),
-      Boolean((bio || '').trim()),
-      Boolean(profilePicture || currentUser.profilePictureUrl),
-      Boolean((addressLine || '').trim()),
-      Boolean((addressCity || '').trim()),
-      Boolean((addressPhone || '').trim()),
-    ];
-    const completed = checks.filter(Boolean).length;
-    return Math.round((completed / checks.length) * 100);
-  }, [
-    addressCity,
-    addressLine,
-    addressPhone,
-    bio,
-    currentUser.profilePictureUrl,
-    name,
-    phone,
-    profilePicture,
-  ]);
+  const navItems = [
+    { id: 'overview', icon: <UserIcon />, label: 'Overview' },
+    { id: 'orders', icon: <PackageIcon />, label: 'Orders', badge: recentOrders.length },
+    { id: 'wishlist', icon: <HeartIcon />, label: 'Wishlist', badge: wishlistedProducts.length },
+    { id: 'settings', icon: <SettingsIcon />, label: 'Settings' }
+  ] as const;
 
   return (
-    <main className="min-h-screen container mx-auto px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:pb-12 sm:pt-12">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-6">
-          <div
-            className="pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full bg-orange-300/35 blur-3xl dark:bg-orange-500/20"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute -left-16 -bottom-16 h-52 w-52 rounded-full bg-amber-300/30 blur-3xl dark:bg-amber-500/20"
-            aria-hidden="true"
-          />
-          <div className="flex flex-col lg:flex-row lg:items-center gap-5">
-            <div className="relative w-fit mx-auto lg:mx-0">
-              <button
-                type="button"
-                onClick={handleProfilePictureClick}
-                className="rounded-full focus:outline-none ring-2 ring-transparent hover:ring-orange-400 transition-all"
-                aria-label="Change profile picture"
-              >
-                <Avatar
-                  src={profilePicture || currentUser.profilePictureUrl}
-                  name={currentUser.name}
-                  size="xl"
-                  showPlusBadge={currentUser.isPlusMember}
-                />
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*"
-                aria-label="Upload profile picture"
-                title="Upload profile picture"
-                className="hidden"
-              />
-            </div>
+    <main className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-8 sm:py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row gap-6 lg:gap-10">
 
-            <div className="flex-1 min-w-0 text-center lg:text-left">
-              <div className="flex flex-wrap gap-2 items-center justify-center lg:justify-start">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white truncate">
-                  {currentUser.name}
-                </h1>
-                {currentUser.socialProvider === 'google' && (
-                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-900/30 dark:text-amber-300">
-                    Google Account
-                  </span>
-                )}
-              </div>
-              <p className="text-slate-600 dark:text-slate-300 truncate">{currentUser.email}</p>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-1">
-                Member since {memberSince}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 w-full lg:w-auto">
-              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
-                <p className="text-xl font-bold text-slate-800 dark:text-white">
-                  {currentUser.orderHistory.length}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-300">Orders</p>
-              </div>
-              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
-                <p className="text-xl font-bold text-slate-800 dark:text-white">
-                  {wishlistedProducts.length}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-300">Wishlist</p>
-              </div>
-              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
-                <p className="text-xl font-bold text-slate-800 dark:text-white">{pets.length}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-300">Pets</p>
-              </div>
-              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
-                <p className="text-xl font-bold text-slate-800 dark:text-white">
-                  {upcomingVaccinations.length}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-300">Upcoming Shots</p>
-              </div>
-              <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
-                <p className="text-xl font-bold text-slate-800 dark:text-white">{profileCompletion}%</p>
-                <p className="text-xs text-slate-500 dark:text-slate-300">Profile Ready</p>
-              </div>
-            </div>
+        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-2">
+          <div className="flex md:hidden items-center gap-4 p-4 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800 shadow-sm mb-4">
+             <Avatar src={currentUser.profilePictureUrl} fallback={currentUser.name} size="md" className="ring-2 ring-amber-100 dark:ring-amber-500/20" />
+             <div className="flex-1 min-w-0">
+               <h2 className="text-lg font-bold text-slate-800 dark:text-white truncate">{currentUser.name}</h2>
+               <p className="text-xs text-slate-500 truncate">{currentUser.email}</p>
+             </div>
           </div>
 
-          <div className="flex justify-end mt-4">
-            <button
-              type="button"
-              onClick={() => void refreshProfile()}
-              disabled={isRefreshing}
-              className="rounded-xl bg-slate-950 px-3 py-1.5 text-sm text-white transition-colors hover:bg-black disabled:bg-slate-500"
-            >
-              {isRefreshing ? 'Refreshing...' : 'Refresh Live Data'}
-            </button>
-          </div>
-        </section>
-
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-[240px_1fr]">
-          <aside className="rounded-3xl border border-white/70 bg-white/70 p-3 shadow-lg shadow-slate-200/50 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 sm:p-4">
-            <div className="mb-3 lg:hidden">
-              <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300">
-                Profile Sections
-              </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-                Choose a section to manage your account smoothly.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
-              {tabs.map((tab) => (
+          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide snap-x">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
                 <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'border-slate-900 bg-slate-950 text-white shadow-[0_10px_20px_rgba(15,23,42,0.2)] dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
-                      : 'border-white/80 bg-white/70 text-slate-700 hover:bg-white/90 dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800/80'
-                  }`}
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`relative shrink-0 snap-start flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium transition-colors ${isActive ? 'text-amber-800 dark:text-amber-300' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-900 dark:hover:text-zinc-200'}`}
                 >
-                  <p className="text-sm font-semibold leading-tight lg:text-[0.92rem]">{tab.mobileLabel}</p>
-                  <p
-                    className={`mt-1 text-[0.72rem] leading-tight ${
-                      activeTab === tab.id
-                        ? 'text-white/80 dark:text-slate-700'
-                        : 'text-slate-500 dark:text-slate-300'
-                    }`}
-                  >
-                    {tab.hint}
-                  </p>
+                  {isActive && (
+                    <motion.div
+                      layoutId="profile-tab-active"
+                      className="absolute inset-0 bg-amber-100/70 dark:bg-amber-500/10 rounded-2xl z-0"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <div className="flex items-center gap-3 relative z-10">
+                    <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{item.icon}</span>
+                    {item.label}
+                  </div>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className="relative z-10 px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-zinc-800 text-[10px] font-bold">
+                      {item.badge}
+                    </span>
+                  )}
                 </button>
-              ))}
-            </div>
-          </aside>
+              );
+            })}
+          </nav>
+        </aside>
 
-          <div className="rounded-3xl border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 sm:p-6 md:p-8">
-            {successMessage && (
-              <p className="mb-4 bg-green-100/80 text-green-800 dark:bg-green-500/30 dark:text-green-200 p-3 rounded-lg text-center text-sm">
-                {successMessage}
-              </p>
-            )}
-            {errorMessage && (
-              <p className="mb-4 bg-red-100/80 text-red-700 dark:bg-red-500/30 dark:text-red-200 p-3 rounded-lg text-center text-sm">
-                {errorMessage}
-              </p>
-            )}
-
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: 20, y: 4 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                exit={{ opacity: 0, x: -16, y: 4 }}
-                transition={{ duration: 0.28, ease: 'easeOut' }}
-              >
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
-                    Overview
-                  </h2>
-                  <p className="text-slate-600 dark:text-slate-300 text-sm">
-                    Your latest activity and quick actions in one place.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('orders')}
-                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
-                  >
-                    <p className="text-2xl" aria-hidden="true">
-                      📦
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">My Orders</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">Track and reorder</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('wishlist')}
-                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
-                  >
-                    <p className="text-2xl" aria-hidden="true">
-                      💖
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">Wishlist</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">Saved favorites</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('pets')}
-                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
-                  >
-                    <p className="text-2xl" aria-hidden="true">
-                      🐶
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">My Pets</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">Profiles and care</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('vaccinations')}
-                    className="rounded-3xl border border-white/75 bg-white/80 px-3 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 dark:border-white/10 dark:bg-slate-900/65"
-                  >
-                    <p className="text-2xl" aria-hidden="true">
-                      💉
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">Shots</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">Upcoming reminders</p>
-                  </button>
-                </div>
-
-                <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
-                    <p className="text-xs text-slate-500">Recent Orders</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                      {recentOrders.length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
-                    <p className="text-xs text-slate-500">Wishlist Items</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                      {wishlistedProducts.length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
-                    <p className="text-xs text-slate-500">My Pets</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                      {pets.length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
-                    <p className="text-xs text-slate-500">Vaccinations (30d)</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                      {upcomingVaccinations.length}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-3 gap-3">
-                  <Link
-                    to="/shop"
-                    className="block rounded-xl bg-slate-950 py-2.5 text-center font-semibold text-white transition-colors hover:bg-black"
-                  >
-                    Shop Now
-                  </Link>
-                  <Link
-                    to="/services"
-                    className="block rounded-xl border border-slate-300 bg-white py-2.5 text-center font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                  >
-                    Book Vet
-                  </Link>
-                  <Link
-                    to="/dashboard"
-                    className="block rounded-xl border border-slate-300 bg-white py-2.5 text-center font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                  >
-                    Manage Pets
-                  </Link>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-bold text-slate-800 dark:text-white">Latest Orders</h3>
-                  {recentOrders.length === 0 ? (
-                    <p className="text-slate-600 dark:text-slate-300 text-sm">
-                      No recent orders yet.
-                    </p>
-                  ) : (
-                    recentOrders.map((order) => (
-                      <div
-                        key={order.orderId}
-                        className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-3"
-                      >
-                        <div className="flex justify-between items-center gap-3">
-                          <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">
-                            {order.orderId}
-                          </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">
-                            ৳{order.total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
-                          </p>
-                        </div>
+        <section className="flex-1 min-w-0 flex flex-col gap-6">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={activeTab} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }} transition={{ duration: 0.2 }} className="bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800/80 rounded-3xl p-5 sm:p-8 shadow-sm">
+              
+              {activeTab === 'overview' && (
+                <div className="space-y-10">
+                  <header className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-6 border-b border-slate-100 dark:border-zinc-800/50">
+                    <Avatar src={currentUser.profilePictureUrl} fallback={currentUser.name} size="xl" className="ring-4 ring-slate-50 dark:ring-zinc-800" />
+                    <div>
+                      <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">{currentUser.name}</h1>
+                      <div className="flex items-center gap-3 mt-1.5 opacity-80">
+                        <span className="inline-flex py-0.5 px-2.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                          {currentUser.role === 'admin' ? 'Admin' : currentUser.plusMember ? 'PetBhai Plus' : 'Customer'}
+                        </span>
+                        <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">{currentUser.email}</span>
                       </div>
-                    ))
-                  )}
+                    </div>
+                  </header>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200">Personal Details</h3>
+                      <div className="space-y-4">
+                        <InlineEditField label="Full Name" value={currentUser.name} onSave={(val) => handleUpdate('name', val)} />
+                        <InlineEditField label="Phone" value={currentUser.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val)} />
+                        <InlineEditField label="Bio" value={currentUser.bio || ''} multiline onSave={(val) => handleUpdate('bio', val)} />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200">Shipping Address</h3>
+                      <div className="space-y-4 bg-slate-50/50 dark:bg-zinc-800/30 p-4 rounded-2xl border border-slate-100 dark:border-zinc-400/60">
+                        <InlineEditField label="Recipient Name" value={currentUser.defaultShippingAddress?.fullName || currentUser.name} onSave={(val) => handleUpdate('fullName', val, true)} />
+                        <InlineEditField label="Address" value={currentUser.defaultShippingAddress?.address || ''} multiline onSave={(val) => handleUpdate('address', val, true)} />
+                        <InlineEditField label="City" value={currentUser.defaultShippingAddress?.city || ''} onSave={(val) => handleUpdate('city', val, true)} />
+                        <InlineEditField label="Contact Phone" value={currentUser.defaultShippingAddress?.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val, true)} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === 'profile' && (
-              <form onSubmit={handleSaveProfile} className="space-y-5" noValidate>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Edit Profile</h2>
-
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onBlur={handleNameBlur}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50 ${
-                      nameError ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
-                    }`}
-                  />
-                  {nameError && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
-                  >
-                    Phone
-                  </label>
-                  <input
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="bio"
-                    className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2"
-                  >
-                    Bio
-                  </label>
-                  <textarea
-                    id="bio"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    rows={4}
-                    maxLength={500}
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300"
-                >
-                  {isLoading ? 'Saving...' : 'Save Profile'}
-                </button>
-              </form>
-            )}
-
-            {activeTab === 'address' && (
-              <form onSubmit={handleSaveAddress} className="space-y-5">
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-                  Shipping Address
-                </h2>
-
-                <input
-                  value={addressFullName}
-                  onChange={(e) => setAddressFullName(e.target.value)}
-                  placeholder="Full Name"
-                  required
-                  minLength={2}
-                  maxLength={120}
-                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                />
-                <input
-                  value={addressLine}
-                  onChange={(e) => setAddressLine(e.target.value)}
-                  placeholder="Address"
-                  required
-                  minLength={5}
-                  maxLength={240}
-                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                />
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <input
-                    value={addressCity}
-                    onChange={(e) => setAddressCity(e.target.value)}
-                    placeholder="City"
-                    required
-                    minLength={2}
-                    maxLength={80}
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-                  <input
-                    value={addressPhone}
-                    onChange={(e) => setAddressPhone(e.target.value)}
-                    placeholder="Phone"
-                    required
-                    minLength={6}
-                    maxLength={30}
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300"
-                >
-                  {isLoading ? 'Saving...' : 'Save Address'}
-                </button>
-              </form>
-            )}
-
-            {activeTab === 'security' && (
-              <div className="space-y-8">
-                <form onSubmit={handleChangePassword} className="space-y-4">
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Security</h2>
-
-                  {currentUser.socialProvider ? (
-                    <p className="text-sm text-slate-600 dark:text-slate-300 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
-                      You signed up with Google. Password change may not apply unless you also use
-                      email/password login.
-                    </p>
-                  ) : null}
-
-                  <input
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Current Password"
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="New Password"
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm New Password"
-                    className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white/50 dark:bg-slate-700/50"
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300"
-                  >
-                    {isLoading ? 'Updating...' : 'Change Password'}
-                  </button>
-                </form>
-
-                <div className="border border-red-300/60 dark:border-red-500/40 rounded-lg p-4 bg-red-50/50 dark:bg-red-900/10">
-                  <h3 className="font-bold text-red-700 dark:text-red-300 mb-2">Danger Zone</h3>
-                  <p className="text-sm text-red-600 dark:text-red-300 mb-3">
-                    Deleting your account is permanent.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteAccount()}
-                    disabled={isLoading}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:bg-red-400"
-                  >
-                    Delete Account
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'pets' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">My Pets</h2>
-                  <Link
-                    to="/dashboard"
-                    className="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600 transition-colors"
-                  >
-                    Manage in Dashboard
-                  </Link>
-                </div>
-
-                {pets.length === 0 ? (
-                  <p className="text-slate-600 dark:text-slate-300 text-sm">
-                    No pet profiles yet. Add your first pet in the dashboard.
-                  </p>
-                ) : (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {pets.map((pet) => (
-                      <div
-                        key={pet.id}
-                        className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Avatar src={pet.imageUrl} name={pet.name} size="lg" />
-                          <div className="min-w-0">
-                            <p className="font-semibold text-slate-800 dark:text-white truncate">
-                              {pet.name}
-                            </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-300 truncate">
-                              {pet.breed || pet.type}
-                            </p>
+              {activeTab === 'orders' && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Order History</h2>
+                  {recentOrders.length === 0 ? (
+                    <div className="text-center py-12 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-100 dark:border-zinc-800">
+                      <PackageIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-zinc-600 mb-3" />
+                      <p className="text-sm text-slate-500 dark:text-zinc-400">You haven't placed any orders yet.</p>
+                      <Link to="/shop" className="inline-block mt-4 text-sm font-semibold text-amber-600 dark:text-amber-500 hover:underline">Start Shopping</Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {recentOrders.map((order, i) => (
+                        <div key={i} className="p-4 rounded-2xl border border-slate-200/70 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex flex-col sm:flex-row justify-between gap-4 transition-transform hover:scale-[1.01]">
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{order.id}</p>
+                            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{new Date(order.date).toLocaleDateString()}</p>
+                            <div className="text-xs mt-2 px-2 py-0.5 rounded-md w-fit font-medium bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 uppercase tracking-wide">{order.items.length} items</div>
+                          </div>
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center">
+                            <span className="font-bold text-slate-800 dark:text-emerald-400">৳{order.total.toFixed(2)}</span>
+                            <span className="text-xs text-slate-500 mt-1">{order.status || 'Processing'}</span>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'wishlist' && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Your Wishlist</h2>
+                  {wishlistedProducts.length === 0 ? (
+                    <div className="text-center py-12 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-100 dark:border-zinc-800">
+                      <HeartIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-zinc-600 mb-3" />
+                      <p className="text-sm text-slate-500 dark:text-zinc-400">Your wishlist is empty.</p>
+                      <Link to="/shop" className="inline-block mt-4 text-sm font-semibold text-amber-600 dark:text-amber-500 hover:underline">Explore Products</Link>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {wishlistedProducts.map(p => (<ProductCard key={p.id} product={p} />))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'settings' && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Account Settings</h2>
+                  <div className="p-5 rounded-2xl border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
+                    <h3 className="text-sm font-bold text-red-800 dark:text-red-400">Danger Zone</h3>
+                    <p className="text-xs text-red-600/80 dark:text-red-300/70 mt-1 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+                    <button className="px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors">Delete Account</button>
                   </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'wishlist' && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">
-                  My Wishlist
-                </h2>
-                {wishlistedProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-                    {wishlistedProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
+                  <div className="pt-4 border-t border-slate-100 dark:border-zinc-400">
+                     <button onClick={() => { logout(); navigate('/'); }} className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white transition-colors">
+                        <LogOutIcon className="w-4 h-4" /> Sign Out
+                     </button>
                   </div>
-                ) : (
-                  <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
-                    Your wishlist is empty.{' '}
-                    <Link to="/shop" className="text-orange-600 hover:underline">
-                      Explore products!
-                    </Link>
-                  </p>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
 
-            {activeTab === 'orders' && (
-              <div className="space-y-5">
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">My Orders</h2>
-
-                {reorderSuggestions.length > 0 && (
-                  <div className="rounded-lg border border-orange-300/50 bg-orange-50/60 dark:bg-orange-900/20 dark:border-orange-500/30 p-3">
-                    <p className="text-sm text-orange-700 dark:text-orange-300">
-                      Smart reorder available for {reorderSuggestions.length} previous orders.
-                    </p>
-                  </div>
-                )}
-
-                {currentUser.orderHistory.length > 0 ? (
-                  <div className="space-y-3">
-                    {currentUser.orderHistory.map((order) => (
-                      <div
-                        key={order.orderId}
-                        className="border border-slate-300/50 dark:border-slate-600/50 rounded-lg p-4"
-                      >
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2 gap-1">
-                          <p className="font-bold text-sm sm:text-base text-slate-800 dark:text-white truncate">
-                            Order: {order.orderId}
-                          </p>
-                          <p className="font-semibold text-sm sm:text-base text-slate-800 dark:text-white tabular-nums">
-                            Total: ৳
-                            {order.total.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                        <div className="flex justify-between items-center mb-3 text-xs sm:text-sm">
-                          <p className="text-slate-500 dark:text-slate-300">
-                            Date: {new Date(order.date).toLocaleDateString()}
-                          </p>
-                          {order.status && (
-                            <span
-                              className={`px-2 py-0.5 rounded-full font-semibold ${
-                                order.status === 'delivered'
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                  : order.status === 'cancelled' || order.status === 'refunded'
-                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                              }`}
-                            >
-                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </span>
-                          )}
-                        </div>
-                        <ul className="text-xs sm:text-sm space-y-1 mb-3">
-                          {order.items.map((item) => (
-                            <li
-                              key={item.id}
-                              className="flex justify-between text-slate-600 dark:text-slate-300"
-                            >
-                              <span className="truncate mr-2">
-                                {item.name} (x{item.quantity})
-                              </span>
-                              <span className="flex-shrink-0 tabular-nums">
-                                ৳
-                                {(item.price * item.quantity).toLocaleString('en-BD', {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                        <button
-                          type="button"
-                          onClick={() => handleReorder(order)}
-                          className="w-full sm:w-auto bg-orange-500 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-orange-600 transition-colors"
-                        >
-                          Reorder Items
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
-                    You haven't made any purchases yet.{' '}
-                    <Link to="/shop" className="text-orange-600 hover:underline">
-                      Visit the shop!
-                    </Link>
-                  </p>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'vaccinations' && (
-              <div>
-                <VaccinationReminder />
-              </div>
-            )}
-
-            {activeTab === 'tools' && (
-              <div>
-                <PetTools />
-              </div>
-            )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+          {activeTab === 'overview' && pets && pets.length > 0 && (
+             <div className="mt-4"><PetTools /></div>
+          )}
         </section>
+
       </div>
     </main>
   );
 };
-
 export default ProfilePage;
