@@ -422,7 +422,7 @@ const AppContent: React.FC = () => {
       <BottomNav />
       <ScrollToTop />
       <ScrollToTopOnNavigate />
-      <div className="hidden md:block">
+      <div className="pb-24 md:pb-0">
         <Footer />
       </div>
       <SpeedInsights />
