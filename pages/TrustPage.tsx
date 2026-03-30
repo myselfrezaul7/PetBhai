@@ -58,7 +58,7 @@ const TrustPage: React.FC = () => {
           {/* Pillar 2: Verified Professionals */}
           <article className="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center hover:transform hover:scale-105 transition-transform duration-300">
             <div
-              className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-blue-600 dark:text-blue-400"
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-amber-600 dark:text-amber-400"
               aria-hidden="true"
             >
               <ShieldCheckIconLocal className="w-7 h-7 sm:w-8 sm:h-8" />

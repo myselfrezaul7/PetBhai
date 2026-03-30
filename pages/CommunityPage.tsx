@@ -827,7 +827,7 @@ const CommunityPage: React.FC = () => {
       if (postCount >= 10 || totalLikes >= 50)
         return { emoji: '⭐', name: 'Star', color: 'text-purple-500' };
       if (postCount >= 5 || totalLikes >= 20)
-        return { emoji: '🌟', name: 'Active', color: 'text-blue-500' };
+        return { emoji: '🌟', name: 'Active', color: 'text-amber-500' };
       if (postCount >= 1) return { emoji: '🐾', name: 'Newcomer', color: 'text-green-500' };
       return null;
     },
@@ -1038,12 +1038,12 @@ const CommunityPage: React.FC = () => {
 
         {/* Community Guidelines */}
         <aside
-          className="glass-card-ios p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-100 dark:border-blue-900/30"
+          className="glass-card-ios p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-amber-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-amber-100 dark:border-amber-900/30"
           aria-label="Community guidelines"
         >
           <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" aria-hidden="true" />
+            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" aria-hidden="true" />
             </div>
             <div className="min-w-0">
               <h2 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">

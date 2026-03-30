@@ -295,7 +295,7 @@ const ReportPage: React.FC = () => {
               href="https://www.facebook.com/groups/catwaala"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white font-semibold py-2.5 px-4 hover:bg-blue-700 transition-colors touch-manipulation active:scale-95"
+              className="inline-flex items-center justify-center rounded-lg bg-amber-600 text-white font-semibold py-2.5 px-4 hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
             >
               Catwaala Facebook Community
             </a>
@@ -303,7 +303,7 @@ const ReportPage: React.FC = () => {
               href="https://www.facebook.com/groups/kuttawaala"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white font-semibold py-2.5 px-4 hover:bg-blue-700 transition-colors touch-manipulation active:scale-95"
+              className="inline-flex items-center justify-center rounded-lg bg-amber-600 text-white font-semibold py-2.5 px-4 hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
             >
               Kuttawaala Facebook Community
             </a>

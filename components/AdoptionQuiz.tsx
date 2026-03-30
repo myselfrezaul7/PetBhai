@@ -64,7 +64,7 @@ const AdoptionQuiz: React.FC = () => {
       return {
         title: "You're Getting There!",
         desc: 'A low-maintenance pet like a cat or an older dog might be a great fit for your lifestyle.',
-        color: 'text-blue-500',
+        color: 'text-amber-500',
         icon: '😺',
       };
     return {

@@ -153,7 +153,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`safe-top safe-bottom fixed right-0 top-0 z-50 h-full w-full max-w-md transform rounded-l-[2.2rem] border-l border-white/55 bg-[linear-gradient(165deg,rgba(255,255,255,0.96),rgba(235,243,252,0.93))] shadow-[0_24px_60px_rgba(30,64,175,0.2)] backdrop-blur-glass transition-all duration-500 ease-out dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] ${
+        className={`safe-top safe-bottom fixed right-0 top-0 z-50 h-full w-full max-w-md transform rounded-l-[2.2rem] border-l border-white/55 bg-white/95 shadow-[0_24px_60px_rgba(0,0,0,0.08)] backdrop-blur-glass transition-all duration-500 ease-out dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"

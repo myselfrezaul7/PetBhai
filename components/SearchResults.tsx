@@ -319,7 +319,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                         </div>
                         <div className="flex items-center gap-1.5">
                           <div
-                            className={`w-2 h-2 rounded-full ${vet.availability === 'Available Now' ? 'bg-green-500 animate-pulse' : vet.availability === 'Available Today' ? 'bg-blue-500' : 'bg-slate-300'}`}
+                            className={`w-2 h-2 rounded-full ${vet.availability === 'Available Now' ? 'bg-green-500 animate-pulse' : vet.availability === 'Available Today' ? 'bg-amber-500' : 'bg-slate-300'}`}
                             aria-hidden="true"
                           ></div>
                           <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">

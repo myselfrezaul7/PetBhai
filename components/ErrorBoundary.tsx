@@ -101,7 +101,7 @@ class ErrorBoundary extends Component<Props, State> {
             </button>
             <button
               onClick={this.handleReset}
-              className="bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-transform active:scale-95 shadow-lg"
+              className="bg-amber-500 text-white font-bold py-3 px-8 rounded-full hover:bg-amber-600 transition-transform active:scale-95 shadow-lg"
             >
               Try Again
             </button>

@@ -173,7 +173,7 @@ const getAuthHeaders = (): Record<'Authorization', string> => {
 const getOrderStatusTone = (status: OrderStatus | undefined): string => {
   if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
   if (status === 'cancelled' || status === 'refunded') return 'bg-rose-100 text-rose-700';
-  if (status === 'shipped') return 'bg-blue-100 text-blue-700';
+  if (status === 'shipped') return 'bg-amber-100 text-amber-700';
   if (status === 'processing' || status === 'confirmed') return 'bg-amber-100 text-amber-700';
   return 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200';
 };
@@ -601,7 +601,7 @@ const AdminDashboard = () => {
       {
         label: 'Total Orders',
         value: String(orderStats.total ?? 0),
-        tone: 'bg-blue-600 text-white',
+        tone: 'bg-amber-600 text-white',
       },
       {
         label: 'Revenue',

@@ -274,8 +274,8 @@ const ShopPage: React.FC = () => {
           onClick={() => handleCategoryChange(filter)}
           className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
             activeCategory === filter
-              ? 'bg-kw-primary/10 text-white shadow-lg transform scale-105'
-              : 'bg-kw-bg-surface dark:bg-kw-bg-surface/50 text-kw-text-muted hover:bg-kw-primary/10/50 dark:hover:bg-slate-600/50'
+              ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-lg transform scale-105'
+              : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-400 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
           }`}
           aria-pressed={activeCategory === filter}
           data-pressed={activeCategory === filter}
@@ -314,34 +314,34 @@ const ShopPage: React.FC = () => {
         url={`${window.location.origin}/#/shop`}
       />
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
-        <header className="text-center mb-6 md:mb-10 glass-card-ios border border-kw-border dark:border-kw-border bg-kw-bg-surface dark:bg-kw-bg-surface backdrop-blur-xl p-5 md:p-8">
-          <span className="inline-flex items-center rounded-full bg-kw-bg-surface dark:bg-kw-bg-surface-hover border border-kw-border dark:border-kw-border px-3 py-1 text-xs md:text-sm font-semibold text-kw-primary mb-3">
+        <header className="text-center mb-6 md:mb-10 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-5 md:p-8">
+          <span className="inline-flex items-center rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-amber-900/10 dark:border-amber-100/10 px-3 py-1 text-xs md:text-sm font-semibold text-amber-600 dark:text-amber-500 mb-3">
             PetBhai Shop
           </span>
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-kw-text-main mb-3 md:mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-50 mb-3 md:mb-4">
             {t('shop_title')}
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-kw-text-muted max-w-3xl mx-auto px-2">
+          <p className="text-sm sm:text-base md:text-lg text-zinc-500 dark:text-zinc-400 max-w-3xl mx-auto px-2">
             {t('shop_subtitle')}
           </p>
         </header>
 
         {isAuthenticated && (reorderLoading || reorderSuggestions.length > 0) && (
           <section
-            className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 border border-kw-border dark:border-kw-border bg-kw-bg-surface dark:bg-kw-bg-surface backdrop-blur-xl"
+            className="glass-card-ios p-4 sm:p-6 mb-8 md:mb-12 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl"
             aria-label="Smart reorder suggestions"
           >
             <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="text-lg sm:text-2xl font-bold text-kw-text-main">
+              <h2 className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                 Smart Reorder
               </h2>
-              <span className="text-xs sm:text-sm text-kw-text-muted">
+              <span className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
                 Based on your order cycle
               </span>
             </div>
 
             {reorderLoading ? (
-              <p className="text-sm text-kw-text-muted">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 Loading your reorder picks...
               </p>
             ) : (
@@ -355,7 +355,7 @@ const ShopPage: React.FC = () => {
                     />
                   ))}
                 </div>
-                <p className="mt-4 text-xs sm:text-sm text-kw-text-muted">
+                <p className="mt-4 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
                   Recommended quantities are pre-calculated from your recent purchases.
                 </p>
               </>
@@ -364,12 +364,12 @@ const ShopPage: React.FC = () => {
         )}
 
         {/* Filters & Sorting */}
-        <div className="glass-card-ios mb-8 space-y-4 border border-kw-border bg-kw-bg-surface p-4 shadow-xl backdrop-blur-xl dark:border-kw-border dark:bg-kw-bg-surface md:sticky md:top-20 md:mb-12 md:space-y-6 md:p-6">
+        <div className="glass-card-ios mb-8 space-y-4 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-4 shadow-xl backdrop-blur-xl dark:border-amber-100/10 dark:bg-zinc-900/95 md:sticky md:top-20 md:mb-12 md:space-y-6 md:p-6">
           {/* Search Bar */}
           <div className="relative max-w-lg mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
               <SearchIcon
-                className="w-4 h-4 sm:w-5 sm:h-5 text-kw-text-muted"
+                className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500 dark:text-zinc-400"
                 aria-hidden="true"
               />
             </span>
@@ -380,21 +380,21 @@ const ShopPage: React.FC = () => {
               onChange={handleSearchChange}
               inputMode="search"
               enterKeyHint="search"
-              className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-kw-text-muted bg-kw-bg-surface dark:bg-kw-bg-surface-hover border border-slate-300/50 dark:border-kw-border rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
+              className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-zinc-500 dark:text-zinc-400 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-slate-300/50 dark:border-amber-100/10 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
               aria-label={t('shop_search_label')}
               autoComplete="off"
             />
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs font-semibold text-kw-text-muted">
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
               Popular:
             </span>
             {QUICK_SEARCH_TERMS.map((term) => (
               <button
                 key={term}
                 onClick={() => setSearchQuery(term)}
-                className="text-xs px-3 py-1.5 rounded-full bg-kw-bg-surface dark:bg-kw-bg-surface/60 text-kw-text-muted hover:bg-kw-primary/10 dark:hover:bg-slate-600 transition-colors"
+                className="text-xs px-3 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/60 text-zinc-500 dark:text-zinc-400 hover:bg-amber-500/10 dark:bg-amber-500/10 dark:hover:bg-slate-600 transition-colors"
               >
                 {term}
               </button>
@@ -412,10 +412,10 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="md:hidden flex items-center justify-between gap-3 border-t border-kw-border pt-4 dark:border-kw-border">
+          <div className="md:hidden flex items-center justify-between gap-3 border-t border-amber-900/10 dark:border-amber-100/10 pt-4 dark:border-amber-100/10">
             <button
               onClick={() => setIsFilterSheetOpen(true)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors active:scale-95 dark:bg-kw-bg-surface dark:text-slate-900"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors active:scale-95 dark:bg-zinc-900/95 dark:text-slate-900"
             >
               <svg
                 className="h-4 w-4"
@@ -433,7 +433,7 @@ const ShopPage: React.FC = () => {
               </svg>
               Filter & Sort
               {activeFiltersCount > 0 && (
-                <span className="rounded-full bg-kw-bg-surface px-1.5 py-0.5 text-[10px] font-bold leading-none text-slate-900">
+                <span className="rounded-full bg-white/95 dark:bg-zinc-900/95 px-1.5 py-0.5 text-[10px] font-bold leading-none text-slate-900">
                   {activeFiltersCount}
                 </span>
               )}
@@ -449,11 +449,11 @@ const ShopPage: React.FC = () => {
           </div>
 
           {/* Brand, Sort & Advanced Filters Toggle */}
-          <div className="hidden md:flex flex-col items-stretch justify-center gap-3 border-t border-kw-border pt-4 dark:border-kw-border sm:flex-row sm:items-center sm:gap-4 sm:pt-6">
+          <div className="hidden md:flex flex-col items-stretch justify-center gap-3 border-t border-amber-900/10 dark:border-amber-100/10 pt-4 dark:border-amber-100/10 sm:flex-row sm:items-center sm:gap-4 sm:pt-6">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="brand-filter"
-                className="font-semibold text-kw-text-muted text-sm whitespace-nowrap"
+                className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap"
               >
                 {t('filter_brand')}
               </label>
@@ -462,7 +462,7 @@ const ShopPage: React.FC = () => {
                   id="brand-filter"
                   value={activeBrand}
                   onChange={handleBrandChange}
-                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-kw-border bg-kw-bg-surface dark:bg-kw-bg-surface/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                 >
                   <option value="All">{t('filter_brand_all')}</option>
                   {brands.map((brand) => (
@@ -472,7 +472,7 @@ const ShopPage: React.FC = () => {
                   ))}
                 </select>
                 <div
-                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-kw-text-muted"
+                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-400"
                   aria-hidden="true"
                 >
                   <svg
@@ -489,7 +489,7 @@ const ShopPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <label
                 htmlFor="sort-by"
-                className="font-semibold text-kw-text-muted text-sm whitespace-nowrap"
+                className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap"
               >
                 {t('filter_sort')}
               </label>
@@ -498,7 +498,7 @@ const ShopPage: React.FC = () => {
                   id="sort-by"
                   value={sortOption}
                   onChange={handleSortChange}
-                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-kw-border bg-kw-bg-surface dark:bg-kw-bg-surface/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                 >
                   <option value="default">{t('filter_sort_default')}</option>
                   <option value="price-asc">{t('filter_sort_price_asc')}</option>
@@ -507,7 +507,7 @@ const ShopPage: React.FC = () => {
                   <option value="top-sold">{t('filter_sort_top_sold')}</option>
                 </select>
                 <div
-                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-kw-text-muted"
+                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-400"
                   aria-hidden="true"
                 >
                   <svg
@@ -526,8 +526,8 @@ const ShopPage: React.FC = () => {
               onClick={() => setShowAdvancedFilters((prev) => !prev)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 touch-manipulation active:scale-95 ${
                 showAdvancedFilters || activeFiltersCount > 0
-                  ? 'bg-kw-primary/10 text-white shadow-lg'
-                  : 'bg-kw-bg-surface dark:bg-kw-bg-surface/50 text-kw-text-muted hover:bg-kw-primary/10/50 dark:hover:bg-slate-600/50'
+                  ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-lg'
+                  : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-400 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
               }`}
               aria-controls="advanced-filters"
             >
@@ -547,7 +547,7 @@ const ShopPage: React.FC = () => {
               </svg>
               <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span className="bg-kw-bg-surface text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                <span className="bg-white/95 dark:bg-zinc-900/95 text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
                   {activeFiltersCount}
                 </span>
               )}
@@ -563,10 +563,10 @@ const ShopPage: React.FC = () => {
                 : 'max-h-0 opacity-0'
             }`}
           >
-            <div className="pt-4 sm:pt-6 border-t border-slate-200 dark:border-kw-border space-y-5">
+            <div className="pt-4 sm:pt-6 border-t border-slate-200 dark:border-amber-100/10 space-y-5">
               {/* Price Range Slider */}
               <div className="space-y-3">
-                <label className="font-semibold text-kw-text-muted text-sm flex items-center gap-2">
+                <label className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm flex items-center gap-2">
                   {t('filter_price_range')}
                   <span className="text-orange-500 font-bold tabular-nums">
                     ৳{priceRange[0].toLocaleString('en-BD')} – ৳
@@ -574,14 +574,14 @@ const ShopPage: React.FC = () => {
                   </span>
                 </label>
                 <div className="flex items-center gap-3 sm:gap-4 max-w-xl">
-                  <span className="text-xs text-kw-text-muted tabular-nums whitespace-nowrap">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap">
                     ৳{PRICE_MIN}
                   </span>
                   <div className="flex-1 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <label
                         htmlFor="min-price"
-                        className="text-[10px] text-kw-text-muted"
+                        className="text-[10px] text-zinc-500 dark:text-zinc-400"
                       >
                         Min
                       </label>
@@ -596,14 +596,14 @@ const ShopPage: React.FC = () => {
                           const val = Number(e.target.value);
                           setPriceRange((prev) => [Math.min(val, prev[1] - 10), prev[1]]);
                         }}
-                        className="w-full h-2 bg-slate-200 dark:bg-kw-bg-surface rounded-lg appearance-none cursor-pointer accent-orange-500"
+                        className="w-full h-2 bg-slate-200 dark:bg-zinc-900/95 rounded-lg appearance-none cursor-pointer accent-orange-500"
                         aria-label="Minimum price"
                       />
                     </div>
                     <div className="flex items-center gap-2">
                       <label
                         htmlFor="max-price"
-                        className="text-[10px] text-kw-text-muted"
+                        className="text-[10px] text-zinc-500 dark:text-zinc-400"
                       >
                         Max
                       </label>
@@ -618,12 +618,12 @@ const ShopPage: React.FC = () => {
                           const val = Number(e.target.value);
                           setPriceRange((prev) => [prev[0], Math.max(val, prev[0] + 10)]);
                         }}
-                        className="w-full h-2 bg-slate-200 dark:bg-kw-bg-surface rounded-lg appearance-none cursor-pointer accent-orange-500"
+                        className="w-full h-2 bg-slate-200 dark:bg-zinc-900/95 rounded-lg appearance-none cursor-pointer accent-orange-500"
                         aria-label="Maximum price"
                       />
                     </div>
                   </div>
-                  <span className="text-xs text-kw-text-muted tabular-nums whitespace-nowrap">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap">
                     ৳{PRICE_MAX.toLocaleString('en-BD')}
                   </span>
                 </div>
@@ -635,7 +635,7 @@ const ShopPage: React.FC = () => {
                 <div className="flex items-center gap-2 flex-1">
                   <label
                     htmlFor="weight-filter"
-                    className="font-semibold text-kw-text-muted text-sm whitespace-nowrap"
+                    className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap"
                   >
                     {t('filter_weight')}
                   </label>
@@ -644,7 +644,7 @@ const ShopPage: React.FC = () => {
                       id="weight-filter"
                       value={activeWeight}
                       onChange={(e) => setActiveWeight(e.target.value)}
-                      className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-kw-border bg-kw-bg-surface dark:bg-kw-bg-surface/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                      className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                     >
                       <option value="All">{t('filter_weight_all')}</option>
                       {weightOptions.map((w) => (
@@ -654,7 +654,7 @@ const ShopPage: React.FC = () => {
                       ))}
                     </select>
                     <div
-                      className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-kw-text-muted"
+                      className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-400"
                       aria-hidden="true"
                     >
                       <svg
@@ -671,7 +671,7 @@ const ShopPage: React.FC = () => {
 
                 {/* Minimum Rating Filter */}
                 <div className="flex items-center gap-2 flex-1">
-                  <label className="font-semibold text-kw-text-muted text-sm whitespace-nowrap">
+                  <label className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap">
                     {t('filter_min_rating')}
                   </label>
                   <div className="flex items-center gap-1">
@@ -681,20 +681,20 @@ const ShopPage: React.FC = () => {
                         onClick={() => setMinRating(star)}
                         className={`p-1 rounded transition-all duration-200 touch-manipulation active:scale-90 ${
                           minRating === star
-                            ? 'bg-kw-primary/10 dark:bg-kw-primary/20 ring-2 ring-orange-500'
+                            ? 'bg-amber-500/10 dark:bg-amber-500/10 dark:bg-amber-500/20 dark:bg-amber-500/20 ring-2 ring-orange-500'
                             : 'hover:bg-slate-100 dark:hover:bg-slate-700/50'
                         }`}
                         aria-label={star === 0 ? 'All ratings' : `${star} stars and up`}
                         title={star === 0 ? 'All' : `${star}★+`}
                       >
                         {star === 0 ? (
-                          <span className="text-xs font-semibold text-kw-text-muted px-1">
+                          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-1">
                             {t('filter_min_rating_all')}
                           </span>
                         ) : (
                           <span className="flex items-center gap-0.5">
                             <span className="text-yellow-500 text-sm">{'★'.repeat(star)}</span>
-                            <span className="text-kw-text-muted text-sm">
+                            <span className="text-zinc-500 dark:text-zinc-400 text-sm">
                               {'★'.repeat(5 - star)}
                             </span>
                           </span>
@@ -721,10 +721,10 @@ const ShopPage: React.FC = () => {
         </div>
 
         {/* Visible Result Count + Active Filter Chips */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 glass-card-ios border border-kw-border dark:border-kw-border bg-kw-bg-surface dark:bg-kw-bg-surface backdrop-blur-lg p-3 md:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-lg p-3 md:p-4">
           {!loading && (
-            <p className="text-sm text-kw-text-muted" aria-live="polite">
-              <span className="font-bold text-kw-text-muted">{resultCount}</span>{' '}
+            <p className="text-sm text-zinc-500 dark:text-zinc-400" aria-live="polite">
+              <span className="font-bold text-zinc-500 dark:text-zinc-400">{resultCount}</span>{' '}
               {t('shop_products_found')}
             </p>
           )}
@@ -741,12 +741,12 @@ const ShopPage: React.FC = () => {
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-5">
             {searchQuery.trim() && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-kw-primary/10 dark:bg-kw-primary/20 text-kw-primary">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/10 dark:bg-amber-500/20 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500">
                 Search: {searchQuery}
               </span>
             )}
             {activeCategory !== 'All' && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300">
                 Category: {activeCategory}
               </span>
             )}
@@ -796,10 +796,10 @@ const ShopPage: React.FC = () => {
           </div>
         ) : !error && resultCount === 0 ? (
           <div className="text-center py-16 glass-card-ios">
-            <p className="text-lg text-kw-text-muted">{t('shop_no_results')}</p>
+            <p className="text-lg text-zinc-500 dark:text-zinc-400">{t('shop_no_results')}</p>
             <button
               onClick={resetAllFilters}
-              className="mt-4 px-6 py-2 bg-kw-primary/10 text-white rounded-full font-semibold hover:bg-kw-primary/10 transition-colors touch-manipulation active:scale-95"
+              className="mt-4 px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
             >
               {t('shop_clear_filters')}
             </button>
@@ -827,9 +827,9 @@ const ShopPage: React.FC = () => {
             aria-label="Close filter overlay"
           />
 
-          <aside className="safe-bottom absolute bottom-0 left-0 right-0 max-h-[84dvh] overflow-y-auto rounded-t-[2rem] border-t border-kw-border bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(236,243,255,0.93))] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 shadow-[0_-18px_48px_rgba(15,23,42,0.24)] dark:border-kw-border dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.96),rgba(30,41,59,0.93))]">
+          <aside className="safe-bottom absolute bottom-0 left-0 right-0 max-h-[84dvh] overflow-y-auto rounded-t-[2rem] border-t border-amber-900/10 dark:border-amber-100/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(236,243,255,0.93))] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 shadow-[0_-18px_48px_rgba(15,23,42,0.24)] dark:border-amber-100/10 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.96),rgba(30,41,59,0.93))]">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-kw-text-main">Filter Products</h2>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Filter Products</h2>
               <button
                 type="button"
                 onClick={() => setIsFilterSheetOpen(false)}
@@ -854,14 +854,14 @@ const ShopPage: React.FC = () => {
 
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <label htmlFor="brand-filter-mobile" className="text-sm font-semibold text-kw-text-muted">
+                <label htmlFor="brand-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                   {t('filter_brand')}
                 </label>
                 <select
                   id="brand-filter-mobile"
                   value={activeBrand}
                   onChange={handleBrandChange}
-                  className="w-full rounded-lg border border-slate-300 bg-kw-bg-surface px-3 py-2.5 text-sm dark:border-kw-border dark:bg-kw-bg-surface/50"
+                  className="w-full rounded-lg border border-slate-300 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm dark:border-amber-100/10 dark:bg-zinc-900/95/50"
                 >
                   <option value="All">{t('filter_brand_all')}</option>
                   {brands.map((brand) => (
@@ -873,14 +873,14 @@ const ShopPage: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <label htmlFor="sort-by-mobile" className="text-sm font-semibold text-kw-text-muted">
+                <label htmlFor="sort-by-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                   {t('filter_sort')}
                 </label>
                 <select
                   id="sort-by-mobile"
                   value={sortOption}
                   onChange={handleSortChange}
-                  className="w-full rounded-lg border border-slate-300 bg-kw-bg-surface px-3 py-2.5 text-sm dark:border-kw-border dark:bg-kw-bg-surface/50"
+                  className="w-full rounded-lg border border-slate-300 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm dark:border-amber-100/10 dark:bg-zinc-900/95/50"
                 >
                   <option value="default">{t('filter_sort_default')}</option>
                   <option value="price-asc">{t('filter_sort_price_asc')}</option>
@@ -892,19 +892,19 @@ const ShopPage: React.FC = () => {
 
               <button
                 onClick={() => setIsMobileAdvancedOpen((prev) => !prev)}
-                className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-kw-border bg-kw-bg-surface px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-kw-border dark:bg-kw-bg-surface dark:text-slate-200"
+                className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-amber-100/10 dark:bg-zinc-900/95 dark:text-slate-200"
               >
                 <span>Advanced Filters</span>
                 <span>{isMobileAdvancedOpen ? 'Hide' : 'Show'}</span>
               </button>
 
               {isMobileAdvancedOpen && (
-                <div className="space-y-4 rounded-2xl border border-kw-border bg-kw-bg-surface p-3 dark:border-kw-border dark:bg-kw-bg-surface">
+                <div className="space-y-4 rounded-2xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 dark:border-amber-100/10 dark:bg-zinc-900/95">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-kw-text-muted">
+                    <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                       {t('filter_price_range')}
                     </label>
-                    <p className="text-xs font-semibold text-kw-primary">
+                    <p className="text-xs font-semibold text-amber-600 dark:text-amber-500">
                       ৳{priceRange[0].toLocaleString('en-BD')} - ৳{priceRange[1].toLocaleString('en-BD')}
                     </p>
                     <input
@@ -936,14 +936,14 @@ const ShopPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label htmlFor="weight-filter-mobile" className="text-sm font-semibold text-kw-text-muted">
+                    <label htmlFor="weight-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                       {t('filter_weight')}
                     </label>
                     <select
                       id="weight-filter-mobile"
                       value={activeWeight}
                       onChange={(e) => setActiveWeight(e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-kw-bg-surface px-3 py-2.5 text-sm dark:border-kw-border dark:bg-kw-bg-surface/50"
+                      className="w-full rounded-lg border border-slate-300 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm dark:border-amber-100/10 dark:bg-zinc-900/95/50"
                     >
                       <option value="All">{t('filter_weight_all')}</option>
                       {weightOptions.map((w) => (
@@ -955,7 +955,7 @@ const ShopPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="mb-2 text-sm font-semibold text-kw-text-muted">{t('filter_min_rating')}</p>
+                    <p className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('filter_min_rating')}</p>
                     <div className="flex flex-wrap gap-2">
                       {[0, 1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -963,8 +963,8 @@ const ShopPage: React.FC = () => {
                           onClick={() => setMinRating(star)}
                           className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                             minRating === star
-                              ? 'bg-kw-primary/10 text-white'
-                              : 'bg-kw-bg-surface text-slate-700 dark:bg-kw-bg-surface dark:text-slate-200'
+                              ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white'
+                              : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 dark:bg-zinc-900/95 dark:text-slate-200'
                           }`}
                         >
                           {star === 0 ? t('filter_min_rating_all') : `${star}★+`}
@@ -978,13 +978,13 @@ const ShopPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={resetAllFilters}
-                  className="min-h-[44px] rounded-xl border border-orange-200 bg-kw-primary/10 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-kw-primary/20 dark:text-orange-300"
+                  className="min-h-[44px] rounded-xl border border-orange-200 bg-amber-500/10 dark:bg-amber-500/10 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-amber-500/20 dark:bg-amber-500/20 dark:text-orange-300"
                 >
                   {t('shop_clear_filters')}
                 </button>
                 <button
                   onClick={() => setIsFilterSheetOpen(false)}
-                  className="min-h-[44px] rounded-xl bg-slate-900 text-sm font-semibold text-white dark:bg-kw-bg-surface dark:text-slate-900"
+                  className="min-h-[44px] rounded-xl bg-slate-900 text-sm font-semibold text-white dark:bg-zinc-900/95 dark:text-slate-900"
                 >
                   Apply
                 </button>

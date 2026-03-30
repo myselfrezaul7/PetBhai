@@ -33,12 +33,12 @@ const MobileNavLink: React.FC<{
     className={({ isActive }) =>
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
-          ? 'bg-kw-primary/10 text-kw-primary border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:bg-kw-primary/20 dark:text-kw-primary dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
-          : 'bg-kw-bg-surface text-kw-text-main border-kw-border hover:bg-kw-bg-surface-hover dark:bg-kw-bg-surface dark:text-kw-text-main dark:border-kw-border dark:hover:bg-kw-bg-surface-hover'
+          ? 'bg-amber-500/10 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:bg-amber-500/20 dark:bg-amber-500/20 dark:text-amber-600 dark:text-amber-500 dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
+          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-zinc-50 border-amber-900/10 dark:border-amber-100/10 hover:bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-900/95 dark:text-zinc-900 dark:text-zinc-50 dark:border-amber-100/10 dark:hover:bg-amber-50/80 dark:bg-zinc-800/80'
       } ${className || ''}`
     }
   >
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-kw-bg-page text-current dark:bg-kw-bg-page">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fdfbf7] dark:bg-zinc-950 text-current dark:bg-[#fdfbf7] dark:bg-zinc-950">
       {icon}
     </span>
     {children}
@@ -744,7 +744,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleMenuOpen}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-kw-bg-surface-hover text-kw-text-main hover:bg-kw-primary/10 hover:text-kw-primary transition-colors touch-manipulation active:scale-95 border border-kw-border dark:bg-kw-bg-surface-hover dark:text-kw-text-main dark:hover:bg-kw-primary/20 dark:hover:text-kw-primary dark:border-kw-border"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 hover:bg-amber-500/10 dark:bg-amber-500/10 hover:text-amber-600 dark:text-amber-500 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-zinc-900 dark:text-zinc-50 dark:hover:bg-amber-500/20 dark:bg-amber-500/20 dark:hover:text-amber-600 dark:text-amber-500 dark:border-amber-100/10"
               aria-label="Open menu"
             >
               <MenuIcon className="w-7 h-7" />
@@ -753,7 +753,7 @@ const Header: React.FC = () => {
             <NavLink
               to="/"
               onClick={handleLogoClick}
-              className="flex items-center gap-2 text-xl font-bold text-kw-primary dark:text-kw-primary"
+              className="flex items-center gap-2 text-xl font-bold text-amber-600 dark:text-amber-500 dark:text-amber-600 dark:text-amber-500"
             >
               <Logo className="h-7 w-7" />
               <span className="text-2xl font-black tracking-tight">PetBhai</span>
@@ -763,7 +763,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenMobileSearch}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-kw-bg-surface-hover text-kw-text-main transition-colors hover:text-kw-primary hover:bg-kw-primary/10 border border-kw-border touch-manipulation active:scale-95 dark:bg-kw-bg-surface-hover dark:text-kw-text-main dark:hover:text-kw-primary dark:hover:bg-kw-primary/20 dark:border-kw-border"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 transition-colors hover:text-amber-600 dark:text-amber-500 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 touch-manipulation active:scale-95 dark:bg-zinc-800/80 dark:text-zinc-900 dark:text-zinc-50 dark:hover:text-amber-600 dark:text-amber-500 dark:hover:bg-amber-500/20 dark:bg-amber-500/20 dark:border-amber-100/10"
                 aria-label="Open search"
               >
                 <SearchIcon className="w-6 h-6" />
@@ -771,7 +771,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={openCart}
-                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-kw-bg-surface-hover text-kw-text-main transition-colors hover:text-kw-primary hover:bg-kw-primary/10 border border-kw-border touch-manipulation active:scale-95 dark:bg-kw-bg-surface-hover dark:text-kw-text-main dark:hover:text-kw-primary dark:hover:bg-kw-primary/20 dark:border-kw-border"
+                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 transition-colors hover:text-amber-600 dark:text-amber-500 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 touch-manipulation active:scale-95 dark:bg-zinc-800/80 dark:text-zinc-900 dark:text-zinc-50 dark:hover:text-amber-600 dark:text-amber-500 dark:hover:bg-amber-500/20 dark:bg-amber-500/20 dark:border-amber-100/10"
                 aria-label={`Open cart with ${cartCount} items`}
               >
                 <svg
@@ -790,7 +790,7 @@ const Header: React.FC = () => {
                   <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                 </svg>
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 bg-amber-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                     {cartCount > 9 ? '9+' : cartCount}
                   </span>
                 )}
@@ -816,7 +816,7 @@ const Header: React.FC = () => {
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 onKeyDown={handleKeyDown}
-                className="w-full py-3 pl-10 pr-4 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-kw-primary"
+                className="w-full py-3 pl-10 pr-4 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:ring-amber-400"
                 aria-label="Search"
                 autoFocus
                 autoComplete="off"
@@ -907,7 +907,7 @@ const Header: React.FC = () => {
             />
 
             <motion.aside
-              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(233,243,255,0.93))] px-5 py-5 shadow-[0_26px_64px_rgba(30,64,175,0.2)] backdrop-blur-glass dark:border-white/10 dark:bg-[linear-gradient(160deg,rgba(9,9,11,0.95),rgba(15,23,42,0.95))] dark:shadow-[0_26px_64px_rgba(0,0,0,0.7)]"
+              className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-white/95 px-5 py-5 shadow-[0_26px_64px_rgba(0,0,0,0.08)] backdrop-blur-glass dark:border-white/10 dark:bg-[linear-gradient(160deg,rgba(9,9,11,0.95),rgba(15,23,42,0.95))] dark:shadow-[0_26px_64px_rgba(0,0,0,0.7)]"
               variants={menuPanelVariants}
               initial="hidden"
               animate="visible"
@@ -917,7 +917,7 @@ const Header: React.FC = () => {
               onTouchEnd={handleMenuTouchEnd}
             >
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-[2.35rem] font-black leading-none tracking-tight text-kw-primary dark:text-kw-primary">
+                <h2 className="text-[2.35rem] font-black leading-none tracking-tight text-amber-600 dark:text-amber-500 dark:text-amber-600 dark:text-amber-500">
                   PetBhai
                 </h2>
                 <button
@@ -938,7 +938,7 @@ const Header: React.FC = () => {
                 animate="visible"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-blue-400/60 bg-white shadow-sm dark:bg-slate-800">
+                  <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-amber-400/60 bg-white shadow-sm dark:bg-slate-800">
                     {isAuthenticated && currentUser ? (
                       <Avatar
                         src={currentUser.profilePictureUrl}
@@ -956,7 +956,7 @@ const Header: React.FC = () => {
                     <p className="max-w-[11rem] truncate text-2xl font-extrabold leading-none tracking-tight text-slate-900 dark:text-white">
                       {isAuthenticated && currentUser ? currentUser.name : 'Guardian Name'}
                     </p>
-                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-300">
+                    <p className="text-xl font-semibold text-amber-600 dark:text-amber-300">
                       {isAuthenticated ? 'Premium Member' : 'Pet Parent'}
                     </p>
                   </div>
@@ -983,7 +983,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/login"
                     onClick={handleMenuClose}
-                    className="mt-4 flex min-h-[44px] items-center justify-center rounded-xl bg-blue-600 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-blue-700"
+                    className="mt-4 flex min-h-[44px] items-center justify-center rounded-xl bg-amber-600 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-700"
                   >
                     {t('nav_login')}
                   </Link>
@@ -1037,7 +1037,7 @@ const Header: React.FC = () => {
                   <Link
                     to="/signup"
                     onClick={handleMenuClose}
-                    className="flex min-h-[56px] items-center justify-center rounded-2xl border border-blue-600 bg-blue-600 px-4 py-3 text-[1.05rem] font-bold text-white shadow-md transition-colors hover:bg-blue-700"
+                    className="flex min-h-[56px] items-center justify-center rounded-2xl border border-amber-600 bg-amber-600 px-4 py-3 text-[1.05rem] font-bold text-white shadow-md transition-colors hover:bg-amber-700"
                   >
                     {t('nav_signup')}
                   </Link>

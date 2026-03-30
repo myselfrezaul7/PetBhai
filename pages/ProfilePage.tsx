@@ -524,7 +524,7 @@ const ProfilePage: React.FC = () => {
             aria-hidden="true"
           />
           <div
-            className="pointer-events-none absolute -left-16 -bottom-16 h-52 w-52 rounded-full bg-blue-300/30 blur-3xl dark:bg-blue-500/20"
+            className="pointer-events-none absolute -left-16 -bottom-16 h-52 w-52 rounded-full bg-amber-300/30 blur-3xl dark:bg-amber-500/20"
             aria-hidden="true"
           />
           <div className="flex flex-col lg:flex-row lg:items-center gap-5">
@@ -559,7 +559,7 @@ const ProfilePage: React.FC = () => {
                   {currentUser.name}
                 </h1>
                 {currentUser.socialProvider === 'google' && (
-                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-900/30 dark:text-blue-300">
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-900/30 dark:text-amber-300">
                     Google Account
                   </span>
                 )}
@@ -930,7 +930,7 @@ const ProfilePage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Security</h2>
 
                   {currentUser.socialProvider ? (
-                    <p className="text-sm text-slate-600 dark:text-slate-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                    <p className="text-sm text-slate-600 dark:text-slate-300 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
                       You signed up with Google. Password change may not apply unless you also use
                       email/password login.
                     </p>
@@ -1086,7 +1086,7 @@ const ProfilePage: React.FC = () => {
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                   : order.status === 'cancelled' || order.status === 'refunded'
                                     ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                               }`}
                             >
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

@@ -42,7 +42,7 @@ export function FormField<T extends FieldValues>({
     <div className={`space-y-1 ${className}`}>
       <label
         htmlFor={inputId}
-        className="block text-sm font-semibold text-kw-text-main"
+        className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -56,13 +56,13 @@ export function FormField<T extends FieldValues>({
         autoComplete={autoComplete}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full min-h-[44px] px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
-          bg-kw-bg-surface dark:bg-kw-bg-surface text-kw-text-main focus:ring-kw-primary
+          bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-zinc-50 focus:ring-amber-500 dark:ring-amber-400
           ${
             error
               ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-              : 'border-kw-border'
+              : 'border-amber-900/10 dark:border-amber-100/10'
           }
-          ${disabled ? 'opacity-60 cursor-not-allowed bg-kw-bg-surface-hover dark:bg-kw-bg-surface-hover' : ''}
+          ${disabled ? 'opacity-60 cursor-not-allowed bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-800/80' : ''}
         `}
         {...register(name)}
       />
@@ -117,7 +117,7 @@ export function TextAreaField<T extends FieldValues>({
     <div className={`space-y-1 ${className}`}>
       <label
         htmlFor={inputId}
-        className="block text-sm font-semibold text-kw-text-main"
+        className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -130,13 +130,13 @@ export function TextAreaField<T extends FieldValues>({
         maxLength={maxLength}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full min-h-[44px] px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none
-          bg-kw-bg-surface dark:bg-kw-bg-surface text-kw-text-main focus:ring-kw-primary
+          bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-zinc-50 focus:ring-amber-500 dark:ring-amber-400
           ${
             error
               ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-              : 'border-kw-border'
+              : 'border-amber-900/10 dark:border-amber-100/10'
           }
-          ${disabled ? 'opacity-60 cursor-not-allowed bg-kw-bg-surface-hover dark:bg-kw-bg-surface-hover' : ''}
+          ${disabled ? 'opacity-60 cursor-not-allowed bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-800/80' : ''}
         `}
         {...register(name)}
       />
@@ -189,7 +189,7 @@ export function SelectField<T extends FieldValues>({
     <div className={`space-y-1 ${className}`}>
       <label
         htmlFor={inputId}
-        className="block text-sm font-semibold text-kw-text-main"
+        className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -199,13 +199,13 @@ export function SelectField<T extends FieldValues>({
         disabled={disabled}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={`w-full min-h-[44px] px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors
-          bg-kw-bg-surface dark:bg-kw-bg-surface text-kw-text-main focus:ring-kw-primary appearance-none cursor-pointer
+          bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-zinc-50 focus:ring-amber-500 dark:ring-amber-400 appearance-none cursor-pointer
           ${
             error
               ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-              : 'border-kw-border'
+              : 'border-amber-900/10 dark:border-amber-100/10'
           }
-          ${disabled ? 'opacity-60 cursor-not-allowed bg-kw-bg-surface-hover dark:bg-kw-bg-surface-hover' : ''}
+          ${disabled ? 'opacity-60 cursor-not-allowed bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-800/80' : ''}
         `}
         {...register(name)}
       >
@@ -263,7 +263,7 @@ export function CheckboxField<T extends FieldValues>({
           type="checkbox"
           disabled={disabled}
           aria-describedby={error ? `${inputId}-error` : undefined}
-          className={`mt-1 w-5 h-5 rounded border-kw-border 
+          className={`mt-1 w-5 h-5 rounded border-amber-900/10 dark:border-amber-100/10 
             text-orange-500 focus:ring-orange-500 cursor-pointer
             ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
           `}
@@ -271,7 +271,7 @@ export function CheckboxField<T extends FieldValues>({
         />
         <label
           htmlFor={inputId}
-          className="text-sm text-kw-text-main cursor-pointer"
+          className="text-sm text-zinc-900 dark:text-zinc-50 cursor-pointer"
         >
           {label}
         </label>

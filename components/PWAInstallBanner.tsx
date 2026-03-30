@@ -63,7 +63,7 @@ const PWAInstallBanner: React.FC = () => {
 
   return (
     <div className="safe-bottom fixed bottom-[calc(5.4rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1rem)] max-w-md -translate-x-1/2 md:hidden">
-      <div className="rounded-3xl border border-white/80 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,64,175,0.88))] p-4 text-white shadow-[0_18px_44px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+      <div className="rounded-3xl border border-white/80 bg-zinc-900 p-4 text-white shadow-[0_18px_44px_rgba(15,23,42,0.45)] backdrop-blur-xl">
         <p className="text-sm font-semibold leading-relaxed text-white/90">
           Install PetBhai for a faster app-like mobile experience with offline support.
         </p>
@@ -78,7 +78,7 @@ const PWAInstallBanner: React.FC = () => {
           <button
             type="button"
             onClick={handleInstall}
-            className="min-h-[44px] rounded-2xl bg-white px-3 text-sm font-bold text-blue-700 transition-colors hover:bg-blue-50 active:scale-95"
+            className="min-h-[44px] rounded-2xl bg-white px-3 text-sm font-bold text-amber-700 transition-colors hover:bg-amber-50 active:scale-95"
           >
             Install App
           </button>

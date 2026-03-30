@@ -63,7 +63,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
     return (
       <Link
         to={`/product/${product.id}`}
-        className="group relative flex items-center gap-3 rounded-3xl border border-kw-border bg-kw-bg-surface p-3 shadow-[0_12px_26px_rgba(30,64,175,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(30,64,175,0.14)] dark:border-kw-border dark:bg-kw-bg-surface"
+        className="group relative flex items-center gap-3 rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 shadow-[0_12px_26px_rgba(0,0,0,0.04)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(0,0,0,0.08)] dark:border-amber-100/10 dark:bg-zinc-900/95"
       >
         <img
           src={product.imageUrl}
@@ -76,16 +76,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         />
 
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-kw-text-main">
+          <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
             {product.name}
           </h3>
-          <p className="mt-1 line-clamp-1 text-sm text-kw-text-muted">{product.description}</p>
+          <p className="mt-1 line-clamp-1 text-sm text-zinc-500 dark:text-zinc-400">{product.description}</p>
           <div className="mt-2 flex items-end gap-2">
-            <p className="text-3xl font-bold leading-none text-kw-primary">
+            <p className="text-3xl font-bold leading-none text-amber-600 dark:text-amber-500">
               ৳{product.price.toLocaleString('en-BD')}
             </p>
             {product.originalPrice && product.originalPrice > product.price && (
-              <p className="text-sm font-medium text-kw-text-muted line-through">
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 line-through">
                 ৳{product.originalPrice.toLocaleString('en-BD')}
               </p>
             )}
@@ -103,7 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
               ? 'bg-slate-400/80 cursor-not-allowed'
               : isAdding
                 ? 'bg-emerald-600 scale-95 animate-badge-pop'
-                : 'bg-kw-primary hover:bg-kw-primary active:scale-95'
+                : 'bg-amber-500 dark:bg-amber-600 hover:bg-amber-500 dark:bg-amber-600 active:scale-95'
           }`}
         >
           <ShoppingCartIcon className="h-4 w-4" />
@@ -114,7 +114,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
   if (variant === 'mobile-featured') {
     return (
-      <div className="group relative overflow-hidden rounded-[2rem] border border-kw-border bg-kw-bg-surface p-2 shadow-[0_14px_30px_rgba(30,64,175,0.12)] backdrop-blur-sm dark:border-kw-border dark:bg-kw-bg-surface">
+      <div className="group relative overflow-hidden rounded-[2rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-2 shadow-[0_14px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm dark:border-amber-100/10 dark:bg-zinc-900/95">
         <Link to={`/product/${product.id}`} className="block overflow-hidden rounded-[1.5rem]">
           <img
             src={product.imageUrl}
@@ -129,7 +129,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
         <button
           type="button"
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-kw-border bg-white/80 text-slate-700 shadow-sm dark:border-kw-border dark:bg-slate-900/70 dark:text-slate-200"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-amber-900/10 dark:border-amber-100/10 bg-white/80 text-slate-700 shadow-sm dark:border-amber-100/10 dark:bg-slate-900/70 dark:text-slate-200"
           aria-label={`Save ${product.name} to wishlist`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
@@ -139,14 +139,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
         <div className="px-2 pb-2 pt-3">
           <Link to={`/product/${product.id}`}>
-            <h3 className="line-clamp-1 text-xl font-semibold text-kw-text-main">{product.name}</h3>
+            <h3 className="line-clamp-1 text-xl font-semibold text-zinc-900 dark:text-zinc-50">{product.name}</h3>
           </Link>
           <div className="mt-1 flex items-end gap-2">
-            <p className="text-3xl font-bold leading-none text-kw-primary">
+            <p className="text-3xl font-bold leading-none text-amber-600 dark:text-amber-500">
               ৳{product.price.toLocaleString('en-BD')}
             </p>
             {product.originalPrice && product.originalPrice > product.price && (
-              <p className="text-sm font-medium text-kw-text-muted line-through">
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 line-through">
                 ৳{product.originalPrice.toLocaleString('en-BD')}
               </p>
             )}
@@ -222,7 +222,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
             {product.name}
           </h3>
         </Link>
-        <p className="text-kw-text-muted font-medium mt-1 sm:mt-2 text-[10px] sm:text-sm">
+        <p className="text-zinc-500 dark:text-zinc-400 font-medium mt-1 sm:mt-2 text-[10px] sm:text-sm">
           {product.weight}
         </p>
         <div className="flex justify-between items-end mt-1 sm:mt-4 mb-1 sm:mb-3">

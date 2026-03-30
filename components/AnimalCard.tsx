@@ -39,7 +39,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   };
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-kw-border bg-kw-bg-surface shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-kw-border dark:bg-kw-bg-surface">
+    <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-amber-100/10 dark:bg-zinc-900/95">
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link to={`/adopt/${animal.id}`} className="block h-full">
           <img
@@ -68,7 +68,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
                 ${
                   isFavorited
                     ? 'bg-red-500 text-white'
-                    : 'border border-kw-border bg-kw-bg-surface text-slate-700 hover:text-kw-primary dark:border-kw-border dark:bg-kw-bg-surface dark:text-zinc-300'
+                    : 'border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 text-slate-700 hover:text-amber-600 dark:text-amber-500 dark:border-amber-100/10 dark:bg-zinc-900/95 dark:text-zinc-300'
                 }`}
           aria-label={isFavorited ? 'Unfavorite' : 'Favorite'}
         >
@@ -78,36 +78,36 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
       <div className="p-3 sm:p-5 flex flex-col flex-grow">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-sm sm:text-2xl font-bold text-kw-text-main group-hover:text-kw-primary transition-colors">
+            <h3 className="text-sm sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-amber-600 dark:text-amber-500 transition-colors">
               {animal.name}
             </h3>
-            <p className="text-kw-text-muted font-medium text-[10px] sm:text-sm mt-0.5 sm:mt-1 line-clamp-1">
+            <p className="text-zinc-500 dark:text-zinc-400 font-medium text-[10px] sm:text-sm mt-0.5 sm:mt-1 line-clamp-1">
               {animal.breed}
             </p>
           </div>
           <div className="text-right hidden sm:block">
-            <span className="block text-xs font-bold text-kw-text-muted uppercase tracking-wide">
+            <span className="block text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Age
             </span>
-            <span className="text-sm font-semibold text-kw-text-main">
+            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
               {animal.age}
             </span>
           </div>
         </div>
 
-        <div className="mt-1 sm:mt-4 pt-1 sm:pt-4 border-t border-kw-border dark:border-kw-border/50 flex flex-wrap items-center justify-between text-[10px] sm:text-sm text-kw-text-muted gap-1">
+        <div className="mt-1 sm:mt-4 pt-1 sm:pt-4 border-t border-amber-900/10 dark:border-amber-100/10 dark:border-amber-900/5 dark:border-amber-100/5 flex flex-wrap items-center justify-between text-[10px] sm:text-sm text-zinc-500 dark:text-zinc-400 gap-1">
           <span className="sm:hidden font-semibold">{animal.age}</span>
-          <span className="sm:hidden text-kw-text-muted">&bull;</span>
+          <span className="sm:hidden text-zinc-500 dark:text-zinc-400">&bull;</span>
           <span>{animal.gender}</span>
           <span className="w-1 h-1 bg-slate-400 rounded-full hidden sm:block"></span>
           <span>{animal.size}</span>
         </div>
 
-        <p className="text-kw-text-muted mt-1 sm:mt-4 flex-grow text-[10px] sm:text-sm line-clamp-2 leading-relaxed">
+        <p className="text-zinc-500 dark:text-zinc-400 mt-1 sm:mt-4 flex-grow text-[10px] sm:text-sm line-clamp-2 leading-relaxed">
           {animal.description}
         </p>
       </div>
-      <div className="mt-auto border-t border-kw-border bg-slate-50 p-2 dark:border-kw-border dark:bg-kw-bg-surface sm:p-4">
+      <div className="mt-auto border-t border-amber-900/10 dark:border-amber-100/10 bg-slate-50 p-2 dark:border-amber-100/10 dark:bg-zinc-900/95 sm:p-4">
         <Link
           to={`/adopt/${animal.id}`}
           className="block min-h-[44px] w-full rounded-full bg-slate-950 px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition-all hover:bg-black active:scale-95 touch-manipulation sm:px-4 sm:py-3 sm:text-base"

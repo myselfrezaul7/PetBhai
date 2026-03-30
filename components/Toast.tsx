@@ -10,7 +10,7 @@ interface ToastProps {
 const icons = {
   success: <CheckCircleIcon className="w-6 h-6 text-green-500" />,
   error: <XCircleIcon className="w-6 h-6 text-red-500" />,
-  info: <InformationCircleIcon className="w-6 h-6 text-blue-500" />,
+  info: <InformationCircleIcon className="w-6 h-6 text-amber-500" />,
 };
 
 const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {

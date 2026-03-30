@@ -72,14 +72,14 @@ const ImpactDashboardPage: React.FC = () => {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg text-center transform hover:scale-105 transition-transform">
-            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+            <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
               🏠
             </div>
             <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-1">1,245</h3>
             <p className="text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide text-xs">
               Successful Adoptions
             </p>
-            <div className="mt-4 text-xs text-blue-600 dark:text-blue-400 font-bold">
+            <div className="mt-4 text-xs text-amber-600 dark:text-amber-400 font-bold">
               +12 this week!
             </div>
           </div>

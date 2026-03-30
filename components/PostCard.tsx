@@ -693,8 +693,8 @@ const PostCard: React.FC<PostCardProps> = ({
             aria-label={`${showComments ? 'Hide' : 'Show'} comments`}
             className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation ${
               showComments
-                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                : 'text-slate-700 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-slate-700/50'
+                ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20'
+                : 'text-slate-700 dark:text-slate-300 hover:text-amber-600 hover:bg-amber-50/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <ChatBubbleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -892,7 +892,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 setReplyingTo(replyingTo === comment.id ? null : comment.id)
                               }
                               disabled={!currentUser}
-                              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
                             >
                               Reply
                             </button>
@@ -904,7 +904,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 <button
                                   onClick={() => handleEditComment(comment.id, comment.text)}
                                   disabled={loadingCommentId === comment.id}
-                                  className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
+                                  className="text-xs font-semibold text-amber-400 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
                                 >
                                   Edit
                                 </button>
@@ -1026,7 +1026,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                             disabled={
                                               loadingReplyId === `${comment.id}-${reply.id}`
                                             }
-                                            className="text-xs font-semibold text-blue-400 hover:text-blue-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
+                                            className="text-xs font-semibold text-amber-400 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
                                           >
                                             Edit
                                           </button>
