@@ -40,7 +40,7 @@ const ArticleDetailPage: React.FC = () => {
     return (
       <main className="container mx-auto px-4 sm:px-6 py-16 text-center">
         <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-4">Error Loading Article</h2>
-        <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400">{error}</p>
+        <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-300">{error}</p>
       </main>
     );
   }
@@ -62,7 +62,7 @@ const ArticleDetailPage: React.FC = () => {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-900 dark:text-zinc-50">
             {t('article_not_found')}
           </h1>
-          <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 mt-4">
+          <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-300 mt-4">
             {t('article_not_found_desc')}
           </p>
           <Link
@@ -101,7 +101,7 @@ const ArticleDetailPage: React.FC = () => {
             <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-zinc-900 dark:text-zinc-50 leading-tight">
               {article.title}
             </h1>
-            <div className="mt-4 text-zinc-500 dark:text-zinc-400 border-y border-slate-300/50 dark:border-amber-100/10 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:text-base">
+            <div className="mt-4 text-zinc-500 dark:text-zinc-300 border-y border-slate-300/50 dark:border-amber-100/10 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:text-base">
               <span className="whitespace-nowrap">
                 {t('article_written_by')} <strong>{article.author}</strong>
               </span>
@@ -136,13 +136,13 @@ const ArticleDetailPage: React.FC = () => {
             ) : (
               <div className="w-full min-h-[300px] h-full flex flex-col items-center justify-center p-6 text-center">
                 <ImageIcon
-                  className="w-16 h-16 md:w-24 md:h-24 text-zinc-500 dark:text-zinc-400 mb-4"
+                  className="w-16 h-16 md:w-24 md:h-24 text-zinc-500 dark:text-zinc-300 mb-4"
                   aria-hidden="true"
                 />
-                <h3 className="text-lg md:text-xl font-bold text-zinc-500 dark:text-zinc-400">
+                <h3 className="text-lg md:text-xl font-bold text-zinc-500 dark:text-zinc-300">
                   Feature photo coming soon
                 </h3>
-                <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 mt-2">
+                <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-300 mt-2">
                   This article does not have a feature photo yet.
                 </p>
               </div>
@@ -187,7 +187,7 @@ const ArticleDetailPage: React.FC = () => {
                       <h3 className="font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-orange-600 transition-colors line-clamp-2 text-sm md:text-base">
                         {a.title}
                       </h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-300 mt-1">
                         <time dateTime={a.date}>
                           {new Date(a.date).toLocaleDateString('en-GB', {
                             month: 'long',

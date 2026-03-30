@@ -795,7 +795,7 @@ const PetTools: React.FC = () => {
                 Your {petType}'s age in human years:
               </p>
               <p className="text-5xl font-bold text-orange-500">{humanAge}</p>
-              <p className="text-slate-500 dark:text-slate-400 mt-2">
+              <p className="text-slate-500 dark:text-slate-300 mt-2">
                 {humanAge < 20 && '👶 Still a baby!'}
                 {humanAge >= 20 && humanAge < 40 && '💪 In their prime!'}
                 {humanAge >= 40 && humanAge < 60 && '🧘 Middle-aged wisdom'}
@@ -1047,7 +1047,7 @@ const PetTools: React.FC = () => {
                     <p className="text-slate-600 dark:text-slate-300">
                       {foodRecommendation.description}
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-300">
                       💡 {foodRecommendation.note}
                     </p>
                   </div>
@@ -1072,7 +1072,7 @@ const PetTools: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-300">
                       💡 {foodRecommendation.note}
                     </p>
                   </div>
@@ -1143,7 +1143,7 @@ const PetTools: React.FC = () => {
               </div>
             )}
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+            <p className="text-xs text-slate-500 dark:text-slate-300 text-center">
               ⚠️ These are general guidelines. Consult your vet for personalized recommendations.
             </p>
           </div>
@@ -1152,7 +1152,7 @@ const PetTools: React.FC = () => {
 
       {/* Footer */}
       <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center">
+        <p className="text-center text-sm text-slate-500 dark:text-slate-300 flex items-center justify-center">
           <HeartIcon className="w-4 h-4 text-red-500 mr-1" />
           Made with love for pet parents by PetBhai
         </p>

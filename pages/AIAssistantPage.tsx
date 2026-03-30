@@ -289,7 +289,7 @@ const AIAssistantPage: React.FC = () => {
             <div className="text-center mb-2">
               <button
                 onClick={handleClearChat}
-                className="inline-flex items-center space-x-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors px-3 py-1 rounded-md hover:bg-red-500/10"
+                className="inline-flex items-center space-x-1.5 text-sm text-slate-500 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-500 transition-colors px-3 py-1 rounded-md hover:bg-red-500/10"
               >
                 <TrashIcon className="w-4 h-4" />
                 <span>Clear Chat</span>

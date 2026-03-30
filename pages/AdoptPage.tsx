@@ -101,7 +101,7 @@ const AdoptPage: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-orange-600 via-rose-500 to-purple-600 dark:from-orange-400 dark:via-rose-400 dark:to-purple-400 bg-clip-text text-transparent mb-4 md:mb-6 leading-tight">
             Give a Pet a Forever Home
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed px-4">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed px-4">
             PetBhai partners with trusted nonprofit organizations to help you find your perfect
             companion. Choose below to start your adoption journey.
           </p>
@@ -120,7 +120,7 @@ const AdoptPage: React.FC = () => {
               <h3 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">
                 Not sure if you&apos;re ready?
               </h3>
-              <p className="text-slate-700 dark:text-slate-400 mb-0">
+              <p className="text-slate-700 dark:text-slate-300 mb-0">
                 Take our 2-minute lifestyle quiz to find out if you&apos;re ready for a furry friend
                 and which pet suits you best!
               </p>
@@ -205,7 +205,7 @@ const AdoptPage: React.FC = () => {
                 <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-2">
                   {choice.name}
                 </h2>
-                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">
+                <p className="text-sm md:text-base text-slate-500 dark:text-slate-300 mb-5 leading-relaxed">
                   {choice.description}
                 </p>
 
@@ -219,7 +219,7 @@ const AdoptPage: React.FC = () => {
                   ${isHovered ? 'shadow-md' : ''}
                 `}
                 >
-                  <span className="text-xs uppercase tracking-wider font-medium text-slate-400 dark:text-slate-500">
+                  <span className="text-xs uppercase tracking-wider font-medium text-slate-400 dark:text-slate-300">
                     via
                   </span>
                   <span
@@ -265,7 +265,7 @@ const AdoptPage: React.FC = () => {
             </h3>
             <PawIcon className="w-5 h-5 text-orange-500" />
           </div>
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-8 max-w-xl mx-auto">
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-8 max-w-xl mx-auto">
             PetBhai believes in professional pet adoption. Our partner organizations ensure every
             animal is properly vaccinated, health-checked, and ready for their new home.
           </p>
@@ -283,7 +283,7 @@ const AdoptPage: React.FC = () => {
                 <div className="font-semibold text-slate-800 dark:text-white text-sm">
                   {item.label}
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{item.desc}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-300 mt-1">{item.desc}</div>
               </div>
             ))}
           </div>

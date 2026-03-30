@@ -231,7 +231,7 @@ export const AccessibleDialog: React.FC<AccessibleDialogProps> = ({
             {title}
           </h2>
           {description && (
-            <p id={descId} className="text-slate-600 dark:text-slate-400 mb-4">
+            <p id={descId} className="text-slate-600 dark:text-slate-300 mb-4">
               {description}
             </p>
           )}

@@ -964,7 +964,7 @@ const PetDashboardPage: React.FC = () => {
                           {new Date(reminder.nextDueDate).toLocaleString()}
                         </p>
                         {reminder.notes && (
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                             {reminder.notes}
                           </p>
                         )}

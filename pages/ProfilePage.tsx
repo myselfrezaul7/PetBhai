@@ -565,7 +565,7 @@ const ProfilePage: React.FC = () => {
                 )}
               </div>
               <p className="text-slate-600 dark:text-slate-300 truncate">{currentUser.email}</p>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-1">
                 Member since {memberSince}
               </p>
             </div>
@@ -575,27 +575,27 @@ const ProfilePage: React.FC = () => {
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {currentUser.orderHistory.length}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Orders</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Orders</p>
               </div>
               <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {wishlistedProducts.length}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Wishlist</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Wishlist</p>
               </div>
               <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">{pets.length}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Pets</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Pets</p>
               </div>
               <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {upcomingVaccinations.length}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Upcoming Shots</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Upcoming Shots</p>
               </div>
               <div className="rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
                 <p className="text-xl font-bold text-slate-800 dark:text-white">{profileCompletion}%</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Profile Ready</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Profile Ready</p>
               </div>
             </div>
           </div>
@@ -615,7 +615,7 @@ const ProfilePage: React.FC = () => {
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-[240px_1fr]">
           <aside className="rounded-3xl border border-white/70 bg-white/70 p-3 shadow-lg shadow-slate-200/50 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 sm:p-4">
             <div className="mb-3 lg:hidden">
-              <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300">
                 Profile Sections
               </p>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
@@ -639,7 +639,7 @@ const ProfilePage: React.FC = () => {
                     className={`mt-1 text-[0.72rem] leading-tight ${
                       activeTab === tab.id
                         ? 'text-white/80 dark:text-slate-700'
-                        : 'text-slate-500 dark:text-slate-400'
+                        : 'text-slate-500 dark:text-slate-300'
                     }`}
                   >
                     {tab.hint}
@@ -690,7 +690,7 @@ const ProfilePage: React.FC = () => {
                       📦
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">My Orders</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Track and reorder</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Track and reorder</p>
                   </button>
                   <button
                     type="button"
@@ -701,7 +701,7 @@ const ProfilePage: React.FC = () => {
                       💖
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">Wishlist</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Saved favorites</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Saved favorites</p>
                   </button>
                   <button
                     type="button"
@@ -712,7 +712,7 @@ const ProfilePage: React.FC = () => {
                       🐶
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">My Pets</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Profiles and care</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Profiles and care</p>
                   </button>
                   <button
                     type="button"
@@ -723,7 +723,7 @@ const ProfilePage: React.FC = () => {
                       💉
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-800 dark:text-white">Shots</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Upcoming reminders</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Upcoming reminders</p>
                   </button>
                 </div>
 
@@ -1013,7 +1013,7 @@ const ProfilePage: React.FC = () => {
                             <p className="font-semibold text-slate-800 dark:text-white truncate">
                               {pet.name}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            <p className="text-xs text-slate-500 dark:text-slate-300 truncate">
                               {pet.breed || pet.type}
                             </p>
                           </div>
@@ -1076,7 +1076,7 @@ const ProfilePage: React.FC = () => {
                           </p>
                         </div>
                         <div className="flex justify-between items-center mb-3 text-xs sm:text-sm">
-                          <p className="text-slate-500 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-300">
                             Date: {new Date(order.date).toLocaleDateString()}
                           </p>
                           {order.status && (

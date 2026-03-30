@@ -188,7 +188,7 @@ const PlusMembershipPage: React.FC = () => {
                   Monthly
                 </h3>
                 <ComingSoonBadge />
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">per month</p>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300">per month</p>
               </button>
 
               {/* Yearly Plan */}
@@ -209,7 +209,7 @@ const PlusMembershipPage: React.FC = () => {
                   Yearly
                 </h3>
                 <ComingSoonBadge />
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300">
                   per year (save 25%)
                 </p>
               </button>

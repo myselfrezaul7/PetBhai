@@ -404,7 +404,7 @@ const TermsPage: React.FC = () => {
           </section>
 
           {/* Last Updated */}
-          <div className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
+          <div className="text-center text-sm text-slate-500 dark:text-slate-300 mt-8">
             <p>Last Updated: December 25, 2025</p>
           </div>
 

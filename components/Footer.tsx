@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-zinc-100 md:text-4xl">
               PetBhai
             </h2>
-            <p className="mt-3 max-w-md text-sm text-slate-600 dark:text-zinc-400 md:text-base">
+            <p className="mt-3 max-w-md text-sm text-slate-600 dark:text-zinc-300 md:text-base">
               Smart pet care for Bangladesh: shop essentials, book trusted services, and adopt
               responsibly in one experience.
             </p>
@@ -80,14 +80,14 @@ const Footer: React.FC = () => {
                 <YouTubeIcon className="h-5 w-5" />
               </a>
             </div>
-            <p className="mt-4 text-xs text-slate-500 dark:text-zinc-500">Payments: bKash, Nagad, COD</p>
-            <Link to="/terms" className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-500">
+            <p className="mt-4 text-xs text-slate-500 dark:text-zinc-300">Payments: bKash, Nagad, COD</p>
+            <Link to="/terms" className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-300">
               Terms & Conditions
             </Link>
           </div>
         </div>
       </div>
-      <p className="mt-4 text-center text-xs text-slate-500 dark:text-zinc-500">© 2026 PetBhai. All rights reserved.</p>
+      <p className="mt-4 text-center text-xs text-slate-500 dark:text-zinc-300">© 2026 PetBhai. All rights reserved.</p>
     </footer>
   );
 };

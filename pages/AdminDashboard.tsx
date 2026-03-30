@@ -784,12 +784,12 @@ const AdminDashboard = () => {
           <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
             Inventory Risk Radar
           </h3>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             Highest risk products based on stock level versus reorder point.
           </p>
           <div className="mt-4 space-y-3">
             {topRiskItems.length === 0 && (
-              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-500 dark:bg-slate-900 dark:text-slate-300">
                 No inventory data available.
               </div>
             )}
@@ -821,7 +821,7 @@ const AdminDashboard = () => {
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
                     Stock: {item.stockLevel} • Reorder: {item.reorderPoint} • SKU: {item.sku}
                   </p>
                 </div>
@@ -836,7 +836,7 @@ const AdminDashboard = () => {
           </h3>
           <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
             <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">
                 Admin Session
               </p>
               <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
@@ -844,7 +844,7 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">
                 Last Sync
               </p>
               <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
@@ -989,7 +989,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   No inventory products match your filters.
                 </td>
@@ -999,7 +999,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   Loading live inventory...
                 </td>
@@ -1116,7 +1116,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   No orders found.
                 </td>
@@ -1126,7 +1126,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   Loading latest orders...
                 </td>
@@ -1397,7 +1397,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   No moderation reports found for the selected filter.
                 </td>
@@ -1408,7 +1408,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   Loading moderation queue...
                 </td>
@@ -1460,7 +1460,7 @@ const AdminDashboard = () => {
                   <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
                     <td className="px-4 py-3">
                       <p className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-300">{user.email}</p>
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-200 capitalize">
                       {user.role || 'customer'}
@@ -1484,7 +1484,7 @@ const AdminDashboard = () => {
                     </td>
                     <td className="px-4 py-3">
                       {user.role === 'admin' ? (
-                        <span className="text-xs text-slate-500 dark:text-slate-400">Protected</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-300">Protected</span>
                       ) : user.isBanned ? (
                         <button
                           type="button"
@@ -1513,7 +1513,7 @@ const AdminDashboard = () => {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400"
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
                 >
                   No users found.
                 </td>
@@ -1530,7 +1530,7 @@ const AdminDashboard = () => {
       <div className="mx-auto flex w-full max-w-7xl gap-6">
         <aside className="hidden w-64 shrink-0 glass-card-ios-heavy p-5 border border-white/40 dark:border-white/10 lg:block">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">PetBhai Admin</h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
             Operations Control Panel
           </p>
           <nav className="mt-6 space-y-2 text-sm">
@@ -1622,7 +1622,7 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                 Operations Intelligence
               </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-300">
                 Dynamic control for inventory, order flow, and admin security posture.
               </p>
             </div>

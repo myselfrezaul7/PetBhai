@@ -80,7 +80,7 @@ const BottomNav: React.FC = () => {
                 className={`group relative isolate flex min-h-[48px] flex-col items-center justify-center rounded-full px-1 py-1 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
                   isActive
                     ? 'text-amber-600 dark:text-amber-500'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-amber-50/80 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-50'
+                    : 'text-zinc-500 dark:text-zinc-300 hover:bg-amber-50/80 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-50'
                 }`}
               >
                 {isActive && (

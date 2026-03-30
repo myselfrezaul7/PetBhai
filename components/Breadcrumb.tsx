@@ -99,7 +99,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
           >
             {index > 0 && (
               <svg
-                className="w-4 h-4 mx-2 text-slate-400 dark:text-slate-500"
+                className="w-4 h-4 mx-2 text-slate-400 dark:text-slate-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -116,7 +116,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
             {item.path ? (
               <Link
                 to={item.path}
-                className="text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                className="text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
                 itemProp="item"
               >
                 <span itemProp="name">{item.label}</span>
@@ -150,7 +150,7 @@ export const BreadcrumbCompact: React.FC<BreadcrumbProps> = ({ items, className 
     <nav aria-label="Breadcrumb" className={`py-2 ${className}`}>
       <Link
         to={parentItem.path || '/'}
-        className="inline-flex items-center text-sm text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+        className="inline-flex items-center text-sm text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
       >
         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

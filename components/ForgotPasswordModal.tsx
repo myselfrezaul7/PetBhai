@@ -185,7 +185,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
           >
             Forgot Password?
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm sm:text-base">
+          <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm sm:text-base">
             {success
               ? "We've sent you an email with instructions to reset your password."
               : "No worries! Enter your email and we'll send you a reset link."}
@@ -212,7 +212,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
               <p className="font-medium">Email Sent!</p>
               <p className="text-sm mt-1">Check your inbox for the reset link.</p>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm text-center">
+            <p className="text-slate-500 dark:text-slate-300 text-sm text-center">
               Didn't receive the email? Check your spam folder or{' '}
               <button
                 onClick={() => setSuccess(false)}
@@ -278,7 +278,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full text-slate-600 dark:text-slate-400 font-medium py-2 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              className="w-full text-slate-600 dark:text-slate-300 font-medium py-2 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
             >
               Back to Login
             </button>

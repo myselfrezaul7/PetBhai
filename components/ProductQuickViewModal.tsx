@@ -175,7 +175,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
             </h2>
             <div className="flex items-center space-x-3 mb-6">
               <StarRatingDisplay rating={product.rating} />
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-300">
                 ({product.reviews.length} {t('label_reviews')})
               </span>
             </div>
@@ -184,7 +184,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
               <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
                 ৳{product.price}
               </p>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-300 mt-1">
                 {t('label_weight')} {product.weight}
               </p>
             </div>

@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
             <h1 className="text-[2rem] font-bold leading-[1.08] tracking-tight text-zinc-900 dark:text-zinc-50 md:text-5xl">
               A Loving Home For Every Animal
             </h1>
-            <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">
+            <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-300">
               Discover premium care, organic food, and adoption centers near you.
             </p>
             
@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
       <section className="container mx-auto px-4 pb-6 md:px-6 md:pb-8" aria-label="Quick actions">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[1.55rem] font-bold leading-none text-zinc-900 dark:text-zinc-50">Quick Actions</h2>
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Top Picks</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-300">Top Picks</span>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <motion.div
@@ -78,7 +78,7 @@ const HomePage: React.FC = () => {
               </svg>
             </div>
             <h3 className="text-[2rem] font-semibold leading-none text-zinc-900 dark:text-zinc-50">Shop</h3>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Premium pet supplies</p>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-300">Premium pet supplies</p>
           </Link>
           </motion.div>
 
@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
               </svg>
             </div>
             <h3 className="text-[2rem] font-semibold leading-none text-zinc-900 dark:text-zinc-50">Services</h3>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Vets and grooming</p>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-300">Vets and grooming</p>
           </Link>
           </motion.div>
 
@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 100 100"
-              className="absolute -right-2 bottom-1 h-24 w-24 text-zinc-500 dark:text-zinc-400/30"
+              className="absolute -right-2 bottom-1 h-24 w-24 text-zinc-500 dark:text-zinc-300/30"
               fill="currentColor"
               aria-hidden="true"
             >
@@ -128,7 +128,7 @@ const HomePage: React.FC = () => {
               <path d="M44 38c-11 0-24 11-24 25 0 10 7 16 16 16 8 0 13-4 18-4s10 4 18 4c9 0 16-6 16-16 0-15-15-25-26-25-5 0-9 2-12 5-3-3-7-5-12-5z" />
             </svg>
             <h3 className="text-[2rem] font-semibold leading-none text-zinc-900 dark:text-zinc-50">Adoption</h3>
-            <p className="mt-2 max-w-xs text-sm text-zinc-500 dark:text-zinc-400">Find your new best friend today.</p>
+            <p className="mt-2 max-w-xs text-sm text-zinc-500 dark:text-zinc-300">Find your new best friend today.</p>
             <span className="mt-4 inline-flex items-center gap-2 text-xl font-semibold text-amber-700 dark:text-amber-400">
               View Pets
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -162,7 +162,7 @@ const HomePage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 p-6 text-center text-zinc-500 dark:text-zinc-400 backdrop-blur-sm">
+          <div className="rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 p-6 text-center text-zinc-500 dark:text-zinc-300 backdrop-blur-sm">
             Loading products...
           </div>
         ) : error ? (

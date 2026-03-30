@@ -31,7 +31,7 @@ const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({
         </h2>
         <button
           onClick={clearRecentlyViewed}
-          className="text-sm text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          className="text-sm text-slate-500 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors"
         >
           Clear All
         </button>

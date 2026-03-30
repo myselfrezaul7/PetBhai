@@ -544,7 +544,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 <p className="font-bold text-slate-800 dark:text-white text-sm sm:text-lg hover:text-orange-500 cursor-pointer transition-colors">
                   {post.author.name}
                 </p>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300">
                   {timeSince(post.timestamp)} ago
                 </p>
               </div>
@@ -557,7 +557,7 @@ const PostCard: React.FC<PostCardProps> = ({
                     setIsEditing(true);
                   }}
                   disabled={isDisabled}
-                  className="font-semibold text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 touch-manipulation disabled:opacity-50"
+                  className="font-semibold text-slate-500 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 touch-manipulation disabled:opacity-50"
                 >
                   Edit
                 </button>
@@ -573,7 +573,7 @@ const PostCard: React.FC<PostCardProps> = ({
             {!isAuthor && currentUser && !isEditing && (
               <button
                 onClick={() => void handleReportPost()}
-                className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
+                className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
               >
                 Report
               </button>
@@ -803,7 +803,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 )}
               </form>
             ) : (
-              <p className="text-center text-slate-500 dark:text-slate-400 mb-4 py-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
+              <p className="text-center text-slate-500 dark:text-slate-300 mb-4 py-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
                 Please sign in to comment
               </p>
             )}
@@ -811,7 +811,7 @@ const PostCard: React.FC<PostCardProps> = ({
             {/* Comments List */}
             <div className="space-y-4">
               {post.comments.length === 0 ? (
-                <p className="text-center text-slate-500 dark:text-slate-400 py-4">
+                <p className="text-center text-slate-500 dark:text-slate-300 py-4">
                   No comments yet. Be the first to comment! 💬
                 </p>
               ) : (
@@ -881,7 +881,7 @@ const PostCard: React.FC<PostCardProps> = ({
                               className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
                                 hasLikedComment
                                   ? 'text-orange-500'
-                                  : 'text-slate-500 dark:text-slate-400 hover:text-orange-500'
+                                  : 'text-slate-500 dark:text-slate-300 hover:text-orange-500'
                               }`}
                             >
                               {hasLikedComment ? '❤️' : '🤍'}{' '}
@@ -892,7 +892,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 setReplyingTo(replyingTo === comment.id ? null : comment.id)
                               }
                               disabled={!currentUser}
-                              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                              className="text-xs font-semibold text-slate-500 dark:text-slate-300 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
                             >
                               Reply
                             </button>

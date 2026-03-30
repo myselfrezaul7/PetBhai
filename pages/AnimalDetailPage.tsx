@@ -107,15 +107,15 @@ const AnimalDetailPage: React.FC = () => {
             </p>
             <div className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-2">
               <span>{animal.age}</span>
-              <span className="text-slate-400 dark:text-slate-500" aria-hidden="true">
+              <span className="text-slate-400 dark:text-slate-300" aria-hidden="true">
                 &bull;
               </span>
               <span>{animal.gender}</span>
-              <span className="text-slate-400 dark:text-slate-500" aria-hidden="true">
+              <span className="text-slate-400 dark:text-slate-300" aria-hidden="true">
                 &bull;
               </span>
               <span>{animal.size}</span>
-              <span className="text-slate-400 dark:text-slate-500" aria-hidden="true">
+              <span className="text-slate-400 dark:text-slate-300" aria-hidden="true">
                 &bull;
               </span>
               <span

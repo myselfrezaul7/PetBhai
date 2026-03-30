@@ -174,6 +174,8 @@ export type StockStatus = 'in-stock' | 'low-stock' | 'out-of-stock';
 
 export interface Product {
   id: number;
+  isAutoShip?: boolean;
+  autoShipFrequency?: string;
   name: string;
   category: 'Cat Food' | 'Dog Food' | 'Cat Supplies' | 'Dog Supplies' | 'Grooming' | 'Accessories';
   price: number;

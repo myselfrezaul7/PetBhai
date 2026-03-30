@@ -317,7 +317,7 @@ const DeliveryAreaChecker: React.FC<DeliveryAreaCheckerProps> = ({
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             Check Delivery Availability
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-300">
             Enter your location to see delivery options
           </p>
         </div>
@@ -393,20 +393,20 @@ const DeliveryAreaChecker: React.FC<DeliveryAreaCheckerProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 text-center">
                   <ClockIcon className="w-6 h-6 mx-auto text-orange-500 mb-2" />
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Estimated Delivery</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-300">Estimated Delivery</p>
                   <p className="font-bold text-slate-800 dark:text-white">
                     {deliveryInfo!.deliveryDays === 1
                       ? 'Tomorrow'
                       : `${deliveryInfo!.deliveryDays} Days`}
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-300">
                     {getEstimatedDeliveryDate(deliveryInfo!.deliveryDays)}
                   </p>
                 </div>
 
                 <div className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 text-center">
                   <span className="text-2xl block mb-1">💰</span>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Delivery Fee</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-300">Delivery Fee</p>
                   <p className="font-bold text-slate-800 dark:text-white text-lg">
                     ৳{deliveryInfo!.deliveryFee}
                   </p>
@@ -417,18 +417,18 @@ const DeliveryAreaChecker: React.FC<DeliveryAreaCheckerProps> = ({
                   {deliveryInfo!.isSameDayAvailable ? (
                     <>
                       <BoltIcon className="w-6 h-6 mx-auto text-yellow-500 mb-2" />
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Express Option</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-300">Express Option</p>
                       <p className="font-bold text-orange-600 dark:text-orange-400">Same Day!</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-300">
                         Order before 2 PM
                       </p>
                     </>
                   ) : (
                     <>
                       <span className="text-2xl block mb-1">📦</span>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Delivery Type</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-300">Delivery Type</p>
                       <p className="font-bold text-slate-800 dark:text-white">Standard</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Track your order</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-300">Track your order</p>
                     </>
                   )}
                 </div>
@@ -477,7 +477,7 @@ const DeliveryAreaChecker: React.FC<DeliveryAreaCheckerProps> = ({
 
       {/* Coverage Map Link */}
       <div className="mt-6 text-center">
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-sm text-slate-500 dark:text-slate-300">
           Currently delivering to <strong>{DELIVERY_AREAS.length}</strong> districts across
           Bangladesh.
           <br />

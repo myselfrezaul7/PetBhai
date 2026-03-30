@@ -44,11 +44,11 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
       <h3 className="text-xs sm:text-xl font-bold text-zinc-900 dark:text-zinc-50 mt-2 sm:mt-4 group-hover:text-slate-950 dark:group-hover:text-white transition-colors line-clamp-1">
         {vet.name}
       </h3>
-      <p className="text-[10px] sm:text-base text-zinc-500 dark:text-zinc-400 font-semibold line-clamp-1">
+      <p className="text-[10px] sm:text-base text-zinc-500 dark:text-zinc-300 font-semibold line-clamp-1">
         {vet.specialization}
       </p>
 
-      <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-1 sm:mt-4 text-zinc-500 dark:text-zinc-400">
+      <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-1 sm:mt-4 text-zinc-500 dark:text-zinc-300">
         {vet.services.some((s) => s.type === 'in-clinic') && (
           <div className="flex items-center space-x-1 text-[10px] sm:text-sm">
             <svg
@@ -74,7 +74,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
         )}
       </div>
 
-      <p className="text-[10px] sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2 sm:mt-4 flex-grow line-clamp-2 leading-tight">
+      <p className="text-[10px] sm:text-sm text-zinc-500 dark:text-zinc-300 mt-2 sm:mt-4 flex-grow line-clamp-2 leading-tight">
         {vet.bio}
       </p>
 

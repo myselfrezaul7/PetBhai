@@ -45,7 +45,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
       </div>
       <button
         onClick={handleDismiss}
-        className="p-1 rounded-full text-slate-400 dark:text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
+        className="p-1 rounded-full text-slate-400 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
         aria-label="Dismiss"
       >
         <CloseIcon className="w-4 h-4" />

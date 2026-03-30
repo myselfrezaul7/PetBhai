@@ -45,7 +45,7 @@ const ImpactDashboardPage: React.FC = () => {
             <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
               {impactStats.strayAnimalsFed.toLocaleString()}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide text-xs">
+            <p className="text-slate-500 dark:text-slate-300 font-medium uppercase tracking-wide text-xs">
               Meals Served to Strays
             </p>
             <button
@@ -63,7 +63,7 @@ const ImpactDashboardPage: React.FC = () => {
             <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
               {impactStats.vaccinationsFunded.toLocaleString()}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide text-xs">
+            <p className="text-slate-500 dark:text-slate-300 font-medium uppercase tracking-wide text-xs">
               Vaccinations Funded
             </p>
             <div className="mt-4 text-xs text-green-600 dark:text-green-400 font-bold">
@@ -76,7 +76,7 @@ const ImpactDashboardPage: React.FC = () => {
               🏠
             </div>
             <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-1">1,245</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide text-xs">
+            <p className="text-slate-500 dark:text-slate-300 font-medium uppercase tracking-wide text-xs">
               Successful Adoptions
             </p>
             <div className="mt-4 text-xs text-amber-600 dark:text-amber-400 font-bold">

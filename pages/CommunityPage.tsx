@@ -882,7 +882,7 @@ const CommunityPage: React.FC = () => {
             <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalPosts}
             </p>
-            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
               Posts
             </p>
           </div>
@@ -890,7 +890,7 @@ const CommunityPage: React.FC = () => {
             <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalComments}
             </p>
-            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
               Comments
             </p>
           </div>
@@ -898,7 +898,7 @@ const CommunityPage: React.FC = () => {
             <p className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">
               {communityStats.totalLikes}
             </p>
-            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
               Likes
             </p>
           </div>
@@ -1016,7 +1016,7 @@ const CommunityPage: React.FC = () => {
                         <p className="font-semibold text-slate-800 dark:text-white truncate">
                           {user.name}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-slate-300">
                           {user.posts} posts • {user.comments} comments • {user.likes} likes
                         </p>
                       </div>
@@ -1049,7 +1049,7 @@ const CommunityPage: React.FC = () => {
               <h2 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">
                 Community Guidelines
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-0.5 leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-0.5 leading-relaxed">
                 Be kind, share helpful tips, and respect fellow pet lovers. Let's make this a safe
                 space for everyone! 🐾
               </p>
@@ -1085,7 +1085,7 @@ const CommunityPage: React.FC = () => {
 
             <div className="flex items-center my-6">
               <div className="flex-grow border-t border-slate-200 dark:border-slate-600"></div>
-              <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-sm">
+              <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-300 text-sm">
                 or use email
               </span>
               <div className="flex-grow border-t border-slate-200 dark:border-slate-600"></div>
@@ -1120,7 +1120,7 @@ const CommunityPage: React.FC = () => {
               className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'feed'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  : 'text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Latest
@@ -1131,7 +1131,7 @@ const CommunityPage: React.FC = () => {
               className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'trending'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  : 'text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Trending
@@ -1142,7 +1142,7 @@ const CommunityPage: React.FC = () => {
               className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-md sm:rounded-lg font-semibold transition-all text-xs sm:text-sm active:scale-95 touch-manipulation ${
                 activeTab === 'popular'
                   ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  : 'text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Popular
@@ -1192,7 +1192,7 @@ const CommunityPage: React.FC = () => {
               <p className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">
                 Unable to load community posts.
               </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{error}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-300 mb-4">{error}</p>
               <button
                 onClick={fetchPosts}
                 className="px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
@@ -1211,7 +1211,7 @@ const CommunityPage: React.FC = () => {
               <p className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">
                 No posts yet!
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="text-slate-500 dark:text-slate-300">
                 Be the first to share something with the community.
               </p>
             </div>

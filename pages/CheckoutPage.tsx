@@ -342,7 +342,7 @@ const CheckoutPage: React.FC = () => {
               </div>
               <div className="flex items-center my-6">
                 <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
-                <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-400 font-semibold">
+                <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-300 font-semibold">
                   OR
                 </span>
                 <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
@@ -455,7 +455,7 @@ const CheckoutPage: React.FC = () => {
                 className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2"
               >
                 Email Address{' '}
-                <span className="text-sm text-slate-500 dark:text-slate-400 font-normal">
+                <span className="text-sm text-slate-500 dark:text-slate-300 font-normal">
                   (For order confirmation)
                 </span>
               </label>
@@ -601,7 +601,7 @@ const CheckoutPage: React.FC = () => {
                     <p className="font-semibold text-slate-800 dark:text-white truncate max-w-[150px] sm:max-w-[200px]">
                       {item.name}
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-300">
                       Qty: {item.quantity}
                     </p>
                   </div>
@@ -629,7 +629,7 @@ const CheckoutPage: React.FC = () => {
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/60 bg-white/90 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/90 md:hidden">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <div className="min-w-[8rem] rounded-xl border border-white/70 bg-white/75 px-3 py-2 dark:border-slate-700/70 dark:bg-slate-800/70">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
               Total
             </p>
             <p className="text-base font-bold text-slate-800 dark:text-white">

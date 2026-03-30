@@ -17,7 +17,7 @@ const ProfessionalDetailPage: React.FC = () => {
         </h1>
         <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 mt-4 max-w-md mx-auto">
           Detailed profiles for our trusted groomers, trainers, and sitters are under construction.
-          <span className="block mt-2 text-slate-500 dark:text-slate-400">
+          <span className="block mt-2 text-slate-500 dark:text-slate-300">
             (Viewing profile for ID: {id})
           </span>
         </p>

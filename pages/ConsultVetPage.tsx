@@ -20,7 +20,7 @@ const ConsultVetPage: React.FC = () => {
           Get expert veterinary advice from the comfort of your home. Our video consultation
           platform is almost ready!
         </p>
-        <div className="inline-flex items-center px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-sm">
+        <div className="inline-flex items-center px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 font-medium text-sm">
           <span className="w-2 h-2 rounded-full bg-amber-500 mr-2 animate-pulse"></span>
           Launching Soon
         </div>

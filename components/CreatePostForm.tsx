@@ -265,7 +265,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
               <span className="hidden xs:inline">Add Photo</span>
               <span className="xs:hidden">Photo</span>
             </button>
-            <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">
+            <span className="text-xs text-slate-400 dark:text-slate-300 hidden sm:inline">
               (max {MAX_IMAGE_SIZE_MB}MB)
             </span>
           </div>

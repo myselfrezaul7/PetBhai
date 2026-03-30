@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import { ShoppingCartIcon, EyeIcon } from './icons';
 import StockBadge from './StockBadge';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -16,8 +17,28 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant = 'default' }) => {
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
+  const { currentUser, addToWishlist, removeFromWishlist } = useAuth();
+  const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
   const addingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isWishlisted = currentUser?.user?.wishlist?.includes(product.id) || false;
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!currentUser) {
+      if (window.confirm('Please login to add to wishlist. Go to login?')) {
+        navigate('/login');
+      }
+      return;
+    }
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product.id);
+    }
+  };
 
   // Clean up timer on unmount
   useEffect(() => {
@@ -129,11 +150,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
         <button
           type="button"
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-amber-900/10 dark:border-amber-100/10 bg-white/80 text-slate-700 shadow-sm dark:border-amber-100/10 dark:bg-slate-900/70 dark:text-slate-200"
-          aria-label={`Save ${product.name} to wishlist`}
+          onClick={handleWishlistClick}
+          className={`absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-amber-900/10 dark:border-amber-100/10 shadow-sm transition-colors ${
+            isWishlisted
+              ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400'
+              : 'bg-white/80 text-slate-700 dark:bg-slate-900/70 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800'
+          }`}
+          aria-label={`${isWishlisted ? 'Remove' : 'Save'} ${product.name} to wishlist`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-            <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 12 5.08 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill={isWishlisted ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth={isWishlisted ? "0" : "1.5"}
+            className="h-4 w-4"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35C12 21.35 10.55 20 5.4 15.36C2 12.28 2 8.5 2 5.5C2 2.81 4.19 0.62 6.88 0.62C8.61 0.62 10.22 1.5 11.2 2.92C11.53 3.4 12.47 3.4 12.8 2.92C13.78 1.5 15.39 0.62 17.12 0.62C19.81 0.62 22 2.81 22 5.5C22 8.5 18.6 12.28 13.45 15.36L12 21.35Z" />
           </svg>
         </button>
 

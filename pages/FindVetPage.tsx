@@ -20,7 +20,7 @@ const FindVetPage: React.FC = () => {
           We are building the largest network of verified veterinarians in Bangladesh. Soon you'll
           be able to find and book appointments with trust.
         </p>
-        <div className="inline-flex items-center px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-sm">
+        <div className="inline-flex items-center px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 font-medium text-sm">
           <span className="w-2 h-2 rounded-full bg-orange-500 mr-2 animate-pulse"></span>
           Under Development
         </div>

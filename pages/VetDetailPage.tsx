@@ -203,7 +203,7 @@ const VetDetailPage: React.FC = () => {
                           {review.author}
                         </p>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mb-2">
                         <time dateTime={review.date}>
                           {new Date(review.date).toLocaleDateString()}
                         </time>
@@ -241,7 +241,7 @@ const VetDetailPage: React.FC = () => {
               </button>
               <div className="flex items-center my-4">
                 <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
-                <span className="flex-shrink mx-2 text-slate-500 dark:text-slate-400 font-semibold text-xs">
+                <span className="flex-shrink mx-2 text-slate-500 dark:text-slate-300 font-semibold text-xs">
                   OR
                 </span>
                 <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>

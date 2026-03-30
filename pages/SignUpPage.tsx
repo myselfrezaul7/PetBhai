@@ -259,7 +259,7 @@ const SignUpPage: React.FC = () => {
 
         <div className="flex items-center my-6">
           <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
-          <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-400 font-semibold text-sm">
+          <span className="flex-shrink mx-4 text-slate-500 dark:text-slate-300 font-semibold text-sm">
             OR
           </span>
           <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
@@ -364,7 +364,7 @@ const SignUpPage: React.FC = () => {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 p-1 touch-manipulation"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-slate-200 p-1 touch-manipulation"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? (
@@ -379,7 +379,7 @@ const SignUpPage: React.FC = () => {
                 {fieldErrors.password}
               </p>
             )}
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
               Must be at least 6 characters
             </p>
           </div>

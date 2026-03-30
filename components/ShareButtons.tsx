@@ -114,7 +114,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
   return (
     <div className={`${className}`}>
       {showLabel && (
-        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">Share this:</p>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-3">Share this:</p>
       )}
       <div className="flex items-center gap-2 flex-wrap">
         {/* Native Share (mobile) */}
@@ -308,7 +308,7 @@ export const ShareDropdown: React.FC<Omit<ShareButtonsProps, 'showLabel'>> = (pr
         aria-haspopup="true"
       >
         <svg
-          className="w-5 h-5 text-slate-600 dark:text-slate-400"
+          className="w-5 h-5 text-slate-600 dark:text-slate-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

@@ -661,11 +661,11 @@ const VaccinationReminder: React.FC = () => {
         <div className="space-y-4">
           {pets.length === 0 ? (
             <div className="text-center py-8">
-              <PawIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-500 mb-4" />
+              <PawIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-300 mb-4" />
               <h4 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">
                 No Pets Added Yet
               </h4>
-              <p className="text-slate-500 dark:text-slate-400 mb-4">
+              <p className="text-slate-500 dark:text-slate-300 mb-4">
                 Add your pet to start tracking vaccinations
               </p>
               <button
@@ -771,7 +771,7 @@ const VaccinationReminder: React.FC = () => {
                   <h4 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">
                     All Caught Up! 🎉
                   </h4>
-                  <p className="text-slate-500 dark:text-slate-400">
+                  <p className="text-slate-500 dark:text-slate-300">
                     No vaccinations due in the next 30 days.
                   </p>
                 </div>
@@ -804,7 +804,7 @@ const VaccinationReminder: React.FC = () => {
                       <h4 className="font-bold text-slate-800 dark:text-white text-lg">
                         {pet.name}
                       </h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="text-sm text-slate-500 dark:text-slate-300">
                         {PET_TYPE_LABELS[pet.type].en}
                         {pet.breed && ` • ${pet.breed}`}
                       </p>
@@ -849,8 +849,8 @@ const VaccinationReminder: React.FC = () => {
         <div className="space-y-3">
           {vaccinations.length === 0 ? (
             <div className="text-center py-8">
-              <CalendarIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-500 mb-4" />
-              <p className="text-slate-500 dark:text-slate-400">No vaccination records yet.</p>
+              <CalendarIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-300 mb-4" />
+              <p className="text-slate-500 dark:text-slate-300">No vaccination records yet.</p>
             </div>
           ) : (
             vaccinations
@@ -875,11 +875,11 @@ const VaccinationReminder: React.FC = () => {
                           <p className="font-semibold text-slate-800 dark:text-white">
                             {v.vaccineName}
                           </p>
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-300">
                             {pet?.name} • Given: {formatDate(v.dateGiven)}
                           </p>
                           {v.vetName && (
-                            <p className="text-xs text-slate-400 dark:text-slate-500">
+                            <p className="text-xs text-slate-400 dark:text-slate-300">
                               By: {v.vetName}
                             </p>
                           )}

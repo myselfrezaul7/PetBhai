@@ -156,7 +156,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
               ref={closeButtonRef}
               type="button"
               onClick={handleClose}
-              className="glass-pill p-2 text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              className="glass-pill p-2 text-slate-500 hover:text-slate-800 dark:text-zinc-300 dark:hover:text-zinc-200"
               aria-label="Close booking modal"
             >
               <CloseIcon className="w-7 h-7" />

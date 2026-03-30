@@ -39,7 +39,7 @@ const TabButton = memo<{ label: ServiceTab; isActive: boolean; onClick: () => vo
         className={`px-3 sm:px-4 py-2 sm:py-3 font-bold text-sm sm:text-lg rounded-t-lg transition-all duration-200 border-b-4 whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
           isActive
             ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-            : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-orange-500 hover:border-orange-500/30'
+            : 'border-transparent text-slate-500 dark:text-slate-300 hover:text-orange-500 hover:border-orange-500/30'
         }`}
       >
         {label}

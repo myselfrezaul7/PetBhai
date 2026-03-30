@@ -628,7 +628,7 @@ const Header: React.FC = () => {
                   ) : (
                     hasOptionalConsent && recentSearches.length > 0 && (
                       <div className="p-2">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 pt-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 pt-2">
                           {t('search_recent')}
                         </div>
                         {recentSearches.map((s, i) => (
@@ -684,7 +684,7 @@ const Header: React.FC = () => {
                       <p className="font-bold text-slate-800 dark:text-white truncate">
                         Hi, {currentUser.name.split(' ')[0]}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      <p className="text-xs text-slate-500 dark:text-slate-300 truncate">
                         {currentUser.email}
                       </p>
                     </div>
@@ -806,7 +806,7 @@ const Header: React.FC = () => {
           <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-800">
             <div className="relative flex-grow">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-300" />
               </span>
               <input
                 ref={mobileInputRef}
@@ -827,7 +827,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={handleCloseMobileSearch}
-              className="ml-3 min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-slate-600 dark:text-slate-400 hover:text-orange-500 touch-manipulation active:scale-95"
+              className="ml-3 min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-slate-600 dark:text-slate-300 hover:text-orange-500 touch-manipulation active:scale-95"
               aria-label="Close search"
             >
               <CloseIcon className="w-7 h-7" />
@@ -923,7 +923,7 @@ const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleMenuClose}
-                  className="min-h-[44px] min-w-[44px] rounded-full text-slate-500 transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                  className="min-h-[44px] min-w-[44px] rounded-full text-slate-500 transition-colors hover:text-slate-800 dark:text-slate-300 dark:hover:text-white"
                   aria-label="Close menu"
                 >
                   <CloseIcon className="h-8 w-8" />
@@ -999,7 +999,7 @@ const Header: React.FC = () => {
                     initial="hidden"
                     animate="visible"
                   >
-                    <p className="mb-2 px-1 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                    <p className="mb-2 px-1 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
                       {section.title}
                     </p>
                     <div className="space-y-2.5">

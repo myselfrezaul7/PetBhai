@@ -86,7 +86,7 @@ const AdoptionQuiz: React.FC = () => {
       {!showResult ? (
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300">
               Question {step + 1} of {questions.length}
             </span>
             <PawIcon className="w-5 h-5 text-orange-500" />

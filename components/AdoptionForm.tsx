@@ -86,7 +86,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
               <h2 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
                 <span id="adoption-form-title">Adoption Application</span>
               </h2>
-              <p className="text-zinc-500 dark:text-zinc-400 text-lg mt-1">
+              <p className="text-zinc-500 dark:text-zinc-300 text-lg mt-1">
                 You are applying to adopt:{' '}
                 <span className="font-bold text-zinc-900 dark:text-zinc-50">{animal.name}</span>
               </p>
@@ -95,7 +95,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
               ref={closeButtonRef}
               type="button"
               onClick={onClose}
-              className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-50"
+              className="text-zinc-500 dark:text-zinc-300 hover:text-zinc-900 dark:text-zinc-50"
               aria-label="Close adoption form"
             >
               <CloseIcon className="w-7 h-7" />
@@ -105,14 +105,14 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Personal Info */}
             <fieldset className="border-t border-slate-300/50 dark:border-slate-600/50 pt-5">
-              <legend className="text-xl font-semibold text-zinc-500 dark:text-zinc-400 mb-3">
+              <legend className="text-xl font-semibold text-zinc-500 dark:text-zinc-300 mb-3">
                 Your Information
               </legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="fullName"
-                    className="block text-sm font-medium text-zinc-500 dark:text-zinc-400"
+                    className="block text-sm font-medium text-zinc-500 dark:text-zinc-300"
                   >
                     Full Name
                   </label>
@@ -127,7 +127,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-medium text-zinc-500 dark:text-zinc-400"
+                    className="block text-sm font-medium text-zinc-500 dark:text-zinc-300"
                   >
                     Phone Number (Bangladesh)
                   </label>
@@ -146,7 +146,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
               <div className="mt-4">
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-zinc-500 dark:text-zinc-400"
+                  className="block text-sm font-medium text-zinc-500 dark:text-zinc-300"
                 >
                   Email Address
                 </label>
@@ -162,7 +162,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
               <div className="mt-4">
                 <label
                   htmlFor="address"
-                  className="block text-sm font-medium text-zinc-500 dark:text-zinc-400"
+                  className="block text-sm font-medium text-zinc-500 dark:text-zinc-300"
                 >
                   Full Address (in Bangladesh)
                 </label>
@@ -178,15 +178,15 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
 
             {/* Living Situation */}
             <fieldset className="border-t border-slate-300/50 dark:border-slate-600/50 pt-5">
-              <legend className="text-xl font-semibold text-zinc-500 dark:text-zinc-400 mb-3">
+              <legend className="text-xl font-semibold text-zinc-500 dark:text-zinc-300 mb-3">
                 Living Situation
               </legend>
               <div>
-                <label className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                <label className="block text-sm font-medium text-zinc-500 dark:text-zinc-300">
                   Type of Residence
                 </label>
                 <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-                  <label className="flex items-center text-zinc-500 dark:text-zinc-400">
+                  <label className="flex items-center text-zinc-500 dark:text-zinc-300">
                     <input
                       type="radio"
                       name="residence"
@@ -195,7 +195,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     />{' '}
                     Apartment
                   </label>
-                  <label className="flex items-center text-zinc-500 dark:text-zinc-400">
+                  <label className="flex items-center text-zinc-500 dark:text-zinc-300">
                     <input
                       type="radio"
                       name="residence"
@@ -204,7 +204,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     />{' '}
                     House
                   </label>
-                  <label className="flex items-center text-zinc-500 dark:text-zinc-400">
+                  <label className="flex items-center text-zinc-500 dark:text-zinc-300">
                     <input
                       type="radio"
                       name="residence"
@@ -216,11 +216,11 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                <label className="block text-sm font-medium text-zinc-500 dark:text-zinc-300">
                   Do you own or rent your home?
                 </label>
                 <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-                  <label className="flex items-center text-zinc-500 dark:text-zinc-400">
+                  <label className="flex items-center text-zinc-500 dark:text-zinc-300">
                     <input
                       type="radio"
                       name="ownRent"
@@ -229,7 +229,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                     />{' '}
                     Own
                   </label>
-                  <label className="flex items-center text-zinc-500 dark:text-zinc-400">
+                  <label className="flex items-center text-zinc-500 dark:text-zinc-300">
                     <input
                       type="radio"
                       name="ownRent"
@@ -240,20 +240,20 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                   </label>
                 </div>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
+              <p className="text-xs text-zinc-500 dark:text-zinc-300 mt-2">
                 If you rent, please be prepared to show proof of landlord's permission for pets.
               </p>
             </fieldset>
 
             {/* Pet Experience */}
             <fieldset className="border-t border-slate-300/50 dark:border-slate-600/50 pt-5">
-              <legend className="text-xl font-semibold text-zinc-500 dark:text-zinc-400 mb-3">
+              <legend className="text-xl font-semibold text-zinc-500 dark:text-zinc-300 mb-3">
                 Pet Experience
               </legend>
               <div>
                 <label
                   htmlFor="experience"
-                  className="block text-sm font-medium text-zinc-500 dark:text-zinc-400"
+                  className="block text-sm font-medium text-zinc-500 dark:text-zinc-300"
                 >
                   Please describe your experience with pets.
                 </label>
@@ -272,7 +272,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-slate-200 dark:bg-slate-600 text-zinc-500 dark:text-zinc-400 font-bold py-2 px-6 rounded-lg hover:bg-slate-300 dark:hover:bg-amber-50/80 dark:bg-zinc-800/800"
+                  className="bg-slate-200 dark:bg-slate-600 text-zinc-500 dark:text-zinc-300 font-bold py-2 px-6 rounded-lg hover:bg-slate-300 dark:hover:bg-amber-50/80 dark:bg-zinc-800/800"
                 >
                   Cancel
                 </button>

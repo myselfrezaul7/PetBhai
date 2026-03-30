@@ -275,7 +275,7 @@ const ShopPage: React.FC = () => {
           className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
             activeCategory === filter
               ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-lg transform scale-105'
-              : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-400 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
+              : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
           }`}
           aria-pressed={activeCategory === filter}
           data-pressed={activeCategory === filter}
@@ -321,7 +321,7 @@ const ShopPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-50 mb-3 md:mb-4">
             {t('shop_title')}
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-zinc-500 dark:text-zinc-400 max-w-3xl mx-auto px-2">
+          <p className="text-sm sm:text-base md:text-lg text-zinc-500 dark:text-zinc-300 max-w-3xl mx-auto px-2">
             {t('shop_subtitle')}
           </p>
         </header>
@@ -335,13 +335,13 @@ const ShopPage: React.FC = () => {
               <h2 className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                 Smart Reorder
               </h2>
-              <span className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-300">
                 Based on your order cycle
               </span>
             </div>
 
             {reorderLoading ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-zinc-500 dark:text-zinc-300">
                 Loading your reorder picks...
               </p>
             ) : (
@@ -355,7 +355,7 @@ const ShopPage: React.FC = () => {
                     />
                   ))}
                 </div>
-                <p className="mt-4 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-4 text-xs sm:text-sm text-zinc-500 dark:text-zinc-300">
                   Recommended quantities are pre-calculated from your recent purchases.
                 </p>
               </>
@@ -369,7 +369,7 @@ const ShopPage: React.FC = () => {
           <div className="relative max-w-lg mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
               <SearchIcon
-                className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500 dark:text-zinc-400"
+                className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500 dark:text-zinc-300"
                 aria-hidden="true"
               />
             </span>
@@ -380,21 +380,21 @@ const ShopPage: React.FC = () => {
               onChange={handleSearchChange}
               inputMode="search"
               enterKeyHint="search"
-              className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-zinc-500 dark:text-zinc-400 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-slate-300/50 dark:border-amber-100/10 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
+              className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-zinc-500 dark:text-zinc-300 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-slate-300/50 dark:border-amber-100/10 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
               aria-label={t('shop_search_label')}
               autoComplete="off"
             />
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300">
               Popular:
             </span>
             {QUICK_SEARCH_TERMS.map((term) => (
               <button
                 key={term}
                 onClick={() => setSearchQuery(term)}
-                className="text-xs px-3 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/60 text-zinc-500 dark:text-zinc-400 hover:bg-amber-500/10 dark:bg-amber-500/10 dark:hover:bg-slate-600 transition-colors"
+                className="text-xs px-3 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/60 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:bg-amber-500/10 dark:hover:bg-slate-600 transition-colors"
               >
                 {term}
               </button>
@@ -453,7 +453,7 @@ const ShopPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <label
                 htmlFor="brand-filter"
-                className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap"
+                className="font-semibold text-zinc-500 dark:text-zinc-300 text-sm whitespace-nowrap"
               >
                 {t('filter_brand')}
               </label>
@@ -472,7 +472,7 @@ const ShopPage: React.FC = () => {
                   ))}
                 </select>
                 <div
-                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-400"
+                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-300"
                   aria-hidden="true"
                 >
                   <svg
@@ -489,7 +489,7 @@ const ShopPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <label
                 htmlFor="sort-by"
-                className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap"
+                className="font-semibold text-zinc-500 dark:text-zinc-300 text-sm whitespace-nowrap"
               >
                 {t('filter_sort')}
               </label>
@@ -507,7 +507,7 @@ const ShopPage: React.FC = () => {
                   <option value="top-sold">{t('filter_sort_top_sold')}</option>
                 </select>
                 <div
-                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-400"
+                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-300"
                   aria-hidden="true"
                 >
                   <svg
@@ -527,7 +527,7 @@ const ShopPage: React.FC = () => {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 touch-manipulation active:scale-95 ${
                 showAdvancedFilters || activeFiltersCount > 0
                   ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-lg'
-                  : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-400 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
+                  : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
               }`}
               aria-controls="advanced-filters"
             >
@@ -566,7 +566,7 @@ const ShopPage: React.FC = () => {
             <div className="pt-4 sm:pt-6 border-t border-slate-200 dark:border-amber-100/10 space-y-5">
               {/* Price Range Slider */}
               <div className="space-y-3">
-                <label className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm flex items-center gap-2">
+                <label className="font-semibold text-zinc-500 dark:text-zinc-300 text-sm flex items-center gap-2">
                   {t('filter_price_range')}
                   <span className="text-orange-500 font-bold tabular-nums">
                     ৳{priceRange[0].toLocaleString('en-BD')} – ৳
@@ -574,14 +574,14 @@ const ShopPage: React.FC = () => {
                   </span>
                 </label>
                 <div className="flex items-center gap-3 sm:gap-4 max-w-xl">
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-300 tabular-nums whitespace-nowrap">
                     ৳{PRICE_MIN}
                   </span>
                   <div className="flex-1 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <label
                         htmlFor="min-price"
-                        className="text-[10px] text-zinc-500 dark:text-zinc-400"
+                        className="text-[10px] text-zinc-500 dark:text-zinc-300"
                       >
                         Min
                       </label>
@@ -603,7 +603,7 @@ const ShopPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <label
                         htmlFor="max-price"
-                        className="text-[10px] text-zinc-500 dark:text-zinc-400"
+                        className="text-[10px] text-zinc-500 dark:text-zinc-300"
                       >
                         Max
                       </label>
@@ -623,7 +623,7 @@ const ShopPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums whitespace-nowrap">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-300 tabular-nums whitespace-nowrap">
                     ৳{PRICE_MAX.toLocaleString('en-BD')}
                   </span>
                 </div>
@@ -635,7 +635,7 @@ const ShopPage: React.FC = () => {
                 <div className="flex items-center gap-2 flex-1">
                   <label
                     htmlFor="weight-filter"
-                    className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap"
+                    className="font-semibold text-zinc-500 dark:text-zinc-300 text-sm whitespace-nowrap"
                   >
                     {t('filter_weight')}
                   </label>
@@ -654,7 +654,7 @@ const ShopPage: React.FC = () => {
                       ))}
                     </select>
                     <div
-                      className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-400"
+                      className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500 dark:text-zinc-300"
                       aria-hidden="true"
                     >
                       <svg
@@ -671,7 +671,7 @@ const ShopPage: React.FC = () => {
 
                 {/* Minimum Rating Filter */}
                 <div className="flex items-center gap-2 flex-1">
-                  <label className="font-semibold text-zinc-500 dark:text-zinc-400 text-sm whitespace-nowrap">
+                  <label className="font-semibold text-zinc-500 dark:text-zinc-300 text-sm whitespace-nowrap">
                     {t('filter_min_rating')}
                   </label>
                   <div className="flex items-center gap-1">
@@ -688,13 +688,13 @@ const ShopPage: React.FC = () => {
                         title={star === 0 ? 'All' : `${star}★+`}
                       >
                         {star === 0 ? (
-                          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-1">
+                          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300 px-1">
                             {t('filter_min_rating_all')}
                           </span>
                         ) : (
                           <span className="flex items-center gap-0.5">
                             <span className="text-yellow-500 text-sm">{'★'.repeat(star)}</span>
-                            <span className="text-zinc-500 dark:text-zinc-400 text-sm">
+                            <span className="text-zinc-500 dark:text-zinc-300 text-sm">
                               {'★'.repeat(5 - star)}
                             </span>
                           </span>
@@ -723,8 +723,8 @@ const ShopPage: React.FC = () => {
         {/* Visible Result Count + Active Filter Chips */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-lg p-3 md:p-4">
           {!loading && (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400" aria-live="polite">
-              <span className="font-bold text-zinc-500 dark:text-zinc-400">{resultCount}</span>{' '}
+            <p className="text-sm text-zinc-500 dark:text-zinc-300" aria-live="polite">
+              <span className="font-bold text-zinc-500 dark:text-zinc-300">{resultCount}</span>{' '}
               {t('shop_products_found')}
             </p>
           )}
@@ -796,7 +796,7 @@ const ShopPage: React.FC = () => {
           </div>
         ) : !error && resultCount === 0 ? (
           <div className="text-center py-16 glass-card-ios">
-            <p className="text-lg text-zinc-500 dark:text-zinc-400">{t('shop_no_results')}</p>
+            <p className="text-lg text-zinc-500 dark:text-zinc-300">{t('shop_no_results')}</p>
             <button
               onClick={resetAllFilters}
               className="mt-4 px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
@@ -854,7 +854,7 @@ const ShopPage: React.FC = () => {
 
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <label htmlFor="brand-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                <label htmlFor="brand-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
                   {t('filter_brand')}
                 </label>
                 <select
@@ -873,7 +873,7 @@ const ShopPage: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <label htmlFor="sort-by-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                <label htmlFor="sort-by-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
                   {t('filter_sort')}
                 </label>
                 <select
@@ -901,7 +901,7 @@ const ShopPage: React.FC = () => {
               {isMobileAdvancedOpen && (
                 <div className="space-y-4 rounded-2xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 dark:border-amber-100/10 dark:bg-zinc-900/95">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                    <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
                       {t('filter_price_range')}
                     </label>
                     <p className="text-xs font-semibold text-amber-600 dark:text-amber-500">
@@ -936,7 +936,7 @@ const ShopPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label htmlFor="weight-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                    <label htmlFor="weight-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
                       {t('filter_weight')}
                     </label>
                     <select
@@ -955,7 +955,7 @@ const ShopPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t('filter_min_rating')}</p>
+                    <p className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-300">{t('filter_min_rating')}</p>
                     <div className="flex flex-wrap gap-2">
                       {[0, 1, 2, 3, 4, 5].map((star) => (
                         <button

@@ -128,12 +128,12 @@ const ThumbnailGeneratorPage: React.FC = () => {
                     </a>
                   </div>
                 </div>
-                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-300">
                   Right-click or tap button to save
                 </p>
               </div>
             ) : (
-              <div className="text-center text-slate-400 dark:text-slate-500">
+              <div className="text-center text-slate-400 dark:text-slate-300">
                 {isGenerating ? (
                   <div className="animate-pulse flex flex-col items-center">
                     <div className="w-16 h-16 bg-slate-300 dark:bg-slate-600 rounded-full mb-4"></div>
@@ -145,7 +145,7 @@ const ThumbnailGeneratorPage: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <ImageIcon className="w-24 h-24 mx-auto mb-4 opacity-50 text-slate-400 dark:text-slate-500" />
+                    <ImageIcon className="w-24 h-24 mx-auto mb-4 opacity-50 text-slate-400 dark:text-slate-300" />
                     <p className="text-lg font-medium">Your thumbnail will appear here.</p>
                   </>
                 )}

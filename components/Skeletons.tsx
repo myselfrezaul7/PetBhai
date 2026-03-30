@@ -231,7 +231,7 @@ export const PageLoadingSkeleton: React.FC<{ message?: string }> = ({ message })
         </div>
       </div>
       {message && (
-        <p className="text-center text-slate-500 dark:text-slate-400 mt-6 animate-pulse">
+        <p className="text-center text-slate-500 dark:text-slate-300 mt-6 animate-pulse">
           {message}
         </p>
       )}

@@ -153,14 +153,14 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         }
       >
         {!loading && query && (
-          <p className="px-3 pb-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <p className="px-3 pb-2 text-xs font-medium text-slate-500 dark:text-slate-300">
             {totalResults} result{totalResults === 1 ? '' : 's'} for "{query}"
           </p>
         )}
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full motion-safe:animate-spin motion-reduce:animate-none mb-3"></div>
-            <p className="text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-slate-500 dark:text-slate-300 font-medium">
               Searching for "{query}"...
             </p>
           </div>
@@ -172,7 +172,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             <p className="font-bold text-slate-800 dark:text-white text-lg">
               {t('search_no_results')}
             </p>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-slate-500 dark:text-slate-300 mt-1">
               We couldn't find anything matching "{query}".
             </p>
             <button
@@ -187,7 +187,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             {/* Pages Results */}
             {filteredResults.pages.length > 0 && (
               <div className="p-3">
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 flex items-center">
                   <SearchIcon className="w-3 h-3 mr-1.5" />
                   {t('search_quick_links')}
                 </h3>
@@ -216,7 +216,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             {/* Products Results */}
             {filteredResults.products.length > 0 && (
               <div className="p-3">
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 flex items-center">
                   <ShoppingCartIcon className="w-3 h-3 mr-1.5" />
                   {t('search_products')}
                 </h3>
@@ -260,7 +260,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                               ৳{product.price}
                             </span>
                             {product.originalPrice && (
-                              <span className="text-slate-400 dark:text-slate-500 text-xs line-through">
+                              <span className="text-slate-400 dark:text-slate-300 text-xs line-through">
                                 ৳{product.originalPrice}
                               </span>
                             )}
@@ -281,7 +281,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             {/* Vets Results */}
             {filteredResults.vets.length > 0 && (
               <div className="p-3">
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 flex items-center">
                   <UserIcon className="w-3 h-3 mr-1.5" />
                   {t('search_vets')}
                 </h3>
@@ -313,7 +313,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           <p className="font-semibold text-slate-800 dark:text-white truncate">
                             {highlightText(vet.name, query)}
                           </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-300 truncate">
                             {vet.specialization} • {vet.clinicName}
                           </p>
                         </div>
@@ -322,7 +322,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                             className={`w-2 h-2 rounded-full ${vet.availability === 'Available Now' ? 'bg-green-500 animate-pulse' : vet.availability === 'Available Today' ? 'bg-amber-500' : 'bg-slate-300'}`}
                             aria-hidden="true"
                           ></div>
-                          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-300">
                             {vet.availability === 'Available Now'
                               ? 'Now'
                               : vet.availability === 'Available Today'
@@ -340,7 +340,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             {/* Animals Results */}
             {filteredResults.animals.length > 0 && (
               <div className="p-3">
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 flex items-center">
                   <PawIcon className="w-3 h-3 mr-1.5" />
                   {t('search_adoption')}
                 </h3>
@@ -375,7 +375,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           <p className="font-semibold text-slate-800 dark:text-white truncate">
                             {highlightText(animal.name, query)}
                           </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-300 truncate">
                             {animal.breed} • {animal.age}
                           </p>
                         </div>
@@ -398,7 +398,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             {/* Articles Results */}
             {filteredResults.articles.length > 0 && (
               <div className="p-3">
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-3 flex items-center">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 flex items-center">
                   <BookOpenIcon className="w-3 h-3 mr-1.5" />
                   {t('search_blog')}
                 </h3>
@@ -428,7 +428,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           <p className="font-semibold text-slate-800 dark:text-white truncate">
                             {highlightText(article.title, query)}
                           </p>
-                          <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
+                          <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-300">
                             <span className="truncate">
                               {t('search_by')} {article.author}
                             </span>
@@ -451,7 +451,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
       {hasResults && !loading && (
         <div className="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
-          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+          <p className="text-[10px] text-slate-400 dark:text-slate-300">
             {t('search_navigation_tip').split('↑↓')[0]}
             <kbd className="px-1 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
               ↑↓

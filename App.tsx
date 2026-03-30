@@ -119,7 +119,7 @@ const GlobalCartElements: React.FC = () => {
       <button
         key={lastActionTimestamp || 'initial'}
         onClick={openCart}
-        className={`fixed right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-24 md:h-16 md:w-16 ${
+        className={`fixed right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-24 md:h-14 md:w-14 ${
           isVisible
             ? 'translate-y-0 opacity-100'
             : 'translate-y-20 opacity-0 pointer-events-none'

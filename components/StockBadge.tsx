@@ -133,7 +133,7 @@ export const NotifyMeButton: React.FC<{
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className={`flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors ${className}`}
+        className={`flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors ${className}`}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

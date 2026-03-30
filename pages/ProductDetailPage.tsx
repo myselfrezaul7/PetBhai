@@ -25,6 +25,8 @@ const ProductDetailPage: React.FC = () => {
   const { isAuthenticated, currentUser, addToWishlist, removeFromWishlist } = useAuth();
 
   const [isAdding, setIsAdding] = useState(false);
+  const [isAutoShip, setIsAutoShip] = useState(false);
+  const [autoShipFrequency, setAutoShipFrequency] = useState('1 Month');
 
   // State for the new review form
   const [newRating, setNewRating] = useState(0);
@@ -106,9 +108,20 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = useCallback(() => {
     setIsAdding(true);
-    addToCart(product);
+    let finalProduct = product;
+    if (isAutoShip) {
+      finalProduct = {
+        ...product,
+        id: parseInt(`${product.id}9999`), // Pseudo ID to separate autoship items from normal items in cart
+        name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
+        price: product.price * 0.95, // 5% discount
+        isAutoShip: true,
+        autoShipFrequency: autoShipFrequency
+      };
+    }
+    addToCart(finalProduct);
     setTimeout(() => setIsAdding(false), 1000);
-  }, [addToCart, product]);
+  }, [addToCart, product, isAutoShip, autoShipFrequency]);
 
   const handleWishlistClick = useCallback(() => {
     if (!isAuthenticated) {
@@ -198,7 +211,18 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    addToCart(product);
+    let finalProduct = product;
+    if (isAutoShip) {
+      finalProduct = {
+        ...product,
+        id: parseInt(`${product.id}9999`), // Pseudo ID to separate autoship items from normal items in cart
+        name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
+        price: product.price * 0.95, // 5% discount
+        isAutoShip: true,
+        autoShipFrequency: autoShipFrequency
+      };
+    }
+    addToCart(finalProduct);
     bundleOffer.items.forEach((bundleItem) => addToCart(bundleItem));
   }, [addToCart, bundleOffer, product]);
 
@@ -372,7 +396,7 @@ const ProductDetailPage: React.FC = () => {
           </h2>
 
           {bundleLoading ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading bundle offer...</p>
+            <p className="text-sm text-slate-500 dark:text-slate-300">Loading bundle offer...</p>
           ) : (
             bundleOffer &&
             bundleOffer.items.length > 0 && (
@@ -388,7 +412,7 @@ const ProductDetailPage: React.FC = () => {
                 </div>
                 <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200">
-                    <span className="line-through text-slate-400 dark:text-slate-500 mr-2">
+                    <span className="line-through text-slate-400 dark:text-slate-300 mr-2">
                       ৳{bundleOffer.originalTotal.toLocaleString('en-BD')}
                     </span>
                     <span className="font-bold text-orange-600 dark:text-orange-400">
@@ -498,7 +522,7 @@ const ProductDetailPage: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mb-2">
                   <time dateTime={review.date}>{new Date(review.date).toLocaleDateString()}</time>
                 </p>
                 <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
@@ -534,7 +558,7 @@ const ProductDetailPage: React.FC = () => {
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/65 bg-white/90 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/88 sm:hidden">
         <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
           <div className="min-w-[6.8rem] rounded-xl border border-white/70 bg-white/75 px-2.5 py-2 dark:border-slate-700/70 dark:bg-slate-800/75">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
               Price
             </p>
             <p className="text-base font-bold text-slate-800 dark:text-white">৳{product.price}</p>

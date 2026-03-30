@@ -74,10 +74,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             {article.content.split('\n')[0]}
           </p>
           <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-zinc-500 dark:text-zinc-200">
-            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 dark:text-zinc-900 dark:text-zinc-50">
+            <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50  dark:text-zinc-50">
               {article.author}
             </span>
-            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-amber-50/80 dark:bg-zinc-800/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50 dark:text-zinc-900 dark:text-zinc-50">
+            <span className="whitespace-nowrap px-2 py-1 rounded-full bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50  dark:text-zinc-50">
               {new Date(article.date).toLocaleDateString()}
             </span>
           </div>

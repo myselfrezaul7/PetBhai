@@ -42,7 +42,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     <>
       {/* WhatsApp Chat Window */}
       {isOpen && (
-        <div className="fixed right-4 z-40 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-scale-in dark:border-slate-700 dark:bg-slate-800 bottom-[calc(10.5rem+var(--safe-bottom))] md:bottom-24 md:right-5 md:w-80 md:max-w-[calc(100vw-40px)]">
+        <div className="fixed right-4 z-40 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-scale-in dark:border-slate-700 dark:bg-slate-800 bottom-[calc(11.5rem+var(--safe-bottom))] md:bottom-24 md:right-5 md:w-80 md:max-w-[calc(100vw-40px)]">
           {/* Header */}
           <div className="bg-[#075E54] p-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -77,7 +77,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 
           {/* Quick Messages */}
           <div className="p-3 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-300 mb-2 font-medium">
               Quick Messages:
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -121,7 +121,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       {/* Floating WhatsApp Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 hover:scale-110 active:scale-95 bottom-[calc(9rem+var(--safe-bottom))] md:bottom-40 md:h-16 md:w-16 ${
+        className={`fixed right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 hover:scale-110 active:scale-95 bottom-[calc(9.5rem+var(--safe-bottom))] md:bottom-40 md:h-14 md:w-14 ${
           isOpen ? 'bg-slate-600 hover:bg-slate-700' : 'bg-[#25D366] hover:bg-[#128C7E]'
         }`}
         aria-label={isOpen ? 'Close WhatsApp chat' : 'Open WhatsApp chat'}
@@ -141,7 +141,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 
       {/* Tooltip when not open */}
       {!isOpen && (
-        <div className="fixed bottom-[178px] right-20 bg-slate-800 dark:bg-slate-700 text-white text-xs px-3 py-2 rounded-lg shadow-lg z-30 hidden md:block animate-fade-in">
+        <div className="fixed bottom-[152px] right-20 bg-slate-800 dark:bg-slate-700 text-white text-xs px-3 py-2 rounded-lg shadow-lg z-30 hidden md:block animate-fade-in">
           <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 border-8 border-transparent border-l-slate-800 dark:border-l-slate-700"></div>
           Need help? Chat with us!
         </div>

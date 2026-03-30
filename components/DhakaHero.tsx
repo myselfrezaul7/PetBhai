@@ -45,7 +45,7 @@ const DhakaHero: React.FC = () => {
         </motion.h1>
 
         <motion.p
-          className="mx-auto mt-4 max-w-2xl text-sm text-slate-600 dark:text-zinc-400 md:text-lg"
+          className="mx-auto mt-4 max-w-2xl text-sm text-slate-600 dark:text-zinc-300 md:text-lg"
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

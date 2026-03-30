@@ -174,12 +174,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                 <ShoppingCartIcon className="w-6 h-6 text-orange-500" />
                 Your Cart
                 {cartCount > 0 && (
-                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  <span className="text-sm font-medium text-slate-500 dark:text-slate-300">
                     ({cartCount} {cartCount === 1 ? 'item' : 'items'})
                   </span>
                 )}
               </h2>
-              <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-300">
                 Swipe right to close
               </p>
             </div>
@@ -187,7 +187,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
               ref={closeButtonRef}
               type="button"
               onClick={onClose}
-              className="glass-pill p-2 text-slate-500 transition-all duration-300 touch-manipulation active:scale-95 dark:text-zinc-400"
+              className="glass-pill p-2 text-slate-500 transition-all duration-300 touch-manipulation active:scale-95 dark:text-zinc-300"
               aria-label="Close cart"
             >
               <CloseIcon className="w-6 h-6" />
@@ -197,9 +197,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
           {/* Cart Items */}
           <div className="flex-grow overflow-y-auto p-5 overscroll-contain">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 dark:text-slate-400">
+              <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 dark:text-slate-300">
                 <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
-                  <ShoppingCartIcon className="w-16 h-16 text-slate-400 dark:text-slate-500" />
+                  <ShoppingCartIcon className="w-16 h-16 text-slate-400 dark:text-slate-300" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
                 <p className="text-sm max-w-xs">
@@ -267,7 +267,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                       <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mt-1">
                         ৳{item.price.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
                       </p>
-                      <div className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                      <div className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-300">
                         Swipe left to remove
                       </div>
                       <div className="flex items-center space-x-3 mt-2.5">
@@ -330,7 +330,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={handleClearCart}
-                className="w-full text-center mt-4 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors touch-manipulation active:scale-95"
+                className="w-full text-center mt-4 py-2 text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-500 transition-colors touch-manipulation active:scale-95"
               >
                 Clear Cart
               </button>
