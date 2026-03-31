@@ -18,7 +18,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
   return (
     <Link
       to={`/vet/${vet.id}`}
-      className="group flex h-full flex-col items-center rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-amber-100/10 dark:bg-zinc-900/95 sm:p-6"
+      className="group flex h-full card-virtualized flex-col items-center rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-amber-100/10 dark:bg-zinc-900/95 sm:p-6"
     >
       <div className="relative">
         <img

@@ -359,3 +359,8 @@ html.dark .glass-card-ios {
   padding-bottom: max(1rem, var(--safe-bottom));
   padding-left: max(1rem, var(--safe-left));
 }
+
+.card-virtualized {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 350px;
+}
