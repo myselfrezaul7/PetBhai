@@ -22,7 +22,10 @@ export const ProductCardSkeleton: React.FC = () => (
     </div>
     {/* Content */}
     <div className="p-2 sm:p-5 flex flex-col flex-grow">
-      <Skeleton className="h-4 sm:h-6 w-3/4 mb-2" />
+      <div className="min-h-[2.5em] mb-1 sm:mb-2">
+        <Skeleton className="h-4 sm:h-6 w-3/4 mb-1" />
+        <Skeleton className="h-4 sm:h-6 w-1/2" />
+      </div>
       <Skeleton className="h-3 sm:h-4 w-1/4 mb-4" />
       <div className="flex justify-between items-end mt-auto">
         <Skeleton className="h-5 sm:h-7 w-20" />

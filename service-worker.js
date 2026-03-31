@@ -1,9 +1,7 @@
-const CACHE_NAME = 'petbhai-cache-v6'; // Incremented version
-const STATIC_CACHE = 'petbhai-static-v6';
-const DYNAMIC_CACHE = 'petbhai-dynamic-v3';
-const IMAGE_CACHE = 'petbhai-images-v3';
-const FONT_CACHE = 'petbhai-fonts-v1';
-const API_CACHE = 'petbhai-api-v1';
+const CACHE_NAME = 'petbhai-cache-v7'; // Incremented version
+const STATIC_CACHE = 'petbhai-static-v7';
+const DYNAMIC_CACHE = 'petbhai-dynamic-v4';
+const API_CACHE = 'petbhai-api-v2';
 
 // Critical assets to precache
 const urlsToCache = [
@@ -17,9 +15,8 @@ const urlsToCache = [
 ];
 
 // Cache size limits
-const DYNAMIC_CACHE_LIMIT = 75;
-const IMAGE_CACHE_LIMIT = 150;
-const API_CACHE_LIMIT = 50;
+const DYNAMIC_CACHE_LIMIT = 200; // Consolidated images, fonts, and assets
+const API_CACHE_LIMIT = 100;
 
 // API cache TTL (5 minutes for most data)
 const API_CACHE_TTL = 5 * 60 * 1000;
@@ -76,7 +73,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [STATIC_CACHE, DYNAMIC_CACHE, IMAGE_CACHE, FONT_CACHE, API_CACHE];
+  const cacheWhitelist = [STATIC_CACHE, DYNAMIC_CACHE, API_CACHE];
   event.waitUntil(
     Promise.all([
       // Clean old caches

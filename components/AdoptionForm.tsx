@@ -11,50 +11,21 @@ interface AdoptionFormProps {
 
 const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) => {
   const toast = useToast();
-  const modalRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!isOpen) return;
+    const dialog = dialogRef.current;
+    if (isOpen && dialog && !dialog.open) {
+      dialog.showModal();
+      closeButtonRef.current?.focus();
+    } else if (!isOpen && dialog && dialog.open) {
+      dialog.close();
+    }
+  }, [isOpen]);
 
-    closeButtonRef.current?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-        return;
-      }
-
-      if (event.key === 'Tab' && modalRef.current) {
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement.focus();
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) {
       onClose();
     }
   };
@@ -68,39 +39,34 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 transition-opacity duration-300"
+    <dialog
+      ref={dialogRef}
+      onClose={onClose}
       onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
+      className="glass-card-ios w-full max-w-2xl max-h-[min(90vh,calc(100vh-2rem))] overflow-y-auto m-auto p-0 border-0 bg-transparent shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-md open:animate-scale-in z-50"
       aria-labelledby="adoption-form-title"
     >
-      <div
-        ref={modalRef}
-        className="glass-card-ios w-full max-w-2xl max-h-[min(90vh,calc(100vh-2rem))] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="p-8">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h2 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                <span id="adoption-form-title">Adoption Application</span>
-              </h2>
-              <p className="text-zinc-500 dark:text-zinc-300 text-lg mt-1">
-                You are applying to adopt:{' '}
-                <span className="font-bold text-zinc-900 dark:text-zinc-50">{animal.name}</span>
-              </p>
-            </div>
-            <button
-              ref={closeButtonRef}
-              type="button"
-              onClick={onClose}
-              className="text-zinc-500 dark:text-zinc-300 hover:text-zinc-900 dark:text-zinc-50"
-              aria-label="Close adoption form"
-            >
-              <CloseIcon className="w-7 h-7" />
-            </button>
+      <div className="bg-white/95 dark:bg-zinc-900/95 w-full h-full p-8" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+              <span id="adoption-form-title">Adoption Application</span>
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-300 text-lg mt-1">
+              You are applying to adopt:{' '}
+              <span className="font-bold text-zinc-900 dark:text-zinc-50">{animal.name}</span>
+            </p>
           </div>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={onClose}
+            className="text-zinc-500 dark:text-zinc-300 hover:text-zinc-900 dark:text-zinc-50"
+            aria-label="Close adoption form"
+          >
+            <CloseIcon className="w-7 h-7" />
+          </button>
+        </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Personal Info */}
@@ -287,7 +253,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
           </form>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };
 
