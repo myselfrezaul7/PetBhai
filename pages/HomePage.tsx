@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
@@ -21,192 +21,178 @@ const HomePage: React.FC = () => {
   );
 
   return (
-    <main className="w-full pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-12">
-      <section className="container mx-auto px-4 pb-6 pt-4 md:px-6 md:pb-10 md:pt-8" aria-label="Hero banner">
+    <main className="w-full pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-12 space-y-6 md:space-y-10 pt-2">
+      
+      {/* 1. Unified Hero Section */}
+      <section className="container mx-auto px-4 md:px-6" aria-label="Hero banner">
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.65, ease: 'easeOut' }}
-          className="flex flex-col gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="relative w-full aspect-[4/4.5] sm:aspect-[21/9] overflow-hidden rounded-[2rem] shadow-sm dark:shadow-black/20"
         >
-          {/* Text Content First (Explore Now Section) */}
-          <div className="w-full rounded-[2.1rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-6 md:p-8 shadow-[0_14px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)] backdrop-blur-md">
-            <h1 className="text-[2rem] font-bold leading-[1.08] tracking-tight text-zinc-900 dark:text-zinc-50 md:text-5xl">
-              A Loving Home For Every Animal
+          <img
+            src="/landing-hero-mobile.webp"
+            alt="A loving home for every animal"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+          
+          {/* Text Overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 flex flex-col justify-end">
+            <h1 className="text-[2.25rem] sm:text-5xl font-bold leading-[1.05] tracking-tight text-white mb-2">
+              A Loving Home <br/>For Every Animal
             </h1>
-            <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-300">
+            <p className="text-[15px] sm:text-lg text-zinc-200/90 max-w-sm">
               Discover premium care, organic food, and adoption centers near you.
             </p>
-            
-          </div>
-
-          {/* Hero Image Section After text */}
-          <div className="relative w-full aspect-[4/3] sm:aspect-[21/9] overflow-hidden rounded-[2.1rem] border border-amber-900/10 dark:border-amber-100/10 shadow-[0_22px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_22px_40px_rgba(0,0,0,0.5)]">
-            <img
-              src="/landing-hero-mobile.webp"
-              alt="A loving home for every animal"
-              className="absolute inset-0 h-full w-full object-cover"
-              loading="eager"
-              decoding="async"
-            />
-            {/* Soft overlay gradient to ensure image looks rich in dark mode but no longer covered by text */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/10 via-transparent to-transparent dark:from-black/40 dark:via-black/10" />
           </div>
         </motion.div>
       </section>
 
-      <section className="container mx-auto px-4 pb-6 md:px-6 md:pb-8" aria-label="Quick actions">
+      {/* 2. Bento Grid Quick Actions */}
+      <section className="container mx-auto px-4 md:px-6" aria-label="Quick actions">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[1.55rem] font-bold leading-none text-zinc-900 dark:text-zinc-50">Quick Actions</h2>
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-300">Top Picks</span>
+          <h2 className="text-[1.35rem] sm:text-2xl font-bold leading-none text-zinc-900 dark:text-zinc-50">Explore</h2>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        
+        <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:grid-cols-3 sm:grid-rows-1">
+          {/* Main Block: Shop */}
           <motion.div
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5, delay: 0.04 }}
-            className="w-full"
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: 0.4, delay: 0.05 }}
+            className="col-span-1 row-span-2 sm:col-span-1 sm:row-span-1"
           >
-          <Link
-            to="/shop"
-            className="block min-h-[126px] rounded-[1.75rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 p-4 shadow-[0_10px_26px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_26px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_16px_28px_rgba(0,0,0,0.4)]"
-          >
-            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 dark:bg-amber-500/10 dark:bg-amber-500/20 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 2.75A1.75 1.75 0 0 0 4.25 4.5V7H3a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1h-1.25V4.5A1.75 1.75 0 0 0 18 2.75H6zm.25 4.25V4.75h11.5V7H6.25z" />
-              </svg>
-            </div>
-            <h3 className="text-[2rem] font-semibold leading-none text-zinc-900 dark:text-zinc-50">Shop</h3>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-300">Premium pet supplies</p>
-          </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5, delay: 0.12 }}
-            className="w-full"
-          >
-          <Link
-            to="/services"
-            className="block min-h-[126px] rounded-[1.75rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 p-4 shadow-[0_10px_26px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_26px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_16px_28px_rgba(0,0,0,0.4)]"
-          >
-            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 dark:bg-amber-500/10 dark:bg-amber-500/20 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 8h-1V6a1 1 0 0 0-1-1h-2V4a1 1 0 1 0-2 0v1h-2V4a1 1 0 1 0-2 0v1H7a1 1 0 0 0-1 1v2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-7 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
-              </svg>
-            </div>
-            <h3 className="text-[2rem] font-semibold leading-none text-zinc-900 dark:text-zinc-50">Services</h3>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-300">Vets and grooming</p>
-          </Link>
-          </motion.div>
-
-          <motion.div
-            className="w-full"
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-          <Link
-            to="/adopt"
-            className="relative block min-h-[126px] overflow-hidden rounded-[1.75rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 p-4 shadow-[0_10px_26px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_26px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_16px_28px_rgba(0,0,0,0.4)]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 100 100"
-              className="absolute -right-2 bottom-1 h-24 w-24 text-zinc-500 dark:text-zinc-300/30"
-              fill="currentColor"
-              aria-hidden="true"
+            <Link
+              to="/shop"
+              className="relative flex flex-col h-full min-h-[170px] overflow-hidden rounded-[1.5rem] border border-amber-500/20 bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-zinc-800 dark:to-zinc-900 p-5 shadow-sm transition-transform active:scale-[0.98]"
             >
-              <circle cx="24" cy="20" r="8" />
-              <circle cx="44" cy="12" r="8" />
-              <circle cx="62" cy="20" r="8" />
-              <circle cx="78" cy="30" r="8" />
-              <path d="M44 38c-11 0-24 11-24 25 0 10 7 16 16 16 8 0 13-4 18-4s10 4 18 4c9 0 16-6 16-16 0-15-15-25-26-25-5 0-9 2-12 5-3-3-7-5-12-5z" />
-            </svg>
-            <h3 className="text-[2rem] font-semibold leading-none text-zinc-900 dark:text-zinc-50">Adoption</h3>
-            <p className="mt-2 max-w-xs text-sm text-zinc-500 dark:text-zinc-300">Find your new best friend today.</p>
-            <span className="mt-4 inline-flex items-center gap-2 text-xl font-semibold text-amber-700 dark:text-amber-400">
-              View Pets
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
-          </Link>
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 mb-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 2.75A1.75 1.75 0 0 0 4.25 4.5V7H3a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1h-1.25V4.5A1.75 1.75 0 0 0 18 2.75H6zm.25 4.25V4.75h11.5V7H6.25z" />
+                </svg>
+              </div>
+              <div className="mt-4 relative z-10">
+                <h3 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Shop</h3>
+                <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400 leading-snug">Premium supplies <br/>for your pet</p>
+              </div>
+              {/* Decorative graphic */}
+              <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-amber-500/10 blur-xl"></div>
+            </Link>
+          </motion.div>
+
+          {/* Secondary Block 1: Services */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="col-span-1 row-span-1"
+          >
+            <Link
+              to="/services"
+              className="flex h-full flex-col justify-between rounded-[1.5rem] border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm transition-transform active:scale-[0.98]"
+            >
+              <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 8h-1V6a1 1 0 0 0-1-1h-2V4a1 1 0 1 0-2 0v1h-2V4a1 1 0 1 0-2 0v1H7a1 1 0 0 0-1 1v2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-7 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+                </svg>
+              </div>
+              <div className="mt-2">
+                <h3 className="text-[1.05rem] font-bold text-zinc-900 dark:text-zinc-50">Services</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Vets & Grooming</p>
+              </div>
+            </Link>
+          </motion.div>
+
+          {/* Secondary Block 2: Adoption */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="col-span-1 row-span-1"
+          >
+            <Link
+              to="/adopt"
+              className="flex h-full flex-col justify-between rounded-[1.5rem] border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm transition-transform active:scale-[0.98]"
+            >
+              <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+              </div>
+              <div className="mt-2">
+                <h3 className="text-[1.05rem] font-bold text-zinc-900 dark:text-zinc-50">Adoption</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Find a friend</p>
+              </div>
+            </Link>
           </motion.div>
         </div>
       </section>
 
-      <motion.section
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="container mx-auto px-4 pb-8 md:px-6 md:pb-10"
-        aria-labelledby="best-sellers-heading"
-      >
+      {/* 3. Horizontal Swiping Best Sellers */}
+      <section className="container mx-auto px-4 md:px-6" aria-labelledby="best-sellers-heading">
         <div className="mb-3 flex items-center justify-between">
-          <h2 id="best-sellers-heading" className="text-[1.75rem] font-bold leading-none text-zinc-900 dark:text-zinc-50 sm:text-[2rem]">
+          <h2 id="best-sellers-heading" className="text-[1.35rem] sm:text-2xl font-bold leading-none text-zinc-900 dark:text-zinc-50">
             {t('section_best_sellers')}
           </h2>
-          <Link to="/shop" className="text-base font-semibold text-amber-700 dark:text-amber-400">
+          <Link to="/shop" className="text-sm font-semibold text-amber-600 dark:text-amber-500">
             See all
           </Link>
         </div>
 
         {loading ? (
-          <div className="rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 p-6 text-center text-zinc-500 dark:text-zinc-300 backdrop-blur-sm">
+          <div className="rounded-[1.5rem] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-6 text-center text-zinc-500 dark:text-zinc-400 text-sm">
             Loading products...
           </div>
         ) : error ? (
           <ApiStateCard
-            title="Products are unavailable right now"
+            title="Products unavailable"
             message={error}
             actionLabel="Try Again"
             onAction={refetch}
           />
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {bestSellers.map((product) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.45, delay: 0.04 }}
-                className="w-full"
-              >
-                <ProductCard product={product} variant="mobile-featured" />
-              </motion.div>
-            ))}
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-3 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] items-stretch">
+              {bestSellers.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, x: 15 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="w-[150px] sm:w-[200px] flex-none snap-start"
+                >
+                  <ProductCard product={product} variant="mobile-featured" />
+                </motion.div>
+              ))}
+              {/* Spacer at the end for consistent padding when scrolled fully */}
+              <div className="w-1 flex-none sm:hidden"></div>
+            </div>
           </div>
         )}
-      </motion.section>
+      </section>
 
-      <motion.section
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="container mx-auto px-4 pb-2 md:px-6"
-        aria-labelledby="new-arrivals-heading"
-      >
-        <h2 id="new-arrivals-heading" className="mb-4 text-[1.75rem] font-bold leading-none text-zinc-900 dark:text-zinc-50 sm:text-[2rem]">
-          {t('section_new_arrivals')}
-        </h2>
+      {/* 4. New Arrivals (compact list list) */}
+      <section className="container mx-auto px-4 md:px-6" aria-labelledby="new-arrivals-heading">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 id="new-arrivals-heading" className="text-[1.35rem] sm:text-2xl font-bold leading-none text-zinc-900 dark:text-zinc-50">
+            {t('section_new_arrivals')}
+          </h2>
+        </div>
 
         {error ? (
           <ApiStateCard
-            title="New arrivals could not be loaded"
+            title="New arrivals unavailable"
             message={error}
-            actionLabel="Reload Products"
+            actionLabel="Reload"
             onAction={refetch}
           />
         ) : (
@@ -214,17 +200,17 @@ const HomePage: React.FC = () => {
             {newArrivals.map((product, index) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.42, delay: index * 0.05 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
               >
                 <ProductCard product={product} variant="mobile-list" />
               </motion.div>
             ))}
           </div>
         )}
-      </motion.section>
+      </section>
     </main>
   );
 };

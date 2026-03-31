@@ -58,7 +58,7 @@ const BottomNav: React.FC = () => {
   const items = [
     { to: '/', label: t('nav_home'), icon: HomeGlyph },
     { to: '/shop', label: t('nav_shop'), icon: ShopGlyph },
-    { to: '/community', label: t('nav_community'), icon: CommunityGlyph },      
+    { to: '/blog', label: t('nav_blog'), icon: CommunityGlyph },      
     { to: isAuthenticated ? '/profile' : '/login', label: t('nav_profile'), icon: ProfileGlyph },
   ];
 

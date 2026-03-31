@@ -913,7 +913,26 @@ export const MOCK_VETS: Vet[] = [
   },
 ];
 
-export const MOCK_ARTICLES: Article[] = [
+
+  export const MOCK_ARTICLES: Article[] = [
+  {
+    id: 101,
+    title: "How to Potty Train Your Kitten: A Step-by-Step Guide",
+    content: "Potty training a kitten is often one of the first and most important challenges for new pet parents. Most kittens naturally seek out a sandy or loose place to do their business, so utilizing a litter box correctly is key.\n\n**Step 1: Choose the Right Box and Litter**\nPick a box with low sides so your kitten can step in easily. Unscented, clumping clay litter is generally the safest and most appealing option for young cats.\n\n**Step 2: Location is Everything**\nPlace the box in a quiet, low-traffic area. Ensure it's far away from their food and water bowls, as cats are instinctually opposed to eliminating near their resources.\n\n**Step 3: Introduce the Box**\nShow the kitten the box immediately upon arriving home. Gently place them inside. If they seem confused, you can softly scrape the litter with your fingers or their front paws to simulate digging. Keep placing them in the box after meals, naps, and vigorous play sessions.\n\n**Step 4: Positive Reinforcement**\nPraise your kitten calmly when they use the box successfully. Never punish them for accidents outside the box. Simply clean the area thoroughly with an enzymatic cleaner to remove the scent, which prevents repeat offenses.\n\nWith a little patience and consistency, your kitten will become a litter box pro in no time!",
+    imageUrl: "./images/blog/blog_thumb_potty_training_placeholder.jpg",
+    author: "Dr. Sarah (Vet)",
+    date: new Date().toISOString(),
+    readTime: 4,
+  },
+  {
+    id: 102,
+    title: "The Ultimate Puppy Vaccination Schedule",
+    content: "Vaccinating your puppy is the single most important step you can take to protect them from dangerous and heavily contagious diseases like Parvovirus and Distemper.\n\n### Core Vaccines\nCore vaccines are considered vital to all dogs based on risk of exposure, severity of disease, or transmissibility to humans. These include Canine Parvovirus, Distemper, Canine Hepatitis, and Rabies.\n\n**General Schedule:**\n**6-8 Weeks:** DHPP (Distemper, adenovirus [hepatitis], parainfluenza, and parvovirus) \n**10-12 Weeks:** DHPP\n**14-16 Weeks:** DHPP, Rabies (usually required by law at this age)\n**12-16 Months:** Rabies, DHPP booster (Every 1-3 years thereafter)\n\n### Non-Core Vaccines\nDepending on your dog's lifestyle and where you live, your vet might recommend non-core vaccines:\n*   **Bordetella (Kennel Cough):** Essential if your dog will be boarded, groomed, or attend doggy daycare.\n*   **Leptospirosis:** Often given alongside Bordetella.\n*   **Lyme Disease:** Important in areas where dogs may come into contact with wildlife or drink from stagnant water.\n\nAlways consult with your local veterinarian to determine the best customized vaccination schedule tailored to your pet's needs.",
+    imageUrl: "./images/blog/blog_thumb_puppy_vaccines_placeholder.jpg",
+    author: "PetBhai Team",
+    date: new Date(Date.now() - 86400000).toISOString(),
+    readTime: 5,
+  },
   {
     id: 11,
     title: 'পোষা প্রাণীর এঁটেল এবং মাছি সমস্যা: প্রতিরোধের সেরা উপায়',

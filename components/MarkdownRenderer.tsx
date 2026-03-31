@@ -10,12 +10,42 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   let inList = false;
   let listItems: React.ReactNode[] = [];
 
-  const formatLine = (line: string): React.ReactNode => {
-    // This regex splits the line by **...** occurrences, capturing the bolded content.
-    return line.split(/\*\*(.*?)\*\*/g).map((part, index) => {
-      // The captured bolded content will be at odd indices.
-      return index % 2 === 1 ? <strong key={index}>{part}</strong> : part;
+const parseBold = (text: string): React.ReactNode => {
+    return text.split(/\*\*(.*?)\*\*/g).map((part, index) => {
+      return index % 2 === 1 ? <strong key={index} className="text-zinc-900 dark:text-zinc-100">{part}</strong> : part;
     });
+  };
+
+  const formatLine = (line: string): React.ReactNode => {
+    // First, parse out our custom button syntax: [BUTTON: text](url)
+    const parts = line.split(/\[BUTTON:\s*(.*?)]\((.*?)\)/g);
+    
+    if (parts.length > 1) {
+      return parts.map((part, index) => {
+        // Button text and URL appear at indices 1 and 2 (and 4/5, etc.)
+        if (index % 3 === 1) {
+          const text = part;
+          const url = parts[index + 1];
+          return (
+            <a
+              key={index}
+              href={url}
+              className="group inline-flex items-center justify-center bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-[15px] sm:text-base py-3.5 px-8 rounded-full shadow-[0_8px_20px_-6px_rgba(245,158,11,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(245,158,11,0.6)] transform hover:-translate-y-1 transition-all duration-300 no-underline mt-4 mb-2 max-w-full"
+            >
+              <span className="truncate">{text}</span>
+              <svg className="ml-2 w-5 h-5 flex-shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+              </svg>
+            </a>
+          );
+        }
+        if (index % 3 === 2) return null; // Skip rendering the URL part raw
+        
+        // Parse bold **text** for the remaining plain text parts
+        return parseBold(part);
+      });
+    }
+    return parseBold(line);
   };
 
   const pushList = () => {
