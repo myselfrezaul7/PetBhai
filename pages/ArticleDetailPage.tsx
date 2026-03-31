@@ -5,6 +5,7 @@ import { ImageIcon, PawIcon } from '../components/icons';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
+import BlogCommunityCTA from '../components/BlogCommunityCTA';
 
 const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -152,6 +153,7 @@ const ArticleDetailPage: React.FC = () => {
           {/* Article Body */}
           <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10">
             <MarkdownRenderer content={article.content} />
+            <BlogCommunityCTA />
           </section>
         </article>
 

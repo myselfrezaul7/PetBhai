@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Article } from '../types';
+import { normalizeArticle } from '../lib/articleUtils';
 import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 interface ArticleContextType {
@@ -24,7 +25,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!Array.isArray(data)) {
         throw new Error('Invalid article data received');
       }
-      setArticles(data);
+      setArticles(data.map(normalizeArticle));
       if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);

@@ -152,7 +152,7 @@ const SEO: React.FC<SEOProps> = ({
           '@type': 'WebPage',
           '@id': currentUrl,
         },
-        author: author ? { '@type': 'Person', name: author } : undefined,
+        author: author ? { '@type': author.includes('Team') ? 'Organization' : 'Person', name: author } : undefined,
         datePublished: publishedTime,
         dateModified: modifiedTime || publishedTime,
         articleSection: section,
