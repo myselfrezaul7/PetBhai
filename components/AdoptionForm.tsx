@@ -251,7 +251,6 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
               </div>
             </div>
           </form>
-        </div>
       </div>
     </dialog>
   );

@@ -412,12 +412,11 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
 
-          
-            {/* Filter & Sort Floating Pill button */}
-            <div className="md:hidden fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-30">
+            {/* Filter & Sort Bottom Action (Mobile) */}
+            <div className="md:hidden mt-2 flex w-full">
               <button
                 onClick={() => setIsFilterSheetOpen(true)}
-                className="flex items-center justify-center gap-2 rounded-full bg-slate-900 dark:bg-amber-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl shadow-slate-900/20 transition-transform active:scale-95 hover:scale-105"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-amber-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-md transition-transform active:scale-95"
               >
                 <svg
                   className="h-4 w-4"
