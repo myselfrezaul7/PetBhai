@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
   const [isAdding, setIsAdding] = useState(false);
   const addingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isWishlisted = currentUser?.user?.wishlist?.includes(product.id) || false;
+  const isWishlisted = currentUser?.wishlist?.includes(product.id) || false;
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();

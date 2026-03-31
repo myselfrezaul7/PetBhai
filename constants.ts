@@ -782,7 +782,7 @@ const MOCK_VET_REVIEWS: VetReview[] = [
   },
 ];
 
-export const MOCK_VETS: Vet[] = [
+export const MOCK_VETS: any[] = [
   {
     id: 1,
     name: 'Dr. Fatima Ahmed',
@@ -1292,16 +1292,16 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
   },
 ];
 
-export const MOCK_ANIMALS: Animal[] = [
+export const MOCK_ANIMALS: any[] = [
   {
     id: 1,
     name: 'Mittens',
     species: 'Cat',
     breed: 'Persian',
-    age: '2 years',
+    age: 'Adult',
     location: 'Dhaka',
     imageUrl: 'https://placehold.co/600x400?text=Persian+Cat+Mittens',
-    status: 'available',
+    status: 'Available',
     description:
       'A lovely fluffy Persian cat looking for a forever home. Very friendly and great with kids.',
     sex: 'Female',
@@ -1315,10 +1315,10 @@ export const MOCK_ANIMALS: Animal[] = [
     name: 'Rocky',
     species: 'Dog',
     breed: 'German Shepherd',
-    age: '5 months',
+    age: 'Young',
     location: 'Chittagong',
     imageUrl: 'https://placehold.co/600x400?text=German+Shepherd+Rocky',
-    status: 'available',
+    status: 'Available',
     description: 'Energetic and playful German Shepherd puppy. Needs a loving family with space.',
     sex: 'Male',
     color: 'Black & Tan',

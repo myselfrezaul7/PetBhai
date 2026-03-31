@@ -21,7 +21,7 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
       className="group flex h-full flex-col items-center rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-amber-100/10 dark:bg-zinc-900/95 sm:p-6"
     >
       <div className="relative">
-        <img loading='lazy' decoding='async' 
+        <img
           className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-amber-200 dark:ring-zinc-700 dark:ring-amber-200 dark:ring-zinc-700 transition-all duration-500 group-hover:ring-slate-400 dark:group-hover:ring-slate-500 group-hover:scale-105"
           src={vet.imageUrl}
           alt={`Dr. ${vet.name}`}

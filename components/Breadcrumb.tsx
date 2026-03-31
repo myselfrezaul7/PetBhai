@@ -136,6 +136,9 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
       </ol>
     </nav>
     </>
+  );
+};
+
 export const BreadcrumbCompact: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
   const location = useLocation();
   const breadcrumbItems = items || generateBreadcrumbs(location.pathname);

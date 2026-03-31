@@ -39,7 +39,7 @@ export const getCSRFToken = async (): Promise<string> => {
       },
     });
 
-    csrfToken = data.csrfToken;
+    csrfToken = data.csrfToken ?? null;
     csrfTokenExpiry = Date.now() + CSRF_TOKEN_REFRESH;
     return csrfToken as string;
   } catch (error) {

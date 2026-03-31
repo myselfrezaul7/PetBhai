@@ -42,7 +42,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
     <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-amber-100/10 dark:bg-zinc-900/95">
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link to={`/adopt/${animal.id}`} className="block h-full">
-          <img loading='lazy' decoding='async' 
+          <img
             src={animal.imageUrl}
             alt={animal.name}
             className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-110"

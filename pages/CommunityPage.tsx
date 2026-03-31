@@ -1149,7 +1149,7 @@ const CommunityPage: React.FC = () => {
             </button>
           </div>
           <button
-            onClick={fetchPosts}
+            onClick={() => fetchPosts()}
             className="text-[10px] sm:text-xs text-slate-400 hover:text-orange-500 transition-colors hidden sm:block px-2 py-1 rounded active:scale-95 touch-manipulation"
             title="Refresh posts"
             aria-label="Refresh posts"
@@ -1194,7 +1194,7 @@ const CommunityPage: React.FC = () => {
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-300 mb-4">{error}</p>
               <button
-                onClick={fetchPosts}
+                onClick={() => fetchPosts()}
                 className="px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors touch-manipulation active:scale-95"
               >
                 Try Again

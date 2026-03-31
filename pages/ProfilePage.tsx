@@ -115,7 +115,7 @@ const ProfilePage: React.FC = () => {
 
         <aside className="w-full md:w-64 shrink-0 flex flex-col gap-2">
           <div className="flex md:hidden items-center gap-4 p-4 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800 shadow-sm mb-4">
-             <Avatar src={currentUser.profilePictureUrl} fallback={currentUser.name} size="md" className="ring-2 ring-amber-100 dark:ring-amber-500/20" />
+             <Avatar src={currentUser.profilePictureUrl} name={currentUser.name} size="md" className="ring-2 ring-amber-100 dark:ring-amber-500/20" />
              <div className="flex-1 min-w-0">
                <h2 className="text-lg font-bold text-slate-800 dark:text-white truncate">{currentUser.name}</h2>
                <p className="text-xs text-slate-500 truncate">{currentUser.email}</p>
@@ -142,9 +142,9 @@ const ProfilePage: React.FC = () => {
                     <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{item.icon}</span>
                     {item.label}
                   </div>
-                  {item.badge !== undefined && item.badge > 0 && (
+                  {(item as any).badge !== undefined && (item as any).badge > 0 && (
                     <span className="relative z-10 px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-zinc-800 text-[10px] font-bold">
-                      {item.badge}
+                      {(item as any).badge}
                     </span>
                   )}
                 </button>
@@ -160,12 +160,12 @@ const ProfilePage: React.FC = () => {
               {activeTab === 'overview' && (
                 <div className="space-y-10">
                   <header className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-6 border-b border-slate-100 dark:border-zinc-800/50">
-                    <Avatar src={currentUser.profilePictureUrl} fallback={currentUser.name} size="xl" className="ring-4 ring-slate-50 dark:ring-zinc-800" />
+                    <Avatar src={currentUser.profilePictureUrl} name={currentUser.name} size="xl" className="ring-4 ring-slate-50 dark:ring-zinc-800" />
                     <div>
                       <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">{currentUser.name}</h1>
                       <div className="flex items-center gap-3 mt-1.5 opacity-80">
                         <span className="inline-flex py-0.5 px-2.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20 text-xs font-semibold text-amber-700 dark:text-amber-400">
-                          {currentUser.role === 'admin' ? 'Admin' : currentUser.plusMember ? 'PetBhai Plus' : 'Customer'}
+                          {currentUser.role === 'admin' ? 'Admin' : currentUser.isPlusMember ? 'PetBhai Plus' : 'Customer'}
                         </span>
                         <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">{currentUser.email}</span>
                       </div>
@@ -209,7 +209,7 @@ const ProfilePage: React.FC = () => {
                       {recentOrders.map((order, i) => (
                         <div key={i} className="p-4 rounded-2xl border border-slate-200/70 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex flex-col sm:flex-row justify-between gap-4 transition-transform hover:scale-[1.01]">
                           <div>
-                            <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{order.id}</p>
+                            <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{(order as any)._id || (order as any).id}</p>
                             <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{new Date(order.date).toLocaleDateString()}</p>
                             <div className="text-xs mt-2 px-2 py-0.5 rounded-md w-fit font-medium bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 uppercase tracking-wide">{order.items.length} items</div>
                           </div>

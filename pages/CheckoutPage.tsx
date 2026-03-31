@@ -256,7 +256,7 @@ const CheckoutPage: React.FC = () => {
           body: JSON.stringify(orderData),
           timeoutMs: 30000,
         });
-        const newOrder = responsePayload?.order ?? responsePayload;
+        const newOrder = (responsePayload as any)?.order ?? responsePayload;
 
         if (isAuthenticated) {
           addOrderToHistory(newOrder);

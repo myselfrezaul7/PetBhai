@@ -336,7 +336,7 @@ const AppContent: React.FC = () => {
     if ('requestIdleCallback' in window) {
       idleId = window.requestIdleCallback(() => runPrefetch(), { timeout: 2000 });
     } else {
-      timeoutId = window.setTimeout(runPrefetch, 1200);
+      timeoutId = setTimeout(runPrefetch, 1200) as unknown as number;
     }
 
     return () => {
@@ -344,7 +344,7 @@ const AppContent: React.FC = () => {
         window.cancelIdleCallback(idleId);
       }
       if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
+        clearTimeout(timeoutId);
       }
     };
   }, []);

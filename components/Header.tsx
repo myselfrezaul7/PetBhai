@@ -576,7 +576,7 @@ const Header: React.FC = () => {
                         isActive
                           ? 'text-slate-900 dark:text-white'
                           : 'text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                      } ${link.className || ''}`
+                      } ${('className' in link ? (link as any).className : '')}`
                     }
                   >
                     {link.label}
@@ -592,15 +592,19 @@ const Header: React.FC = () => {
             {/* Search (Collapsible on Desktop for clean look) */}
             <div className="relative group flex items-center" ref={searchRef}>
               <div className={`flex items-center transition-all duration-300 ${isSearchActive || searchQuery ? 'w-44 sm:w-56 lg:w-52 xl:w-60 bg-slate-100 dark:bg-slate-900 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700' : 'w-8 bg-transparent'}`}>
-                  <SearchIcon 
-                    className={`w-4 h-4 text-slate-500 cursor-pointer ${isSearchActive || searchQuery ? 'mr-2' : ''}`} 
+                  <button 
                     onClick={() => {
                       if (!isSearchActive) {
                         setIsSearchActive(true);
                         setTimeout(() => desktopInputRef.current?.focus(), 100);
                       }
                     }}
-                  />
+                    className={`focus:outline-none ${isSearchActive || searchQuery ? 'mr-2' : ''}`}
+                    aria-label="Search"
+                    type="button"
+                  >
+                    <SearchIcon className="w-4 h-4 text-slate-500 cursor-pointer" />
+                  </button>
                   <input
                     ref={desktopInputRef}
                     type="text"
@@ -891,7 +895,7 @@ const Header: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation menu"
-            variants={menuContainerVariants}
+            variants={menuContainerVariants as any}
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -908,7 +912,7 @@ const Header: React.FC = () => {
 
             <motion.aside
               className="safe-top safe-bottom relative flex h-full w-[88%] max-w-sm flex-col rounded-r-[2.2rem] border-r border-white/60 bg-white/80 px-5 py-5 shadow-[0_26px_64px_rgba(0,0,0,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-900/80 dark:shadow-[0_26px_64px_rgba(0,0,0,0.7)]"
-              variants={menuPanelVariants}
+              variants={menuPanelVariants as any}
               initial="hidden"
               animate="visible"
               exit="exit"
@@ -933,7 +937,7 @@ const Header: React.FC = () => {
               <motion.div
                 className="mb-6 rounded-3xl border border-white/80 bg-white/70 p-4 backdrop-blur-md shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-white/5 dark:shadow-[0_10px_24px_rgba(0,0,0,0.5)]"
                 custom={0}
-                variants={menuItemVariants}
+                variants={menuItemVariants as any}
                 initial="hidden"
                 animate="visible"
               >
@@ -995,7 +999,7 @@ const Header: React.FC = () => {
                   <motion.div
                     key={section.title}
                     custom={sectionIndex + 1}
-                    variants={menuItemVariants}
+                    variants={menuItemVariants as any}
                     initial="hidden"
                     animate="visible"
                   >
@@ -1016,7 +1020,7 @@ const Header: React.FC = () => {
               <motion.div
                 className="mt-4 space-y-3"
                 custom={5}
-                variants={menuItemVariants}
+                variants={menuItemVariants as any}
                 initial="hidden"
                 animate="visible"
               >
