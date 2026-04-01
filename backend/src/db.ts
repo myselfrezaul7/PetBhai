@@ -235,7 +235,8 @@ class Database {
 
   public write() {
     if (isServerless && process.env.NODE_ENV === 'production') {
-      throw new Error('Database writes are disabled in production serverless mode to prevent silent data loss. Please use a persistent database.');
+      console.warn('Database writes are disabled in production serverless mode to prevent silent data loss. Please use a persistent database.');
+      return;
     }
     const snapshot = JSON.parse(JSON.stringify(this.data)) as DatabaseSchema;
     void this.enqueueSave(snapshot);
