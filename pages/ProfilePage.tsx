@@ -113,8 +113,8 @@ const ProfilePage: React.FC = () => {
     <main className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-8 sm:py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row gap-6 lg:gap-10">
 
-        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-2">
-          <div className="flex md:hidden items-center gap-4 p-4 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800 shadow-sm mb-4">
+        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-2 relative">
+          <div className="flex md:hidden items-center gap-4 p-4 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800 shadow-sm mb-2">
              <Avatar src={currentUser.profilePictureUrl} name={currentUser.name} size="md" className="ring-2 ring-amber-100 dark:ring-amber-500/20" />
              <div className="flex-1 min-w-0">
                <h2 className="text-lg font-bold text-slate-800 dark:text-white truncate">{currentUser.name}</h2>
@@ -122,35 +122,37 @@ const ProfilePage: React.FC = () => {
              </div>
           </div>
 
-          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide snap-x">
-            {navItems.map((item) => {
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`relative shrink-0 snap-start flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium transition-colors ${isActive ? 'text-amber-800 dark:text-amber-300' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-900 dark:hover:text-zinc-200'}`}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="profile-tab-active"
-                      className="absolute inset-0 bg-amber-100/70 dark:bg-amber-500/10 rounded-2xl z-0"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <div className="flex items-center gap-3 relative z-10">
-                    <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{item.icon}</span>
-                    {item.label}
-                  </div>
-                  {(item as any).badge !== undefined && (item as any).badge > 0 && (
-                    <span className="relative z-10 px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-zinc-800 text-[10px] font-bold">
-                      {(item as any).badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+          <div className="sticky top-[4.5rem] z-30 md:static -mx-4 px-4 py-3 md:p-0 md:mx-0 bg-slate-50/90 dark:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-b border-slate-200/50 dark:border-none md:border-transparent dark:bg-zinc-950/90 mb-4 md:mb-0 transition-all">
+            <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-1 md:pb-0 scrollbar-hide snap-x">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`relative shrink-0 snap-start flex items-center justify-between px-4 py-2.5 md:py-3 rounded-2xl text-sm font-medium transition-colors ${isActive ? 'text-amber-800 dark:text-amber-300' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-900 dark:hover:text-zinc-200'}`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="profile-tab-active"
+                        className="absolute inset-0 bg-amber-100/70 dark:bg-amber-500/10 rounded-2xl z-0"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <div className="flex items-center gap-2.5 relative z-10 w-full md:w-auto">
+                      <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{item.icon}</span>
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                    {(item as any).badge !== undefined && (item as any).badge > 0 && (
+                      <span className="relative z-10 ml-3 px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-zinc-800 text-[10px] font-bold">
+                        {(item as any).badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
         </aside>
 
         <section className="flex-1 min-w-0 flex flex-col gap-6">
@@ -172,23 +174,49 @@ const ProfilePage: React.FC = () => {
                     </div>
                   </header>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                     <div className="space-y-6">
-                      <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200">Personal Details</h3>
-                      <div className="space-y-4">
-                        <InlineEditField label="Full Name" value={currentUser.name} onSave={(val) => handleUpdate('name', val)} />
-                        <InlineEditField label="Phone" value={currentUser.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val)} />
-                        <InlineEditField label="Bio" value={currentUser.bio || ''} multiline onSave={(val) => handleUpdate('bio', val)} />
+                      <div className="bg-slate-50/70 dark:bg-zinc-800/30 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800/80">
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200 mb-4 pl-1">Personal Details</h3>
+                        <div className="space-y-4">
+                          <InlineEditField label="Full Name" value={currentUser.name} onSave={(val) => handleUpdate('name', val)} />
+                          <InlineEditField label="Phone" value={currentUser.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val)} />
+                          <InlineEditField label="Bio" value={currentUser.bio || ''} multiline onSave={(val) => handleUpdate('bio', val)} />
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-50/70 dark:bg-zinc-800/30 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800/80">
+                        <div className="flex items-center justify-between mb-4 pl-1">
+                          <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200">Alerts & Notifications</h3>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 bg-white dark:bg-zinc-900 px-2 py-0.5 rounded-full border border-slate-100 dark:border-zinc-800">Caught up</span>
+                        </div>
+                        <div className="text-sm text-slate-500 dark:text-zinc-400 py-6 text-center bg-white dark:bg-zinc-900/40 rounded-2xl border border-slate-100/50 dark:border-zinc-800">
+                          <p>No new notifications right now.</p>
+                        </div>
                       </div>
                     </div>
                     
                     <div className="space-y-6">
-                      <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200">Shipping Address</h3>
-                      <div className="space-y-4 bg-slate-50/50 dark:bg-zinc-800/30 p-4 rounded-2xl border border-slate-100 dark:border-zinc-400/60">
-                        <InlineEditField label="Recipient Name" value={currentUser.defaultShippingAddress?.fullName || currentUser.name} onSave={(val) => handleUpdate('fullName', val, true)} />
-                        <InlineEditField label="Address" value={currentUser.defaultShippingAddress?.address || ''} multiline onSave={(val) => handleUpdate('address', val, true)} />
-                        <InlineEditField label="City" value={currentUser.defaultShippingAddress?.city || ''} onSave={(val) => handleUpdate('city', val, true)} />
-                        <InlineEditField label="Contact Phone" value={currentUser.defaultShippingAddress?.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val, true)} />
+                      <div className="bg-slate-50/70 dark:bg-zinc-800/30 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800/80">
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200 mb-4 pl-1">Shipping Address</h3>
+                        <div className="space-y-4 pt-1">
+                          <InlineEditField label="Recipient Name" value={currentUser.defaultShippingAddress?.fullName || currentUser.name} onSave={(val) => handleUpdate('fullName', val, true)} />
+                          <InlineEditField label="Address" value={currentUser.defaultShippingAddress?.address || ''} multiline onSave={(val) => handleUpdate('address', val, true)} />
+                          <InlineEditField label="City" value={currentUser.defaultShippingAddress?.city || ''} onSave={(val) => handleUpdate('city', val, true)} />
+                          <InlineEditField label="Contact Phone" value={currentUser.defaultShippingAddress?.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val, true)} />
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-50/70 dark:bg-zinc-800/30 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800/80">
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200 mb-4 pl-1">Quick Actions</h3>
+                        <div className="grid grid-cols-2 gap-3 text-center">
+                          <Link to="/appointments" className="p-3 bg-white dark:bg-zinc-900/50 rounded-2xl text-sm font-bold text-amber-700 dark:text-amber-500 border border-slate-100 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors shadow-sm">
+                             Book Vet
+                          </Link>
+                          <button onClick={() => setActiveTab('settings')} className="p-3 bg-white dark:bg-zinc-900/50 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors shadow-sm">
+                             Manage Account
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
