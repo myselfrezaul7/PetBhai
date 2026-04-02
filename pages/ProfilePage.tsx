@@ -4,13 +4,18 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProducts } from '../contexts/ProductContext';
 import { useToast } from '../contexts/ToastContext';
 import { usePetManagement } from '../contexts/PetManagementContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
+import { useAnimals } from '../contexts/AnimalContext';
+import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 import ProductCard from '../components/ProductCard';
+import AnimalCard from '../components/AnimalCard';
 import Avatar from '../components/Avatar';
 import PetTools from '../components/PetTools';
+import DeliveryAreaChecker from '../components/DeliveryAreaChecker';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PackageIcon, HeartIcon, SettingsIcon, UserIcon, LogOutIcon, EditIcon, LoaderIcon } from '../components/icons';
+import { PackageIcon, HeartIcon, SettingsIcon, UserIcon, LogOutIcon, EditIcon, LoaderIcon, BookmarkIcon } from '../components/icons';
 
-type ProfileTab = 'overview' | 'orders' | 'wishlist' | 'settings';
+type ProfileTab = 'overview' | 'orders' | 'wishlist' | 'saved' | 'settings';
 
 const InlineEditField: React.FC<{
   label: string;
@@ -71,9 +76,12 @@ const InlineEditField: React.FC<{
 };
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, updateProfile, isAuthenticated, fetchProfile, logout } = useAuth();
+  const { currentUser, updateProfile, isAuthenticated, fetchProfile, logout, deleteAccount } = useAuth();
   const { products } = useProducts();
   const { pets } = usePetManagement();
+  const { animals, favorites } = useAnimals();
+  const { recentlyViewed } = useRecentlyViewed();
+  const { confirm } = useConfirmation();
   const navigate = useNavigate();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
@@ -85,6 +93,14 @@ const ProfilePage: React.FC = () => {
     if (!currentUser) return [];
     return products.filter((p) => currentUser.wishlist.includes(p.id));
   }, [currentUser, products]);
+
+  const savedAnimals = useMemo(() => {
+    return animals.filter((a) => favorites.includes(a.id));
+  }, [animals, favorites]);
+
+  const recentProducts = useMemo(() => {
+    return recentlyViewed.map(id => products.find(p => p.id === id)).filter(Boolean) as typeof products;
+  }, [recentlyViewed, products]);
 
   const recentOrders = useMemo(() => currentUser?.orderHistory || [], [currentUser]);
 
@@ -102,10 +118,31 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const isConfirmed = await confirm({
+      title: 'Delete Account',
+      message: 'Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently remove all your data, orders, and pet profiles.',
+      confirmText: 'Yes, Delete My Account',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (isConfirmed) {
+      try {
+        await deleteAccount();
+        toast.success('Account deleted successfully');
+        navigate('/');
+      } catch (err) {
+        toast.error('Failed to delete account. Please try again.');
+      }
+    }
+  };
+
   const navItems = [
     { id: 'overview', icon: <UserIcon />, label: 'Overview' },
     { id: 'orders', icon: <PackageIcon />, label: 'Orders', badge: recentOrders.length },
     { id: 'wishlist', icon: <HeartIcon />, label: 'Wishlist', badge: wishlistedProducts.length },
+    { id: 'saved', icon: <BookmarkIcon />, label: 'Saved' },
     { id: 'settings', icon: <SettingsIcon />, label: 'Settings' }
   ] as const;
 
@@ -157,7 +194,7 @@ const ProfilePage: React.FC = () => {
 
         <section className="flex-1 min-w-0 flex flex-col gap-6">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={activeTab} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }} transition={{ duration: 0.2 }} className="bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800/80 rounded-3xl p-5 sm:p-8 shadow-sm">
+            <motion.div key={activeTab} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800/80 rounded-3xl p-4 sm:p-8 shadow-sm">
               
               {activeTab === 'overview' && (
                 <div className="space-y-10">
@@ -205,6 +242,9 @@ const ProfilePage: React.FC = () => {
                           <InlineEditField label="City" value={currentUser.defaultShippingAddress?.city || ''} onSave={(val) => handleUpdate('city', val, true)} />
                           <InlineEditField label="Contact Phone" value={currentUser.defaultShippingAddress?.phone || ''} type="tel" onSave={(val) => handleUpdate('phone', val, true)} />
                         </div>
+                        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-zinc-800/60">
+                           <DeliveryAreaChecker compact />
+                        </div>
                       </div>
 
                       <div className="bg-slate-50/70 dark:bg-zinc-800/30 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800/80">
@@ -230,23 +270,39 @@ const ProfilePage: React.FC = () => {
                     <div className="text-center py-12 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-100 dark:border-zinc-800">
                       <PackageIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-zinc-600 mb-3" />
                       <p className="text-sm text-slate-500 dark:text-zinc-400">You haven't placed any orders yet.</p>
-                      <Link to="/shop" className="inline-block mt-4 text-sm font-semibold text-amber-600 dark:text-amber-500 hover:underline">Start Shopping</Link>
+                      <Link to="/shop" className="inline-block mt-4 px-5 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-colors shadow-sm">Start Shopping</Link>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {recentOrders.map((order, i) => (
-                        <div key={i} className="p-4 rounded-2xl border border-slate-200/70 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex flex-col sm:flex-row justify-between gap-4 transition-transform hover:scale-[1.01]">
-                          <div>
-                            <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{(order as any)._id || (order as any).id}</p>
-                            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{new Date(order.date).toLocaleDateString()}</p>
-                            <div className="text-xs mt-2 px-2 py-0.5 rounded-md w-fit font-medium bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 uppercase tracking-wide">{order.items.length} items</div>
+                      {recentOrders.map((order, i) => {
+                        const orderId = (order as any)._id || (order as any).id;
+                        return (
+                          <div key={i} className="p-5 rounded-2xl border border-slate-200/70 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex flex-col md:flex-row justify-between gap-4 transition-transform hover:scale-[1.01] hover:shadow-sm">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3">
+                                <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{orderId}</p>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide
+                                  ${order.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 
+                                  order.status === 'Cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400' : 
+                                  'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'}`}
+                                >
+                                  {order.status || 'Processing'}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{new Date(order.date).toLocaleDateString()}</p>
+                              <div className="text-xs mt-3 flex items-center gap-2 opacity-80">
+                                <span className="font-medium text-slate-600 dark:text-zinc-300">{order.items.length} items</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 md:gap-2">
+                              <span className="font-black text-lg text-slate-800 dark:text-emerald-400">৳{order.total.toFixed(2)}</span>
+                              <button onClick={() => navigate(`/order/${orderId}`)} className="text-xs font-semibold text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 hover:underline">
+                                View details &rarr;
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center">
-                            <span className="font-bold text-slate-800 dark:text-emerald-400">৳{order.total.toFixed(2)}</span>
-                            <span className="text-xs text-slate-500 mt-1">{order.status || 'Processing'}</span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -258,14 +314,50 @@ const ProfilePage: React.FC = () => {
                   {wishlistedProducts.length === 0 ? (
                     <div className="text-center py-12 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-100 dark:border-zinc-800">
                       <HeartIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-zinc-600 mb-3" />
-                      <p className="text-sm text-slate-500 dark:text-zinc-400">Your wishlist is empty.</p>
-                      <Link to="/shop" className="inline-block mt-4 text-sm font-semibold text-amber-600 dark:text-amber-500 hover:underline">Explore Products</Link>
+                      <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">Your wishlist is empty.</p>
+                      <Link to="/shop" className="inline-block mt-4 px-5 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-colors shadow-sm">Explore Products</Link>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                       {wishlistedProducts.map(p => (<ProductCard key={p.id} product={p} />))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {activeTab === 'saved' && (
+                <div className="space-y-12">
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-white pb-3 border-b border-slate-100 dark:border-zinc-800/80">Saved Animals</h2>
+                    {savedAnimals.length === 0 ? (
+                      <div className="text-center py-10 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-100 dark:border-zinc-800">
+                        <HeartIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-zinc-600 mb-3" />
+                        <p className="text-sm text-slate-500 dark:text-zinc-400">You haven't saved any adoption animals.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {savedAnimals.map(a => (<AnimalCard key={a.id} animal={a} />))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-white pb-3 border-b border-slate-100 dark:border-zinc-800/80">Recently Viewed Products</h2>
+                    {recentProducts.length === 0 ? (
+                      <div className="text-center py-10 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-100 dark:border-zinc-800">
+                        <PackageIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-zinc-600 mb-3" />
+                        <p className="text-sm text-slate-500 dark:text-zinc-400">Your viewing history is empty.</p>
+                      </div>
+                    ) : (
+                      <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
+                        {recentProducts.map(p => (
+                          <div key={p.id} className="min-w-[160px] md:min-w-[200px] snap-center shrink-0">
+                            <ProductCard product={p} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -275,10 +367,10 @@ const ProfilePage: React.FC = () => {
                   <div className="p-5 rounded-2xl border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
                     <h3 className="text-sm font-bold text-red-800 dark:text-red-400">Danger Zone</h3>
                     <p className="text-xs text-red-600/80 dark:text-red-300/70 mt-1 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-                    <button className="px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors">Delete Account</button>
+                    <button onClick={handleDeleteAccount} className="px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors">Delete Account</button>
                   </div>
                   <div className="pt-4 border-t border-slate-100 dark:border-zinc-400">
-                     <button onClick={() => { logout(); navigate('/'); }} className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white transition-colors">
+                     <button onClick={async () => { await logout(); navigate('/'); }} className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white transition-colors">
                         <LogOutIcon className="w-4 h-4" /> Sign Out
                      </button>
                   </div>

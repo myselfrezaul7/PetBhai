@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { User, Order } from '../types';
 import { sanitizeInput, validateId } from '../lib/security';
 import { apiRequest, ApiRequestError, getErrorMessage } from '../services/apiClient';
@@ -179,6 +179,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(getInitialCurrentUser);
+
+  const wishlistMutationRef = useRef(false);
 
   const clearSession = useCallback(() => {
     setCurrentUser(null);
@@ -405,6 +407,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return profile;
   }, [protectedApiRequest]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === 'visible';
+      if (isVisible && isAuthenticated && !wishlistMutationRef.current) {
+        void fetchProfile().catch(() => undefined);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+    };
+  }, [fetchProfile, isAuthenticated]);
+
   const signup = useCallback(
     async (
       name: string,
@@ -590,14 +609,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [clearSession, currentUser, protectedApiRequest]
   );
 
+  const inFlightWishlist = useRef<Set<number>>(new Set());
+
   const addToWishlist = useCallback(
     async (productId: number) => {
-      if (!currentUser) return;
+      if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
       // Optimistic update
       const oldUser = { ...currentUser };
       if (!oldUser.wishlist.includes(productId)) {
         setCurrentUser({ ...oldUser, wishlist: [...oldUser.wishlist, productId] });
+        inFlightWishlist.current.add(productId);
+        wishlistMutationRef.current = true;
 
         try {
           await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist`, {
@@ -610,6 +633,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
           console.error('Failed to sync wishlist', err);
           setCurrentUser(oldUser);
+        } finally {
+          inFlightWishlist.current.delete(productId);
+          wishlistMutationRef.current = false;
         }
       }
     },
@@ -618,11 +644,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeFromWishlist = useCallback(
     async (productId: number) => {
-      if (!currentUser) return;
+      if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
       const oldUser = { ...currentUser };
       if (oldUser.wishlist.includes(productId)) {
         setCurrentUser({ ...oldUser, wishlist: oldUser.wishlist.filter((id) => id !== productId) });
+        inFlightWishlist.current.add(productId);
+        wishlistMutationRef.current = true;
 
         try {
           await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist/${productId}`, {
@@ -631,6 +659,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
           console.error('Failed to sync wishlist removal', err);
           setCurrentUser(oldUser);
+        } finally {
+          inFlightWishlist.current.delete(productId);
+          wishlistMutationRef.current = false;
         }
       }
     },
@@ -736,6 +767,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           },
           body: JSON.stringify(order),
         });
+        // Phase D: Real-time behavior - converge with backend timeline immediately
+        await fetchProfile().catch(() => undefined);
       } catch (err) {
         // Order is still recorded locally even if backend sync fails.
         // This ensures the user sees their order immediately.

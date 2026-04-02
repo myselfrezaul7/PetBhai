@@ -139,8 +139,8 @@ const Header: React.FC = () => {
     searchQuery.trim().length >= 1 &&
     false;
 
-  const handleLogout = useCallback(() => {
-    logout();
+  const handleLogout = useCallback(async () => {
+    await logout();
     setIsMenuOpen(false);
     setIsProfileMenuOpen(false);
     navigate('/');
