@@ -139,11 +139,13 @@ describe('AuthContext', () => {
       expect(screen.getByTestId('is-authenticated')).toHaveTextContent('true');
     });
 
-    act(() => {
+    await act(async () => {
       fireEvent.click(screen.getByText('Logout'));
     });
 
-    expect(screen.getByTestId('is-authenticated')).toHaveTextContent('false');
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated')).toHaveTextContent('false');
+    });
     expect(screen.getByTestId('current-user')).toHaveTextContent('null');
   });
 

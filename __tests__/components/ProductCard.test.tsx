@@ -6,6 +6,14 @@ import { CartProvider } from '../../contexts/CartContext';
 import { LanguageProvider } from '../../contexts/LanguageContext';
 import type { Product } from '../../types';
 
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => ({
+    currentUser: null,
+    addToWishlist: jest.fn(),
+    removeFromWishlist: jest.fn(),
+  }),
+}));
+
 const mockProduct: Product = {
   id: 1,
   name: 'Test Product',

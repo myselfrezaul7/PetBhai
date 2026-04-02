@@ -410,7 +410,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const handleVisibilityChange = () => {
       const isVisible = document.visibilityState === 'visible';
-      if (isVisible && isAuthenticated && !wishlistMutationRef.current) {
+      const token = getStoredToken();
+      const refreshToken = getStoredRefreshToken();
+      const isAuth = !!currentUser && !!token && (!isTokenExpired(token) || !!refreshToken);
+      
+      if (isVisible && isAuth && !wishlistMutationRef.current) {
         void fetchProfile().catch(() => undefined);
       }
     };
@@ -422,7 +426,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
     };
-  }, [fetchProfile, isAuthenticated]);
+  }, [fetchProfile, currentUser]);
 
   const signup = useCallback(
     async (
