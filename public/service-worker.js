@@ -1,9 +1,9 @@
-const CACHE_NAME = 'petbhai-cache-v5'; // Incremented version
-const STATIC_CACHE = 'petbhai-static-v5';
-const DYNAMIC_CACHE = 'petbhai-dynamic-v3';
-const IMAGE_CACHE = 'petbhai-images-v3';
-const FONT_CACHE = 'petbhai-fonts-v1';
-const API_CACHE = 'petbhai-api-v1';
+const CACHE_NAME = 'petbhai-cache-v6';
+const STATIC_CACHE = 'petbhai-static-v6';
+const DYNAMIC_CACHE = 'petbhai-dynamic-v4';
+const IMAGE_CACHE = 'petbhai-images-v4';
+const FONT_CACHE = 'petbhai-fonts-v2';
+const API_CACHE = 'petbhai-api-v2';
 
 // Critical assets to precache
 const urlsToCache = [
