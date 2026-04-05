@@ -617,8 +617,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [clearSession, currentUser, protectedApiRequest]
   );
 
-  const inFlightWishlist = useRef<Set<number>>(new Set());
-
   const addToWishlist = useCallback(
     async (productId: number) => {
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
@@ -678,7 +676,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const favoritePet = useCallback(
     async (animalId: number) => {
-      if (!currentUser) return;
+      if (!currentUser || inFlightFavorites.current.has(animalId)) return;
       if (!validateId(animalId)) return;
       if (currentUser.favorites.includes(animalId)) return;
 
@@ -691,6 +689,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         favorites: [...currentUser.favorites, animalId],
       };
       setCurrentUser(updatedUser);
+      inFlightFavorites.current.add(animalId);
 
       try {
         await protectedApiRequest<unknown>(`/auth/${currentUser.id}/favorites`, {
@@ -703,14 +702,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err) {
         console.error('Failed to sync favorite', err);
         setCurrentUser(oldUser);
+        toast.error('Failed to favorite pet');
+      } finally {
+        inFlightFavorites.current.delete(animalId);
       }
     },
-    [currentUser, protectedApiRequest]
+    [currentUser, protectedApiRequest, toast]
   );
 
   const unfavoritePet = useCallback(
     async (animalId: number) => {
-      if (!currentUser) return;
+      if (!currentUser || inFlightFavorites.current.has(animalId)) return;
       if (!validateId(animalId)) return;
 
       const oldUser = { ...currentUser };
@@ -719,6 +721,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         favorites: currentUser.favorites.filter((id) => id !== animalId),
       };
       setCurrentUser(updatedUser);
+      inFlightFavorites.current.add(animalId);
 
       try {
         await protectedApiRequest<unknown>(`/auth/${currentUser.id}/favorites/${animalId}`, {
@@ -727,9 +730,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err) {
         console.error('Failed to sync unfavorite', err);
         setCurrentUser(oldUser);
+        toast.error('Failed to remove pet from favorites');
+      } finally {
+        inFlightFavorites.current.delete(animalId);
       }
     },
-    [currentUser, protectedApiRequest]
+    [currentUser, protectedApiRequest, toast]
   );
 
   const subscribeToPlus = useCallback(async () => {
