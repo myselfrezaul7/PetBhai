@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Animal } from '../types';
 import { CloseIcon } from './icons';
 import { useToast } from '../contexts/ToastContext';
@@ -14,6 +14,8 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     const dialog = dialogRef.current;
     if (isOpen && dialog && !dialog.open) {
@@ -21,6 +23,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
       closeButtonRef.current?.focus();
     } else if (!isOpen && dialog && dialog.open) {
       dialog.close();
+      setIsSubmitting(false); // Reset on close
     }
   }, [isOpen]);
 
@@ -32,10 +35,17 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(
-      `Thank you for your interest in adopting ${animal.name}! Your application has been submitted.`
-    );
-    onClose();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    // Simulate submission delay
+    setTimeout(() => {
+      toast.success(
+        `Thank you for your interest in adopting ${animal.name}! Your application has been submitted.`
+      );
+      setIsSubmitting(false);
+      onClose();
+    }, 1000);
   };
 
   return (
@@ -244,9 +254,10 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ animal, isOpen, onClose }) 
                 </button>
                 <button
                   type="submit"
-                  className="bg-orange-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-600"
+                  disabled={isSubmitting}
+                  className="bg-orange-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Submit Application
+                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
                 </button>
               </div>
             </div>

@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback, use
 import type { User, Order } from '../types';
 import { sanitizeInput, validateId } from '../lib/security';
 import { apiRequest, ApiRequestError, getErrorMessage } from '../services/apiClient';
+import { useToast } from './ToastContext';
 
 const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
@@ -179,8 +180,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(getInitialCurrentUser);
+  const toast = useToast();
 
   const wishlistMutationRef = useRef(false);
+  const inFlightWishlist = useRef<Set<number>>(new Set());
+  const inFlightFavorites = useRef<Set<number>>(new Set());
 
   const clearSession = useCallback(() => {
     setCurrentUser(null);

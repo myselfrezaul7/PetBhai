@@ -105,9 +105,9 @@ const AdoptionQuiz: React.FC = () => {
           </h3>
 
           <div className="space-y-3">
-            {questions[step].options.map((option, index) => (
+            {questions[step].options.map((option) => (
               <button
-                key={index}
+                key={option.text}
                 onClick={() => handleAnswer(option.points)}
                 className="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white/50 dark:bg-slate-700/30 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-slate-700/50 dark:hover:border-orange-500/50 transition-all duration-200 group active:scale-[0.98]"
               >

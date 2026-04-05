@@ -54,15 +54,13 @@ const getInitialState = (): CartState => {
         }
       }
       // Clear invalid data structure
+      console.warn('Cart data invalid, clearing items', parsed);
       window.localStorage.removeItem(CART_STORAGE_KEY);
     }
   } catch (error) {
     console.error('Error reading cart from localStorage', error);
-    try {
-      window.localStorage.removeItem(CART_STORAGE_KEY); // Clear corrupted data
-    } catch (e) {
-      // localStorage might be disabled
-    }
+    // Don't nuke everything blindly. We log and just load empty array.
+    // If it's pure corruption, it'll naturally rewrite when user adds to cart.
   }
   return { items: [] };
 };

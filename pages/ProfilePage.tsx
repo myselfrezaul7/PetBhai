@@ -79,27 +79,40 @@ const ProfilePage: React.FC = () => {
   const { currentUser, updateProfile, isAuthenticated, fetchProfile, logout, deleteAccount } = useAuth();
   const { products } = useProducts();
   const { pets } = usePetManagement();
-  const { animals, favorites } = useAnimals();
+  const { animals } = useAnimals();
   const { recentlyViewed } = useRecentlyViewed();
   const { confirm } = useConfirmation();
   const navigate = useNavigate();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
 
-  useEffect(() => { if (!isAuthenticated) navigate('/login'); }, [isAuthenticated, navigate]);
-  useEffect(() => { void fetchProfile(); }, [fetchProfile]);
+  useEffect(() => { 
+    if (!isAuthenticated) navigate('/login'); 
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    // Only fetch if profile data feels stale or missing, to avoid redundant fetches
+    void fetchProfile();
+  }, [isAuthenticated, fetchProfile]);
 
   const wishlistedProducts = useMemo(() => {
     if (!currentUser) return [];
-    return products.filter((p) => currentUser.wishlist.includes(p.id));
+    return products.filter((p) => currentUser.wishlist?.includes(p.id));
   }, [currentUser, products]);
 
   const savedAnimals = useMemo(() => {
+    if (!currentUser) return [];
+    const favorites = currentUser.favorites || [];
     return animals.filter((a) => favorites.includes(a.id));
-  }, [animals, favorites]);
+  }, [animals, currentUser]);
 
   const recentProducts = useMemo(() => {
-    return recentlyViewed.map(id => products.find(p => p.id === id)).filter(Boolean) as typeof products;
+    // recentlyViewed is Product[], map ID back to updated product if possible
+    return recentlyViewed
+      .map((item) => products.find((p) => p.id === item.id) || item)
+      .slice(0, 4);
   }, [recentlyViewed, products]);
 
   const recentOrders = useMemo(() => currentUser?.orderHistory || [], [currentUser]);

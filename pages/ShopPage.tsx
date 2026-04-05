@@ -346,7 +346,7 @@ const ShopPage: React.FC = () => {
               </p>
             ) : (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
                   {reorderSuggestions.map((suggestion) => (
                     <ProductCard
                       key={`reorder-${suggestion.product.id}`}
@@ -799,7 +799,7 @@ const ShopPage: React.FC = () => {
             </button>
           </div>
         ) : !error ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
             {sortedAndFilteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onQuickView={handleQuickView} />
             ))}
@@ -969,7 +969,7 @@ const ShopPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={resetAllFilters}
                   className="min-h-[44px] rounded-xl border border-orange-200 bg-amber-500/10 dark:bg-amber-500/10 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-amber-500/20 dark:bg-amber-500/20 dark:text-orange-300"

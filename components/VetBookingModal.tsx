@@ -15,6 +15,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   const [step, setStep] = useState(1);
   const [selectedTime, setSelectedTime] = useState('');
   const [issue, setIssue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
   );
@@ -31,8 +32,13 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (issue.trim()) {
-      setStep(3); // Confirmation step
+    if (issue.trim() && !isSubmitting) {
+      setIsSubmitting(true);
+      // Simulate backend request boundary
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setStep(3); // Confirmation step
+      }, 800);
     }
   };
 
@@ -230,9 +236,10 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                   </button>
                   <button
                     type="submit"
-                    className="rounded-full bg-orange-500 px-6 py-2 font-bold text-white hover:bg-orange-600"
+                    disabled={!issue.trim() || isSubmitting}
+                    className="rounded-full bg-orange-500 px-6 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    Proceed to Confirmation
+                    {isSubmitting ? 'Processing...' : 'Proceed to Confirmation'}
                   </button>
                 </div>
               </motion.form>
