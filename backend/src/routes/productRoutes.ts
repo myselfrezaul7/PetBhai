@@ -93,7 +93,7 @@ const asyncHandler =
 
 router.get(
   '/',
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     try {
       const products = db.products;
       if (!products || !Array.isArray(products)) {
@@ -112,7 +112,7 @@ router.get(
   '/admin/inventory',
   requireAuth,
   requireAdmin,
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     const inventory = db.products.map((product) => normalizeProductInventory(product));
     return res.json(inventory);
   })
@@ -122,7 +122,7 @@ router.post(
   '/admin',
   requireAuth,
   requireAdmin,
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     const parseResult = adminProductCreateSchema.safeParse(req.body);
     if (!parseResult.success) {
       return res.status(400).json({
@@ -172,7 +172,7 @@ router.patch(
   '/:id/inventory',
   requireAuth,
   requireAdmin,
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (Number.isNaN(id)) {
       return res.status(400).json({ message: 'Invalid product ID' });
@@ -219,7 +219,7 @@ router.patch(
 
 router.get(
   '/:id',
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
       if (isNaN(id)) {
@@ -241,7 +241,7 @@ router.get(
 router.get(
   '/:id/bundles',
   optionalAuth,
-  asyncHandler((req, res) => {
+  asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ message: 'Invalid product ID' });

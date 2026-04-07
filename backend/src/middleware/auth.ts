@@ -126,13 +126,14 @@ export const verifyRefreshToken = (token: string): RefreshTokenPayload | null =>
 // Authentication middleware - required auth
 export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
+  const reqId = (req as any).reqId || 'unknown';
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     securityLog('AUTH_MISSING_OR_MALFORMED_HEADER', req, {
       path: req.originalUrl || req.url,
       method: req.method,
     });
-    res.status(401).json({ error: 'Authentication required' });
+    res.status(401).json({ error: 'Authentication Error', message: 'Authentication required', reqId });
     return;
   }
 
@@ -144,7 +145,7 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
       path: req.originalUrl || req.url,
       method: req.method,
     });
-    res.status(401).json({ error: 'Invalid or expired token' });
+    res.status(401).json({ error: 'Authentication Error', message: 'Invalid or expired token', reqId });
     return;
   }
 
@@ -174,12 +175,14 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
 
 // Admin only middleware
 export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  const reqId = (req as any).reqId || 'unknown';
+
   if (!req.user) {
     securityLog('ADMIN_AUTH_REQUIRED', req, {
       path: req.originalUrl || req.url,
       method: req.method,
     });
-    res.status(401).json({ error: 'Authentication required' });
+    res.status(401).json({ error: 'Authentication Error', message: 'Authentication required', reqId });
     return;
   }
 
@@ -189,7 +192,7 @@ export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction
       path: req.originalUrl || req.url,
       method: req.method,
     });
-    res.status(403).json({ error: 'Admin access required' });
+    res.status(403).json({ error: 'Authorization Error', message: 'Admin access required', reqId });
     return;
   }
 
@@ -198,12 +201,14 @@ export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction
 
 // Plus member middleware
 export const requirePlusMember = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  const reqId = (req as any).reqId || 'unknown';
+
   if (!req.user) {
     securityLog('PLUS_AUTH_REQUIRED', req, {
       path: req.originalUrl || req.url,
       method: req.method,
     });
-    res.status(401).json({ error: 'Authentication required' });
+    res.status(401).json({ error: 'Authentication Error', message: 'Authentication required', reqId });
     return;
   }
 
@@ -213,7 +218,7 @@ export const requirePlusMember = (req: AuthRequest, res: Response, next: NextFun
       path: req.originalUrl || req.url,
       method: req.method,
     });
-    res.status(403).json({ error: 'PetBhai+ membership required' });
+    res.status(403).json({ error: 'Authorization Error', message: 'PetBhai+ membership required', reqId });
     return;
   }
 

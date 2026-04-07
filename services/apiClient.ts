@@ -19,12 +19,33 @@ const resolvedApiBaseUrl = getApiBaseUrl();
 export const API_BASE_URL = resolvedApiBaseUrl;
 
 export class ApiRequestError extends Error {
+  public code?: string;
+  public reqId?: string;
+  public details?: unknown;
+  public retryable: boolean;
+
   constructor(
     message: string,
-    public statusCode?: number
+    public statusCode?: number,
+    payload?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiRequestError';
+    
+    if (payload) {
+      this.code = typeof payload.code === 'string' ? payload.code : undefined;
+      this.reqId = typeof payload.reqId === 'string' ? payload.reqId : undefined;
+      this.details = payload.details;
+    }
+
+    // Determine if the error is likely transient and safe to retry
+    this.retryable = 
+      statusCode === 408 || // Request Timeout
+      statusCode === 429 || // Too Many Requests
+      statusCode === 502 || // Bad Gateway
+      statusCode === 503 || // Service Unavailable (including PersistenceError)
+      statusCode === 504 || // Gateway Timeout
+      !statusCode; // Network/Offline errors
   }
 }
 
@@ -147,7 +168,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
             ? errorPayload.error
             : `Request failed with status ${response.status}`;
 
-      throw new ApiRequestError(message, response.status);
+      throw new ApiRequestError(message, response.status, errorPayload);
     }
 
     if (response.status === 204 || payload === null || typeof payload === 'undefined') {
@@ -157,7 +178,19 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     return payload as T;
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new ApiRequestError('Request timed out. Please try again.', 408);
+      const timeoutErr = new ApiRequestError('Request timed out. Please try again.', 408);
+      timeoutErr.code = 'TIMEOUT';
+      throw timeoutErr;
+    }
+
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+      const offlineErr = new ApiRequestError(
+        isOffline ? 'You appear to be offline.' : 'Network error. Please check your connection.',
+        0
+      );
+      offlineErr.code = isOffline ? 'OFFLINE' : 'NETWORK_ERROR';
+      throw offlineErr;
     }
 
     if (error instanceof ApiRequestError) {

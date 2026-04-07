@@ -9,8 +9,11 @@ export const validate = <T extends z.ZodType>(schema: T) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
+        const reqId = (req as any).reqId || 'unknown';
         res.status(400).json({
           error: 'Validation failed',
+          message: 'Invalid request data',
+          reqId,
           details: error.errors.map((e) => ({
             field: e.path.join('.'),
             message: e.message,
@@ -31,8 +34,11 @@ export const validateQuery = <T extends z.ZodType>(schema: T) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
+        const reqId = (req as any).reqId || 'unknown';
         res.status(400).json({
           error: 'Invalid query parameters',
+          message: 'Invalid query parameters',
+          reqId,
           details: error.errors.map((e) => ({
             field: e.path.join('.'),
             message: e.message,
@@ -53,8 +59,11 @@ export const validateParams = <T extends z.ZodType>(schema: T) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
+        const reqId = (req as any).reqId || 'unknown';
         res.status(400).json({
           error: 'Invalid URL parameters',
+          message: 'Invalid URL parameters',
+          reqId,
           details: error.errors.map((e) => ({
             field: e.path.join('.'),
             message: e.message,

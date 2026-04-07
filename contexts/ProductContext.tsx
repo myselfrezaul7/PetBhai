@@ -28,7 +28,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
-      if (!silent) {
+      const isApiError = err instanceof ApiRequestError;
+      const retryable = isApiError ? err.retryable : true;
+      
+      if (!silent || (!retryable && isApiError)) {
         setError(getErrorMessage(err, 'Failed to load products. Please try again.'));
         setProducts([]);
       }

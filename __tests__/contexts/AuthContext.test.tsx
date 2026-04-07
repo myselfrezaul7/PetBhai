@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
+import { ToastProvider } from '../../contexts/ToastContext';
 
 const loginUser = {
   id: 1,
@@ -87,9 +88,9 @@ describe('AuthContext', () => {
 
   it('provides initial unauthenticated state', () => {
     render(
-      <AuthProvider>
+      <ToastProvider><AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider></ToastProvider>
     );
 
     expect(screen.getByTestId('is-authenticated')).toHaveTextContent('false');
@@ -103,9 +104,9 @@ describe('AuthContext', () => {
     });
 
     render(
-      <AuthProvider>
+      <ToastProvider><AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider></ToastProvider>
     );
 
     await act(async () => {
@@ -126,9 +127,9 @@ describe('AuthContext', () => {
     });
 
     render(
-      <AuthProvider>
+      <ToastProvider><AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider></ToastProvider>
     );
 
     await act(async () => {
@@ -156,9 +157,9 @@ describe('AuthContext', () => {
     });
 
     render(
-      <AuthProvider>
+      <ToastProvider><AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider></ToastProvider>
     );
 
     await act(async () => {
@@ -189,9 +190,9 @@ describe('AuthContext', () => {
       });
 
     render(
-      <AuthProvider>
+      <ToastProvider><AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider></ToastProvider>
     );
 
     await act(async () => {
@@ -231,9 +232,9 @@ describe('AuthContext', () => {
       });
 
     render(
-      <AuthProvider>
+      <ToastProvider><AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider></ToastProvider>
     );
 
     await act(async () => {

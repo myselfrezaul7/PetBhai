@@ -88,6 +88,16 @@ const INITIAL_DATA: DatabaseSchema = {
   bannedUsers: [],
 };
 
+export class PersistenceError extends Error {
+  status = 503;
+  details?: any;
+  constructor(message: string, details?: any) {
+    super(message);
+    this.name = 'PersistenceError';
+    this.details = details;
+  }
+}
+
 class Database {
   public data: DatabaseSchema;
   private isLoaded: boolean = false;
@@ -178,6 +188,7 @@ class Database {
       return false;
     }
 
+    let lastError: Error | null = null;
     for (let attempt = 1; attempt <= retries; attempt++) {
       const timestamp = `${Date.now()}-${attempt}`;
       const tempPath = `${DB_PATH}.tmp.${timestamp}`;
@@ -203,6 +214,7 @@ class Database {
           if (hadBackup && fs.existsSync(backupPath)) {
             fs.unlinkSync(backupPath);
           }
+          return true; // Success
         } catch (replaceError) {
           if (fs.existsSync(tempPath)) {
             fs.unlinkSync(tempPath);
@@ -212,34 +224,41 @@ class Database {
           }
           throw replaceError;
         }
-
-        return true;
       } catch (e) {
+        lastError = e as Error;
         console.error(`Failed to save DB (attempt ${attempt}/${retries}):`, e);
         try {
-          if (fs.existsSync(tempPath)) {
-            fs.unlinkSync(tempPath);
-          }
+          // Additional cleanup attempts could go here
         } catch {
           // best effort cleanup
         }
       }
     }
-    return false;
+    
+    throw new PersistenceError(`Failed to persist database to disk after ${retries} attempts. Last error: ${lastError?.message}`);
   }
 
   private enqueueSave(data: DatabaseSchema): Promise<boolean> {
-    this.writeQueue = this.writeQueue.catch(() => false).then(() => this.persistToDisk(data));
+    this.writeQueue = this.writeQueue
+      .catch(() => false) // Ignore previous failures in the queue chain
+      .then(() => {
+        try {
+          return this.persistToDisk(data);
+        } catch (error) {
+          // We must re-throw so the caller knows the persistence failed
+          throw error;
+        }
+      });
     return this.writeQueue;
   }
 
-  public write() {
+  public async write(): Promise<boolean> {
     if (isServerless && process.env.NODE_ENV === 'production') {
-      console.warn('Database writes are disabled in production serverless mode to prevent silent data loss. Please use a persistent database.');
-      return;
+      console.error('Database writes are disabled in production serverless mode to prevent silent data loss.');
+      throw new PersistenceError('Database persistence unavailable in this environment (Serverless).');
     }
     const snapshot = JSON.parse(JSON.stringify(this.data)) as DatabaseSchema;
-    void this.enqueueSave(snapshot);
+    return this.enqueueSave(snapshot);
   }
 
   // Getters for backward compatibility with existing code that expects db.users, etc.

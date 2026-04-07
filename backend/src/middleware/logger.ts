@@ -77,9 +77,12 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'] || 'unknown';
 
-    // Format: [timestamp] METHOD /path STATUS duration - IP
+    // Format: [timestamp] [reqId] METHOD /path STATUS duration - IP
+    const reqId = (req as any).reqId || 'unknown';
+    
     console.log(
       `${colors.dim}[${timestamp}]${colors.reset} ` +
+        `${colors.dim}[${reqId}]${colors.reset} ` +
         `${methodColor}${method}${colors.reset} ` +
         `${url} ` +
         `${statusColor}${statusCode}${colors.reset} ` +
@@ -121,9 +124,10 @@ export const errorLogger = (err: Error, req: Request, res: Response, next: NextF
   const method = req.method;
   const url = req.originalUrl || req.url;
   const ip = getClientIp(req);
+  const reqId = (req as any).reqId || 'unknown';
 
   console.error(
-    `${colors.red}[${timestamp}] ERROR${colors.reset}\n` +
+    `${colors.red}[${timestamp}] [${reqId}] ERROR${colors.reset}\n` +
       `  Method: ${method}\n` +
       `  URL: ${url}\n` +
       `  IP: ${ip}\n` +

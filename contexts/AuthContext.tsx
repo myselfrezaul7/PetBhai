@@ -226,8 +226,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         persistSession(data);
         return true;
-      } catch {
-        clearSession();
+      } catch (error) {
+        const isRetryable = error instanceof ApiRequestError && error.retryable;
+        if (!isRetryable) {
+          clearSession();
+        }
         return false;
       } finally {
         (window as any)._inflightRefreshPromise = null;
@@ -399,17 +402,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const fetchProfile = useCallback(async (): Promise<User> => {
-    const profile = await protectedApiRequest<User>('/auth/me', {
-      method: 'GET',
-    });
+    try {
+      const profile = await protectedApiRequest<User>('/auth/me', {
+        method: 'GET',
+      });
 
-    if (isAdminEmail(profile.email)) {
-      profile.role = 'admin';
+      if (isAdminEmail(profile.email)) {
+        profile.role = 'admin';
+      }
+
+      setCurrentUser(profile);
+      return profile;
+    } catch (err) {
+      console.error('fetchProfile error: ', err);
+      const isApiError = err instanceof ApiRequestError;
+      const retryable = isApiError ? err.retryable : true;
+
+      // Surface non-retryable API errors to the user instead of failing silently in background
+      if (isApiError && !retryable) {
+        toast.error(getErrorMessage(err, 'Failed to sync profile data.'));
+      }
+      throw err;
     }
-
-    setCurrentUser(profile);
-    return profile;
-  }, [protectedApiRequest]);
+  }, [protectedApiRequest, toast]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {

@@ -83,10 +83,7 @@ export const verifyRecaptchaToken = async (token: string): Promise<RecaptchaVeri
     return data;
   } catch (error) {
     console.error('reCAPTCHA verification error:', error);
-    return {
-      success: false,
-      'error-codes': ['network-error'],
-    };
+    throw error;
   }
 };
 
@@ -126,6 +123,7 @@ export const recaptchaMiddleware = async (
     res.status(400).json({
       error: 'reCAPTCHA verification required',
       message: 'Please complete the reCAPTCHA challenge',
+      reqId: (req as any).reqId || 'unknown'
     });
     return;
   }
@@ -166,6 +164,7 @@ export const recaptchaMiddleware = async (
       res.status(400).json({
         error: 'reCAPTCHA verification failed',
         message: errorMessage,
+        reqId: (req as any).reqId || 'unknown'
       });
       return;
     }
@@ -195,6 +194,7 @@ export const recaptchaMiddleware = async (
       res.status(503).json({
         error: 'reCAPTCHA verification error',
         message: 'Unable to verify reCAPTCHA. Please try again.',
+        reqId: (req as any).reqId || 'unknown'
       });
     }
   }

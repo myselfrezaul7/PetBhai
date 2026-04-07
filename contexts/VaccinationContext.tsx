@@ -65,17 +65,25 @@ export const VaccinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Save pets to localStorage
   useEffect(() => {
     if (currentUser?.id) {
-      localStorage.setItem(`${PETS_STORAGE_KEY}_${currentUser.id}`, JSON.stringify(pets));
+      try {
+        localStorage.setItem(`${PETS_STORAGE_KEY}_${currentUser.id}`, JSON.stringify(pets));
+      } catch (e) {
+        console.warn('Failed to save pets to localStorage', e);
+      }
     }
   }, [pets, currentUser?.id]);
 
   // Save vaccinations to localStorage
   useEffect(() => {
     if (currentUser?.id) {
-      localStorage.setItem(
-        `${VACCINATIONS_STORAGE_KEY}_${currentUser.id}`,
-        JSON.stringify(vaccinations)
-      );
+      try {
+        localStorage.setItem(
+          `${VACCINATIONS_STORAGE_KEY}_${currentUser.id}`,
+          JSON.stringify(vaccinations)
+        );
+      } catch (e) {
+        console.warn('Failed to save vaccinations to localStorage', e);
+      }
     }
   }, [vaccinations, currentUser?.id]);
 

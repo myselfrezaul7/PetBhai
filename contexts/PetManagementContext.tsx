@@ -252,18 +252,30 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   // Save price alerts
   useEffect(() => {
     if (currentUser?.id && priceAlerts.length >= 0) {
-      localStorage.setItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`, JSON.stringify(priceAlerts));
+      try {
+        localStorage.setItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`, JSON.stringify(priceAlerts));
+      } catch (e) {
+        console.warn('Failed to save price alerts to localStorage', e);
+      }
     }
   }, [priceAlerts, currentUser?.id]);
 
   // Save group buys (global)
   useEffect(() => {
-    localStorage.setItem(GROUP_BUYS_KEY, JSON.stringify(groupBuys));
+    try {
+      localStorage.setItem(GROUP_BUYS_KEY, JSON.stringify(groupBuys));
+    } catch (e) {
+      console.warn('Failed to save group buys to localStorage', e);
+    }
   }, [groupBuys]);
 
   // Save impact stats (global)
   useEffect(() => {
-    localStorage.setItem(IMPACT_KEY, JSON.stringify(impactStats));
+    try {
+      localStorage.setItem(IMPACT_KEY, JSON.stringify(impactStats));
+    } catch (e) {
+      console.warn('Failed to save impact stats to localStorage', e);
+    }
   }, [impactStats]);
 
   // Pet Profile Methods

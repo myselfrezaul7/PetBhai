@@ -1,3 +1,4 @@
+import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -20,6 +21,7 @@ import { apiLimiter } from './middleware/rateLimiter';
 import { botProtection, honeypotValidation, getCSRFTokenHandler } from './middleware/botProtection';
 import { recaptchaMiddleware } from './middleware/recaptcha';
 import { db } from './db';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -34,6 +36,14 @@ if (!dbStatus.loaded) {
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// Request correlation ID middleware
+app.use((req, res, next) => {
+  const reqId = req.headers['x-request-id'] || crypto.randomUUID();
+  (req as any).reqId = reqId;
+  res.setHeader('X-Request-Id', reqId as string);
+  next();
+});
 
 // Needed for accurate client IPs/rate-limiting behind proxies (Vercel, Nginx, etc.)
 app.set('trust proxy', 1);
@@ -283,17 +293,26 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   const isClientError = statusCode >= 400 && statusCode < 500;
 
   // In production, keep server errors generic but allow explicit client-error messages.
-  const message =
+  let message =
     process.env.NODE_ENV === 'production'
       ? isClientError
         ? err?.message || 'Request failed'
         : 'Internal Server Error'
       : err?.message || 'Internal Server Error';
 
+  if (err?.name === 'PersistenceError') {
+    message = err.message || 'Database persistence failed';
+  }
+
+  // Request correlation ID (set by request logger or custom middleware)
+  const reqId = (req as any).reqId || 'unknown';
+
   res.status(statusCode).json({
+    error: isClientError ? 'Client Error' : 'Server Error',
     message,
+    reqId,
+    ...(err.details && { details: err.details }),
     ...(process.env.NODE_ENV === 'development' && {
-      error: err.message,
       stack: err.stack,
     }),
   });

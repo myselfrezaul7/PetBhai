@@ -142,7 +142,7 @@ describe('backend route protection', () => {
     });
 
     expect(response.status).toBe(401);
-    expect(payload).toEqual(expect.objectContaining({ error: 'Authentication required' }));
+    expect(payload).toEqual(expect.objectContaining({ message: 'Authentication required' }));
     expect(db.data.posts).toHaveLength(1);
   });
 
@@ -188,7 +188,7 @@ describe('backend route protection', () => {
     });
 
     expect(response.status).toBe(401);
-    expect(payload).toEqual(expect.objectContaining({ error: 'Authentication required' }));
+    expect(payload).toEqual(expect.objectContaining({ message: 'Authentication required' }));
   });
 
   it('requires authentication on the AI image endpoint', async () => {
@@ -201,6 +201,6 @@ describe('backend route protection', () => {
     });
 
     expect(response.status).toBe(401);
-    expect(payload).toEqual(expect.objectContaining({ error: 'Authentication required' }));
+    expect(payload).toEqual(expect.objectContaining({ message: 'Authentication required' }));
   });
 });
