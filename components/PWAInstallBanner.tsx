@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useCookieConsent } from './CookieConsentBanner';
 import useHaptics from '../hooks/useHaptics';
@@ -16,7 +17,7 @@ const PWAInstallBanner: React.FC = () => {
       return;
     }
 
-    const saved = window.localStorage.getItem(PWA_INSTALL_DISMISS_KEY);
+    const saved = safeStorage.getItem(PWA_INSTALL_DISMISS_KEY);
     if (!saved) {
       setDismissedAt(null);
       return;
@@ -40,7 +41,7 @@ const PWAInstallBanner: React.FC = () => {
   const handleDismiss = () => {
     const now = Date.now();
     setDismissedAt(now);
-    window.localStorage.setItem(PWA_INSTALL_DISMISS_KEY, String(now));
+    safeStorage.setItem(PWA_INSTALL_DISMISS_KEY, String(now));
   };
 
   const handleInstall = async () => {
@@ -49,7 +50,7 @@ const PWAInstallBanner: React.FC = () => {
 
     if (outcome === 'accepted') {
       triggerHaptic('success');
-      window.localStorage.removeItem(PWA_INSTALL_DISMISS_KEY);
+      safeStorage.removeItem(PWA_INSTALL_DISMISS_KEY);
       setDismissedAt(null);
       return;
     }

@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -10,14 +11,14 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const getInitialTheme = (): Theme => {
-  if (typeof window !== 'undefined' && window.localStorage) {
+  if (typeof window !== 'undefined' && safeStorage) {
     try {
-      const storedPrefs = window.localStorage.getItem('theme');
+      const storedPrefs = safeStorage.getItem('theme');
       if (storedPrefs === 'light' || storedPrefs === 'dark') {
         return storedPrefs;
       }
     } catch {
-      // localStorage might be disabled (e.g., incognito)
+      // safeStorage might be disabled (e.g., incognito)
     }
 
     const userMedia = window.matchMedia('(prefers-color-scheme: dark)');
@@ -39,9 +40,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     root.classList.add(rawTheme);
 
     try {
-      localStorage.setItem('theme', rawTheme);
+      safeStorage.setItem('theme', rawTheme);
     } catch {
-      // localStorage might be disabled
+      // safeStorage might be disabled
     }
   }, []);
 

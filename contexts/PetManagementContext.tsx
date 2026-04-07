@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { apiRequest, getErrorMessage } from '../services/apiClient';
@@ -164,7 +165,7 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   const [impactStats, setImpactStats] = useState<ImpactStats>(DEFAULT_IMPACT_STATS);
 
   const getAuthHeaders = useCallback((): Record<string, string> => {
-    const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    const token = safeStorage.getItem(TOKEN_STORAGE_KEY);
     if (!token) {
       throw new Error('Session expired. Please sign in again.');
     }
@@ -212,7 +213,7 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         try {
-          const storedAlerts = localStorage.getItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`);
+          const storedAlerts = safeStorage.getItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`);
           if (isMounted) {
             setPriceAlerts(storedAlerts ? JSON.parse(storedAlerts) : []);
           }
@@ -234,10 +235,10 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Load global data
     try {
-      const storedGroupBuys = localStorage.getItem(GROUP_BUYS_KEY);
+      const storedGroupBuys = safeStorage.getItem(GROUP_BUYS_KEY);
       setGroupBuys(storedGroupBuys ? JSON.parse(storedGroupBuys) : []);
 
-      const storedImpact = localStorage.getItem(IMPACT_KEY);
+      const storedImpact = safeStorage.getItem(IMPACT_KEY);
       setImpactStats(storedImpact ? JSON.parse(storedImpact) : DEFAULT_IMPACT_STATS);
     } catch {
       setGroupBuys([]);
@@ -253,9 +254,9 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (currentUser?.id && priceAlerts.length >= 0) {
       try {
-        localStorage.setItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`, JSON.stringify(priceAlerts));
+        safeStorage.setItem(`${PRICE_ALERTS_KEY}_${currentUser.id}`, JSON.stringify(priceAlerts));
       } catch (e) {
-        console.warn('Failed to save price alerts to localStorage', e);
+        console.warn('Failed to save price alerts to safeStorage', e);
       }
     }
   }, [priceAlerts, currentUser?.id]);
@@ -263,18 +264,18 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   // Save group buys (global)
   useEffect(() => {
     try {
-      localStorage.setItem(GROUP_BUYS_KEY, JSON.stringify(groupBuys));
+      safeStorage.setItem(GROUP_BUYS_KEY, JSON.stringify(groupBuys));
     } catch (e) {
-      console.warn('Failed to save group buys to localStorage', e);
+      console.warn('Failed to save group buys to safeStorage', e);
     }
   }, [groupBuys]);
 
   // Save impact stats (global)
   useEffect(() => {
     try {
-      localStorage.setItem(IMPACT_KEY, JSON.stringify(impactStats));
+      safeStorage.setItem(IMPACT_KEY, JSON.stringify(impactStats));
     } catch (e) {
-      console.warn('Failed to save impact stats to localStorage', e);
+      console.warn('Failed to save impact stats to safeStorage', e);
     }
   }, [impactStats]);
 

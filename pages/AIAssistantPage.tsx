@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import { getVetAssistantResponse, isAiConfigured } from '../services/geminiService';
@@ -89,7 +90,7 @@ const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
 
 const getInitialChatHistory = (): ChatMessage[] => {
   try {
-    const storedHistory = window.localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+    const storedHistory = safeStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
     if (storedHistory) {
       const parsed = JSON.parse(storedHistory);
       if (Array.isArray(parsed)) {
@@ -97,8 +98,8 @@ const getInitialChatHistory = (): ChatMessage[] => {
       }
     }
   } catch (error) {
-    console.error('Error reading chat history from localStorage', error);
-    window.localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+    console.error('Error reading chat history from safeStorage', error);
+    safeStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
   }
   return [];
 };
@@ -113,7 +114,7 @@ const AIAssistantPage: React.FC = () => {
   const aiAvailable = isAiConfigured();
 
   useEffect(() => {
-    const isDismissed = sessionStorage.getItem(WARNING_DISMISSED_KEY);
+    const isDismissed = safeSessionStorage.getItem(WARNING_DISMISSED_KEY);
     if (!isDismissed) {
       setIsWarningVisible(true);
     }
@@ -126,17 +127,17 @@ const AIAssistantPage: React.FC = () => {
   useEffect(() => {
     try {
       if (chatHistory.length > 0) {
-        window.localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
+        safeStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
       } else {
-        window.localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+        safeStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
       }
     } catch (error) {
-      console.error('Error saving chat history to localStorage', error);
+      console.error('Error saving chat history to safeStorage', error);
     }
   }, [chatHistory]);
 
   const handleDismissWarning = () => {
-    sessionStorage.setItem(WARNING_DISMISSED_KEY, 'true');
+    safeSessionStorage.setItem(WARNING_DISMISSED_KEY, 'true');
     setIsWarningVisible(false);
   };
 

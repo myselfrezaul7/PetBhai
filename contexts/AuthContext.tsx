@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { User, Order } from '../types';
 import { sanitizeInput, validateId } from '../lib/security';
@@ -37,17 +38,17 @@ const isAdminEmail = (email?: string): boolean => {
 
 const clearAuthStorage = () => {
   try {
-    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
-    window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-    window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+    safeStorage.removeItem(TOKEN_STORAGE_KEY);
+    safeStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    safeStorage.removeItem(CURRENT_USER_STORAGE_KEY);
   } catch {
-    // localStorage might be disabled
+    // safeStorage might be disabled
   }
 };
 
 const getStoredToken = (): string | null => {
   try {
-    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    return safeStorage.getItem(TOKEN_STORAGE_KEY);
   } catch {
     return null;
   }
@@ -55,7 +56,7 @@ const getStoredToken = (): string | null => {
 
 const getStoredRefreshToken = (): string | null => {
   try {
-    return window.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+    return safeStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
   } catch {
     return null;
   }
@@ -88,7 +89,7 @@ const isTokenExpired = (token: string): boolean => {
 
 const getInitialCurrentUser = (): User | null => {
   try {
-    const user = window.localStorage.getItem(CURRENT_USER_STORAGE_KEY);
+    const user = safeStorage.getItem(CURRENT_USER_STORAGE_KEY);
     if (user) {
       const parsed = JSON.parse(user);
       // Validate basic user structure
@@ -101,16 +102,16 @@ const getInitialCurrentUser = (): User | null => {
         return parsed;
       }
       // Clear invalid data
-      console.warn('Invalid current user data in localStorage, clearing');
-      window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+      console.warn('Invalid current user data in safeStorage, clearing');
+      safeStorage.removeItem(CURRENT_USER_STORAGE_KEY);
     }
     return null;
   } catch (error) {
-    console.error('Error reading current user from localStorage', error);
+    console.error('Error reading current user from safeStorage', error);
     try {
-      window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+      safeStorage.removeItem(CURRENT_USER_STORAGE_KEY);
     } catch {
-      // localStorage might be disabled
+      // safeStorage might be disabled
     }
     return null;
   }
@@ -196,9 +197,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Invalid auth response');
     }
 
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+    safeStorage.setItem(TOKEN_STORAGE_KEY, data.token);
     if (data.refreshToken) {
-      window.localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+      safeStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
     }
 
     setCurrentUser(data.user);
@@ -265,12 +266,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     try {
       if (currentUser) {
-        window.localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
+        safeStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
       } else {
-        window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+        safeStorage.removeItem(CURRENT_USER_STORAGE_KEY);
       }
     } catch (error) {
-      console.error('Error writing current user to localStorage', error);
+      console.error('Error writing current user to safeStorage', error);
     }
   }, [currentUser]);
 

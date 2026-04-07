@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import type { Product } from '../types';
 import {
@@ -21,7 +22,7 @@ const MAX_ITEMS = 10;
 export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
 
-  // Load from localStorage only when optional consent is granted.
+  // Load from safeStorage only when optional consent is granted.
   useEffect(() => {
     if (!hasOptionalCookieConsent(readCookieConsent())) {
       setRecentlyViewed([]);
@@ -29,7 +30,7 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
     }
 
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
@@ -38,11 +39,11 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
       }
     } catch (error) {
       console.error('Error loading recently viewed products:', error);
-      localStorage.removeItem(STORAGE_KEY);
+      safeStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
-  // Save to localStorage only when optional consent is granted.
+  // Save to safeStorage only when optional consent is granted.
   useEffect(() => {
     if (!hasOptionalCookieConsent(readCookieConsent())) {
       clearOptionalActivityStorage();
@@ -50,7 +51,7 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
     }
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(recentlyViewed));
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(recentlyViewed));
     } catch (error) {
       console.error('Error saving recently viewed products:', error);
     }
@@ -92,7 +93,7 @@ export const RecentlyViewedProvider: React.FC<{ children: React.ReactNode }> = (
 
   const clearRecentlyViewed = useCallback(() => {
     setRecentlyViewed([]);
-    localStorage.removeItem(STORAGE_KEY);
+    safeStorage.removeItem(STORAGE_KEY);
   }, []);
 
   const value = useMemo(

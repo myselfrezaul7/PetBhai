@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, {
   createContext,
   useContext,
@@ -29,7 +30,7 @@ const clampQuantity = (quantity: number): number => {
 
 const getInitialState = (): CartState => {
   try {
-    const storedItems = window.localStorage.getItem(CART_STORAGE_KEY);
+    const storedItems = safeStorage.getItem(CART_STORAGE_KEY);
     if (storedItems) {
       const parsed = JSON.parse(storedItems);
       if (Array.isArray(parsed)) {
@@ -55,10 +56,10 @@ const getInitialState = (): CartState => {
       }
       // Clear invalid data structure
       console.warn('Cart data invalid, clearing items', parsed);
-      window.localStorage.removeItem(CART_STORAGE_KEY);
+      safeStorage.removeItem(CART_STORAGE_KEY);
     }
   } catch (error) {
-    console.error('Error reading cart from localStorage', error);
+    console.error('Error reading cart from safeStorage', error);
     // Don't nuke everything blindly. We log and just load empty array.
     // If it's pure corruption, it'll naturally rewrite when user adds to cart.
   }
@@ -137,10 +138,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     try {
       const serialized = JSON.stringify(state.items);
-      window.localStorage.setItem(CART_STORAGE_KEY, serialized);
+      safeStorage.setItem(CART_STORAGE_KEY, serialized);
     } catch (error) {
-      console.error('Error saving cart to localStorage', error);
-      // localStorage might be full or disabled - don't crash the app
+      console.error('Error saving cart to safeStorage', error);
+      // safeStorage might be full or disabled - don't crash the app
     }
   }, [state.items]);
 

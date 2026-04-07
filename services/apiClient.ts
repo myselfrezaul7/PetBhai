@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 const getApiBaseUrl = (): string => {
   try {
     const metaEnv = Function(
@@ -57,7 +58,7 @@ const SESSION_STORAGE_KEY = 'petbhai_session_id';
 
 const getSessionId = (): string => {
   try {
-    const existing = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
+    const existing = safeSessionStorage.getItem(SESSION_STORAGE_KEY);
     if (existing) {
       return existing;
     }
@@ -67,7 +68,7 @@ const getSessionId = (): string => {
         ? window.crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-    window.sessionStorage.setItem(SESSION_STORAGE_KEY, generated);
+    safeSessionStorage.setItem(SESSION_STORAGE_KEY, generated);
     return generated;
   } catch {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -85,7 +86,7 @@ const buildUrl = (path: string): string => {
 
 const getStoredAuthToken = (): string | null => {
   try {
-    return window.localStorage.getItem('petbhai_token');
+    return safeStorage.getItem('petbhai_token');
   } catch {
     return null;
   }

@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useState, useEffect, createContext, useContext, useCallback, useMemo } from 'react';
 import CookiePolicyModal from './CookiePolicyModal';
 import {
@@ -22,14 +23,14 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setConsent = useCallback((newConsent: 'necessary' | 'all') => {
     try {
-      window.localStorage.setItem(COOKIE_CONSENT_KEY, newConsent);
+      safeStorage.setItem(COOKIE_CONSENT_KEY, newConsent);
       setConsentState(newConsent);
 
       if (newConsent === 'necessary') {
         clearOptionalActivityStorage();
       }
     } catch (error) {
-      console.error('Could not save cookie consent to localStorage', error);
+      console.error('Could not save cookie consent to safeStorage', error);
     }
   }, []);
 

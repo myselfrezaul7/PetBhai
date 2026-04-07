@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import type { Post, Comment, CommentReply, PaginatedPostsResponse } from '../types';
 import { apiRequest, ApiRequestError } from './apiClient';
 
@@ -63,7 +64,7 @@ const createIdempotencyKey = (): string => {
 
 const readQueuedMutations = (): QueuedMutation[] => {
   try {
-    const raw = window.localStorage.getItem(QUEUED_MUTATIONS_KEY);
+    const raw = safeStorage.getItem(QUEUED_MUTATIONS_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as QueuedMutation[]) : [];
@@ -74,9 +75,9 @@ const readQueuedMutations = (): QueuedMutation[] => {
 
 const writeQueuedMutations = (queue: QueuedMutation[]): void => {
   try {
-    window.localStorage.setItem(QUEUED_MUTATIONS_KEY, JSON.stringify(queue.slice(-100)));
+    safeStorage.setItem(QUEUED_MUTATIONS_KEY, JSON.stringify(queue.slice(-100)));
   } catch {
-    // ignore localStorage failures
+    // ignore safeStorage failures
   }
 };
 

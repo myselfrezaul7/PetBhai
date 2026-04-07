@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from './lib\storage';
 import '@testing-library/jest-dom';
 
 // Mock window.matchMedia
@@ -15,7 +16,7 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock localStorage
+// Mock safeStorage
 const storage: Record<string, string> = {};
 const localStorageMock = {
   getItem: jest.fn((key: string) => (key in storage ? storage[key] : null)),
@@ -29,7 +30,7 @@ const localStorageMock = {
     Object.keys(storage).forEach((key) => delete storage[key]);
   }),
 };
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+Object.defineProperty(window, 'safeStorage', { value: localStorageMock });
 
 // Mock scrollTo
 Object.defineProperty(window, 'scrollTo', {

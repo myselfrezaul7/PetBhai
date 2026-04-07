@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
@@ -160,7 +161,7 @@ const getStatusMeta = (
 };
 
 const getAuthHeaders = (): Record<'Authorization', string> => {
-  const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  const token = safeStorage.getItem(TOKEN_STORAGE_KEY);
   if (!token) {
     throw new Error('Please log in with your admin account to manage inventory.');
   }
@@ -320,7 +321,7 @@ const AdminDashboard = () => {
   }, [autoRefresh, loadDashboardData]);
 
   useEffect(() => {
-    const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    const token = safeStorage.getItem(TOKEN_STORAGE_KEY);
     if (!token || !isAdminUser(currentUser)) {
       setIsLiveConnected(false);
       return undefined;

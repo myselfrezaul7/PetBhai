@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
@@ -34,18 +35,18 @@ class ErrorBoundary extends Component<Props, State> {
 
   private handleClearAndReload = () => {
     try {
-      // Only clear petbhai-related items, not all localStorage
+      // Only clear petbhai-related items, not all safeStorage
       const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+      for (let i = 0; i < safeStorage.length; i++) {
+        const key = safeStorage.key(i);
         if (key && key.startsWith('petbhai_')) {
           keysToRemove.push(key);
         }
       }
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
+      keysToRemove.forEach((key) => safeStorage.removeItem(key));
     } catch (e) {
-      // localStorage might be disabled
-      console.error('Failed to clear localStorage:', e);
+      // safeStorage might be disabled
+      console.error('Failed to clear safeStorage:', e);
     }
     window.location.reload();
   };

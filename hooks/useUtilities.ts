@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 // Hook for async operations with loading and error states
@@ -97,10 +98,10 @@ export function useLocalStorage<T>(
       return initialValue;
     }
     try {
-      const item = window.localStorage.getItem(key);
+      const item = safeStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
+      console.error(`Error reading safeStorage key "${key}":`, error);
       return initialValue;
     }
   });
@@ -111,10 +112,10 @@ export function useLocalStorage<T>(
         const valueToStore = value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          safeStorage.setItem(key, JSON.stringify(valueToStore));
         }
       } catch (error) {
-        console.error(`Error setting localStorage key "${key}":`, error);
+        console.error(`Error setting safeStorage key "${key}":`, error);
       }
     },
     [key, storedValue]
@@ -124,10 +125,10 @@ export function useLocalStorage<T>(
     try {
       setStoredValue(initialValue);
       if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(key);
+        safeStorage.removeItem(key);
       }
     } catch (error) {
-      console.error(`Error removing localStorage key "${key}":`, error);
+      console.error(`Error removing safeStorage key "${key}":`, error);
     }
   }, [key, initialValue]);
 

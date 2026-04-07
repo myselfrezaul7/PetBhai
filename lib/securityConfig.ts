@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from './storage';
 /**
  * Frontend Security Configuration
  * Centralized security settings for the PetBhai application
@@ -13,10 +14,10 @@ export const securityHeaders = {
 
 // Get session ID for CSRF protection
 export const getSessionId = (): string => {
-  let sessionId = sessionStorage.getItem('petbhai_session_id');
+  let sessionId = safeSessionStorage.getItem('petbhai_session_id');
   if (!sessionId) {
     sessionId = crypto.randomUUID();
-    sessionStorage.setItem('petbhai_session_id', sessionId);
+    safeSessionStorage.setItem('petbhai_session_id', sessionId);
   }
   return sessionId;
 };

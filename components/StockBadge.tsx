@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React from 'react';
 import type { StockStatus } from '../types';
 
@@ -99,16 +100,16 @@ export const NotifyMeButton: React.FC<{
     if (email && onNotify) {
       onNotify(email);
     }
-    // Store in localStorage as backup
+    // Store in safeStorage as backup
     try {
-      const storedData = localStorage.getItem('petbhai_stock_notifications');
+      const storedData = safeStorage.getItem('petbhai_stock_notifications');
       const notifications = storedData ? JSON.parse(storedData) : [];
       const validNotifications = Array.isArray(notifications) ? notifications : [];
       validNotifications.push({ productId, productName, email, date: new Date().toISOString() });
-      localStorage.setItem('petbhai_stock_notifications', JSON.stringify(validNotifications));
+      safeStorage.setItem('petbhai_stock_notifications', JSON.stringify(validNotifications));
     } catch (e) {
-      console.warn('Error reading or writing stock notifications to localStorage', e);
-      localStorage.setItem('petbhai_stock_notifications', JSON.stringify([{ productId, productName, email, date: new Date().toISOString() }]));
+      console.warn('Error reading or writing stock notifications to safeStorage', e);
+      safeStorage.setItem('petbhai_stock_notifications', JSON.stringify([{ productId, productName, email, date: new Date().toISOString() }]));
     }
     setIsSubmitted(true);
     setTimeout(() => {

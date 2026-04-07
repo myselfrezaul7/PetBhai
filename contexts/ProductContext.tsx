@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Product, Review } from '../types';
 import { apiRequest, getErrorMessage } from '../services/apiClient';
@@ -65,7 +66,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [fetchProducts]);
 
   const addProductReview = useCallback(async (productId: number, review: Review) => {
-    const token = window.localStorage.getItem('petbhai_token');
+    const token = safeStorage.getItem('petbhai_token');
     const response = await apiRequest<{ review: Review; rating: number }>(
       `/products/${productId}/reviews`,
       {

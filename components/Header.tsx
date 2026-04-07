@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -165,12 +166,12 @@ const Header: React.FC = () => {
   useEffect(() => {
     if (!hasOptionalConsent) {
       setRecentSearches([]);
-      localStorage.removeItem('petbhai_recent_searches');
+      safeStorage.removeItem('petbhai_recent_searches');
       return;
     }
 
     try {
-      const saved = localStorage.getItem('petbhai_recent_searches');
+      const saved = safeStorage.getItem('petbhai_recent_searches');
       const parsed = saved ? (JSON.parse(saved) as unknown) : [];
       const normalized = Array.isArray(parsed)
         ? (parsed.filter((value) => typeof value === 'string') as string[])
@@ -188,7 +189,7 @@ const Header: React.FC = () => {
     setRecentSearches((prev) => {
       const filtered = prev.filter((s) => s.toLowerCase() !== query.toLowerCase());
       const updated = [query, ...filtered].slice(0, 5);
-      localStorage.setItem('petbhai_recent_searches', JSON.stringify(updated));
+      safeStorage.setItem('petbhai_recent_searches', JSON.stringify(updated));
       return updated;
     });
   }, [hasOptionalConsent]);
@@ -857,7 +858,7 @@ const Header: React.FC = () => {
                       type="button"
                       onClick={() => {
                         setRecentSearches([]);
-                        localStorage.removeItem('petbhai_recent_searches');
+                        safeStorage.removeItem('petbhai_recent_searches');
                       }}
                       className="text-xs text-red-500 font-bold"
                     >

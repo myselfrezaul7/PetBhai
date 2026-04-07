@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, {
   createContext,
   useState,
@@ -202,12 +203,12 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {
-    const stored = localStorage.getItem('petbhai_language');
+    const stored = safeStorage.getItem('petbhai_language');
     return stored === 'en' || stored === 'bn' ? stored : 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('petbhai_language', language);
+    safeStorage.setItem('petbhai_language', language);
   }, [language]);
 
   useEffect(() => {

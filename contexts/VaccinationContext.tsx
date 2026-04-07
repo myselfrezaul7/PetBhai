@@ -1,3 +1,4 @@
+import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type { Pet, VaccinationRecord } from '../types';
 import { useAuth } from './AuthContext';
@@ -25,11 +26,11 @@ const VaccinationContext = createContext<VaccinationContextType | undefined>(und
 // Generate unique ID
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-// Load from localStorage
+// Load from safeStorage
 const loadPets = (userId: number | undefined): Pet[] => {
   if (!userId) return [];
   try {
-    const stored = localStorage.getItem(`${PETS_STORAGE_KEY}_${userId}`);
+    const stored = safeStorage.getItem(`${PETS_STORAGE_KEY}_${userId}`);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -39,7 +40,7 @@ const loadPets = (userId: number | undefined): Pet[] => {
 const loadVaccinations = (userId: number | undefined): VaccinationRecord[] => {
   if (!userId) return [];
   try {
-    const stored = localStorage.getItem(`${VACCINATIONS_STORAGE_KEY}_${userId}`);
+    const stored = safeStorage.getItem(`${VACCINATIONS_STORAGE_KEY}_${userId}`);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -62,27 +63,27 @@ export const VaccinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [currentUser?.id]);
 
-  // Save pets to localStorage
+  // Save pets to safeStorage
   useEffect(() => {
     if (currentUser?.id) {
       try {
-        localStorage.setItem(`${PETS_STORAGE_KEY}_${currentUser.id}`, JSON.stringify(pets));
+        safeStorage.setItem(`${PETS_STORAGE_KEY}_${currentUser.id}`, JSON.stringify(pets));
       } catch (e) {
-        console.warn('Failed to save pets to localStorage', e);
+        console.warn('Failed to save pets to safeStorage', e);
       }
     }
   }, [pets, currentUser?.id]);
 
-  // Save vaccinations to localStorage
+  // Save vaccinations to safeStorage
   useEffect(() => {
     if (currentUser?.id) {
       try {
-        localStorage.setItem(
+        safeStorage.setItem(
           `${VACCINATIONS_STORAGE_KEY}_${currentUser.id}`,
           JSON.stringify(vaccinations)
         );
       } catch (e) {
-        console.warn('Failed to save vaccinations to localStorage', e);
+        console.warn('Failed to save vaccinations to safeStorage', e);
       }
     }
   }, [vaccinations, currentUser?.id]);
