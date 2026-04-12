@@ -9,21 +9,13 @@ interface CreatePostFormProps {
   onAddPost: (post: Post) => void;
 }
 
-const MAX_IMAGE_SIZE_MB = 5;
-const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
-const MAX_COMPRESSED_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const MAX_CONTENT_LENGTH = 5000;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
 const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
   const { currentUser } = useAuth();
   const toast = useToast();
   const [content, setContent] = useState('');
-  const [image, setImage] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCompressing, setIsCompressing] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea for mobile
@@ -37,105 +29,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
     }
-  }, []);
-
-  // Compress image if needed
-  const compressImage = useCallback(async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let { width, height } = img;
-
-        // Max dimensions for mobile-friendly images
-        const MAX_DIMENSION = 800;
-        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-          if (width > height) {
-            height = (height / width) * MAX_DIMENSION;
-            width = MAX_DIMENSION;
-          } else {
-            width = (width / height) * MAX_DIMENSION;
-            height = MAX_DIMENSION;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Could not get canvas context'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Compress to JPEG with mobile-friendly quality
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
-        resolve(dataUrl);
-      };
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
-    });
-  }, []);
-
-  const handleImageChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      setImageError(null);
-
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-
-        // Validate file type
-        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-          setImageError('Please select a valid image (JPEG, PNG, GIF, or WebP)');
-          toast.error('Invalid image format');
-          if (fileInputRef.current) fileInputRef.current.value = '';
-          return;
-        }
-
-        // Check file size
-        if (file.size > MAX_IMAGE_SIZE_BYTES) {
-          // Try to compress if image is too large
-          setIsCompressing(true);
-          try {
-            const compressedDataUrl = await compressImage(file);
-            const estimatedBytes = Math.ceil((compressedDataUrl.length * 3) / 4);
-            if (estimatedBytes > MAX_COMPRESSED_IMAGE_SIZE_BYTES) {
-              throw new Error('Still too large after compression');
-            }
-            setImage(compressedDataUrl);
-            toast.success('Image compressed for faster upload! 📸');
-          } catch {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-            setImageError(
-              `Your photo is ${sizeMB}MB. Please choose a smaller image (max ${MAX_IMAGE_SIZE_MB}MB) 📸`
-            );
-            toast.error(`Photo too large! Max size is ${MAX_IMAGE_SIZE_MB}MB`);
-          } finally {
-            setIsCompressing(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
-          }
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImage(reader.result as string);
-        };
-        reader.onerror = () => {
-          setImageError('Failed to read image file. Please try again.');
-          toast.error('Failed to read image');
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-    [compressImage, toast]
-  );
-
-  const clearImage = useCallback(() => {
-    setImage(null);
-    setImageError(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   }, []);
 
   const handleSubmit = useCallback(
@@ -161,7 +54,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
             profilePictureUrl: currentUser.profilePictureUrl,
           },
           content: trimmedContent,
-          imageUrl: image || undefined,
+          
           timestamp: new Date().toISOString(),
           likes: [],
           comments: [],
@@ -169,8 +62,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
 
         await onAddPost(newPost);
         setContent('');
-        setImage(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
         if (textareaRef.current) {
           textareaRef.current.style.height = 'auto';
         }
@@ -180,7 +71,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
         setIsSubmitting(false);
       }
     },
-    [content, currentUser, image, isSubmitting, onAddPost, toast]
+    [content, currentUser, isSubmitting, onAddPost, toast]
   );
 
   const remainingChars = MAX_CONTENT_LENGTH - content.length;
@@ -218,69 +109,11 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onAddPost }) => {
           </div>
         </div>
 
-        {image && (
-          <div className="mt-4 ml-0 sm:ml-14 relative">
-            <img
-              src={image}
-              alt="Preview"
-              className="max-h-48 sm:max-h-60 w-full rounded-xl object-cover"
-            />
-            <button
-              type="button"
-              onClick={clearImage}
-              disabled={isSubmitting}
-              className="absolute top-2 right-2 bg-black/60 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-lg hover:bg-black/80 active:scale-95 transition-all touch-manipulation"
-              aria-label="Remove image"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        {isCompressing && (
-          <div className="mt-3 ml-0 sm:ml-14">
-            <p className="text-sm text-orange-500 dark:text-orange-400 flex items-center gap-2">
-              <span className="animate-spin">⚙️</span> Compressing image...
-            </p>
-          </div>
-        )}
-
-        {imageError && (
-          <div className="mt-3 ml-0 sm:ml-14">
-            <p className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800">
-              ⚠️ {imageError}
-            </p>
-          </div>
-        )}
-
         <div className="flex justify-between items-center mt-4 ml-0 sm:ml-14 gap-3">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isSubmitting || isCompressing}
-              className="flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-orange-600 dark:text-slate-300 dark:hover:text-orange-400 font-semibold text-sm sm:text-base disabled:opacity-50 active:scale-95 transition-transform touch-manipulation py-2 px-1"
-            >
-              <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="hidden xs:inline">Add Photo</span>
-              <span className="xs:hidden">Photo</span>
-            </button>
-            <span className="text-xs text-slate-400 dark:text-slate-300 hidden sm:inline">
-              (max {MAX_IMAGE_SIZE_MB}MB)
-            </span>
-          </div>
-          <input
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            className="hidden"
-            aria-label="Upload photo for post"
-            disabled={isSubmitting}
-          />
+          <div className="flex-1"></div>
           <button
             type="submit"
-            disabled={!content.trim() || isSubmitting || isCompressing}
+            disabled={!content.trim() || isSubmitting}
             className="bg-orange-500 text-white font-semibold py-2.5 px-6 sm:px-8 rounded-full hover:bg-orange-600 transition-all disabled:bg-orange-300 disabled:cursor-not-allowed active:scale-95 touch-manipulation text-sm sm:text-base min-w-[80px]"
           >
             {isSubmitting ? (

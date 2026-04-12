@@ -8,6 +8,10 @@ import { useConfirmation } from '../contexts/ConfirmationContext';
 import { useAnimals } from '../contexts/AnimalContext';
 import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 import ProductCard from '../components/ProductCard';
+import PostCard from '../components/PostCard';
+import type { Post } from '../types';
+import * as postService from '../services/postService';
+import { ChatBubbleIcon } from '../components/icons';
 import AnimalCard from '../components/AnimalCard';
 import Avatar from '../components/Avatar';
 import PetTools from '../components/PetTools';
@@ -15,7 +19,7 @@ import DeliveryAreaChecker from '../components/DeliveryAreaChecker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PackageIcon, HeartIcon, SettingsIcon, UserIcon, LogOutIcon, EditIcon, LoaderIcon, BookmarkIcon } from '../components/icons';
 
-type ProfileTab = 'overview' | 'orders' | 'wishlist' | 'saved' | 'settings';
+type ProfileTab = 'overview' | 'orders' | 'wishlist' | 'saved' | 'posts' | 'settings';
 
 const InlineEditField: React.FC<{
   label: string;
@@ -58,9 +62,9 @@ const InlineEditField: React.FC<{
         {isEditing ? (
           <div className="relative flex-1 flex items-center gap-2 animate-fade-in">
             {multiline ? (
-              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" rows={3} />
+              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue(e.target as any).value} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" rows={3} />
             ) : (
-              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" />
+              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue(e.target as any).value} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" />
             )}
             {isSaving && <div className="absolute right-3"><LoaderIcon className="w-4 h-4 animate-spin text-amber-500" /></div>}
           </div>
@@ -86,6 +90,19 @@ const ProfilePage: React.FC = () => {
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
   const [expandedOrderIds, setExpandedOrderIds] = useState<Record<string, boolean>>({});
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [postsError, setPostsError] = useState<string | null>(null);
+  useEffect(() => {
+    if (activeTab === 'posts' && currentUser) {
+      setIsLoadingPosts(true);
+      setPostsError(null);
+      postService.fetchPostsPage(undefined, 20, currentUser.id)
+        .then(res => setUserPosts(res.items))
+        .catch((err: any) => setPostsError(err.message || 'Failed to load posts.'))
+        .finally(() => setIsLoadingPosts(false));
+    }
+  }, [activeTab, currentUser]);
 
   const toggleOrder = (id: string) => {
     setExpandedOrderIds((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -144,7 +161,7 @@ const ProfilePage: React.FC = () => {
       message: 'Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently remove all your data, orders, and pet profiles.',
       confirmText: 'Yes, Delete My Account',
       cancelText: 'Cancel',
-      type: 'danger'
+      intent: 'danger'
     });
 
     if (isConfirmed) {
@@ -163,6 +180,7 @@ const ProfilePage: React.FC = () => {
     { id: 'orders', icon: <PackageIcon />, label: 'Orders', badge: recentOrders.length },
     { id: 'wishlist', icon: <HeartIcon />, label: 'Wishlist', badge: wishlistedProducts.length },
     { id: 'saved', icon: <BookmarkIcon />, label: 'Saved' },
+      { id: 'posts', icon: <ChatBubbleIcon />, label: 'Community' },
     { id: 'settings', icon: <SettingsIcon />, label: 'Settings' }
   ] as const;
 
@@ -405,6 +423,32 @@ const ProfilePage: React.FC = () => {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'posts' && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Your Posts</h2>
+                  {isLoadingPosts ? (
+                    <div className="flex justify-center py-8"><LoaderIcon className="w-8 h-8 text-amber-500 animate-spin" /></div>
+                  ) : postsError ? (
+                    <div className="text-center py-12 rounded-3xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10">
+                      <p className="text-red-500 dark:text-red-400">{postsError}</p>
+                    </div>
+                  ) : userPosts.length === 0 ? (
+                    <div className="text-center py-12 rounded-3xl border border-dashed border-slate-200 dark:border-zinc-800">
+                       <ChatBubbleIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-zinc-600 mb-4" />
+                       <h3 className="text-lg font-medium text-slate-800 dark:text-zinc-200 mb-2">No posts yet</h3>
+                       <p className="text-slate-500 dark:text-zinc-400">You haven\'t posted anything in the community.</p>
+                       <Link to="/community" className="inline-block mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-medium transition-colors">Go to Community</Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {userPosts.map(post => (
+                        <PostCard key={post.id} post={post} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

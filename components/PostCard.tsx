@@ -14,22 +14,22 @@ const MAX_REPLY_LENGTH = 500;
 
 interface PostCardProps {
   post: Post;
-  onUpdatePost: (postId: number, newContent: string) => Promise<void> | void;
-  onDeletePost: (postId: number) => Promise<void> | void;
-  onLikePost: (postId: number) => Promise<void> | void;
-  onLikeComment: (postId: number, commentId: number) => Promise<void> | void;
-  onLikeReply: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
+  onUpdatePost?: (postId: number, newContent: string) => Promise<void> | void;
+  onDeletePost?: (postId: number) => Promise<void> | void;
+  onLikePost?: (postId: number) => Promise<void> | void;
+  onLikeComment?: (postId: number, commentId: number) => Promise<void> | void;
+  onLikeReply?: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
   onAddComment: (postId: number, commentText: string) => Promise<void> | void;
   onAddReply: (postId: number, commentId: number, replyText: string) => Promise<void> | void;
-  onUpdateComment: (postId: number, commentId: number, newText: string) => Promise<void> | void;
+  onUpdateComment?: (postId: number, commentId: number, newText: string) => Promise<void> | void;
   onUpdateReply: (
     postId: number,
     commentId: number,
     replyId: number,
     newText: string
   ) => Promise<void> | void;
-  onDeleteComment: (postId: number, commentId: number) => Promise<void> | void;
-  onDeleteReply: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
+  onDeleteComment?: (postId: number, commentId: number) => Promise<void> | void;
+  onDeleteReply?: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -181,7 +181,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
     setIsDeleting(true);
     try {
-      await onDeletePost(post.id);
+      if (onDeletePost) await onDeletePost(post.id);
       toast.success('Post deleted');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete post');
@@ -195,7 +195,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
     setIsLiking(true);
     try {
-      await onLikePost(post.id);
+      if (onLikePost) await onLikePost(post.id);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to like post');
     } finally {
@@ -304,7 +304,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
       setLoadingCommentId(commentId);
       try {
-        await onDeleteComment(post.id, commentId);
+        if (onDeleteComment) await onDeleteComment(post.id, commentId);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to delete comment');
       } finally {
@@ -361,7 +361,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
       setLoadingReplyId(`${commentId}-${replyId}`);
       try {
-        await onDeleteReply(post.id, commentId, replyId);
+        if (onDeleteReply) await onDeleteReply(post.id, commentId, replyId);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to delete reply');
       } finally {
@@ -386,7 +386,7 @@ const PostCard: React.FC<PostCardProps> = ({
       if (loadingCommentId === commentId) return;
 
       try {
-        await onLikeComment(post.id, commentId);
+        if (onLikeComment) await onLikeComment(post.id, commentId);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to like comment');
       }
@@ -405,7 +405,7 @@ const PostCard: React.FC<PostCardProps> = ({
       if (loadingReplyId === key) return;
 
       try {
-        await onLikeReply(post.id, commentId, replyId);
+        if (onLikeReply) await onLikeReply(post.id, commentId, replyId);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to like reply');
       }

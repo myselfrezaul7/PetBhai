@@ -299,7 +299,7 @@ router.get(
 router.post(
   '/:id/reviews',
   requireAuth,
-  asyncHandler((req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ message: 'Invalid product ID' });

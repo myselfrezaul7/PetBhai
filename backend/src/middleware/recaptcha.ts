@@ -79,7 +79,7 @@ export const verifyRecaptchaToken = async (token: string): Promise<RecaptchaVeri
       throw new Error(`reCAPTCHA verification failed with status: ${response.status}`);
     }
 
-    const data: RecaptchaVerifyResponse = await response.json();
+    const data = (await response.json()) as RecaptchaVerifyResponse;
     return data;
   } catch (error) {
     console.error('reCAPTCHA verification error:', error);

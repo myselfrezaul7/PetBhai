@@ -88,7 +88,7 @@ const banPayloadSchema = z
   })
   .strict();
 
-router.post('/users/:id/ban', requireAuth, requireAdmin, (req, res) => {
+router.post('/users/:id/ban', requireAuth, requireAdmin, async (req, res) => {
   const userId = Number(req.params.id);
   if (!Number.isFinite(userId) || userId <= 0) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -128,7 +128,7 @@ router.post('/users/:id/ban', requireAuth, requireAdmin, (req, res) => {
   });
 });
 
-router.post('/users/:id/unban', requireAuth, requireAdmin, (req, res) => {
+router.post('/users/:id/unban', requireAuth, requireAdmin, async (req, res) => {
   const userId = Number(req.params.id);
   if (!Number.isFinite(userId) || userId <= 0) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -158,7 +158,7 @@ router.get('/posts', requireAuth, requireAdmin, (_req, res) => {
   return res.json({ items, total: items.length });
 });
 
-router.delete('/posts/:id', requireAuth, requireAdmin, (req, res) => {
+router.delete('/posts/:id', requireAuth, requireAdmin, async (req, res) => {
   const postId = Number(req.params.id);
   if (!Number.isFinite(postId) || postId <= 0) {
     return res.status(400).json({ message: 'Invalid post ID' });
@@ -174,7 +174,7 @@ router.delete('/posts/:id', requireAuth, requireAdmin, (req, res) => {
   return res.json({ message: 'Post deleted permanently', postId });
 });
 
-router.get('/stream', (req, res) => {
+router.get('/stream', async (req, res) => {
   const token = typeof req.query.token === 'string' ? req.query.token.trim() : '';
   if (!token) {
     return res.status(401).json({ message: 'Admin authentication required' });

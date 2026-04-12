@@ -785,7 +785,7 @@ router.post('/social', authLimiter, async (req, res) => {
   }
 });
 
-router.post('/refresh', authLimiter, (req, res) => {
+router.post('/refresh', authLimiter, async (req, res) => {
   try {
     const refreshToken =
       typeof req.body?.refreshToken === 'string' ? req.body.refreshToken.trim() : '';
@@ -840,7 +840,7 @@ router.post('/refresh', authLimiter, (req, res) => {
   }
 });
 
-router.post('/logout', requireAuth, (req: AuthRequest, res) => {
+router.post('/logout', requireAuth, async (req: AuthRequest, res) => {
   const requesterId = Number(req.user?.id);
   if (!Number.isFinite(requesterId)) {
     return res.status(400).json({ message: 'Invalid session' });
@@ -859,7 +859,7 @@ router.post('/logout', requireAuth, (req: AuthRequest, res) => {
   return res.status(200).json({ success: true });
 });
 
-router.post('/verify-email', authLimiter, (req, res) => {
+router.post('/verify-email', authLimiter, async (req, res) => {
   try {
     const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : '';
     const token = typeof req.body?.token === 'string' ? req.body.token.trim() : '';
@@ -903,7 +903,7 @@ router.post('/verify-email', authLimiter, (req, res) => {
   }
 });
 
-router.post('/resend-verification', authLimiter, (req, res) => {
+router.post('/resend-verification', authLimiter, async (req, res) => {
   try {
     const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : '';
     if (!email) {
@@ -932,7 +932,7 @@ router.post('/resend-verification', authLimiter, (req, res) => {
   }
 });
 
-router.get('/me', requireAuth, (req: AuthRequest, res) => {
+router.get('/me', requireAuth, async (req: AuthRequest, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -962,7 +962,7 @@ router.get('/me', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Update Profile
-router.put('/:id', requireAuth, (req: AuthRequest, res) => {
+router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id, 10);
 
   if (isNaN(userId)) {
@@ -1073,7 +1073,7 @@ router.delete('/:id', requireAuth, authLimiter, async (req: AuthRequest, res) =>
 });
 
 // Add to Wishlist
-router.post('/:id/wishlist', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/wishlist', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const { productId } = req.body;
 
@@ -1101,7 +1101,7 @@ router.post('/:id/wishlist', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Remove from Wishlist
-router.delete('/:id/wishlist/:productId', requireAuth, (req: AuthRequest, res) => {
+router.delete('/:id/wishlist/:productId', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const productId = parseInt(req.params.productId);
 
@@ -1127,7 +1127,7 @@ router.delete('/:id/wishlist/:productId', requireAuth, (req: AuthRequest, res) =
 });
 
 // Add to Favorites (Animals)
-router.post('/:id/favorites', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/favorites', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const { animalId } = req.body;
 
@@ -1155,7 +1155,7 @@ router.post('/:id/favorites', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Remove from Favorites
-router.delete('/:id/favorites/:animalId', requireAuth, (req: AuthRequest, res) => {
+router.delete('/:id/favorites/:animalId', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const animalId = parseInt(req.params.animalId);
 
@@ -1181,7 +1181,7 @@ router.delete('/:id/favorites/:animalId', requireAuth, (req: AuthRequest, res) =
 });
 
 // Subscribe to Plus
-router.post('/:id/subscribe', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/subscribe', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
 
   if (isNaN(userId)) {
@@ -1205,7 +1205,7 @@ router.post('/:id/subscribe', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Add to Order History
-router.post('/:id/orders', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/orders', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.id);
   const order = req.body;
 
@@ -1244,7 +1244,7 @@ router.post('/:id/orders', requireAuth, (req: AuthRequest, res) => {
   res.status(201).json(sanitizeUser(user));
 });
 
-router.get('/:id/pet-management', requireAuth, (req: AuthRequest, res) => {
+router.get('/:id/pet-management', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1256,7 +1256,7 @@ router.get('/:id/pet-management', requireAuth, (req: AuthRequest, res) => {
   });
 });
 
-router.post('/:id/pets', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/pets', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1300,7 +1300,7 @@ router.post('/:id/pets', requireAuth, (req: AuthRequest, res) => {
     .json({ pet, pets: user.petProfiles, medicineReminders: user.medicineReminders });
 });
 
-router.patch('/:id/pets/:petId', requireAuth, (req: AuthRequest, res) => {
+router.patch('/:id/pets/:petId', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1351,7 +1351,7 @@ router.patch('/:id/pets/:petId', requireAuth, (req: AuthRequest, res) => {
   });
 });
 
-router.post('/:id/pets/:petId/weights', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/pets/:petId/weights', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1385,7 +1385,7 @@ router.post('/:id/pets/:petId/weights', requireAuth, (req: AuthRequest, res) => 
     .json({ pet, pets: user.petProfiles, medicineReminders: user.medicineReminders });
 });
 
-router.delete('/:id/pets/:petId', requireAuth, (req: AuthRequest, res) => {
+router.delete('/:id/pets/:petId', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1408,7 +1408,7 @@ router.delete('/:id/pets/:petId', requireAuth, (req: AuthRequest, res) => {
   return res.json({ pets: user.petProfiles, medicineReminders: user.medicineReminders });
 });
 
-router.post('/:id/reminders', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/reminders', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1457,7 +1457,7 @@ router.post('/:id/reminders', requireAuth, (req: AuthRequest, res) => {
     .json({ reminder, pets: user.petProfiles, medicineReminders: user.medicineReminders });
 });
 
-router.patch('/:id/reminders/:reminderId', requireAuth, (req: AuthRequest, res) => {
+router.patch('/:id/reminders/:reminderId', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1524,7 +1524,7 @@ router.patch('/:id/reminders/:reminderId', requireAuth, (req: AuthRequest, res) 
   });
 });
 
-router.post('/:id/reminders/:reminderId/mark-given', requireAuth, (req: AuthRequest, res) => {
+router.post('/:id/reminders/:reminderId/mark-given', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;
@@ -1557,7 +1557,7 @@ router.post('/:id/reminders/:reminderId/mark-given', requireAuth, (req: AuthRequ
   });
 });
 
-router.delete('/:id/reminders/:reminderId', requireAuth, (req: AuthRequest, res) => {
+router.delete('/:id/reminders/:reminderId', requireAuth, async (req: AuthRequest, res) => {
   const user = parseUserFromParam(req, res);
   if (!user) {
     return;

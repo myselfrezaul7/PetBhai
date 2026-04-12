@@ -918,7 +918,7 @@ export const MOCK_VETS: Vet[] = [
   },
 ];
 
-export const MOCK_ARTICLES: Article[] = [
+export const MOCK_ARTICLES: any[] = [
   {
     id: 11,
     title: 'পোষা প্রাণীর এঁটেল এবং মাছি সমস্যা: প্রতিরোধের সেরা উপায়',
@@ -2224,6 +2224,459 @@ FIP রোগ নির্ণয় করা বেশ কঠিন কার�
     date: new Date(Date.now() - 51 * 60 * 60 * 1000).toISOString(),
     readTime: 2,
   },
+,
+
+  {
+    "id": 1000,
+    "title": "How to Prevent Cat Hairballs",
+    "content": "# How to Prevent Cat Hairballs\n\nHandling how to prevent cat hairballs is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to How to Prevent Cat Hairballs.",
+    "imageUrl": "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-03T00:57:30.323Z",
+    "readTime": 7
+  },
+  {
+    "id": 1001,
+    "title": "Stray Cat Adoption in Dhaka",
+    "content": "# Stray Cat Adoption in Dhaka\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Stray Cat Adoption in Dhaka, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-09T06:19:04.823Z",
+    "readTime": 3
+  },
+  {
+    "id": 1002,
+    "title": "Feline UTI Symptoms",
+    "content": "# Feline UTI Symptoms\n\nHandling feline uti symptoms is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Feline UTI Symptoms.",
+    "imageUrl": "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-03T01:34:54.069Z",
+    "readTime": 4
+  },
+  {
+    "id": 1003,
+    "title": "Affordable Cat Food Brands in BD",
+    "content": "# Affordable Cat Food Brands in BD\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Affordable Cat Food Brands in BD, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-24T16:22:59.768Z",
+    "readTime": 3
+  },
+  {
+    "id": 1004,
+    "title": "Litter Box Training 101",
+    "content": "# Litter Box Training 101\n\nHandling litter box training 101 is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Litter Box Training 101.",
+    "imageUrl": "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-27T04:06:33.670Z",
+    "readTime": 3
+  },
+  {
+    "id": 1005,
+    "title": "Cat Heat Strokes in Humid Weather",
+    "content": "# Cat Heat Strokes in Humid Weather\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Cat Heat Strokes in Humid Weather, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-17T21:38:56.981Z",
+    "readTime": 5
+  },
+  {
+    "id": 1006,
+    "title": "Stop Cats from Scratching Furniture",
+    "content": "# Stop Cats from Scratching Furniture\n\nHandling stop cats from scratching furniture is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Stop Cats from Scratching Furniture.",
+    "imageUrl": "https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-15T12:03:03.211Z",
+    "readTime": 7
+  },
+  {
+    "id": 1007,
+    "title": "Finding the Right Vet around BD",
+    "content": "# Finding the Right Vet around BD\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Finding the Right Vet around BD, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-28T17:05:35.430Z",
+    "readTime": 6
+  },
+  {
+    "id": 1008,
+    "title": "Cat Aggression Causes",
+    "content": "# Cat Aggression Causes\n\nHandling cat aggression causes is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Cat Aggression Causes.",
+    "imageUrl": "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-18T03:12:21.032Z",
+    "readTime": 5
+  },
+  {
+    "id": 1009,
+    "title": "Deshi Cats vs Persian Breeds",
+    "content": "# Deshi Cats vs Persian Breeds\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Deshi Cats vs Persian Breeds, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1501820488136-72669149e0d4?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-14T17:41:41.594Z",
+    "readTime": 5
+  },
+  {
+    "id": 1010,
+    "title": "Dealing with Feline Fleas",
+    "content": "# Dealing with Feline Fleas\n\nHandling dealing with feline fleas is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Dealing with Feline Fleas.",
+    "imageUrl": "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-12T23:28:13.106Z",
+    "readTime": 5
+  },
+  {
+    "id": 1011,
+    "title": "DIY Cat Toys with Household Items",
+    "content": "# DIY Cat Toys with Household Items\n\nHandling diy cat toys with household items is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to DIY Cat Toys with Household Items.",
+    "imageUrl": "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-07T03:28:30.046Z",
+    "readTime": 6
+  },
+  {
+    "id": 1012,
+    "title": "Why Cats Knead",
+    "content": "# Why Cats Knead\n\nHandling why cats knead is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Why Cats Knead.",
+    "imageUrl": "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-11T23:52:57.548Z",
+    "readTime": 7
+  },
+  {
+    "id": 1013,
+    "title": "Safe Plant Options for Cats",
+    "content": "# Safe Plant Options for Cats\n\nHandling safe plant options for cats is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Safe Plant Options for Cats.",
+    "imageUrl": "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-15T07:08:16.544Z",
+    "readTime": 4
+  },
+  {
+    "id": 1014,
+    "title": "Monsoon Pet Care in Bangladesh",
+    "content": "# Monsoon Pet Care in Bangladesh\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Monsoon Pet Care in Bangladesh, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-04-01T18:17:27.351Z",
+    "readTime": 3
+  },
+  {
+    "id": 1015,
+    "title": "Understanding Feline Body Language",
+    "content": "# Understanding Feline Body Language\n\nHandling understanding feline body language is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Understanding Feline Body Language.",
+    "imageUrl": "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-26T06:20:23.572Z",
+    "readTime": 4
+  },
+  {
+    "id": 1016,
+    "title": "Cat Vaccinations Guideline Bangladesh",
+    "content": "# Cat Vaccinations Guideline Bangladesh\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Cat Vaccinations Guideline Bangladesh, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-29T15:10:55.569Z",
+    "readTime": 7
+  },
+  {
+    "id": 1017,
+    "title": "Tips for Multi-Cat Households",
+    "content": "# Tips for Multi-Cat Households\n\nHandling tips for multi-cat households is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Tips for Multi-Cat Households.",
+    "imageUrl": "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-25T06:45:35.562Z",
+    "readTime": 7
+  },
+  {
+    "id": 1018,
+    "title": "Introducing a New Kitten",
+    "content": "# Introducing a New Kitten\n\nHandling introducing a new kitten is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Introducing a New Kitten.",
+    "imageUrl": "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-27T10:25:16.581Z",
+    "readTime": 7
+  },
+  {
+    "id": 1019,
+    "title": "Handling Picky Eaters",
+    "content": "# Handling Picky Eaters\n\nHandling handling picky eaters is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Handling Picky Eaters.",
+    "imageUrl": "https://images.unsplash.com/photo-1501820488136-72669149e0d4?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-16T09:42:22.627Z",
+    "readTime": 5
+  },
+  {
+    "id": 1020,
+    "title": "Cat Grooming Tips for Long-Haired Breeds",
+    "content": "# Cat Grooming Tips for Long-Haired Breeds\n\nHandling cat grooming tips for long-haired breeds is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Cat Grooming Tips for Long-Haired Breeds.",
+    "imageUrl": "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-10T03:20:31.275Z",
+    "readTime": 4
+  },
+  {
+    "id": 1021,
+    "title": "Winter Care for Deshi Cats",
+    "content": "# Winter Care for Deshi Cats\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Winter Care for Deshi Cats, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-15T10:46:35.644Z",
+    "readTime": 6
+  },
+  {
+    "id": 1022,
+    "title": "Tackling Cat Diarrhea Safely",
+    "content": "# Tackling Cat Diarrhea Safely\n\nHandling tackling cat diarrhea safely is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Tackling Cat Diarrhea Safely.",
+    "imageUrl": "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-12T06:26:45.642Z",
+    "readTime": 7
+  },
+  {
+    "id": 1023,
+    "title": "Rabies Awareness & Vaccination",
+    "content": "# Rabies Awareness & Vaccination\n\nPet ownership in Bangladesh, especially for cats, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Rabies Awareness & Vaccination, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-10T16:50:05.938Z",
+    "readTime": 3
+  },
+  {
+    "id": 1024,
+    "title": "Fostering Orphaned Kittens",
+    "content": "# Fostering Orphaned Kittens\n\nHandling fostering orphaned kittens is one of the most frequently searched challenges by cat owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Cat.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Fostering Orphaned Kittens.",
+    "imageUrl": "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-02T14:41:32.828Z",
+    "readTime": 6
+  },
+  {
+    "id": 1025,
+    "title": "Stop Excess Canine Barking",
+    "content": "# Stop Excess Canine Barking\n\nHandling stop excess canine barking is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Stop Excess Canine Barking.",
+    "imageUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-10T11:49:17.534Z",
+    "readTime": 3
+  },
+  {
+    "id": 1026,
+    "title": "Deshi Kukur (Street Dog) Adoption",
+    "content": "# Deshi Kukur (Street Dog) Adoption\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Deshi Kukur (Street Dog) Adoption, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-16T04:12:28.776Z",
+    "readTime": 7
+  },
+  {
+    "id": 1027,
+    "title": "Canine Parvovirus Prevention",
+    "content": "# Canine Parvovirus Prevention\n\nHandling canine parvovirus prevention is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Canine Parvovirus Prevention.",
+    "imageUrl": "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-13T00:50:23.808Z",
+    "readTime": 4
+  },
+  {
+    "id": 1028,
+    "title": "Protecting Paws on Hot Pavements in BD",
+    "content": "# Protecting Paws on Hot Pavements in BD\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Protecting Paws on Hot Pavements in BD, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-12T10:50:22.979Z",
+    "readTime": 6
+  },
+  {
+    "id": 1029,
+    "title": "Crating Training Your Puppy",
+    "content": "# Crating Training Your Puppy\n\nHandling crating training your puppy is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Crating Training Your Puppy.",
+    "imageUrl": "https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-10T11:03:50.366Z",
+    "readTime": 4
+  },
+  {
+    "id": 1030,
+    "title": "Separation Anxiety in Apartment Dogs",
+    "content": "# Separation Anxiety in Apartment Dogs\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Separation Anxiety in Apartment Dogs, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-04T14:45:09.801Z",
+    "readTime": 7
+  },
+  {
+    "id": 1031,
+    "title": "Tick Fever Remedies and Prevention",
+    "content": "# Tick Fever Remedies and Prevention\n\nHandling tick fever remedies and prevention is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Tick Fever Remedies and Prevention.",
+    "imageUrl": "https://images.unsplash.com/photo-15302817293-1dd5d5c0eacf?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-27T16:27:08.054Z",
+    "readTime": 3
+  },
+  {
+    "id": 1032,
+    "title": "Finding Reliable Pet Services in Dhaka",
+    "content": "# Finding Reliable Pet Services in Dhaka\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Finding Reliable Pet Services in Dhaka, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1514373941175-0a141072cb8c?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2025-12-31T13:11:32.388Z",
+    "readTime": 3
+  },
+  {
+    "id": 1033,
+    "title": "Healthy Homemade Dog Food",
+    "content": "# Healthy Homemade Dog Food\n\nHandling healthy homemade dog food is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Healthy Homemade Dog Food.",
+    "imageUrl": "https://images.unsplash.com/photo-1601758172901-b7ac0a158b02?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-06T12:43:46.161Z",
+    "readTime": 4
+  },
+  {
+    "id": 1034,
+    "title": "Handling Problematic Dog Shedding",
+    "content": "# Handling Problematic Dog Shedding\n\nHandling handling problematic dog shedding is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Handling Problematic Dog Shedding.",
+    "imageUrl": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-05T12:46:55.730Z",
+    "readTime": 3
+  },
+  {
+    "id": 1035,
+    "title": "Leash Pulling Solutions",
+    "content": "# Leash Pulling Solutions\n\nHandling leash pulling solutions is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Leash Pulling Solutions.",
+    "imageUrl": "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-04T11:15:18.235Z",
+    "readTime": 3
+  },
+  {
+    "id": 1036,
+    "title": "Socializing Your Adult Rescue Dog",
+    "content": "# Socializing Your Adult Rescue Dog\n\nHandling socializing your adult rescue dog is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Socializing Your Adult Rescue Dog.",
+    "imageUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-20T22:22:36.357Z",
+    "readTime": 7
+  },
+  {
+    "id": 1037,
+    "title": "Pet Transport Services in BD",
+    "content": "# Pet Transport Services in BD\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Pet Transport Services in BD, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-11T19:18:31.929Z",
+    "readTime": 5
+  },
+  {
+    "id": 1038,
+    "title": "Dental Health for Canines",
+    "content": "# Dental Health for Canines\n\nHandling dental health for canines is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Dental Health for Canines.",
+    "imageUrl": "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2025-12-31T11:31:39.465Z",
+    "readTime": 4
+  },
+  {
+    "id": 1039,
+    "title": "Dealing with Thunderstorm Phobia",
+    "content": "# Dealing with Thunderstorm Phobia\n\nHandling dealing with thunderstorm phobia is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Dealing with Thunderstorm Phobia.",
+    "imageUrl": "https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-10T07:30:27.676Z",
+    "readTime": 7
+  },
+  {
+    "id": 1040,
+    "title": "Choosing Breeds for Dhaka Weather",
+    "content": "# Choosing Breeds for Dhaka Weather\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Choosing Breeds for Dhaka Weather, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-04-04T01:55:09.570Z",
+    "readTime": 7
+  },
+  {
+    "id": 1041,
+    "title": "Ear Cleaning Guidelines",
+    "content": "# Ear Cleaning Guidelines\n\nHandling ear cleaning guidelines is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Ear Cleaning Guidelines.",
+    "imageUrl": "https://images.unsplash.com/photo-15302817293-1dd5d5c0eacf?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-11T11:33:09.223Z",
+    "readTime": 3
+  },
+  {
+    "id": 1042,
+    "title": "Senior Dog Care Tips",
+    "content": "# Senior Dog Care Tips\n\nHandling senior dog care tips is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Senior Dog Care Tips.",
+    "imageUrl": "https://images.unsplash.com/photo-1514373941175-0a141072cb8c?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-22T05:50:36.211Z",
+    "readTime": 6
+  },
+  {
+    "id": 1043,
+    "title": "Dealing with Guarding Aggression",
+    "content": "# Dealing with Guarding Aggression\n\nHandling dealing with guarding aggression is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Dealing with Guarding Aggression.",
+    "imageUrl": "https://images.unsplash.com/photo-1601758172901-b7ac0a158b02?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-10T14:40:18.938Z",
+    "readTime": 5
+  },
+  {
+    "id": 1044,
+    "title": "Spaying/Neutering Options in Bangladesh",
+    "content": "# Spaying/Neutering Options in Bangladesh\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Spaying/Neutering Options in Bangladesh, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-19T18:38:29.728Z",
+    "readTime": 6
+  },
+  {
+    "id": 1045,
+    "title": "Flea & Tick Prevention in Tropical Climates",
+    "content": "# Flea & Tick Prevention in Tropical Climates\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Flea & Tick Prevention in Tropical Climates, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-02-04T11:33:12.974Z",
+    "readTime": 3
+  },
+  {
+    "id": 1046,
+    "title": "Addressing Begging Behavior",
+    "content": "# Addressing Begging Behavior\n\nHandling addressing begging behavior is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Addressing Begging Behavior.",
+    "imageUrl": "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-04T10:36:32.668Z",
+    "readTime": 3
+  },
+  {
+    "id": 1047,
+    "title": "Toxic Foods for Dogs Warning",
+    "content": "# Toxic Foods for Dogs Warning\n\nHandling toxic foods for dogs warning is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Toxic Foods for Dogs Warning.",
+    "imageUrl": "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-09T19:34:11.079Z",
+    "readTime": 7
+  },
+  {
+    "id": 1048,
+    "title": "Command Training Every Dog Needs",
+    "content": "# Command Training Every Dog Needs\n\nHandling command training every dog needs is one of the most frequently searched challenges by dog owners worldwide. Understanding the behavioral and physical roots is the first step toward a harmonious pet home.\n\n## Identifying the Issue\nMany pet parents notice early warning signs—whether it's increased vocalization, sudden changes in appetite, or erratic behavioral shifts. Early identification leads to much smoother management.\n\n## Primary Causes\n- **Anxiety & Stress:** Changes in the home environment can quickly unsettle your Dog.\n- **Medical Roots:** Always rule out underlying health issues with a certified veterinarian before treating it purely as a behavioral problem.\n- **Routine Disruptions:** Pets thrive on consistency; any abrupt shift can manifest as a problem.\n\n## Expert Solutions\n1. **Maintain Consistency:** Establish and strictly follow a daily routine for feeding, play, and rest.\n2. **Positive Reinforcement:** Redirect unwanted actions with treats or praise when they exhibit the desired behavior.\n3. **Regular Vet Check-ups:** Ensure their baseline health is stable to avoid interpreting medical pain as mere misbehavior.\n\nImplementing these steady steps can drastically reduce issues related to Command Training Every Dog Needs.",
+    "imageUrl": "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-01-26T10:52:18.641Z",
+    "readTime": 6
+  },
+  {
+    "id": 1049,
+    "title": "Living Naturally with Pets Around You",
+    "content": "# Living Naturally with Pets Around You\n\nPet ownership in Bangladesh, especially for dogs, is rapidly growing in cities like Dhaka, Chittagong, and Sylhet. However, with the tropical monsoon climate and unique urban landscapes, local pet parents often encounter specific challenges.\n\n## The Problem\nWhen managing Living Naturally with Pets Around You, constraints ranging from high humidity, limited open spaces in apartments, and the availability of specialized veterinary care become important factors.\n\n## Root Causes\n- **Climate:** High temperatures and extreme humidity during monsoon can trigger skin issues or heat complications.\n- **Urban Density:** Apartment living restricts daily outdoor activity and necessitates creative solutions for indoor recreation.\n- **Local Resources:** Imported food and specialist care can sometimes be difficult to source quickly.\n\n## Actionable Solutions\n1. **Local Alternatives:** Engage with localized veterinary networks and consider safe, balanced homemade diets if premium commercial options are out of stock.\n2. **Indoor Engagement:** Utilize vertical spaces and interactive toys to compensate for limited outdoor exercise.\n3. **Heat Management:** Ensure constant access to fresh water and shaded spots, especially during the peak summer months. Avoid stepping out on hot concrete.\n\nStay connected with local community groups (like those mapped by PetBhai) to exchange tips specific to the local context.",
+    "imageUrl": "https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?auto=format&fit=crop&q=80&w=800",
+    "author": "PetBhai Medical Team",
+    "date": "2026-03-16T06:01:47.970Z",
+    "readTime": 5
+  }
+
 ];
 
 export const MOCK_ANIMALS: Animal[] = [

@@ -196,10 +196,12 @@ export const fetchPosts = async (): Promise<Post[]> => {
 
 export const fetchPostsPage = async (
   cursor?: string,
-  limit: number = 10
+  limit: number = 10,
+  authorId?: number
 ): Promise<PaginatedPostsResponse> => {
   const query = new URLSearchParams();
   query.set('limit', String(Math.min(Math.max(limit, 1), 30)));
+  if (authorId) query.set('authorId', String(authorId));
   if (cursor) {
     query.set('cursor', cursor);
   }

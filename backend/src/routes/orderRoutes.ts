@@ -215,7 +215,7 @@ async function sendOrderEmail(order: ExtendedOrder) {
 }
 
 // Create Order
-router.post('/', orderLimiter, optionalAuth, (req: AuthRequest, res) => {
+router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
   const parseResult = orderCreateSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({
@@ -368,7 +368,7 @@ router.post('/', orderLimiter, optionalAuth, (req: AuthRequest, res) => {
 });
 
 // Get all orders (admin only)
-router.get('/', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => {
+router.get('/', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { status, page = '1', limit = '20' } = req.query;
 
   let orders = [...db.orders];
@@ -398,7 +398,7 @@ router.get('/', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => 
 });
 
 // Smart reorder suggestions (authenticated user only)
-router.get('/reorder-suggestions', requireAuth, (req: AuthRequest, res) => {
+router.get('/reorder-suggestions', requireAuth, async (req: AuthRequest, res) => {
   if (!req.user) {
     return res.status(401).json({ message: 'Authentication required' });
   }
@@ -494,7 +494,7 @@ router.get('/reorder-suggestions', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Get order by ID
-router.get('/:orderId', requireAuth, (req: AuthRequest, res) => {
+router.get('/:orderId', requireAuth, async (req: AuthRequest, res) => {
   const { orderId } = req.params;
   const order = db.orders.find((o) => o.orderId === orderId) as
     | (ExtendedOrder & {
@@ -525,7 +525,7 @@ router.get('/:orderId', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Get User Orders
-router.get('/user/:userId', requireAuth, (req: AuthRequest, res) => {
+router.get('/user/:userId', requireAuth, async (req: AuthRequest, res) => {
   const userId = parseInt(req.params.userId);
 
   if (Number.isNaN(userId)) {
@@ -555,7 +555,7 @@ router.get('/user/:userId', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Update order status (admin only)
-router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => {
+router.patch('/:orderId/status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { orderId } = req.params;
   const parseResult = orderStatusUpdateSchema.safeParse(req.body || {});
   if (!parseResult.success) {
@@ -627,7 +627,7 @@ router.patch('/:orderId/status', requireAuth, requireAdmin, (req: AuthRequest, r
 });
 
 // Cancel order (user can cancel pending orders)
-router.post('/:orderId/cancel', requireAuth, (req: AuthRequest, res) => {
+router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
   const { orderId } = req.params;
   const parseResult = orderCancelSchema.safeParse(req.body || {});
   if (!parseResult.success) {
@@ -689,7 +689,7 @@ router.post('/:orderId/cancel', requireAuth, (req: AuthRequest, res) => {
 });
 
 // Track order (public)
-router.get('/:orderId/track', (req, res) => {
+router.get('/:orderId/track', async (req, res) => {
   const { orderId } = req.params;
   const order = db.orders.find((o) => o.orderId === orderId) as ExtendedOrder | undefined;
 
@@ -707,7 +707,7 @@ router.get('/:orderId/track', (req, res) => {
 });
 
 // Get order statistics (admin only)
-router.get('/stats/summary', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => {
+router.get('/stats/summary', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const orders = db.orders as ExtendedOrder[];
 
   const stats = {

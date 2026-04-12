@@ -3,11 +3,11 @@ import { db } from '../db';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   res.json(db.vets);
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const vet = db.vets.find((v) => v.id === parseInt(req.params.id));
   if (vet) {
     res.json(vet);

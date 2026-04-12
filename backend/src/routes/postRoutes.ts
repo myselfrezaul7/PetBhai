@@ -28,7 +28,7 @@ const ensurePostsCollection = (): void => {
   }
 };
 
-const cleanupOldPosts = (): void => {
+const cleanupOldPosts = async (): Promise<void> => {
   ensurePostsCollection();
 
   const now = Date.now();
@@ -48,7 +48,7 @@ const cleanupOldPosts = (): void => {
   }
 
   if (db.data.posts.length < originalLength) {
-    db.write();
+    await db.write();
   }
 };
 
@@ -374,13 +374,17 @@ router.get('/', (_req, res) => {
   }
 });
 
-router.get('/feed', (req, res) => {
+router.get('/feed', async (req, res) => {
   try {
     const requestedLimit = Number.parseInt(String(req.query.limit || '10'), 10);
     const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 30) : 10;
     const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : '';
 
-    const sortedPosts = getSortedVisiblePosts();
+    let sortedPosts = getSortedVisiblePosts();
+    if (req.query.authorId) {
+      const authorId = Number(req.query.authorId);
+      sortedPosts = sortedPosts.filter(p => p.author.id === authorId);
+    }
     const startIndex = cursor
       ? Math.max(sortedPosts.findIndex((post) => String(post.id) === cursor) + 1, 0)
       : 0;
@@ -400,7 +404,7 @@ router.get('/feed', (req, res) => {
 });
 
 // Real-time post update stream (SSE)
-router.get('/stream', (req, res) => {
+router.get('/stream', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
@@ -425,7 +429,7 @@ router.get('/stream', (req, res) => {
 });
 
 // Get single post
-router.get('/:id(\\d+)', (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   try {
     ensurePostsCollection();
     const postId = validateId(req.params.id);
@@ -445,7 +449,7 @@ router.get('/:id(\\d+)', (req, res) => {
   }
 });
 
-router.get('/:id(\\d+)/comments', (req, res) => {
+router.get('/:id(\\d+)/comments', async (req, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -484,7 +488,7 @@ router.get('/:id(\\d+)/comments', (req, res) => {
 });
 
 // Create a new post
-router.post('/', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     ensurePostsCollection();
     const parsed = createPostSchema.safeParse(req.body);
@@ -567,7 +571,7 @@ router.post('/', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
     };
 
     db.posts.unshift(newPost);
-    db.write();
+    await db.write();
     emitPostEvent('post-created', newPost.id);
     setCachedIdempotentResponse(cacheKey, 201, newPost);
     res.status(201).json(newPost);
@@ -578,7 +582,7 @@ router.post('/', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
 });
 
 // Update a post
-router.put('/:id(\\d+)', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.put('/:id(\\d+)', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -622,7 +626,7 @@ router.put('/:id(\\d+)', postMutationLimiter, requireAuth, (req: AuthRequest, re
     }
 
     db.posts[postIndex] = { ...db.posts[postIndex], content: sanitizedContent };
-    db.write();
+    await db.write();
     emitPostEvent('post-updated', postId);
     res.json(db.posts[postIndex]);
   } catch (error) {
@@ -632,7 +636,7 @@ router.put('/:id(\\d+)', postMutationLimiter, requireAuth, (req: AuthRequest, re
 });
 
 // Delete a post
-router.delete('/:id(\\d+)', requireAuth, postMutationLimiter, (req: AuthRequest, res) => {
+router.delete('/:id(\\d+)', requireAuth, postMutationLimiter, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -660,7 +664,7 @@ router.delete('/:id(\\d+)', requireAuth, postMutationLimiter, (req: AuthRequest,
     }
 
     db.posts.splice(postIndex, 1);
-    db.write();
+    await db.write();
     emitPostEvent('post-deleted', postId);
     res.json({ message: 'Post deleted successfully' });
   } catch (error) {
@@ -670,7 +674,7 @@ router.delete('/:id(\\d+)', requireAuth, postMutationLimiter, (req: AuthRequest,
 });
 
 // Like/Unlike a post
-router.post('/:id(\\d+)/like', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/:id(\\d+)/like', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -720,7 +724,7 @@ router.post('/:id(\\d+)/like', postMutationLimiter, requireAuth, (req: AuthReque
       post.likes.splice(likeIndex, 1);
     }
 
-    db.write();
+    await db.write();
     emitPostEvent('post-liked', postId);
     setCachedIdempotentResponse(cacheKey, 200, post);
     res.json(post);
@@ -731,7 +735,7 @@ router.post('/:id(\\d+)/like', postMutationLimiter, requireAuth, (req: AuthReque
 });
 
 // Add a comment to a post
-router.post('/:id(\\d+)/comments', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/:id(\\d+)/comments', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
@@ -796,7 +800,7 @@ router.post('/:id(\\d+)/comments', postMutationLimiter, requireAuth, (req: AuthR
     };
 
     post.comments.push(newComment);
-    db.write();
+    await db.write();
     emitPostEvent('comment-created', postId);
     setCachedIdempotentResponse(cacheKey, 201, newComment);
     res.status(201).json(newComment);
@@ -806,7 +810,7 @@ router.post('/:id(\\d+)/comments', postMutationLimiter, requireAuth, (req: AuthR
   }
 });
 
-router.put('/:postId/comments/:commentId', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.put('/:postId/comments/:commentId', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -855,7 +859,7 @@ router.put('/:postId/comments/:commentId', postMutationLimiter, requireAuth, (re
     }
 
     comment.text = sanitizedText;
-    db.write();
+    await db.write();
     emitPostEvent('comment-updated', postId);
     return res.json(comment);
   } catch (error) {
@@ -868,7 +872,7 @@ router.delete(
   '/:postId/comments/:commentId',
   requireAuth,
   postMutationLimiter,
-  (req: AuthRequest, res) => {
+  async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -903,7 +907,7 @@ router.delete(
     }
 
     post.comments.splice(commentIndex, 1);
-    db.write();
+    await db.write();
     emitPostEvent('comment-deleted', postId);
     return res.json({ message: 'Comment deleted successfully' });
   } catch (error) {
@@ -913,7 +917,7 @@ router.delete(
 });
 
 // Like/Unlike a comment
-router.post('/:postId/comments/:commentId/like', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/:postId/comments/:commentId/like', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -969,7 +973,7 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, requireAut
       comment.likes.splice(likeIndex, 1);
     }
 
-    db.write();
+    await db.write();
     emitPostEvent('comment-liked', postId);
     setCachedIdempotentResponse(cacheKey, 200, comment);
     res.json(comment);
@@ -980,7 +984,7 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, requireAut
 });
 
 // Add a reply to a comment
-router.post('/:postId/comments/:commentId/replies', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/:postId/comments/:commentId/replies', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -1047,7 +1051,7 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, require
     };
 
     comment.replies.push(newReply);
-    db.write();
+    await db.write();
     emitPostEvent('reply-created', postId);
     setCachedIdempotentResponse(cacheKey, 201, newReply);
     res.status(201).json(newReply);
@@ -1057,7 +1061,7 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, require
   }
 });
 
-router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -1114,7 +1118,7 @@ router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter,
     }
 
     reply.text = sanitizedText;
-    db.write();
+    await db.write();
     emitPostEvent('reply-updated', postId);
     return res.json(reply);
   } catch (error) {
@@ -1127,7 +1131,7 @@ router.delete(
   '/:postId/comments/:commentId/replies/:replyId',
   requireAuth,
   postMutationLimiter,
-  (req: AuthRequest, res) => {
+  async (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -1169,7 +1173,7 @@ router.delete(
     }
 
     comment.replies.splice(replyIndex, 1);
-    db.write();
+    await db.write();
     emitPostEvent('reply-deleted', postId);
     return res.json({ message: 'Reply deleted successfully' });
   } catch (error) {
@@ -1183,7 +1187,7 @@ router.post(
   '/:postId/comments/:commentId/replies/:replyId/like',
   postMutationLimiter,
   requireAuth,
-  (req: AuthRequest, res) => {
+  async (req: AuthRequest, res) => {
     try {
       const postId = validateId(req.params.postId);
       const commentId = validateId(req.params.commentId);
@@ -1245,7 +1249,7 @@ router.post(
         reply.likes.splice(likeIndex, 1);
       }
 
-      db.write();
+      await db.write();
       emitPostEvent('reply-liked', postId);
       setCachedIdempotentResponse(cacheKey, 200, reply);
       res.json(reply);
@@ -1263,7 +1267,7 @@ const reportSchema = z
   })
   .strict();
 
-router.post('/:id(\\d+)/report', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/:id(\\d+)/report', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   const postId = validateId(req.params.id);
   if (!postId) {
     return res.status(400).json({ message: 'Invalid post ID' });
@@ -1293,12 +1297,12 @@ router.post('/:id(\\d+)/report', postMutationLimiter, requireAuth, (req: AuthReq
   const report = createReport('post', reporterId, sanitizeText(reason, 500), postId);
   reports.push(report);
   applyAutoHideByThreshold(post, 'post');
-  db.write();
+  await db.write();
   emitPostEvent('post-reported', postId);
   return res.status(201).json({ message: 'Report submitted', reportId: report.id });
 });
 
-router.post('/:postId/comments/:commentId/report', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
+router.post('/:postId/comments/:commentId/report', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
   const postId = validateId(req.params.postId);
   const commentId = validateId(req.params.commentId);
   if (!postId || !commentId) {
@@ -1334,7 +1338,7 @@ router.post('/:postId/comments/:commentId/report', postMutationLimiter, requireA
   const report = createReport('comment', reporterId, sanitizeText(reason, 500), postId, commentId);
   reports.push(report);
   applyAutoHideByThreshold(post, 'comment', commentId);
-  db.write();
+  await db.write();
   emitPostEvent('comment-reported', postId);
   return res.status(201).json({ message: 'Report submitted', reportId: report.id });
 });
@@ -1343,7 +1347,7 @@ router.post(
   '/:postId/comments/:commentId/replies/:replyId/report',
   postMutationLimiter,
   requireAuth,
-  (req: AuthRequest, res) => {
+  async (req: AuthRequest, res) => {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
     const replyId = validateId(req.params.replyId);
@@ -1392,7 +1396,7 @@ router.post(
     );
     reports.push(report);
     applyAutoHideByThreshold(post, 'reply', commentId, replyId);
-    db.write();
+    await db.write();
     emitPostEvent('reply-reported', postId);
     return res.status(201).json({ message: 'Report submitted', reportId: report.id });
   }
@@ -1415,7 +1419,7 @@ const moderationUpdateSchema = z
   })
   .strict();
 
-router.patch('/moderation/reports/:reportId', postMutationLimiter, (req, res) => {
+router.patch('/moderation/reports/:reportId', postMutationLimiter, async (req, res) => {
   const parsed = moderationUpdateSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: 'Invalid moderation update payload' });
@@ -1461,7 +1465,7 @@ router.patch('/moderation/reports/:reportId', postMutationLimiter, (req, res) =>
     note,
   });
 
-  db.write();
+  await db.write();
   emitPostEvent('moderation-updated', report.targetPostId);
   return res.json({ message: 'Moderation report updated', report });
 });
