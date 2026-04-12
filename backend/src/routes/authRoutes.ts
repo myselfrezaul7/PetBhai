@@ -93,7 +93,8 @@ const userWithAuthMetadata = (user: User): UserAuthMetadata => {
   return user as UserAuthMetadata;
 };
 
-const getRoleByEmail = (email: string): 'admin' | 'customer' => {
+const getRoleByEmail = (email: string, emailVerified: boolean): 'admin' | 'customer' => {
+  if (!emailVerified) return 'customer';
   const normalizedEmail = normalizeEmail(email);
   return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'admin' : 'customer';
 };
@@ -103,7 +104,8 @@ const syncRoleByEmail = (user: User): boolean => {
     return false;
   }
 
-  const expectedRole = getRoleByEmail(user.email);
+  const isVerified = Boolean(userWithAuthMetadata(user).emailVerified);
+  const expectedRole = getRoleByEmail(user.email, isVerified);
   if (user.role === expectedRole) {
     return false;
   }
@@ -585,7 +587,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       email: sanitizedEmail,
       createdAt: new Date().toISOString(),
       password: hashedPassword,
-      role: getRoleByEmail(sanitizedEmail),
+      role: getRoleByEmail(sanitizedEmail, false),
       wishlist: [],
       orderHistory: [],
       favorites: [],
@@ -748,7 +750,7 @@ router.post('/social', authLimiter, async (req, res) => {
         name: sanitizedName,
         email: sanitizedEmail,
         createdAt: new Date().toISOString(),
-        role: getRoleByEmail(sanitizedEmail),
+        role: getRoleByEmail(sanitizedEmail, true),
         profilePictureUrl:
           typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)
             ? photoUrl.slice(0, 500)

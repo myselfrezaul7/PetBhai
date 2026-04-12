@@ -85,6 +85,11 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
+  const [expandedOrderIds, setExpandedOrderIds] = useState<Record<string, boolean>>({});
+
+  const toggleOrder = (id: string) => {
+    setExpandedOrderIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   useEffect(() => { 
     if (!isAuthenticated) navigate('/login'); 
@@ -94,7 +99,9 @@ const ProfilePage: React.FC = () => {
     if (!isAuthenticated) return;
     
     // Only fetch if profile data feels stale or missing, to avoid redundant fetches
-    void fetchProfile();
+    fetchProfile().catch(err => {
+      console.error('Profile fetch failed silently:', err);
+    });
   }, [isAuthenticated, fetchProfile]);
 
   const wishlistedProducts = useMemo(() => {
@@ -263,7 +270,7 @@ const ProfilePage: React.FC = () => {
                       <div className="bg-slate-50/70 dark:bg-zinc-800/30 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800/80">
                         <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-200 mb-4 pl-1">Quick Actions</h3>
                         <div className="grid grid-cols-2 gap-3 text-center">
-                          <Link to="/appointments" className="p-3 bg-white dark:bg-zinc-900/50 rounded-2xl text-sm font-bold text-amber-700 dark:text-amber-500 border border-slate-100 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors shadow-sm">
+                          <Link to="/services" className="p-3 bg-white dark:bg-zinc-900/50 rounded-2xl text-sm font-bold text-amber-700 dark:text-amber-500 border border-slate-100 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors shadow-sm">
                              Book Vet
                           </Link>
                           <button onClick={() => setActiveTab('settings')} className="p-3 bg-white dark:bg-zinc-900/50 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors shadow-sm">
@@ -288,31 +295,58 @@ const ProfilePage: React.FC = () => {
                   ) : (
                     <div className="space-y-4">
                       {recentOrders.map((order, i) => {
-                        const orderId = (order as any)._id || (order as any).id;
+                        const orderId = order.orderId || (order as any)._id || (order as any).id || `ORD-${i}`;
+                        const isExpanded = expandedOrderIds[orderId];
                         return (
-                          <div key={i} className="p-5 rounded-2xl border border-slate-200/70 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex flex-col md:flex-row justify-between gap-4 transition-transform hover:scale-[1.01] hover:shadow-sm">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3">
-                                <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{orderId}</p>
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide
-                                  ${order.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 
-                                  order.status === 'Cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400' : 
-                                  'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'}`}
-                                >
-                                  {order.status || 'Processing'}
-                                </span>
+                          <div key={i} className="p-5 rounded-2xl border border-slate-200/70 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex flex-col gap-4 transition-transform hover:shadow-sm">
+                            <div className="flex flex-col md:flex-row justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                  <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{orderId}</p>
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide
+                                    ${order.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 
+                                    order.status === 'Cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400' : 
+                                    'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'}`}
+                                  >
+                                    {order.status || 'Processing'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{new Date(order.date).toLocaleDateString()}</p>
+                                <div className="text-xs mt-3 flex items-center gap-2 opacity-80">
+                                  <span className="font-medium text-slate-600 dark:text-zinc-300">{order.items.length} items</span>
+                                </div>
                               </div>
-                              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{new Date(order.date).toLocaleDateString()}</p>
-                              <div className="text-xs mt-3 flex items-center gap-2 opacity-80">
-                                <span className="font-medium text-slate-600 dark:text-zinc-300">{order.items.length} items</span>
+                              <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 md:gap-2">
+                                <span className="font-black text-lg text-slate-800 dark:text-emerald-400">৳{order.total.toFixed(2)}</span>
+                                <button onClick={() => toggleOrder(orderId)} className="text-xs font-semibold text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 hover:underline">
+                                  {isExpanded ? 'Hide details \u2191' : 'View details \u2193'}
+                                </button>
                               </div>
                             </div>
-                            <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 md:gap-2">
-                              <span className="font-black text-lg text-slate-800 dark:text-emerald-400">৳{order.total.toFixed(2)}</span>
-                              <button onClick={() => navigate(`/order/${orderId}`)} className="text-xs font-semibold text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 hover:underline">
-                                View details &rarr;
-                              </button>
-                            </div>
+
+                            {/* Expanded items view */}
+                            {isExpanded && (
+                              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-zinc-800/80">
+                                <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-3">Order Items</h4>
+                                <div className="space-y-3">
+                                  {order.items.map((item, idx) => (
+                                    <div key={idx} className="flex justify-between items-center bg-white dark:bg-zinc-900/50 p-2 rounded-lg border border-slate-100 dark:border-zinc-800">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-slate-100 dark:bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                          <img src={item.imageUrl || item.image} alt={item.name} className="object-cover w-full h-full mix-blend-multiply dark:mix-blend-normal" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-medium text-slate-800 dark:text-zinc-200 line-clamp-1">{item.name}</p>
+                                          <p className="text-[10px] text-slate-500 dark:text-zinc-500">Qty: {item.quantity}</p>
+                                        </div>
+                                      </div>
+                                      <p className="text-xs font-bold text-slate-800 dark:text-emerald-400">৳{(item.price * item.quantity).toFixed(2)}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                           </div>
                         );
                       })}

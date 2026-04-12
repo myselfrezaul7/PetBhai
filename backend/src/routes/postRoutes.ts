@@ -484,7 +484,7 @@ router.get('/:id(\\d+)/comments', (req, res) => {
 });
 
 // Create a new post
-router.post('/', postMutationLimiter, (req, res) => {
+router.post('/', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     ensurePostsCollection();
     const parsed = createPostSchema.safeParse(req.body);
@@ -497,6 +497,11 @@ router.post('/', postMutationLimiter, (req, res) => {
     const validatedAuthor = validateAuthor(author);
     if (!validatedAuthor) {
       return res.status(400).json({ message: 'Valid author information is required' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId || requesterId !== validatedAuthor.id) {
+      return res.status(403).json({ message: 'You cannot post as another user' });
     }
 
     const verification = ensureVerifiedUser(validatedAuthor.id);
@@ -573,11 +578,16 @@ router.post('/', postMutationLimiter, (req, res) => {
 });
 
 // Update a post
-router.put('/:id(\\d+)', postMutationLimiter, (req, res) => {
+router.put('/:id(\\d+)', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const parsed = updatePostSchema.safeParse(req.body);
@@ -587,8 +597,8 @@ router.put('/:id(\\d+)', postMutationLimiter, (req, res) => {
 
     const { content, authorId } = parsed.data;
     const validAuthorId = validateId(authorId);
-    if (!validAuthorId) {
-      return res.status(400).json({ message: 'Valid author ID is required' });
+    if (!validAuthorId || validAuthorId !== requesterId) {
+      return res.status(403).json({ message: 'You can only edit your own posts' });
     }
 
     const sanitizedContent = sanitizeText(content, 5000);
@@ -660,11 +670,16 @@ router.delete('/:id(\\d+)', requireAuth, postMutationLimiter, (req: AuthRequest,
 });
 
 // Like/Unlike a post
-router.post('/:id(\\d+)/like', postMutationLimiter, (req, res) => {
+router.post('/:id(\\d+)/like', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const parsed = userIdSchema.safeParse(req.body);
@@ -673,8 +688,8 @@ router.post('/:id(\\d+)/like', postMutationLimiter, (req, res) => {
     }
 
     const userId = validateId(parsed.data.userId);
-    if (!userId) {
-      return res.status(400).json({ message: 'Valid user ID is required' });
+    if (!userId || userId !== requesterId) {
+      return res.status(403).json({ message: 'Cannot react as another user' });
     }
 
     const verification = ensureVerifiedUser(userId);
@@ -716,11 +731,16 @@ router.post('/:id(\\d+)/like', postMutationLimiter, (req, res) => {
 });
 
 // Add a comment to a post
-router.post('/:id(\\d+)/comments', postMutationLimiter, (req, res) => {
+router.post('/:id(\\d+)/comments', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.id);
     if (!postId) {
       return res.status(400).json({ message: 'Invalid post ID' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const parsed = commentSchema.safeParse(req.body);
@@ -732,6 +752,10 @@ router.post('/:id(\\d+)/comments', postMutationLimiter, (req, res) => {
     const validatedAuthor = validateAuthor(author);
     if (!validatedAuthor) {
       return res.status(400).json({ message: 'Valid author information is required' });
+    }
+
+    if (validatedAuthor.id !== requesterId) {
+      return res.status(403).json({ message: 'Cannot comment as another user' });
     }
 
     const verification = ensureVerifiedUser(validatedAuthor.id);
@@ -782,12 +806,17 @@ router.post('/:id(\\d+)/comments', postMutationLimiter, (req, res) => {
   }
 });
 
-router.put('/:postId/comments/:commentId', postMutationLimiter, (req, res) => {
+router.put('/:postId/comments/:commentId', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
     if (!postId || !commentId) {
       return res.status(400).json({ message: 'Invalid post or comment ID' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const parsed = updateCommentSchema.safeParse(req.body);
@@ -796,7 +825,7 @@ router.put('/:postId/comments/:commentId', postMutationLimiter, (req, res) => {
     }
 
     const userId = validateId(parsed.data.userId);
-    if (!userId) {
+    if (!userId || userId !== requesterId) {
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
 
@@ -884,7 +913,7 @@ router.delete(
 });
 
 // Like/Unlike a comment
-router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res) => {
+router.post('/:postId/comments/:commentId/like', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -893,12 +922,17 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res)
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
 
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
     const userId = validateId(parsed.data.userId);
 
     if (!postId || !commentId) {
       return res.status(400).json({ message: 'Invalid post or comment ID' });
     }
-    if (!userId) {
+    if (!userId || userId !== requesterId) {
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
 
@@ -946,13 +980,18 @@ router.post('/:postId/comments/:commentId/like', postMutationLimiter, (req, res)
 });
 
 // Add a reply to a comment
-router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, res) => {
+router.post('/:postId/comments/:commentId/replies', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
 
     if (!postId || !commentId) {
       return res.status(400).json({ message: 'Invalid post or comment ID' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const parsed = replySchema.safeParse(req.body);
@@ -962,8 +1001,8 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, r
 
     const { author, text } = parsed.data;
     const validatedAuthor = validateAuthor(author);
-    if (!validatedAuthor) {
-      return res.status(400).json({ message: 'Valid author information is required' });
+    if (!validatedAuthor || validatedAuthor.id !== requesterId) {
+      return res.status(400).json({ message: 'Valid author information is required and must match user' });
     }
 
     const verification = ensureVerifiedUser(validatedAuthor.id);
@@ -1018,7 +1057,7 @@ router.post('/:postId/comments/:commentId/replies', postMutationLimiter, (req, r
   }
 });
 
-router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, (req, res) => {
+router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   try {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
@@ -1028,13 +1067,18 @@ router.put('/:postId/comments/:commentId/replies/:replyId', postMutationLimiter,
       return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
     }
 
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
     const parsed = updateReplySchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ message: 'Invalid reply update payload' });
     }
 
     const userId = validateId(parsed.data.userId);
-    if (!userId) {
+    if (!userId || userId !== requesterId) {
       return res.status(400).json({ message: 'Valid user ID is required' });
     }
 
@@ -1138,7 +1182,8 @@ router.delete(
 router.post(
   '/:postId/comments/:commentId/replies/:replyId/like',
   postMutationLimiter,
-  (req, res) => {
+  requireAuth,
+  (req: AuthRequest, res) => {
     try {
       const postId = validateId(req.params.postId);
       const commentId = validateId(req.params.commentId);
@@ -1148,12 +1193,17 @@ router.post(
         return res.status(400).json({ message: 'Valid user ID is required' });
       }
 
+      const requesterId = validateId(req.user?.id);
+      if (!requesterId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
       const userId = validateId(parsed.data.userId);
 
       if (!postId || !commentId || !replyId) {
         return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
       }
-      if (!userId) {
+      if (!userId || userId !== requesterId) {
         return res.status(400).json({ message: 'Valid user ID is required' });
       }
 
@@ -1213,10 +1263,15 @@ const reportSchema = z
   })
   .strict();
 
-router.post('/:id(\\d+)/report', postMutationLimiter, (req, res) => {
+router.post('/:id(\\d+)/report', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   const postId = validateId(req.params.id);
   if (!postId) {
     return res.status(400).json({ message: 'Invalid post ID' });
+  }
+
+  const requesterId = validateId(req.user?.id);
+  if (!requesterId) {
+    return res.status(401).json({ message: 'Authentication required' });
   }
 
   const parsed = reportSchema.safeParse(req.body);
@@ -1225,6 +1280,10 @@ router.post('/:id(\\d+)/report', postMutationLimiter, (req, res) => {
   }
 
   const { reporterId, reason } = parsed.data;
+  if (reporterId !== requesterId) {
+    return res.status(403).json({ message: 'Cannot report as another user' });
+  }
+
   const post = db.posts.find((entry) => entry.id === postId);
   if (!post) {
     return res.status(404).json({ message: 'Post not found' });
@@ -1239,11 +1298,16 @@ router.post('/:id(\\d+)/report', postMutationLimiter, (req, res) => {
   return res.status(201).json({ message: 'Report submitted', reportId: report.id });
 });
 
-router.post('/:postId/comments/:commentId/report', postMutationLimiter, (req, res) => {
+router.post('/:postId/comments/:commentId/report', postMutationLimiter, requireAuth, (req: AuthRequest, res) => {
   const postId = validateId(req.params.postId);
   const commentId = validateId(req.params.commentId);
   if (!postId || !commentId) {
     return res.status(400).json({ message: 'Invalid post or comment ID' });
+  }
+
+  const requesterId = validateId(req.user?.id);
+  if (!requesterId) {
+    return res.status(401).json({ message: 'Authentication required' });
   }
 
   const parsed = reportSchema.safeParse(req.body);
@@ -1252,6 +1316,10 @@ router.post('/:postId/comments/:commentId/report', postMutationLimiter, (req, re
   }
 
   const { reporterId, reason } = parsed.data;
+  if (reporterId !== requesterId) {
+    return res.status(403).json({ message: 'Cannot report as another user' });
+  }
+
   const post = db.posts.find((entry) => entry.id === postId);
   if (!post) {
     return res.status(404).json({ message: 'Post not found' });
@@ -1274,12 +1342,18 @@ router.post('/:postId/comments/:commentId/report', postMutationLimiter, (req, re
 router.post(
   '/:postId/comments/:commentId/replies/:replyId/report',
   postMutationLimiter,
-  (req, res) => {
+  requireAuth,
+  (req: AuthRequest, res) => {
     const postId = validateId(req.params.postId);
     const commentId = validateId(req.params.commentId);
     const replyId = validateId(req.params.replyId);
     if (!postId || !commentId || !replyId) {
       return res.status(400).json({ message: 'Invalid post, comment, or reply ID' });
+    }
+
+    const requesterId = validateId(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const parsed = reportSchema.safeParse(req.body);
@@ -1288,6 +1362,10 @@ router.post(
     }
 
     const { reporterId, reason } = parsed.data;
+    if (reporterId !== requesterId) {
+      return res.status(403).json({ message: 'Cannot report as another user' });
+    }
+
     const post = db.posts.find((entry) => entry.id === postId);
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });

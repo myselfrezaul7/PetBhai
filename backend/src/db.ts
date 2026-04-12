@@ -143,12 +143,6 @@ class Database {
   }
 
   private loadData(): DatabaseSchema {
-    // In serverless environment, always use in-memory data
-    if (isServerless) {
-      console.log('Running in serverless environment - using in-memory database');
-      return JSON.parse(JSON.stringify(INITIAL_DATA));
-    }
-
     try {
       console.log(`Attempting to load database from: ${DB_PATH}`);
       const dir = path.dirname(DB_PATH);
@@ -173,19 +167,11 @@ class Database {
   }
 
   private persistToDisk(data: DatabaseSchema, retries = 3): boolean {
-    if (isServerless) {
-      if (!this.hasWarnedAboutServerlessPersistence) {
-        console.warn(
-          'Persistent writes are disabled in the current serverless environment. Data will reset between executions.'
-        );
-        this.hasWarnedAboutServerlessPersistence = true;
-      }
-      
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('Database writes are disabled in production serverless mode to prevent silent data loss.');
-      }
-      
-      return false;
+    if (isServerless && !this.hasWarnedAboutServerlessPersistence) {
+      console.warn(
+        'Persistent writes are disabled in the current serverless environment. Data will reset between executions.'
+      );
+      this.hasWarnedAboutServerlessPersistence = true;
     }
 
     let lastError: Error | null = null;
