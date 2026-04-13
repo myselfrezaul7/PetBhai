@@ -313,24 +313,29 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <footer className="safe-bottom sticky bottom-0 border-t border-white/20 bg-white/85 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/85 sm:px-6 sm:pt-6">
-              <div className="flex justify-between items-center text-lg sm:text-xl font-bold mb-4 sm:mb-6">
-                <span className="text-slate-600 dark:text-slate-300">Subtotal</span>
-                <span className="text-slate-800 dark:text-white tabular-nums" aria-live="polite">
+            <footer className="safe-bottom sticky bottom-0 border-t border-white/30 bg-white/90 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-[0_-16px_40px_rgba(0,0,0,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-900/95 sm:px-6 sm:pt-6">
+              <div className="mb-4 sm:mb-6 flex items-center justify-between rounded-xl bg-orange-50/50 p-4 dark:bg-orange-500/10">
+                <span className="text-base font-bold text-slate-700 dark:text-slate-300">Subtotal</span>
+                <span className="text-xl font-bold text-orange-600 dark:text-orange-400 tabular-nums" aria-live="polite">
                   ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleCheckout}
-                className="w-full rounded-full bg-orange-500 px-4 py-3.5 text-base font-bold text-white shadow-lg transition-colors duration-150 hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-300 active:scale-[0.98] touch-manipulation sm:py-4 sm:text-lg"
+                className="group relative w-full overflow-hidden rounded-xl bg-orange-500 px-4 py-4 text-base font-bold text-white shadow-[0_8px_20px_rgba(249,115,22,0.25)] transition-all duration-300 hover:bg-orange-600 hover:shadow-[0_12px_24px_rgba(249,115,22,0.35)] focus:outline-none focus:ring-4 focus:ring-orange-500/30 active:scale-[0.98] touch-manipulation sm:text-lg"
               >
-                Proceed to Checkout
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  Proceed to Checkout
+                  <svg className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </span>
               </button>
               <button
                 type="button"
                 onClick={handleClearCart}
-                className="w-full text-center mt-4 py-2 text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-500 transition-colors touch-manipulation active:scale-95"
+                className="mt-4 w-full py-2 text-center text-sm font-semibold tracking-wide text-slate-400 transition-colors hover:text-red-500 touch-manipulation active:scale-95 dark:text-slate-500 dark:hover:text-red-400"
               >
                 Clear Cart
               </button>

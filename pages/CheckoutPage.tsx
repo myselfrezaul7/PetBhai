@@ -372,16 +372,17 @@ const CheckoutPage: React.FC = () => {
                 autoComplete="name"
                 data-invalid={Boolean(formErrors.name)}
                 aria-describedby={formErrors.name ? 'name-error' : undefined}
-                className={`h-14 w-full rounded-lg border bg-white/50 px-4 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
+                className={`h-[52px] w-full rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.name
-                    ? 'border-red-500 dark:border-red-500'
+                    ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
                 }`}
               />
               {formErrors.name && (
-                <p id="name-error" className="mt-1 text-sm text-red-500" role="alert">
+                <div id="name-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                   {formErrors.name}
-                </p>
+                </div>
               )}
             </div>
             <div>
@@ -405,16 +406,17 @@ const CheckoutPage: React.FC = () => {
                 enterKeyHint="next"
                 data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
-                className={`h-14 w-full rounded-lg border bg-white/50 px-4 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
+                className={`h-[52px] w-full rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.phone
-                    ? 'border-red-500 dark:border-red-500'
+                    ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
                 }`}
               />
               {formErrors.phone && (
-                <p id="phone-error" className="mt-1 text-sm text-red-500" role="alert">
+                <div id="phone-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                   {formErrors.phone}
-                </p>
+                </div>
               )}
             </div>
             <div>
@@ -437,17 +439,19 @@ const CheckoutPage: React.FC = () => {
                 placeholder="e.g. House No, Road No, Area, District"
                 data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
-                className={`min-h-[112px] w-full resize-none rounded-lg border bg-white/50 px-4 py-3 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
+                className={`min-h-[112px] w-full resize-none rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.address
-                    ? 'border-red-500 dark:border-red-500'
+                    ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
                 }`}
               ></textarea>
               {formErrors.address && (
-                <p id="address-error" className="mt-1 text-sm text-red-500" role="alert">
+                <div id="address-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                   {formErrors.address}
-                </p>
+                </div>
               )}
+
             </div>
             <div>
               <label
@@ -471,25 +475,26 @@ const CheckoutPage: React.FC = () => {
                 enterKeyHint="done"
                 data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
-                className={`h-14 w-full rounded-lg border bg-white/50 px-4 text-base focus:border-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-slate-700/50 touch-manipulation ${
+                className={`h-[52px] w-full rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.email
-                    ? 'border-red-500 dark:border-red-500'
+                    ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
                 }`}
               />
               {formErrors.email && (
-                <p id="email-error" className="mt-1 text-sm text-red-500" role="alert">
+                <div id="email-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                   {formErrors.email}
-                </p>
+                </div>
               )}
             </div>
-            <div className="pt-4">
+            <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-700/50">
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
                 Payment Method
               </h2>
               <div className="space-y-3">
                 <label
-                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'cod' ? 'border-orange-500 ring-2 ring-orange-500 bg-orange-50/60 dark:bg-orange-900/25' : 'border-white/45 dark:border-white/10 bg-white/55 dark:bg-slate-800/45'}`}
+                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'cod' ? 'border-orange-500 ring-2 ring-orange-500/20 bg-orange-50/80 dark:bg-orange-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
                 >
                   <input
                     type="radio"
@@ -504,7 +509,7 @@ const CheckoutPage: React.FC = () => {
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500 bg-pink-50/60 dark:bg-pink-900/25' : 'border-white/45 dark:border-white/10 bg-white/55 dark:bg-slate-800/45'}`}
+                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500/20 bg-pink-50/80 dark:bg-pink-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
                 >
                   <input
                     type="radio"
@@ -520,7 +525,7 @@ const CheckoutPage: React.FC = () => {
                   </span>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'nagad' ? 'border-orange-600 ring-2 ring-orange-600 bg-orange-50/60 dark:bg-orange-900/25' : 'border-white/45 dark:border-white/10 bg-white/55 dark:bg-slate-800/45'}`}
+                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'nagad' ? 'border-orange-500 ring-2 ring-orange-500/20 bg-orange-50/80 dark:bg-orange-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
                 >
                   <input
                     type="radio"
@@ -537,11 +542,11 @@ const CheckoutPage: React.FC = () => {
                 </label>
               </div>
             </div>
-            <div className="hidden pt-4 md:block">
+            <div className="hidden pt-6 md:block">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3.5 px-4 rounded-xl text-lg hover:from-orange-600 hover:to-amber-600 transition-all touch-manipulation active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-orange-300 shadow-lg hover:shadow-orange-500/30"
+                className="group relative w-full overflow-hidden rounded-xl bg-orange-500 px-4 py-4 text-lg font-bold text-white shadow-[0_8px_20px_rgba(249,115,22,0.25)] transition-all duration-300 hover:bg-orange-600 hover:shadow-[0_12px_24px_rgba(249,115,22,0.35)] focus:outline-none focus:ring-4 focus:ring-orange-500/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 touch-manipulation"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
