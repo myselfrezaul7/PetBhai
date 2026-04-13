@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Article } from '../types';
 import { normalizeArticle } from '../lib/articleUtils';
-import { apiRequest, getErrorMessage } from '../services/apiClient';
+import { apiRequest, getErrorMessage, ApiRequestError } from '../services/apiClient';
 
 interface ArticleContextType {
   articles: Article[];

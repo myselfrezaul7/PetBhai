@@ -2,12 +2,15 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
+import ArticleCard from '../components/ArticleCard';
 import { useProducts } from '../contexts/ProductContext';
+import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import ApiStateCard from '../components/ApiStateCard';
 
 const HomePage: React.FC = () => {
   const { products, loading, error, refetch } = useProducts();
+  const { articles, loading: articlesLoading, error: articlesError, refetch: refetchArticles } = useArticles();
   const { t } = useLanguage();
 
   const bestSellers = useMemo(
@@ -18,6 +21,11 @@ const HomePage: React.FC = () => {
   const newArrivals = useMemo(
     () => [...products].sort((a, b) => b.id - a.id).slice(0, 5),
     [products]
+  );
+
+  const recentArticles = useMemo(
+    () => [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3),
+    [articles]
   );
 
   return (
@@ -211,6 +219,47 @@ const HomePage: React.FC = () => {
           </div>
         )}
       </section>
+
+      {/* 5. Blog Section */}
+      <section className="container mx-auto px-4 md:px-6" aria-labelledby="blog-heading">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 id="blog-heading" className="text-[1.35rem] sm:text-2xl font-bold leading-none text-zinc-900 dark:text-zinc-50">
+            {t('recent_articles')}
+          </h2>
+          <Link to="/blog" className="text-sm font-semibold text-amber-600 dark:text-amber-500">
+            See all
+          </Link>
+        </div>
+
+        {articlesError ? (
+          <ApiStateCard
+            title="Articles unavailable"
+            message={articlesError}
+            actionLabel="Try Again"
+            onAction={refetchArticles}
+          />
+        ) : recentArticles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+            {recentArticles.map((article, index) => (
+              <motion.div
+                key={article.id}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="h-full"
+              >
+                <ArticleCard article={article} />
+              </motion.div>
+            ))}
+          </div>
+        ) : !articlesLoading && (
+          <div className="rounded-[1.5rem] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-6 text-center text-zinc-500 dark:text-zinc-400 text-sm">
+            No articles available at the moment.
+          </div>
+        )}
+      </section>
+
     </main>
   );
 };
