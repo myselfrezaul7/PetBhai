@@ -22,10 +22,8 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       if (!silent) setLoading(true);
       const data = await apiRequest<Article[]>('/articles');
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid article data received');
-      }
-      setArticles(data.map(normalizeArticle));
+      const validData = Array.isArray(data) ? data.filter(Boolean) : [];
+      setArticles(validData.map(normalizeArticle));
       if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);

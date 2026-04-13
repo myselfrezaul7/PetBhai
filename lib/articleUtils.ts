@@ -34,9 +34,10 @@ export function calculateReadTimeMinutes(content: string): number {
  * - Automatically calculates realistic read time based on the content
  */
 export function normalizeArticle(article: Article): Article {
+  if (!article) return article;
   return {
     ...article,
     author: 'PetBhai Team',
-    readTime: calculateReadTimeMinutes(article.content),
+    readTime: calculateReadTimeMinutes(article?.content || ''),
   };
 }
