@@ -1,8 +1,10 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 
 export function useScrollDirection() {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
   const [isAtTop, setIsAtTop] = useState(true);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let lastScrollY = window.pageYOffset;
@@ -24,6 +26,16 @@ export function useScrollDirection() {
     };
 
     const onScroll = () => {
+      setIsScrolling(true);
+      
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsScrolling(false);
+      }, 180);
+
       if (!ticking) {
         window.requestAnimationFrame(updateScrollDir);
         ticking = true;
@@ -32,8 +44,13 @@ export function useScrollDirection() {
 
     // Use passive listener for better scroll performance
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, []);
 
-  return { scrollDirection, isAtTop };
+  return { scrollDirection, isAtTop, isScrolling };
 }

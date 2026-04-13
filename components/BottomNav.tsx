@@ -53,7 +53,7 @@ const BottomNav: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
-  const { scrollDirection, isAtTop } = useScrollDirection();
+  const { isScrolling, isAtTop } = useScrollDirection();
 
   const items = [
     { to: '/', label: t('nav_home'), icon: HomeGlyph },
@@ -64,8 +64,8 @@ const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className={`fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-0.8rem)] max-w-[28rem] rounded-full border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 px-2 py-1.5 shadow-lg backdrop-blur-xl md:hidden transition-transform duration-300 ease-in-out ${
-          scrollDirection === 'down' && !isAtTop ? 'translate-y-[150%] -translate-x-1/2' : 'translate-y-0 -translate-x-1/2'
+      className={`fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-[24rem] rounded-full border border-white/30 dark:border-white/10 bg-white/70 dark:bg-zinc-900/70 px-2 py-2 shadow-xl backdrop-blur-xl md:hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isScrolling && !isAtTop ? 'translate-y-[200%] opacity-0 -translate-x-1/2 scale-95' : 'translate-y-0 opacity-100 -translate-x-1/2 scale-100'
         }`}
       aria-label="Mobile bottom navigation"
     >
@@ -81,28 +81,28 @@ const BottomNav: React.FC = () => {
             <li key={item.label}>
               <NavLink
                 to={item.to}
-                className={`group relative isolate flex min-h-[48px] flex-col items-center justify-center rounded-full px-1 py-1 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
+                className={`group relative isolate flex min-h-[52px] flex-col items-center justify-between rounded-full px-1 py-1.5 text-[11px] font-semibold transition-all duration-300 active:scale-90 ${
                   isActive
-                    ? 'text-amber-600 dark:text-amber-500'
-                    : 'text-zinc-500 dark:text-zinc-300 hover:bg-amber-50/80 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-50'
+                    ? 'text-amber-700 dark:text-amber-400'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-amber-50/80 dark:hover:bg-zinc-800/50 hover:text-zinc-800 dark:hover:text-zinc-200'
                 }`}
               >
                 {isActive && (
                   <motion.span
                     layoutId="mobile-bottom-nav-active"
-                    className="absolute inset-0 -z-10 rounded-2xl border border-kw-primary/20 bg-amber-500/10 dark:bg-amber-500/10 shadow-inner"
-                    transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.55 }}
+                    className="absolute inset-0 -z-10 rounded-full border border-amber-600/20 bg-amber-500/10 dark:bg-amber-500/15 shadow-sm"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
                     aria-hidden="true"
                   />
                 )}
                 {isActive && (
                   <span
-                    className="absolute top-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-600"
+                    className="absolute top-1.5 h-1.5 w-1.5 rounded-full bg-amber-600 dark:bg-amber-500 shadow-sm"
                     aria-hidden="true"
                   />
                 )}
-                <Icon className={`mb-1 h-5 w-5 transition-transform duration-300 ${isActive ? 'animate-badge-pop' : 'group-hover:-translate-y-0.5'}`} />
-                <span className="truncate px-1">{item.label}</span>
+                <Icon className={`mb-0.5 h-5 w-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:-translate-y-0.5'}`} />
+                <span className="truncate px-1 tracking-tight">{item.label}</span>
               </NavLink>
             </li>
           );

@@ -17,6 +17,7 @@ import { sanitizeInput } from '../lib/security';
 import { useGlobalSearch, type PageResult } from '../hooks/useGlobalSearch';
 import { useCart } from '../contexts/CartContext';
 import { useCookieConsent } from './CookieConsentBanner';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 // Extracted outside Header to prevent re-creation on every render
 const MobileNavLink: React.FC<{
@@ -103,9 +104,8 @@ const Header: React.FC = () => {
   const mobileInputRef = useRef<HTMLInputElement | null>(null);
   const menuTouchStartXRef = useRef<number | null>(null);
   const menuTouchCurrentXRef = useRef<number | null>(null);
-  const lastScrollYRef = useRef(0);
-  const tickingRef = useRef(false);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const { scrollDirection, isAtTop, isScrolling } = useScrollDirection();
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -309,34 +309,15 @@ const Header: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (tickingRef.current) return;
+    if (isMenuOpen || isSearchOpen) {
+      setIsHeaderHidden(false);
+    } else {
+      // Hide if actively scrolling and we are not completely at the top
+      setIsHeaderHidden(isScrolling && !isAtTop);
+    }
+  }, [isScrolling, isAtTop, isMenuOpen, isSearchOpen]);
 
-      tickingRef.current = true;
-      window.requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        const scrollingDown = currentScrollY > lastScrollYRef.current;
-        const scrolledBeyondHeader = currentScrollY > 90;
-
-        if (isMenuOpen || isSearchOpen) {
-          setIsHeaderHidden(false);
-        } else if (scrollingDown && scrolledBeyondHeader) {
-          setIsHeaderHidden(true);
-        } else if (!scrollingDown || currentScrollY < 28) {
-          setIsHeaderHidden(false);
-        }
-
-        lastScrollYRef.current = currentScrollY;
-        tickingRef.current = false;
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [isMenuOpen, isSearchOpen]);
-
+  // Keep existing override for open overlays just in case
   useEffect(() => {
     if (isMenuOpen || isSearchOpen) {
       setIsHeaderHidden(false);
