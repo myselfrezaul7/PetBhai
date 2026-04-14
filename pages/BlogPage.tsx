@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ArticleCard from '../components/ArticleCard';
 import { ArticleGridSkeleton } from '../components/Skeletons';
 import { useArticles } from '../contexts/ArticleContext';
@@ -16,7 +17,8 @@ const BlogPage: React.FC = () => {
   }, [articles]);
 
   // Pagination state
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
   const itemsPerPage = 9;
 
   // Calculate pagination
@@ -34,7 +36,7 @@ const BlogPage: React.FC = () => {
   );
 
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+    setSearchParams({ page: String(pageNumber) });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

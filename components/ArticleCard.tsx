@@ -47,6 +47,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent opacity-70 group-hover:opacity-85 transition-opacity duration-500"></div>
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 text-2xl sm:text-3xl filter drop-shadow-md">
+            {article.title.includes('কুকুর') || article.title.toLowerCase().includes('dog') ? '🐕' : article.title.includes('বিড়াল') || article.title.includes('বিড়াল') || article.title.toLowerCase().includes('cat') ? '🐱' : '🐾'}
+          </div>
 
           <div className="absolute right-3 bottom-3 md:right-4 md:bottom-4 px-2.5 py-1 rounded-full bg-white/20 text-white text-xs md:text-sm border border-white/30 backdrop-blur-md">
             {article.readTime} {t('blog_min_read')}

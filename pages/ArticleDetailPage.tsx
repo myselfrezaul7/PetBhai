@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useArticles } from '../contexts/ArticleContext';
 import { ImageIcon, PawIcon } from '../components/icons';
 import MarkdownRenderer from '../components/MarkdownRenderer';
@@ -11,6 +11,7 @@ const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const article = useMemo(() => articles.find((a) => a.id === Number(id)), [id, articles]);
 
@@ -66,12 +67,9 @@ const ArticleDetailPage: React.FC = () => {
           <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-300 mt-4">
             {t('article_not_found_desc')}
           </p>
-          <Link
-            to="/blog"
-            className="mt-8 inline-block bg-amber-500/10 dark:bg-amber-500/10 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
-          >
+          <button onClick={() => { if(window.history.length > 2) navigate(-1); else navigate('/blog'); }} className="mt-8 inline-block bg-amber-500/10 dark:bg-amber-500/10 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95">
             {t('btn_back_blog')}
-          </Link>
+          </button>
         </div>
       </main>
     );
@@ -94,6 +92,13 @@ const ArticleDetailPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Main Article Content */}
         <article className="lg:col-span-2">
+
+        <div className="mb-4 -ml-2">
+            <button onClick={() => { if(window.history.length > 2) navigate(-1); else navigate('/blog'); }} className="text-zinc-500 hover:text-orange-500 font-medium inline-flex items-center transition-colors px-2 py-1">
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              {t('btn_back_blog') || 'Back to Blog'}
+            </button>
+        </div>
           {/* Article Header */}
           <header className="mb-6 md:mb-8 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-8">
             <span className="inline-flex items-center rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-amber-900/10 dark:border-amber-100/10 px-3 py-1 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-500 mb-3">
