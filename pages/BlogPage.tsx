@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ArticleCard from '../components/ArticleCard';
 import { ArticleGridSkeleton } from '../components/Skeletons';
@@ -14,6 +14,33 @@ const BlogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFilter = searchParams.get('category') || 'All';
   const currentPage = Number(searchParams.get('page')) || 1;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  // Mobile load more pagination state
+  const [mobilePage, setMobilePage] = useState(1);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+      setMobilePage(1); // Reset mobile pagination on new search
+      if (searchQuery && currentPage !== 1) {
+        // Reset desktop page on new search
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('page', '1');
+        setSearchParams(newParams);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, currentPage, searchParams, setSearchParams]);
 
   // Get all unique categories
   const categories = useMemo(() => {
@@ -27,22 +54,30 @@ const BlogPage: React.FC = () => {
     if (categoryFilter !== 'All') {
       filtered = filtered.filter(a => a.category === categoryFilter);
     }
+    if (debouncedQuery.trim()) {
+      const q = debouncedQuery.toLowerCase();
+      filtered = filtered.filter(a => 
+        a.title.toLowerCase().includes(q) || 
+        (a.content && a.content.toLowerCase().includes(q))
+      );
+    }
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [articles, categoryFilter]);
+  }, [articles, categoryFilter, debouncedQuery]);
 
   const itemsPerPage = 9;
 
   // Calculate pagination
-  // If we have a featured article (index 0) and we are on All topics, separate it
-  const isAllCategories = categoryFilter === 'All';
-  const latestArticle = isAllCategories ? sortedArticles[0] : null;
-  const allOtherArticles = isAllCategories ? sortedArticles.slice(1) : sortedArticles;
+  // Only separate featured article if on 'All' topics AND no search query is active
+  const isAllCategories = categoryFilter === 'All' && !debouncedQuery.trim();
+  const latestArticle = isAllCategories && sortedArticles.length > 0 ? sortedArticles[0] : null;
+  const allOtherArticles = isAllCategories && sortedArticles.length > 0 ? sortedArticles.slice(1) : sortedArticles;
 
   const totalOtherPages = Math.ceil(allOtherArticles.length / itemsPerPage);
-  const currentArticles = allOtherArticles.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  
+  // Mobile uses "Load More", so it needs all pages up to current
+  const currentArticles = isMobile 
+    ? allOtherArticles.slice(0, mobilePage * itemsPerPage)
+    : allOtherArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -108,6 +143,35 @@ const BlogPage: React.FC = () => {
         url={`${window.location.origin}/#/blog`}
       />
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+        
+        {/* Search Bar */}
+        <div className="mb-8 max-w-2xl mx-auto">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg className="w-5 h-5 text-zinc-400 group-focus-within:text-amber-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder={t('search') || 'Search articles...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-full glass-card-ios bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-zinc-900 dark:text-zinc-100 transition-all shadow-sm placeholder:text-zinc-400"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Category Filters */}
         <div className="flex overflow-x-auto pb-4 mb-8 -mx-3 px-3 md:mx-0 md:px-0 scrollbar-hide space-x-2">
           {categories.map((cat) => (
@@ -138,13 +202,28 @@ const BlogPage: React.FC = () => {
 
               {/* Other Articles Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                {currentArticles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
+                {currentArticles.map((article, idx) => (
+                  <ArticleCard key={article.id} article={article} index={idx} />
                 ))}
               </div>
 
-              {/* Pagination Controls */}
-              {totalOtherPages > 1 && (
+              {/* Mobile Load More Button */}
+              {isMobile && mobilePage < totalOtherPages && (
+                <div className="flex flex-col items-center justify-center mt-12 gap-3">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-zinc-100 dark:bg-zinc-800/50 px-3 py-1 rounded-full">
+                    {allOtherArticles.length} {t('blog_articles') || 'articles'} {t('found') || 'found'}
+                  </span>
+                  <button
+                    onClick={() => setMobilePage(p => p + 1)}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-700 rounded-full font-bold text-zinc-800 dark:text-锌-100 shadow-sm hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all touch-manipulation"
+                  >
+                    আরো দেখুন (Load More)
+                  </button>
+                </div>
+              )}
+
+              {/* Desktop Pagination Controls */}
+              {!isMobile && totalOtherPages > 1 && (
                 <div className="flex justify-center mt-12 overflow-x-auto padding-x-2 py-2">
                   <div className="glass-card-ios px-2 sm:px-4 py-3 flex items-center space-x-1 flex-nowrap border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95">
                     <button
@@ -204,16 +283,35 @@ const BlogPage: React.FC = () => {
             </div>
           </section>
         ) : (
-          <div className="text-center py-16 px-4 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 rounded-2xl glass-card-ios max-w-2xl mx-auto">
-            <p className="text-xl text-zinc-500 dark:text-zinc-200 font-medium mb-4">No articles found right now.</p>
-            <button
-              onClick={() => refetch()}
-              className="min-h-[48px] min-w-[120px] px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
-            >
-              Check Again
-            </button>
-          </div>
-        )}
+           <div className="text-center py-16 px-4 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 rounded-2xl glass-card-ios max-w-2xl mx-auto border border-amber-900/5 dark:border-amber-100/5 shadow-xl">
+             <div className="w-20 h-20 bg-slate-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+             </div>
+             <p className="text-xl text-zinc-700 dark:text-zinc-200 font-bold mb-2">
+               {debouncedQuery ? `No results for "${searchQuery}"` : 'No articles found right now.'}
+             </p>
+             <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-md mx-auto">
+               {debouncedQuery ? 'Try adjusting your search terms or selecting a different category.' : 'We are adding new content soon. Please check back later.'}
+             </p>
+             {debouncedQuery ? (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="px-6 py-2.5 bg-amber-500 text-white rounded-full font-semibold hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/20 active:scale-95"
+                >
+                  Clear Search
+                </button>
+             ) : (
+              <button
+                onClick={() => refetch()}
+                className="px-6 py-2.5 bg-slate-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-zinc-700 transition-colors active:scale-95"
+              >
+                Check Again
+              </button>
+             )}
+           </div>
+         )}
       </main>
     </>
   );

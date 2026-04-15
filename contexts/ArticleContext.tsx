@@ -18,24 +18,57 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchArticles = useCallback(async (silent = false) => {
+  const fetchArticles = useCallback(async (silent = false, retryCount = 0) => {
     try {
       if (!silent) setLoading(true);
       const data = await apiRequest<Article[]>('/articles');
       const validData = Array.isArray(data) ? data.filter(Boolean) : [];
-      setArticles(validData.map(normalizeArticle));
+      const normalizedData = validData.map(normalizeArticle);
+      
+      setArticles(normalizedData);
+      
+      // Save to cache
+      try {
+        sessionStorage.setItem('petbhai_articles_cache', JSON.stringify(normalizedData));
+      } catch (e) {
+        /* ignore storage quota errors */
+      }
+      
       if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);
       const isApiError = err instanceof ApiRequestError;
       const retryable = isApiError ? err.retryable : true;
 
-      if (!silent || (!retryable && isApiError)) {
+      if (retryCount < 1 && (retryable || !isApiError)) {
+        console.log(`Retrying fetch (Attempt ${retryCount + 1})...`);
+        setTimeout(() => fetchArticles(silent, retryCount + 1), 2000);
+        return;
+      }
+
+      // Try falling back to cache
+      let cachedData = null;
+      try {
+        const cachedString = sessionStorage.getItem('petbhai_articles_cache');
+        if (cachedString) {
+          cachedData = JSON.parse(cachedString);
+        }
+      } catch (e) {
+        /* parse error */
+      }
+
+      if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
+        console.log('Using cached articles as fallback');
+        setArticles(cachedData);
+        if (!silent) setError(null); // Clear error since we have cached data
+      } else if (!silent || (!retryable && isApiError)) {
         setError(getErrorMessage(err, 'Failed to load articles. Please try again.'));
         setArticles([]);
       }
     } finally {
-      if (!silent) setLoading(false);
+      if (!silent && retryCount >= 1) setLoading(false);
+      else if (!silent && typeof err === 'undefined') setLoading(false);
+      else if (!silent) setLoading(false);
     }
   }, []);
 

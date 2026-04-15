@@ -30,10 +30,22 @@ export const handleImageError = (event: SyntheticEvent<HTMLImageElement, Event>)
   if (target.src === IMAGE_FALLBACK_SRC) {
     return;
   }
-
   target.onerror = null;
   target.srcset = '';
   target.src = IMAGE_FALLBACK_SRC;
+};
+
+export const handleBlogImageError = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+  const target = event.currentTarget;
+  const blogFallbackUrl = `${window.location.origin}/blog-images/blog-placeholder.png`;
+  
+  if (target.src === blogFallbackUrl || target.src === IMAGE_FALLBACK_SRC) {
+    target.src = IMAGE_FALLBACK_SRC;
+    return;
+  }
+  target.onerror = null;
+  target.srcset = '';
+  target.src = blogFallbackUrl;
 };
 
 export const getResponsiveImageSizes = (

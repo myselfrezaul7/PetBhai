@@ -5,6 +5,14 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  if (!content || typeof content !== 'string') {
+    return (
+      <div className="p-4 md:p-6 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 text-center">
+        <p className="text-slate-500 dark:text-slate-400">Content summary is currently unavailable.</p>
+      </div>
+    );
+  }
+
   const elements: React.ReactNode[] = [];
   const lines = content.split('\n');
   let inList = false;

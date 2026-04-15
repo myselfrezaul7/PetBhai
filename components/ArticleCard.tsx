@@ -3,20 +3,22 @@ import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { ImageIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
+import { getResponsiveImageSizes, handleBlogImageError } from '../lib/imageUtils';
 
 interface ArticleCardProps {
   article: Article;
   isFeatured?: boolean;
+  index?: number;
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }) => {
+const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false, index = 0 }) => {
   const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   return (
     <div
-      className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-2xl h-full border border-white/30 dark:border-white/10 ${isFeatured ? 'col-span-2' : ''}`}
+      className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-2xl h-full border border-white/30 dark:border-white/10 animate-fade-in-up ${isFeatured ? 'col-span-2' : ''}`}
+      style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
     >
       <Link to={`/blog/${article.slug || article.id}`} className="flex flex-col h-full">
         <div
@@ -32,7 +34,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
               sizes={isFeatured ? '(max-width: 768px) 100vw, 66vw' : getResponsiveImageSizes('card')}
               onLoad={() => setIsLoaded(true)}
               onError={(event) => {
-                handleImageError(event);
+                handleBlogImageError(event);
                 setIsLoaded(true);
               }}
             />

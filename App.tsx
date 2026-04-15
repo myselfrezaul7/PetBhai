@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
+import BlogErrorBoundary from './components/BlogErrorBoundary';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
@@ -390,8 +391,14 @@ const AppContent: React.FC = () => {
                     <Route path="/product/:id" element={<ProductDetailPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/blog/:slug" element={<ArticleDetailPage />} />
+                    <Route path="/blog/*" element={
+                    <BlogErrorBoundary>
+                      <Routes>
+                        <Route path="/" element={<BlogPage />} />
+                        <Route path="/:slug" element={<ArticleDetailPage />} />
+                      </Routes>
+                    </BlogErrorBoundary>
+                  } />
                     <Route path="/plus-membership" element={<PlusMembershipPage />} />
                     <Route path="/adopt" element={<AdoptPage />} />
                     <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />

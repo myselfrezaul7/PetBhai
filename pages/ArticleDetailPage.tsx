@@ -6,12 +6,40 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 import BlogCommunityCTA from '../components/BlogCommunityCTA';
+import ReadingProgressBar from '../components/ReadingProgressBar';
 
 const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const [shareToast, setShareToast] = React.useState<string | null>(null);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const shareData = {
+      title: article?.title || 'PetBhai Blog',
+      text: article?.excerpt || 'Check out this article on PetBhai!',
+      url: url,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShareToast('Link copied to clipboard!');
+        setTimeout(() => setShareToast(null), 3000);
+      } catch (err) {
+        console.error('Failed to copy!', err);
+      }
+    }
+  };
 
   const article = useMemo(() => articles.find((a) => a.slug === slug || a.id.toString() === slug), [slug, articles]);
 
@@ -103,6 +131,7 @@ const ArticleDetailPage: React.FC = () => {
         publishedTime={article.date}
         section="Blog"
       />
+      <ReadingProgressBar />
       {/* Social Sharing Meta Tags Override (Double check via Helmet if SEO component misses these) */}
       {/* Note: The SEO component above handles this, but ensuring article-specific image logic is robust */}
 
@@ -171,6 +200,41 @@ const ArticleDetailPage: React.FC = () => {
               </div>
             )}
           </figure>
+
+          {/* Mobile Table of Contents Accordion */}
+          {headings.length > 0 && (
+            <details className="lg:hidden glass-card-ios mb-8 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl group overflow-hidden">
+              <summary className="p-4 md:p-5 text-lg font-bold text-zinc-900 dark:text-zinc-50 cursor-pointer flex justify-between items-center outline-none list-none [&::-webkit-details-marker]:hidden">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">📑</span> বিষয়বস্তু
+                </div>
+                <svg
+                  className="w-5 h-5 text-zinc-500 transition-transform group-open:-rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="p-4 md:p-5 pt-0 mt-[-8px] border-t border-amber-900/5 dark:border-amber-100/5">
+                <nav aria-label="Mobile table of contents">
+                  <ul className="space-y-3">
+                    {headings.map((heading, i) => (
+                      <li key={i}>
+                        <a
+                          href={`#${heading.id}`}
+                          className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-2 block py-1"
+                        >
+                          {heading.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </div>
+            </details>
+          )}
 
           {/* Article Body */}
           <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10">
@@ -251,6 +315,24 @@ const ArticleDetailPage: React.FC = () => {
             </nav>
           </div>
         </aside>
+      </div>
+
+      {/* Floating Share Button */}
+      <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
+        {shareToast && (
+          <div className="mb-4 bg-zinc-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-auto transform transition-all animate-fade-in-up">
+            {shareToast}
+          </div>
+        )}
+        <button
+          onClick={handleShare}
+          className="pointer-events-auto w-14 h-14 bg-gradient-to-tr from-orange-500 to-amber-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-orange-500/30 touch-manipulation hover:scale-105 active:scale-95 transition-all outline-none"
+          aria-label="Share article"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+        </button>
       </div>
     </main>
   );
