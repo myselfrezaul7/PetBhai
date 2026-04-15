@@ -18,7 +18,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false }
     <div
       className={`glass-card-ios group overflow-hidden flex flex-col transform transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-2xl h-full border border-white/30 dark:border-white/10 ${isFeatured ? 'col-span-2' : ''}`}
     >
-      <Link to={`/blog/${article.id}`} className="flex flex-col h-full">
+      <Link to={`/blog/${article.slug || article.id}`} className="flex flex-col h-full">
         <div
           className={`relative overflow-hidden bg-slate-200 dark:bg-slate-700 w-full ${isFeatured ? 'h-56 sm:h-72 md:h-80 aspect-video sm:aspect-auto' : 'h-40 sm:h-56 aspect-[4/3] sm:aspect-auto'}`}
         >

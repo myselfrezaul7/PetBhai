@@ -76,9 +76,13 @@ const parseBold = (text: string): React.ReactNode => {
       if (trimmedLine) {
         // This is a regular paragraph or a heading.
         if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+          const headingText = trimmedLine.substring(2, trimmedLine.length - 2);
+          // Generate a simple ID for the heading (e.g. for TOC anchors)
+          const id = headingText.toLowerCase().replace(/[^\w]+/g, '-').replace(/(^-|-$)/g, '');
+          
           elements.push(
-            <h2 key={index} className="text-xl md:text-2xl font-bold mt-6 md:mt-8 mb-3 md:mb-4">
-              {formatLine(trimmedLine.substring(2, trimmedLine.length - 2))}
+            <h2 id={id} key={index} className="text-xl md:text-2xl font-bold mt-6 md:mt-8 mb-3 md:mb-4 scroll-mt-24">
+              {formatLine(headingText)}
             </h2>
           );
         } else {

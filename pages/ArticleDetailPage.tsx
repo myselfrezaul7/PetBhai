@@ -8,20 +8,20 @@ import SEO from '../components/SEO';
 import BlogCommunityCTA from '../components/BlogCommunityCTA';
 
 const ArticleDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const article = useMemo(() => articles.find((a) => a.id === Number(id)), [id, articles]);
+  const article = useMemo(() => articles.find((a) => a.slug === slug || a.id.toString() === slug), [slug, articles]);
 
   const recentArticles = useMemo(
     () =>
       articles
-        .filter((a) => a.id !== Number(id))
+        .filter((a) => (article ? a.id !== article.id : true))
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 3),
-    [articles, id]
+    [articles, article]
   );
 
   if (loading) {
@@ -56,6 +56,23 @@ const ArticleDetailPage: React.FC = () => {
     const truncated = cleanText.length > 155 ? cleanText.substring(0, 155) + '...' : cleanText;
     return truncated;
   }, [article]);
+
+  const headings = useMemo(() => {
+    if (!article?.content) return [];
+    
+    const lines = article.content.split('\n');
+    const extracted: { text: string, id: string }[] = [];
+    
+    lines.forEach(line => {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+        const text = trimmedLine.substring(2, trimmedLine.length - 2);
+        const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/(^-|-$)/g, '');
+        extracted.push({ text, id });
+      }
+    });
+    return extracted;
+  }, [article?.content]);
 
   if (!article) {
     return (
@@ -163,8 +180,33 @@ const ArticleDetailPage: React.FC = () => {
         </article>
 
         {/* Sidebar */}
-        <aside className="lg:col-span-1 mt-8 lg:mt-0" aria-labelledby="recent-articles-heading">
-          <div className="lg:sticky lg:top-24 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5">
+        <aside className="lg:col-span-1 mt-8 lg:mt-0 space-y-8" aria-labelledby="recent-articles-heading">
+          {headings.length > 0 && (
+            <div className="lg:sticky lg:top-24 hidden lg:block glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5 mb-8">
+              <h2
+                id="toc-heading"
+                className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50"
+              >
+                Table of Contents
+              </h2>
+              <nav aria-label="Table of contents">
+                <ul className="space-y-3">
+                  {headings.map((heading, i) => (
+                    <li key={i}>
+                      <a
+                        href={`#${heading.id}`}
+                        className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-2"
+                      >
+                        {heading.text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </div>
+          )}
+
+          <div className={`${headings.length > 0 ? '' : 'lg:sticky lg:top-24'} glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5`}>
             <h2
               id="recent-articles-heading"
               className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50"
@@ -174,7 +216,7 @@ const ArticleDetailPage: React.FC = () => {
             <nav className="space-y-4 md:space-y-6" aria-label="Recent articles">
               {recentArticles.map((a) => (
                 <Link
-                  to={`/blog/${a.id}`}
+                  to={`/blog/${a.slug || a.id}`}
                   key={a.id}
                   className="block group glass-card-ios p-3 hover:bg-white/95 dark:bg-zinc-900/95 dark:hover:bg-slate-800/70 transition-colors touch-manipulation"
                 >

@@ -413,7 +413,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     return (
                       <Link
                         key={`article-${article.id}`}
-                        to={`/blog/${article.id}`}
+                          to={`/blog/${article.slug || article.id}`}
                         onClick={onClose}
                         className={`flex items-center space-x-4 p-2.5 rounded-lg transition-all ${
                           activeIndex === globalIdx

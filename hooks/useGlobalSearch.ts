@@ -110,7 +110,14 @@ export function useGlobalSearch({
       threshold: 0.3,
       ignoreLocation: true,
       minMatchCharLength: MIN_QUERY_LENGTH,
-      keys: ['title', 'content', 'author'],
+      keys: [
+        { name: 'title', weight: 0.4 },
+        { name: 'category', weight: 0.2 },
+        { name: 'tags', weight: 0.2 },
+        { name: 'excerpt', weight: 0.1 },
+        { name: 'content', weight: 0.05 },
+        { name: 'author', weight: 0.05 },
+      ],
     });
   }, [limitedArticles, shouldSearch]);
 

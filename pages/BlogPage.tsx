@@ -11,23 +11,32 @@ const BlogPage: React.FC = () => {
   const { articles, loading, error, refetch } = useArticles();
   const { t } = useLanguage();
 
-  // Memoize sorted articles to prevent unnecessary recalculations
-  const sortedArticles = useMemo(() => {
-    return [...articles].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryFilter = searchParams.get('category') || 'All';
+  const currentPage = Number(searchParams.get('page')) || 1;
+
+  // Get all unique categories
+  const categories = useMemo(() => {
+    const allCategories = articles.map(a => a.category).filter(Boolean) as string[];
+    return ['All', ...Array.from(new Set(allCategories))];
   }, [articles]);
 
-  // Pagination state
-  const [searchParams, setSearchParams] = useSearchParams();
-  const currentPage = Number(searchParams.get('page')) || 1;
+  // Memoize sorted & filtered articles
+  const sortedArticles = useMemo(() => {
+    let filtered = [...articles];
+    if (categoryFilter !== 'All') {
+      filtered = filtered.filter(a => a.category === categoryFilter);
+    }
+    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [articles, categoryFilter]);
+
   const itemsPerPage = 9;
 
   // Calculate pagination
-  // Get current articles (Featured article is always separate if on first page, or maybe just part of the flow?
-  // Let's keep the design: Featured + Grid.
-  // If we have a featured article (index 0), then pagination applies to the REST.
-
-  const latestArticle = sortedArticles[0];
-  const allOtherArticles = sortedArticles.slice(1);
+  // If we have a featured article (index 0) and we are on All topics, separate it
+  const isAllCategories = categoryFilter === 'All';
+  const latestArticle = isAllCategories ? sortedArticles[0] : null;
+  const allOtherArticles = isAllCategories ? sortedArticles.slice(1) : sortedArticles;
 
   const totalOtherPages = Math.ceil(allOtherArticles.length / itemsPerPage);
   const currentArticles = allOtherArticles.slice(
@@ -36,7 +45,14 @@ const BlogPage: React.FC = () => {
   );
 
   const handlePageChange = (pageNumber: number) => {
-    setSearchParams({ page: String(pageNumber) });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', String(pageNumber));
+    setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    setSearchParams(cat === 'All' ? {} : { category: cat });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -77,7 +93,7 @@ const BlogPage: React.FC = () => {
       itemListElement: currentArticles.map((article, index) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: `${window.location.origin}/#/blog/${article.id}`,
+        url: `${window.location.origin}/#/blog/${article.slug || article.id}`,
         name: article.title,
       })),
     };
@@ -92,6 +108,23 @@ const BlogPage: React.FC = () => {
         url={`${window.location.origin}/#/blog`}
       />
       <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+        {/* Category Filters */}
+        <div className="flex overflow-x-auto pb-4 mb-8 -mx-3 px-3 md:mx-0 md:px-0 scrollbar-hide space-x-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                categoryFilter === cat
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 hover:border-amber-500/50'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
         {/* Articles Section */}
         {sortedArticles.length > 0 ? (
           <section aria-label="Blog articles">

@@ -35,9 +35,33 @@ export function calculateReadTimeMinutes(content: string): number {
  */
 export function normalizeArticle(article: Article): Article {
   if (!article) return article;
+  
+  // Calculate read time
+  const readTime = calculateReadTimeMinutes(article.content || '');
+  
+  // Generate excerpt if missing
+  let excerpt = article.excerpt;
+  if (!excerpt && article.content) {
+    let cleanText = article.content.replace(/[#*`_\[\]()]/g, '');
+    cleanText = cleanText.replace(/\s+/g, ' ').trim();
+    excerpt = cleanText.length > 155 ? cleanText.substring(0, 155) + '...' : cleanText;
+  }
+  
+  // Automatically generate a slug if missing
+  const slug = article.slug || article.title
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0980-\u09FF \-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-') + '-' + article.id;
+
   return {
     ...article,
     author: 'PetBhai Team',
-    readTime: calculateReadTimeMinutes(article?.content || ''),
+    readTime,
+    excerpt,
+    slug,
+    category: article.category || 'General Pet Care',
+    updatedAt: article.updatedAt || article.date,
+    tags: article.tags || []
   };
 }
