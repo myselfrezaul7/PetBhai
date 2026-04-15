@@ -8,6 +8,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const elements: React.ReactNode[] = [];
   const lines = content.split('\n');
   let inList = false;
+  let listType: 'ul' | 'ol' | null = null;
   let listItems: React.ReactNode[] = [];
 
 const parseBold = (text: string): React.ReactNode => {
@@ -50,24 +51,48 @@ const parseBold = (text: string): React.ReactNode => {
 
   const pushList = () => {
     if (listItems.length > 0) {
-      elements.push(
-        <ul key={`ul-${elements.length}`} className="list-disc pl-5 my-4 space-y-2">
-          {listItems}
-        </ul>
-      );
+      if (listType === 'ol') {
+        elements.push(
+          <ol key={`ol-${elements.length}`} className="list-decimal pl-5 my-4 space-y-2">
+            {listItems}
+          </ol>
+        );
+      } else {
+        elements.push(
+          <ul key={`ul-${elements.length}`} className="list-disc pl-5 my-4 space-y-2">
+            {listItems}
+          </ul>
+        );
+      }
       listItems = [];
     }
     inList = false;
+    listType = null;
   };
 
   lines.forEach((line, index) => {
     const trimmedLine = line.trim();
-    if (trimmedLine.startsWith('* ')) {
+    const isBulletList = trimmedLine.startsWith('* ');
+    const isNumberedList = /^\d+\.\s/.test(trimmedLine);
+
+    if (isBulletList || isNumberedList) {
+      const currentListType = isBulletList ? 'ul' : 'ol';
       if (!inList) {
         // We've entered a list. Any previous paragraphs are already pushed.
         inList = true;
+        listType = currentListType;
+      } else if (listType !== currentListType) {
+        // List type changed, push the old one and start a new one
+        pushList();
+        inList = true;
+        listType = currentListType;
       }
-      listItems.push(<li key={index}>{formatLine(trimmedLine.substring(2))}</li>);
+      
+      const contentText = isBulletList 
+        ? trimmedLine.substring(2) 
+        : trimmedLine.replace(/^\d+\.\s/, '');
+        
+      listItems.push(<li key={index}>{formatLine(contentText)}</li>);
     } else {
       if (inList) {
         // We just exited a list. Push the completed list.

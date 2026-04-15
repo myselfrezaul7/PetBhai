@@ -156,7 +156,7 @@ router.post(
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       contents: {
         parts: [{ text: sanitizedPrompt }],
       },
@@ -349,6 +349,8 @@ router.post(
 
     // Process articles sequentially
     for (const article of articles) {
+      if (!article) continue;
+      
       // Skip if image already exists and looks valid (not empty)
       if (article.imageUrl && article.imageUrl.length > 5) {
         console.log(`Skipping article ${article.id} - Image already exists: ${article.imageUrl}`);
@@ -364,25 +366,40 @@ router.post(
         The context is about pet care.
         Style: Nano Banana Pro, vibrant, modern, high quality, photorealistic or artistic illustration compatible with a pet care blog.`;
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.0-flash-exp',
-          contents: {
-            parts: [{ text: prompt }],
-          },
-          config: {
-            imageConfig: {
-              aspectRatio: '16:9', // Standard blog header ratio
-            },
-          },
-        });
-
+        let retries = 3;
         let base64Data = null;
-        if (response.candidates?.[0]?.content?.parts) {
-          for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData?.data) {
-              base64Data = part.inlineData.data;
-              break;
+        
+        while (retries > 0 && !base64Data) {
+          try {
+            const response = await ai.models.generateContent({
+              model: 'gemini-2.0-flash',
+              contents: {
+                parts: [{ text: prompt }],
+              },
+              config: {
+                imageConfig: {
+                  aspectRatio: '16:9', // Standard blog header ratio
+                },
+              },
+            });
+
+            if (response.candidates?.[0]?.content?.parts) {
+              for (const part of response.candidates[0].content.parts) {
+                if (part.inlineData?.data) {
+                  base64Data = part.inlineData.data;
+                  break;
+                }
+              }
             }
+            break; // Success
+          } catch (error: any) {
+             if (error?.status === 429) {
+               console.log(`429 Rate limit hit, retrying in 10s... (${retries} left)`);
+               await new Promise((resolve) => setTimeout(resolve, 10000));
+               retries--;
+             } else {
+               throw error;
+             }
           }
         }
 
@@ -404,8 +421,8 @@ router.post(
           });
         }
 
-        // Small delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // Delay to prevent rate limiting
+        await new Promise((resolve) => setTimeout(resolve, 4000));
       } catch (error: any) {
         console.error(`Error generating image for article ${article.id}:`, error);
         results.push({
