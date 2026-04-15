@@ -57,7 +57,6 @@ const PostCard: React.FC<PostCardProps> = ({
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [showImageModal, setShowImageModal] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingReplyId, setEditingReplyId] = useState<{
     commentId: number;
@@ -76,8 +75,6 @@ const PostCard: React.FC<PostCardProps> = ({
   // Refs
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
   const commentInputRef = useRef<HTMLInputElement>(null);
-  const imageModalRef = useRef<HTMLDivElement>(null);
-  const imageModalCloseButtonRef = useRef<HTMLButtonElement>(null);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -87,43 +84,6 @@ const PostCard: React.FC<PostCardProps> = ({
       editTextareaRef.current.focus();
     }
   }, [isEditing, editedContent]);
-
-  useEffect(() => {
-    if (!showImageModal) return;
-
-    imageModalCloseButtonRef.current?.focus();
-
-    const handleModalKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setShowImageModal(false);
-        return;
-      }
-
-      if (event.key === 'Tab' && imageModalRef.current) {
-        const focusableElements = imageModalRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement.focus();
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleModalKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleModalKeyDown);
-    };
-  }, [showImageModal]);
 
   const timeSince = useCallback((date: string) => {
     try {
@@ -642,28 +602,7 @@ const PostCard: React.FC<PostCardProps> = ({
           )}
         </div>
 
-        {post.imageUrl && (
-          <div
-            className="bg-black/5 dark:bg-black/20 cursor-pointer relative group"
-            onClick={() => setShowImageModal(true)}
-            onKeyDown={(e) => handleKeyDown(e, () => setShowImageModal(true))}
-            role="button"
-            tabIndex={0}
-            aria-label="View full image"
-          >
-            <img  
-              src={post.imageUrl}
-              alt="Post content"
-              className="w-full max-h-[400px] sm:max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
-              
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-              <span className="opacity-0 group-hover:opacity-100 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium transition-opacity">
-                Click to expand
-              </span>
-            </div>
-          </div>
-        )}
+        
 
         {/* Action Buttons */}
         <div className="px-3 sm:px-6 py-2 sm:py-3 border-y border-white/20 dark:border-slate-700/50 flex justify-around">
@@ -1147,34 +1086,7 @@ const PostCard: React.FC<PostCardProps> = ({
         )}
       </div>
 
-      {/* Image Modal */}
-      {showImageModal && post.imageUrl && (
-        <div
-          ref={imageModalRef}
-          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4"
-          onClick={() => setShowImageModal(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Full size image"
-        >
-          <button
-            ref={imageModalCloseButtonRef}
-            type="button"
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white hover:text-orange-400 transition-colors p-2 rounded-full bg-black/30 hover:bg-black/50 active:scale-95 touch-manipulation z-10"
-            onClick={() => setShowImageModal(false)}
-            aria-label="Close image modal"
-          >
-            <CloseIcon className="w-6 h-6 sm:w-8 sm:h-8" />
-          </button>
-          <img  
-            src={post.imageUrl}
-            alt="Post content - full size"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg select-none"
-            onClick={(e) => e.stopPropagation()}
-            draggable={false}
-          />
-        </div>
-      )}
+      
     </>
   );
 };

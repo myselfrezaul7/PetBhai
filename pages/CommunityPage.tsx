@@ -176,7 +176,7 @@ const CommunityPage: React.FC = () => {
         profilePictureUrl: currentUser.profilePictureUrl,
       },
       content: newPost.content,
-      imageUrl: newPost.imageUrl,
+      
       timestamp: new Date().toISOString(),
       likes: [],
       comments: [],
@@ -191,8 +191,7 @@ const CommunityPage: React.FC = () => {
           name: currentUser.name,
           profilePictureUrl: currentUser.profilePictureUrl,
         },
-        newPost.content,
-        newPost.imageUrl
+        newPost.content
       );
       setPosts((prevPosts) =>
         prevPosts.map((post) => (post.id === optimisticId ? createdPost : post))
@@ -209,7 +208,7 @@ const CommunityPage: React.FC = () => {
             profilePictureUrl: currentUser.profilePictureUrl,
           },
           content: newPost.content,
-          imageUrl: newPost.imageUrl,
+          
         },
       });
       const message = error instanceof Error ? error.message : 'Failed to share post.';

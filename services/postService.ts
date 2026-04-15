@@ -24,7 +24,7 @@ type QueuedMutation =
       payload: {
         author: { id: number; name: string; profilePictureUrl?: string };
         content: string;
-        imageUrl?: string;
+        
       };
       createdAt: string;
     }
@@ -103,7 +103,7 @@ export const flushQueuedMutations = async (): Promise<{ processed: number; remai
   for (const item of queue) {
     try {
       if (item.type === 'createPost') {
-        await createPost(item.payload.author, item.payload.content, item.payload.imageUrl);
+        await createPost(item.payload.author, item.payload.content);
       } else if (item.type === 'togglePostLike') {
         await togglePostLike(item.payload.postId, item.payload.userId);
       } else if (item.type === 'addComment') {
@@ -220,7 +220,7 @@ export const fetchPostsPage = async (
 export const createPost = async (
   author: { id: number; name: string; profilePictureUrl?: string },
   content: string,
-  imageUrl?: string
+  
 ): Promise<Post> => {
   // Rate limiting
   if (!checkRateLimit('post')) {
@@ -247,8 +247,7 @@ export const createPost = async (
           profilePictureUrl: author.profilePictureUrl,
         },
         content: sanitizedContent,
-        imageUrl,
-      }),
+        }),
     });
   } catch (error) {
     console.error('Error creating post:', error);
