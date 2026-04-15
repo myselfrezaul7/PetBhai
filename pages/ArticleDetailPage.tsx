@@ -12,7 +12,6 @@ const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
-  const { t } = useLanguage();
   const navigate = useNavigate();
   const [shareToast, setShareToast] = React.useState<string | null>(null);
 
