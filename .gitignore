@@ -35,3 +35,13 @@ tmp_*.html
 .agent/
 .venv/
 .vercel
+
+# Google Drive Temporary Files
+.tmp.driveupload/
+.gdoc
+.gsheet
+.gslides
+
+# Old backup and experimental files
+old_articles.js
+old_mockData.ts
