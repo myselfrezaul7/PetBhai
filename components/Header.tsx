@@ -403,7 +403,7 @@ const Header: React.FC = () => {
     { to: '/', label: t('nav_home') },
     { to: '/shop', label: t('nav_shop') },
     { to: '/community', label: t('nav_community') },
-    { to: '/adopt', label: 'Adopt' },
+    { to: '/adopt', label: t('nav_adopt') },
     { to: '/services', label: t('nav_services') },
     { to: '/blog', label: t('nav_blog') },
     {
@@ -451,7 +451,7 @@ const Header: React.FC = () => {
     },
     {
       to: '/adopt',
-      label: 'Adoption',
+      label: t('nav_adopt'),
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 12 5.08 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />

@@ -26,6 +26,7 @@ const translations: Translations = {
   nav_services: { en: 'Services', bn: 'সেবাসমূহ' },
   nav_ai_vet: { en: 'AI Vet', bn: 'এআই ভেট' },
   nav_blog: { en: 'Blog', bn: 'ব্লগ' },
+  nav_adopt: { en: 'Adoption', bn: 'দত্তক গ্রহণ' },
   nav_plus: { en: 'PetBhai+', bn: 'পেটভাই+' },
   nav_login: { en: 'Login', bn: 'লগইন' },
   nav_signup: { en: 'Sign Up', bn: 'সাইন আপ' },

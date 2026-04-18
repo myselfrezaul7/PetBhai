@@ -86,15 +86,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         to={`/product/${product.id}`}
         className="group relative flex items-center gap-3 rounded-3xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 shadow-[0_12px_26px_rgba(0,0,0,0.04)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(0,0,0,0.08)] dark:border-amber-100/10 dark:bg-zinc-900/95"
       >
-        <img 
-          src={product.imageUrl}
-          alt={product.name}
-          className={`h-20 w-20 shrink-0 rounded-2xl object-cover transition-all duration-500 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
-          loading="lazy"
-          decoding="async"
-          sizes={getResponsiveImageSizes('card')}
-          onError={handleImageError}
-        />
+        <div className="relative shrink-0 overflow-hidden rounded-2xl h-20 w-20 bg-slate-100 dark:bg-slate-800">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mb-0.5 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
+            <span className="text-[8px] text-center font-medium line-clamp-2 px-1">{product.name}</span>
+          </div>
+          <img 
+            src={product.imageUrl}
+            alt={product.name}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+            loading="lazy"
+            decoding="async"
+            sizes={getResponsiveImageSizes('card')}
+            onError={handleImageError}
+          />
+        </div>
 
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
@@ -136,13 +142,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
   if (variant === 'mobile-featured') {
     return (
       <div className="group relative overflow-hidden rounded-[2rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-2 shadow-[0_14px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm dark:border-amber-100/10 dark:bg-zinc-900/95">
-        <Link to={`/product/${product.id}`} className="block overflow-hidden rounded-[1.5rem]">
+        <Link to={`/product/${product.id}`} className="block relative overflow-hidden rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 aspect-[4/5]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 mb-1 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
+            <span className="text-[10px] text-center font-medium line-clamp-2 px-2">{product.name}</span>
+          </div>
           <img 
             src={product.imageUrl}
             alt={product.name}
-            className={`aspect-[4/5] w-full object-cover transition-all duration-700 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
-            
-            
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
             sizes={getResponsiveImageSizes('card')}
             onError={handleImageError}
           />
@@ -193,12 +201,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
     <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">
       <Link
         to={`/product/${product.id}`}
-        className="relative block overflow-hidden aspect-[4/3] sm:aspect-square"
+        className="relative block overflow-hidden aspect-[4/3] sm:aspect-square bg-slate-100 dark:bg-slate-800"
       >
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 mb-1 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
+          <span className="text-xs text-center font-medium line-clamp-2 px-2">{product.name}</span>
+        </div>
         <img 
           src={product.imageUrl}
           alt={product.name}
-          className={`w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+          className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
           loading="lazy"
           decoding="async"
           sizes={getResponsiveImageSizes('card')}

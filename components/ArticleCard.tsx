@@ -76,7 +76,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFeatured = false, 
           <p
             className={`text-zinc-500 dark:text-zinc-200 flex-grow text-sm leading-relaxed line-clamp-3 ${!isFeatured ? 'hidden sm:block' : 'block'}`}
           >
-            {article.content ? article.content.split('\n')[0] : ''}
+            {article.content ? article.content.split('\n').filter(l => l.trim()).slice(0, 2).join(' ').replace(/[#*\`_\\[\\]()]/g, '').trim().substring(0, 120) + '...' : ''}
           </p>
           <div className="mt-2 sm:mt-6 pt-2 sm:pt-4 border-t border-white/40 dark:border-slate-700/60 flex items-center justify-between text-xs sm:text-sm text-zinc-500 dark:text-zinc-200">
             <span className="font-medium truncate mr-2 px-2 py-1 rounded-full bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-50  dark:text-zinc-50">
