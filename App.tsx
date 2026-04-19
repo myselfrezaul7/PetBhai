@@ -120,14 +120,14 @@ const GlobalCartElements: React.FC = () => {
       <button
         key={lastActionTimestamp || 'initial'}
         onClick={openCart}
-        className={`fixed right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-24 md:h-14 md:w-14 ${
+        className={`fixed right-5 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-24 md:h-14 md:w-14 ${
           isVisible
             ? 'translate-y-0 opacity-100'
             : 'translate-y-20 opacity-0 pointer-events-none'
-        } bottom-[calc(5.75rem+var(--safe-bottom))]`}
+        } bottom-[calc(8.75rem+var(--safe-bottom))]`}
         aria-label={`Open shopping cart with ${cartCount} items`}
       >
-        <ShoppingCartIcon className="w-7 h-7 md:w-8 md:h-8" />
+        <ShoppingCartIcon className="w-6 h-6 md:w-8 md:h-8" />
         {cartCount > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md">
             {cartCount}
