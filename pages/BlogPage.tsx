@@ -17,21 +17,10 @@ const BlogPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
 
-  // Mobile load more pagination state
-  const [mobilePage, setMobilePage] = useState(1);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-      setMobilePage(1); // Reset mobile pagination on new search
       if (searchQuery && currentPage !== 1) {
         // Reset desktop page on new search
         const newParams = new URLSearchParams(searchParams);
@@ -74,10 +63,7 @@ const BlogPage: React.FC = () => {
 
   const totalOtherPages = Math.ceil(allOtherArticles.length / itemsPerPage);
   
-  // Mobile uses "Load More", so it needs all pages up to current
-  const currentArticles = isMobile 
-    ? allOtherArticles.slice(0, mobilePage * itemsPerPage)
-    : allOtherArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const currentArticles = allOtherArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -207,23 +193,8 @@ const BlogPage: React.FC = () => {
                 ))}
               </div>
 
-              {/* Mobile Load More Button */}
-              {isMobile && mobilePage < totalOtherPages && (
-                <div className="flex flex-col items-center justify-center mt-12 gap-3">
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-zinc-100 dark:bg-zinc-800/50 px-3 py-1 rounded-full">
-                    {allOtherArticles.length} {t('blog_articles') || 'articles'} {t('found') || 'found'}
-                  </span>
-                  <button
-                    onClick={() => setMobilePage(p => p + 1)}
-                    className="w-full sm:w-auto px-8 py-3.5 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-700 rounded-full font-bold text-zinc-800 dark:text-锌-100 shadow-sm hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all touch-manipulation"
-                  >
-                    আরো দেখুন (Load More)
-                  </button>
-                </div>
-              )}
-
               {/* Desktop Pagination Controls */}
-              {!isMobile && totalOtherPages > 1 && (
+              {totalOtherPages > 1 && (
                 <div className="flex justify-center mt-12 overflow-x-auto padding-x-2 py-2">
                   <div className="glass-card-ios px-2 sm:px-4 py-3 flex items-center space-x-1 flex-nowrap border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95">
                     <button
@@ -235,7 +206,7 @@ const BlogPage: React.FC = () => {
                           : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
                       }`}
                     >
-                      Prev
+                      {t('prev') || 'পূর্ববর্তী'}
                     </button>
 
                     {Array.from({ length: totalOtherPages }, (_, i) => i + 1)
@@ -275,7 +246,7 @@ const BlogPage: React.FC = () => {
                           : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
                       }`}
                     >
-                      Next
+                      {t('next') || 'পরবর্তী'}
                     </button>
                   </div>
                 </div>

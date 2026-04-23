@@ -105,7 +105,7 @@ const Header: React.FC = () => {
   const menuTouchStartXRef = useRef<number | null>(null);
   const menuTouchCurrentXRef = useRef<number | null>(null);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
-  const { scrollDirection, isAtTop, isScrolling } = useScrollDirection();
+  const { scrollDirection, isAtTop } = useScrollDirection();
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -312,17 +312,12 @@ const Header: React.FC = () => {
     if (isMenuOpen || isSearchOpen) {
       setIsHeaderHidden(false);
     } else {
-      // Hide if actively scrolling and we are not completely at the top
-      setIsHeaderHidden(isScrolling && !isAtTop);
+      setIsHeaderHidden(scrollDirection === 'down' && !isAtTop);
     }
-  }, [isScrolling, isAtTop, isMenuOpen, isSearchOpen]);
+  }, [scrollDirection, isAtTop, isMenuOpen, isSearchOpen]);
 
   // Keep existing override for open overlays just in case
-  useEffect(() => {
-    if (isMenuOpen || isSearchOpen) {
-      setIsHeaderHidden(false);
-    }
-  }, [isMenuOpen, isSearchOpen]);
+
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // Sanitize search input to prevent XSS
