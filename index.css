@@ -364,3 +364,20 @@ html.dark .glass-card-ios {
   content-visibility: auto;
   contain-intrinsic-size: 1px 350px;
 }
+
+/* Global Smooth Animations & Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Apply safe, smooth transitions to interactive and common structural elements */
+a, button, input, textarea, select, label, [role="button"], .card, .menu-item, .nav-item {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
+/* Subtle scale effect on interactive elements when hovered/active */
+a:active, button:active, [role="button"]:active {
+  transform: scale(0.98);
+}
