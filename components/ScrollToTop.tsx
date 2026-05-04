@@ -14,7 +14,7 @@ const ScrollToTop: React.FC = () => {
     let frameId: number | null = null;
 
     const updateVisibility = () => {
-      const shouldBeVisible = window.pageYOffset > 300;
+      const shouldBeVisible = window.scrollY > 300;
       setIsVisible((prev) => (prev === shouldBeVisible ? prev : shouldBeVisible));
     };
 

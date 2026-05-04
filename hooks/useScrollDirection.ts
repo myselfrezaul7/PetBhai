@@ -5,11 +5,11 @@ export function useScrollDirection() {
   const [isAtTop, setIsAtTop] = useState(true);
 
   useEffect(() => {
-    let lastScrollY = window.pageYOffset;
+    let lastScrollY = window.scrollY;
     let ticking = false;
 
     const updateScrollDir = () => {
-      const scrollY = window.pageYOffset;
+      const scrollY = window.scrollY;
       if (Math.abs(scrollY - lastScrollY) < 10) {
         ticking = false;
         return;

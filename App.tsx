@@ -429,9 +429,7 @@ const AppContent: React.FC = () => {
       <BottomNav />
       <ScrollToTop />
       <ScrollToTopOnNavigate />
-      <div className="pb-24 md:pb-0">
-        <Footer />
-      </div>
+      <Footer />
       <SpeedInsights />
       <ToastContainer />
       <ConfirmationModal />

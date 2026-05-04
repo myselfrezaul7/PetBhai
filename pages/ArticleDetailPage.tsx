@@ -111,7 +111,7 @@ const ArticleDetailPage: React.FC = () => {
           <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-300 mt-4">
             {t('article_not_found_desc')}
           </p>
-          <button onClick={() => { if(window.history.length > 2) navigate(-1); else navigate('/blog'); }} className="mt-8 inline-block bg-amber-500/10 dark:bg-amber-500/10 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95">
+          <button onClick={() => { if(window.history.length > 2) navigate(-1); else navigate('/blog'); }} className="mt-8 inline-block bg-amber-500 dark:bg-amber-600 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95">
             {t('btn_back_blog')}
           </button>
         </div>
@@ -176,7 +176,7 @@ const ArticleDetailPage: React.FC = () => {
           </header>
 
           {/* Article Image or Generator */}
-          <figure className="glass-card-ios w-full h-auto max-h-[500px] rounded-2xl shadow-lg mb-8 overflow-hidden bg-slate-200/60 dark:bg-zinc-900/95/60 border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl">
+          <figure className="glass-card-ios w-full h-auto max-h-[500px] rounded-2xl shadow-lg mb-8 overflow-hidden bg-slate-200/60 dark:bg-zinc-900/80 border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl">
             {article.imageUrl ? (
               <img
                 src={article.imageUrl}

@@ -66,9 +66,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setArticles([]);
       }
     } finally {
-      if (!silent && retryCount >= 1) setLoading(false);
-      else if (!silent && typeof err === 'undefined') setLoading(false);
-      else if (!silent) setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 

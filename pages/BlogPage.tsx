@@ -99,7 +99,7 @@ const BlogPage: React.FC = () => {
         <p className="text-zinc-500 dark:text-zinc-200 mb-6">{error}</p>
         <button
           onClick={() => refetch()}
-          className="min-h-[48px] min-w-[120px] px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
+          className="min-h-[48px] min-w-[120px] px-6 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-full font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
         >
           Try Again
         </button>
@@ -202,8 +202,8 @@ const BlogPage: React.FC = () => {
                       disabled={currentPage === 1}
                       className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         currentPage === 1
-                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95 dark:text-slate-300'
-                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95'
+                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
                       }`}
                     >
                       {t('prev') || 'পূর্ববর্তী'}
@@ -227,8 +227,8 @@ const BlogPage: React.FC = () => {
                               onClick={() => handlePageChange(page)}
                               className={`min-w-[48px] min-h-[48px] w-12 h-12 rounded-lg text-sm font-medium transition-all ${
                                 currentPage === page
-                                  ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-md transform scale-105'
-                                  : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                                  ? 'bg-amber-500 dark:bg-amber-600 text-white shadow-md transform scale-105'
+                                  : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
                               }`}
                             >
                               {page}
@@ -242,8 +242,8 @@ const BlogPage: React.FC = () => {
                       disabled={currentPage === totalOtherPages}
                       className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         currentPage === totalOtherPages
-                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95 dark:text-slate-300'
-                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 dark:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:bg-zinc-800/80 dark:text-slate-200 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95'
+                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
                       }`}
                     >
                       {t('next') || 'পরবর্তী'}

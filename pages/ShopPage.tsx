@@ -274,8 +274,8 @@ const ShopPage: React.FC = () => {
           onClick={() => handleCategoryChange(filter)}
           className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm whitespace-nowrap touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
             activeCategory === filter
-              ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-lg transform scale-105'
-              : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
+              ? 'bg-amber-500 dark:bg-amber-600 text-white shadow-lg transform scale-105'
+              : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:hover:bg-slate-600/50'
           }`}
           aria-pressed={activeCategory === filter}
           data-pressed={activeCategory === filter}
@@ -394,7 +394,7 @@ const ShopPage: React.FC = () => {
               <button
                 key={term}
                 onClick={() => setSearchQuery(term)}
-                className="text-xs px-3 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/60 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:bg-amber-500/10 dark:hover:bg-slate-600 transition-colors"
+                className="text-xs px-3 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:hover:bg-slate-600 transition-colors"
               >
                 {term}
               </button>
@@ -456,7 +456,7 @@ const ShopPage: React.FC = () => {
                   id="brand-filter"
                   value={activeBrand}
                   onChange={handleBrandChange}
-                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                 >
                   <option value="All">{t('filter_brand_all')}</option>
                   {brands.map((brand) => (
@@ -492,7 +492,7 @@ const ShopPage: React.FC = () => {
                   id="sort-by"
                   value={sortOption}
                   onChange={handleSortChange}
-                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                  className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                 >
                   <option value="default">{t('filter_sort_default')}</option>
                   <option value="price-asc">{t('filter_sort_price_asc')}</option>
@@ -520,8 +520,8 @@ const ShopPage: React.FC = () => {
               onClick={() => setShowAdvancedFilters((prev) => !prev)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 touch-manipulation active:scale-95 ${
                 showAdvancedFilters || activeFiltersCount > 0
-                  ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white shadow-lg'
-                  : 'bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:bg-amber-500/10/50 dark:hover:bg-slate-600/50'
+                  ? 'bg-amber-500 dark:bg-amber-600 text-white shadow-lg'
+                  : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:hover:bg-slate-600/50'
               }`}
               aria-controls="advanced-filters"
             >
@@ -638,7 +638,7 @@ const ShopPage: React.FC = () => {
                       id="weight-filter"
                       value={activeWeight}
                       onChange={(e) => setActiveWeight(e.target.value)}
-                      className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+                      className="appearance-none w-full sm:w-auto pl-3 pr-8 py-2 text-sm rounded-lg border border-slate-300 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
                     >
                       <option value="All">{t('filter_weight_all')}</option>
                       {weightOptions.map((w) => (
@@ -675,7 +675,7 @@ const ShopPage: React.FC = () => {
                         onClick={() => setMinRating(star)}
                         className={`p-1 rounded transition-all duration-200 touch-manipulation active:scale-90 ${
                           minRating === star
-                            ? 'bg-amber-500/10 dark:bg-amber-500/10 dark:bg-amber-500/20 dark:bg-amber-500/20 ring-2 ring-orange-500'
+                            ? 'bg-amber-500/10 dark:bg-amber-500/20 ring-2 ring-orange-500'
                             : 'hover:bg-slate-100 dark:hover:bg-slate-700/50'
                         }`}
                         aria-label={star === 0 ? 'All ratings' : `${star} stars and up`}
@@ -735,7 +735,7 @@ const ShopPage: React.FC = () => {
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-5">
             {searchQuery.trim() && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/10 dark:bg-amber-500/20 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500">
                 Search: {searchQuery}
               </span>
             )}
@@ -793,7 +793,7 @@ const ShopPage: React.FC = () => {
             <p className="text-lg text-zinc-500 dark:text-zinc-300">{t('shop_no_results')}</p>
             <button
               onClick={resetAllFilters}
-              className="mt-4 px-6 py-2 bg-amber-500/10 dark:bg-amber-500/10 text-white rounded-full font-semibold hover:bg-amber-500/10 dark:bg-amber-500/10 transition-colors touch-manipulation active:scale-95"
+              className="mt-4 px-6 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-full font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
             >
               {t('shop_clear_filters')}
             </button>
@@ -957,8 +957,8 @@ const ShopPage: React.FC = () => {
                           onClick={() => setMinRating(star)}
                           className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                             minRating === star
-                              ? 'bg-amber-500/10 dark:bg-amber-500/10 text-white'
-                              : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 dark:bg-zinc-900/95 dark:text-slate-200'
+                              ? 'bg-amber-500 dark:bg-amber-600 text-white'
+                              : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 dark:text-slate-200'
                           }`}
                         >
                           {star === 0 ? t('filter_min_rating_all') : `${star}★+`}
@@ -972,7 +972,7 @@ const ShopPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={resetAllFilters}
-                  className="min-h-[44px] rounded-xl border border-orange-200 bg-amber-500/10 dark:bg-amber-500/10 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-amber-500/20 dark:bg-amber-500/20 dark:text-orange-300"
+                  className="min-h-[44px] rounded-xl border border-orange-200 bg-amber-500/10 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-amber-500/20 dark:text-orange-300"
                 >
                   {t('shop_clear_filters')}
                 </button>

@@ -27,14 +27,14 @@ const ShopGlyph: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const CommunityGlyph: React.FC<{ className?: string }> = ({ className }) => (
+const BlogGlyph: React.FC<{ className?: string }> = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="currentColor"
     className={className}
   >
-    <path d="M8 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm8 0a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 16 12zm-8 2c-3.31 0-6 1.79-6 4v1.25A1.75 1.75 0 0 0 3.75 21h8.5A1.75 1.75 0 0 0 14 19.25V18c0-2.21-2.69-4-6-4zm8 1c-1.05 0-2.03.21-2.88.58A5.96 5.96 0 0 1 15 18v1.25c0 .27-.04.52-.1.75h5.35A1.75 1.75 0 0 0 22 18.25V18c0-1.66-2.69-3-6-3z" />
+    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
   </svg>
 );
 
@@ -63,7 +63,7 @@ const BottomNav: React.FC = () => {
   const items = [
     { to: '/', label: t('nav_home'), icon: HomeGlyph },
     { to: '/shop', label: t('nav_shop'), icon: ShopGlyph },
-    { to: '/blog', label: t('nav_blog'), icon: CommunityGlyph },      
+    { to: '/blog', label: t('nav_blog'), icon: BlogGlyph },      
     { to: isAuthenticated ? '/profile' : '/login', label: t('nav_profile'), icon: ProfileGlyph },
   ];
 

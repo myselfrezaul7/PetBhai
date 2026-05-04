@@ -62,9 +62,9 @@ const InlineEditField: React.FC<{
         {isEditing ? (
           <div className="relative flex-1 flex items-center gap-2 animate-fade-in">
             {multiline ? (
-              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue(e.target as any).value} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" rows={3} />
+              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue((e.target as HTMLTextAreaElement).value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" rows={3} />
             ) : (
-              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue(e.target as any).value} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" />
+              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue((e.target as HTMLInputElement).value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" />
             )}
             {isSaving && <div className="absolute right-3"><LoaderIcon className="w-4 h-4 animate-spin text-amber-500" /></div>}
           </div>

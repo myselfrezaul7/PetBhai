@@ -35,12 +35,12 @@ const MobileNavLink: React.FC<{
     className={({ isActive }) =>
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
-          ? 'bg-amber-500/10 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:bg-amber-500/20 dark:bg-amber-500/20 dark:text-amber-600 dark:text-amber-500 dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
+          ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500 border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
           :'bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-zinc-50 border-amber-900/10 dark:border-white/10 hover:bg-amber-50/80 dark:hover:bg-zinc-800/80 backdrop-blur-xl'
         } ${className || ''}`
     }
   >
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fdfbf7] dark:bg-zinc-950 text-current dark:bg-[#fdfbf7] dark:bg-zinc-950">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fdfbf7] dark:bg-zinc-950 text-current">
       {icon}
     </span>
     {children}
@@ -135,10 +135,7 @@ const Header: React.FC = () => {
     [computedResults]
   );
 
-  const isSearching =
-    searchQuery.trim().length >= 1 &&
-    searchQuery.trim().length >= 1 &&
-    false;
+  const isSearching = searchQuery.trim().length >= 1;
 
   const handleLogout = useCallback(async () => {
     await logout();
