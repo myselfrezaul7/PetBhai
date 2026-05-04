@@ -119,7 +119,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
     setIsSubmitting(true);
     try {
-      await onUpdatePost(post.id, sanitized);
+      if (onUpdatePost) await onUpdatePost(post.id, sanitized);
       setIsEditing(false);
       toast.success('Post updated! ✓');
     } catch (error) {
@@ -239,7 +239,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
       setLoadingCommentId(commentId);
       try {
-        await onUpdateComment(post.id, commentId, sanitized);
+        if (onUpdateComment) await onUpdateComment(post.id, commentId, sanitized);
         setEditingCommentId(null);
         setEditedCommentText('');
       } catch (error) {

@@ -1,7 +1,7 @@
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Product, Review } from '../types';
-import { apiRequest, getErrorMessage } from '../services/apiClient';
+import { apiRequest, getErrorMessage, ApiRequestError } from '../services/apiClient';
 
 interface ProductContextType {
   products: Product[];
@@ -30,7 +30,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch (err) {
       console.error('Error fetching products:', err);
       const isApiError = err instanceof ApiRequestError;
-      const retryable = isApiError ? err.retryable : true;
+      const retryable = isApiError ? (err as ApiRequestError).retryable : true;
       
       if (!silent || (!retryable && isApiError)) {
         setError(getErrorMessage(err, 'Failed to load products. Please try again.'));

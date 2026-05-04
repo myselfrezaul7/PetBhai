@@ -160,8 +160,7 @@ const ProfilePage: React.FC = () => {
       title: 'Delete Account',
       message: 'Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently remove all your data, orders, and pet profiles.',
       confirmText: 'Yes, Delete My Account',
-      cancelText: 'Cancel',
-      intent: 'danger'
+      cancelText: 'Cancel'
     });
 
     if (isConfirmed) {
@@ -322,8 +321,8 @@ const ProfilePage: React.FC = () => {
                                 <div className="flex items-center gap-3">
                                   <p className="text-sm font-bold text-slate-800 dark:text-white">Order #{orderId}</p>
                                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide
-                                    ${order.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 
-                                    order.status === 'Cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400' : 
+                                    ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 
+                                    order.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400' : 
                                     'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'}`}
                                   >
                                     {order.status || 'Processing'}
@@ -351,7 +350,7 @@ const ProfilePage: React.FC = () => {
                                     <div key={idx} className="flex justify-between items-center bg-white dark:bg-zinc-900/50 p-2 rounded-lg border border-slate-100 dark:border-zinc-800">
                                       <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-slate-100 dark:bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                          <img src={item.imageUrl || item.image} alt={item.name} className="object-cover w-full h-full mix-blend-multiply dark:mix-blend-normal" />
+                                          <img src={item.imageUrl} alt={item.name} className="object-cover w-full h-full mix-blend-multiply dark:mix-blend-normal" />
                                         </div>
                                         <div>
                                           <p className="text-xs font-medium text-slate-800 dark:text-zinc-200 line-clamp-1">{item.name}</p>
@@ -445,7 +444,7 @@ const ProfilePage: React.FC = () => {
                   ) : (
                     <div className="space-y-6">
                       {userPosts.map(post => (
-                        <PostCard key={post.id} post={post} />
+                        <PostCard key={post.id} post={post} onAddComment={() => {}} onAddReply={() => {}} onUpdateReply={() => {}} />
                       ))}
                     </div>
                   )}

@@ -37,10 +37,12 @@ class ErrorBoundary extends Component<Props, State> {
     try {
       // Only clear petbhai-related items, not all safeStorage
       const keysToRemove: string[] = [];
-      for (let i = 0; i < safeStorage.length; i++) {
-        const key = safeStorage.key(i);
-        if (key && key.startsWith('petbhai_')) {
-          keysToRemove.push(key);
+      if (typeof window !== 'undefined' && window.localStorage) {
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const key = window.localStorage.key(i);
+          if (key && key.startsWith('petbhai_')) {
+            keysToRemove.push(key);
+          }
         }
       }
       keysToRemove.forEach((key) => safeStorage.removeItem(key));
