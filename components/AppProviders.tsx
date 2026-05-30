@@ -15,6 +15,7 @@ import { VaccinationProvider } from '../contexts/VaccinationContext';
 import { PetManagementProvider } from '../contexts/PetManagementContext';
 import { CartProvider } from '../contexts/CartContext';
 import { CookieConsentProvider } from '../components/CookieConsentBanner';
+import { DynamicIslandProvider } from '../contexts/DynamicIslandContext';
 
 /**
  * Composes all application providers into a single wrapper.
@@ -53,7 +54,8 @@ const AppProviders = composeProviders(
   VaccinationProvider,
   PetManagementProvider,
   CartProvider,
-  CookieConsentProvider
+  CookieConsentProvider,
+  DynamicIslandProvider
 );
 
 export default AppProviders;

@@ -6,7 +6,7 @@ import { useCart } from '../contexts/CartContext';
 import { CloseIcon, ShoppingCartIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
-import useHaptics from '../hooks/useHaptics';
+import { useHaptics } from '../hooks/useHaptics';
 
 interface ProductQuickViewModalProps {
   product: Product | null;

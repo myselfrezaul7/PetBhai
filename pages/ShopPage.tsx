@@ -12,6 +12,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { fetchReorderSuggestions } from '../services/ecommerceService';
 import ApiStateCard from '../components/ApiStateCard';
 import SEO from '../components/SEO';
+import { SwipeDiscovery } from '../components/SwipeDiscovery';
+import { SparklesIcon } from '../components/icons';
 
 type CategoryFilter =
   | 'All'
@@ -56,6 +58,9 @@ const ShopPage: React.FC = () => {
 
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Discovery Mode State
+  const [isDiscoveryMode, setIsDiscoveryMode] = useState(false);
 
   const { products: allProducts, loading, error, refetch } = useProducts();
   const { brands } = useBrands();
@@ -399,6 +404,17 @@ const ShopPage: React.FC = () => {
                 {term}
               </button>
             ))}
+          </div>
+
+          {/* Discovery Mode Toggle */}
+          <div className="flex justify-end mb-4">
+             <button 
+               onClick={() => setIsDiscoveryMode(true)}
+               className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 transition-all active:scale-95"
+             >
+               <SparklesIcon className="w-5 h-5" />
+               Try Discovery Mode
+             </button>
           </div>
 
           {/* Category Filter Buttons */}
@@ -767,6 +783,12 @@ const ShopPage: React.FC = () => {
           {!loading && `${resultCount} ${t('shop_products_found')}`}
         </div>
 
+            {isDiscoveryMode ? (
+               <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner min-h-[600px] mt-6">
+                 <SwipeDiscovery products={sortedAndFilteredProducts} onComplete={() => setIsDiscoveryMode(false)} />
+               </div>
+            ) : (
+               <>
         {!loading && error && (
           <div className="mb-6">
             <ApiStateCard
@@ -805,6 +827,8 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
         ) : null}
+            </>
+           )}
       </main>
 
       {/* Quick View Modal */}

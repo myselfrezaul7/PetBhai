@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Vet } from '../types';
 import { CloseIcon } from './icons';
-import useHaptics from '../hooks/useHaptics';
+import { useHaptics } from '../hooks/useHaptics';
 
 interface VetBookingModalProps {
   vet: Vet;

@@ -740,35 +740,43 @@ const PetDashboardPage: React.FC = () => {
                   </div>
 
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/65">
-                      <p className="text-xs uppercase tracking-wide text-slate-500">
-                        Nutrition Target
-                      </p>
-                      <p className="mt-2 text-3xl font-bold text-slate-800 dark:text-white">
-                        {calculateFoodPortion(selectedPet) || '?'}
-                        <span className="ml-1 text-base font-medium text-slate-500">kcal/day</span>
-                      </p>
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
-                        Based on current weight and activity level.
-                      </p>
+                    <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-xl text-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                         <PawIcon className="w-32 h-32" />
+                      </div>
+                      <div className="relative z-10">
+                        <p className="text-xs uppercase tracking-widest text-slate-400 font-bold">Predictive Nutrition</p>
+                        <div className="mt-4 flex items-end gap-2">
+                          <p className="text-4xl font-black">{calculateFoodPortion(selectedPet) || '?'}</p>
+                          <p className="text-sm text-slate-400 mb-1">kcal / day</p>
+                        </div>
+                        
+                        <div className="mt-6 bg-white/10 rounded-xl p-3 border border-white/5">
+                           <p className="text-xs font-semibold text-orange-400 mb-1">Smart Predict</p>
+                           <p className="text-sm">Based on daily consumption, you will run out of current food stock in <strong className="text-white">12 days</strong>.</p>
+                           <button className="mt-3 w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-lg transition-colors">
+                              Auto-Reorder Food
+                           </button>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/65">
+                    <div className="rounded-2xl border border-white/70 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
                       <h3 className="flex items-center gap-2 font-bold text-slate-800 dark:text-white">
                         <HeartIcon className="h-5 w-5 text-red-500" />
                         AI Health Insight
                       </h3>
-                      <div className="mt-3 min-h-[110px] text-sm text-slate-700 dark:text-slate-200">
+                      <div className="mt-3 flex-grow text-sm text-slate-700 dark:text-slate-200">
                         {loadingAi ? (
                           <div className="space-y-2 animate-pulse">
                             <div className="h-2 w-4/5 rounded bg-slate-200" />
                             <div className="h-2 w-2/3 rounded bg-slate-200" />
                           </div>
                         ) : aiInsight ? (
-                          <p>{aiInsight}</p>
+                          <p className="leading-relaxed">{aiInsight}</p>
                         ) : (
                           <p className="text-slate-500 dark:text-slate-300">
-                            Generate a personalized health insight for this pet.
+                            Generate a personalized health insight for this pet based on real-time biometric data.
                           </p>
                         )}
                       </div>
@@ -776,66 +784,85 @@ const PetDashboardPage: React.FC = () => {
                         type="button"
                         onClick={getAiHealthTip}
                         disabled={loadingAi}
-                        className="mt-3 rounded-full bg-slate-950 px-4 py-2 text-xs font-bold text-white hover:bg-black disabled:opacity-60"
+                        className="mt-4 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-black disabled:opacity-60 transition-transform active:scale-95 w-full"
                       >
-                        {loadingAi ? 'Generating...' : 'Generate Insight'}
+                        {loadingAi ? 'Analyzing Data...' : 'Generate AI Insight'}
                       </button>
                     </div>
                   </div>
                 </section>
 
-                <section className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      Weight Timeline
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="0.1"
-                        step="0.1"
-                        placeholder="Add weight"
-                        value={newWeightValue}
-                        onChange={(event) => setNewWeightValue(event.target.value)}
-                        className="w-28 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-900"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddWeightEntry}
-                        className="rounded-lg bg-slate-950 px-3 py-1.5 text-sm font-semibold text-white hover:bg-black"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </div>
-
-                  {weightHistory.length > 0 ? (
-                    <div className="mt-4 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-                      <div className="grid gap-2 md:grid-cols-2">
-                        {weightHistory
-                          .slice(-8)
-                          .reverse()
-                          .map((entry) => (
-                            <div
-                              key={entry.date}
-                              className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-900"
-                            >
-                              <span className="text-slate-500">
-                                {new Date(entry.date).toLocaleDateString()}
-                              </span>
-                              <span className="font-bold text-slate-800 dark:text-white">
-                                {entry.weight} kg
-                              </span>
+                {/* Digital Twin & Interactive Timeline */}
+                <section className="grid gap-4 lg:grid-cols-2">
+                   {/* Digital Twin */}
+                   <div className="rounded-3xl border border-slate-700 bg-slate-950 p-5 shadow-lg overflow-hidden relative">
+                      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                      <h3 className="relative z-10 text-lg font-bold text-white mb-2">Digital Twin</h3>
+                      <p className="relative z-10 text-xs text-slate-400">Real-time status monitoring</p>
+                      
+                      <div className="relative z-10 h-48 mt-4 flex items-center justify-center">
+                         {/* Abstract Wireframe Representation */}
+                         <div className="relative">
+                            <div className="w-24 h-24 border-2 border-orange-500/50 rounded-full animate-pulse flex items-center justify-center">
+                               <PawIcon className="w-12 h-12 text-orange-400" />
                             </div>
-                          ))}
+                            <div className="absolute inset-0 rounded-full border border-orange-500 animate-ping opacity-20"></div>
+                         </div>
+                         
+                         {/* HUD Pointers */}
+                         <div className="absolute right-4 top-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-2 text-[10px] text-white">
+                            <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div> Vitals Normal</span>
+                         </div>
                       </div>
-                      <p className="mt-3 text-xs text-slate-500 dark:text-slate-300">
-                        Highest logged weight: {maxWeight.toFixed(1)} kg
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="mt-4 text-sm text-slate-500">No weight entries yet.</p>
-                  )}
+                   </div>
+
+                   {/* Weight Timeline */}
+                   <div className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                          Biometric History
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0.1"
+                            step="0.1"
+                            placeholder="Add weight"
+                            value={newWeightValue}
+                            onChange={(event) => setNewWeightValue(event.target.value)}
+                            className="w-24 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddWeightEntry}
+                            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-orange-600 transition-transform active:scale-95"
+                          >
+                            + Log
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-grow flex items-end space-x-1 pb-2 h-32">
+                         {weightHistory.length > 0 ? (
+                           weightHistory.slice(-12).map((entry, idx) => {
+                             const heightPercent = maxWeight > 0 ? (entry.weight / maxWeight) * 100 : 0;
+                             return (
+                               <div key={idx} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                                  <div className="absolute -top-8 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                                     {entry.weight}kg • {new Date(entry.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
+                                  </div>
+                                  <div 
+                                    className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-sm transition-all duration-500 group-hover:from-orange-500 group-hover:to-orange-300"
+                                    style={{ height: `${Math.max(10, heightPercent)}%` }}
+                                  ></div>
+                               </div>
+                             );
+                           })
+                         ) : (
+                           <div className="w-full text-center text-sm text-slate-500 pb-10">No biometrics logged yet.</div>
+                         )}
+                      </div>
+                   </div>
                 </section>
               </>
             )}

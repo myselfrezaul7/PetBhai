@@ -1,7 +1,7 @@
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useCookieConsent } from './CookieConsentBanner';
-import useHaptics from '../hooks/useHaptics';
+import { useHaptics } from '../hooks/useHaptics';
 import { PWA_INSTALL_DISMISS_KEY, usePWAInstall } from '../hooks/usePWAInstall';
 
 const HIDE_FOR_DAYS = 7;

@@ -1,26 +1,33 @@
 import { useCallback } from 'react';
 
-export type HapticType = 'light' | 'medium' | 'success';
-
-const HAPTIC_PATTERNS: Record<HapticType, number | number[]> = {
-  light: 10,
-  medium: 18,
-  success: [12, 28, 12],
-};
-
+/**
+ * A custom hook to trigger haptic feedback on supported devices.
+ * Uses the HTML5 navigator.vibrate API.
+ * Gracefully fails on unsupported devices (e.g., iOS Safari or desktop).
+ */
 export const useHaptics = () => {
-  const triggerHaptic = useCallback((type: HapticType = 'light') => {
-    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
-      return;
+  const triggerHaptic = useCallback((pattern: number | number[]) => {
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {
+        // Ignore errors on unsupported devices
+      }
     }
-
-    const pattern = HAPTIC_PATTERNS[type] ?? HAPTIC_PATTERNS.light;
-    navigator.vibrate(pattern);
   }, []);
 
+  const hapticLight = useCallback(() => triggerHaptic(10), [triggerHaptic]);
+  const hapticMedium = useCallback(() => triggerHaptic(20), [triggerHaptic]);
+  const hapticHeavy = useCallback(() => triggerHaptic(40), [triggerHaptic]);
+  const hapticSuccess = useCallback(() => triggerHaptic([15, 50, 20]), [triggerHaptic]);
+  const hapticError = useCallback(() => triggerHaptic([30, 40, 30, 40, 40]), [triggerHaptic]);
+
   return {
-    triggerHaptic,
+    hapticLight,
+    hapticMedium,
+    hapticHeavy,
+    hapticSuccess,
+    hapticError,
+    triggerCustom: triggerHaptic,
   };
 };
-
-export default useHaptics;
