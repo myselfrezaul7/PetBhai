@@ -11,7 +11,7 @@ interface VetBookingModalProps {
 }
 
 const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose }) => {
-  const { triggerHaptic } = useHaptics();
+  const { hapticLight, hapticSuccess, hapticError, triggerCustom } = useHaptics();
   const [step, setStep] = useState(1);
   const [selectedTime, setSelectedTime] = useState('');
   const [issue, setIssue] = useState('');
@@ -25,7 +25,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   if (!isOpen) return null;
 
   const handleTimeSelect = (time: string) => {
-    triggerHaptic('light');
+    triggerCustom(10);
     setSelectedTime(time);
     setStep(2);
   };
@@ -43,7 +43,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   };
 
   const handleClose = () => {
-    triggerHaptic('light');
+    triggerCustom(10);
     onClose();
     // Reset state after a short delay to allow closing animation
     setTimeout(() => {

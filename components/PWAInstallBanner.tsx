@@ -8,7 +8,7 @@ const HIDE_FOR_DAYS = 7;
 
 const PWAInstallBanner: React.FC = () => {
   const { consent } = useCookieConsent();
-  const { triggerHaptic } = useHaptics();
+  const { hapticLight, hapticSuccess, triggerCustom } = useHaptics();
   const { canPromptInstall, promptInstall, isStandalone } = usePWAInstall();
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
 
@@ -45,11 +45,11 @@ const PWAInstallBanner: React.FC = () => {
   };
 
   const handleInstall = async () => {
-    triggerHaptic('medium');
+    triggerCustom(20);
     const outcome = await promptInstall();
 
     if (outcome === 'accepted') {
-      triggerHaptic('success');
+      triggerCustom([15, 50, 20]);
       safeStorage.removeItem(PWA_INSTALL_DISMISS_KEY);
       setDismissedAt(null);
       return;

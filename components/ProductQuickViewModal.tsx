@@ -16,7 +16,7 @@ interface ProductQuickViewModalProps {
 const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, onClose }) => {
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
-  const { triggerHaptic } = useHaptics();
+  const { hapticLight, hapticSuccess, triggerCustom } = useHaptics();
   const [isAdding, setIsAdding] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
@@ -31,7 +31,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = () => {
-    triggerHaptic('medium');
+    triggerCustom(20);
     setIsAdding(true);
     addToCart(product);
     setTimeout(() => setIsAdding(false), 800);

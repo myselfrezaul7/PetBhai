@@ -153,7 +153,7 @@ const AIAssistantPage: React.FC = () => {
   }, []);
 
   useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), [chatHistory]);
-  useEffect(() => safeStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory)), [chatHistory]);
+  useEffect(() => { safeStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory)); }, [chatHistory]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) return;

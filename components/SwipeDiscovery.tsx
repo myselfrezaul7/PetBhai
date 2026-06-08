@@ -74,7 +74,7 @@ const SwipeCard: React.FC<{
         </div>
         <div className="flex justify-between items-center text-xs font-bold text-slate-400">
            <span className="uppercase tracking-widest">{product.category}</span>
-           <span className="flex items-center text-amber-400"><HeartIcon className="w-4 h-4 mr-1" fill="currentColor"/> {product.rating}</span>
+           <span className="flex items-center text-amber-400"><HeartIcon className="w-4 h-4 mr-1" /> {product.rating}</span>
         </div>
       </div>
     </motion.div>
@@ -83,13 +83,13 @@ const SwipeCard: React.FC<{
 
 export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComplete }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { addItem } = useCart();
+  const { addToCart } = useCart();
   const { showSuccess } = useDynamicIsland();
   const { hapticMedium, hapticSuccess } = useHaptics();
 
   const handleSwipe = (direction: 'left' | 'right', product: Product) => {
     if (direction === 'right') {
-      addItem({ ...product, quantity: 1 });
+      addToCart(product);
       showSuccess('Added to Cart');
       hapticSuccess();
     } else {
