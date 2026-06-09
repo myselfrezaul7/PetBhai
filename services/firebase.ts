@@ -7,6 +7,9 @@ import {
   type Auth,
 } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+import { getPerformance } from 'firebase/performance';
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -58,6 +61,30 @@ if (isFirebaseConfigured()) {
           analytics = getAnalytics(app);
         }
       });
+
+      // Initialize App Check (Security)
+      const siteKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY;
+      if (siteKey && siteKey !== 'your_recaptcha_enterprise_site_key_here') {
+        try {
+          initializeAppCheck(app, {
+            provider: new ReCaptchaEnterpriseProvider(siteKey),
+            isTokenAutoRefreshEnabled: true,
+          });
+          console.log('Firebase App Check initialized successfully with reCAPTCHA Enterprise');
+        } catch (appCheckError) {
+          console.error('Firebase App Check initialization failed:', appCheckError);
+        }
+      } else {
+        console.warn('Firebase App Check was not initialized: VITE_RECAPTCHA_ENTERPRISE_SITE_KEY is missing or placeholder.');
+      }
+
+      // Initialize Performance Monitoring
+      try {
+        getPerformance(app);
+        console.log('Firebase Performance Monitoring initialized successfully');
+      } catch (perfError) {
+        console.error('Firebase Performance Monitoring initialization failed:', perfError);
+      }
     }
 
     console.log('Firebase initialized successfully');
