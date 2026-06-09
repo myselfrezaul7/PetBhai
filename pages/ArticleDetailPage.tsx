@@ -317,7 +317,7 @@ const ArticleDetailPage: React.FC = () => {
       </div>
 
       {/* Floating Share Button */}
-      <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
+      <div className="fixed bottom-[120px] md:bottom-[120px] right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
         {shareToast && (
           <div className="mb-4 bg-zinc-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-auto transform transition-all animate-fade-in-up">
             {shareToast}
