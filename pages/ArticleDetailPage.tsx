@@ -76,6 +76,7 @@ const ArticleDetailPage: React.FC = () => {
 
   const metaDescription = useMemo(() => {
     if (!article) return '';
+    if (!article.content || typeof article.content !== 'string') return article.excerpt || '';
     // Strip markdown formatting using regex for basic clean up
     let cleanText = article.content.replace(/[#*`_\[\]()]/g, '');
     cleanText = cleanText.replace(/\s+/g, ' ').trim();
@@ -85,7 +86,7 @@ const ArticleDetailPage: React.FC = () => {
   }, [article]);
 
   const headings = useMemo(() => {
-    if (!article?.content) return [];
+    if (!article?.content || typeof article.content !== 'string') return [];
     
     const lines = article.content.split('\n');
     const extracted: { text: string, id: string }[] = [];
