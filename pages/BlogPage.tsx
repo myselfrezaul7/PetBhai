@@ -1,11 +1,21 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ArticleCard from '../components/ArticleCard';
+import TrendingCarousel from '../components/TrendingCarousel';
 import { ArticleGridSkeleton } from '../components/Skeletons';
 import { useArticles } from '../contexts/ArticleContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 
+const CATEGORY_ICONS: Record<string, string> = {
+  'Dog Care': '🐕',
+  'Cat Care': '🐱',
+  'Health': '💉',
+  'Training': '🎓',
+  'Nutrition': '🥩',
+  'Safety': '🛡️',
+  'All': '📰'
+};
 
 const BlogPage: React.FC = () => {
   const { articles, loading, error, refetch } = useArticles();
@@ -31,10 +41,20 @@ const BlogPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, currentPage, searchParams, setSearchParams]);
 
-  // Get all unique categories
+  // Get categories with counts
   const categories = useMemo(() => {
-    const allCategories = articles.map(a => a.category).filter(Boolean) as string[];
-    return ['All', ...Array.from(new Set(allCategories))];
+    const counts: Record<string, number> = { 'All': articles.length };
+    articles.forEach(a => {
+      if (a.category) {
+        counts[a.category] = (counts[a.category] || 0) + 1;
+      }
+    });
+    const uniqueCats = ['All', ...Array.from(new Set(articles.map(a => a.category).filter(Boolean) as string[]))];
+    return uniqueCats.map(name => ({
+      name,
+      count: counts[name],
+      icon: CATEGORY_ICONS[name] || '🐾'
+    }));
   }, [articles]);
 
   // Memoize sorted & filtered articles
@@ -56,14 +76,8 @@ const BlogPage: React.FC = () => {
   const itemsPerPage = 9;
 
   // Calculate pagination
-  // Only separate featured article if on 'All' topics AND no search query is active
-  const isAllCategories = categoryFilter === 'All' && !debouncedQuery.trim();
-  const latestArticle = isAllCategories && sortedArticles.length > 0 ? sortedArticles[0] : null;
-  const allOtherArticles = isAllCategories && sortedArticles.length > 0 ? sortedArticles.slice(1) : sortedArticles;
-
-  const totalOtherPages = Math.ceil(allOtherArticles.length / itemsPerPage);
-  
-  const currentArticles = allOtherArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(sortedArticles.length / itemsPerPage);
+  const currentArticles = sortedArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -74,38 +88,9 @@ const BlogPage: React.FC = () => {
 
   const handleCategoryChange = (cat: string) => {
     setSearchParams(cat === 'All' ? {} : { category: cat });
+    setSearchQuery('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // ... inside component ...
-
-  if (loading) {
-    return (
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
-        <div className="space-y-8">
-          {/* Simulate Featured Article Loading */}
-          <div className="mb-12 h-80 bg-slate-200 dark:bg-zinc-900/95 rounded-2xl animate-pulse" />
-          {/* Grid Loading */}
-          <ArticleGridSkeleton count={itemsPerPage} />
-        </div>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-6 py-16 text-center text-zinc-500 dark:text-zinc-200" role="alert">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Blog</h2>
-        <p className="text-zinc-500 dark:text-zinc-200 mb-6">{error}</p>
-        <button
-          onClick={() => refetch()}
-          className="min-h-[48px] min-w-[120px] px-6 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-full font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
 
   const structuredData = useMemo(() => {
     return {
@@ -120,6 +105,45 @@ const BlogPage: React.FC = () => {
     };
   }, [currentArticles]);
 
+  if (loading) {
+    return (
+      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+        <ArticleGridSkeleton count={9} />
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center text-zinc-500 dark:text-zinc-200" role="alert">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Blog</h2>
+        <p className="text-zinc-500 dark:text-zinc-200 mb-6">{error}</p>
+        <button
+          onClick={() => refetch()}
+          className="min-h-[48px] px-6 py-2 bg-amber-500 text-white rounded-full font-semibold hover:bg-amber-600 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  const isFirstPage = currentPage === 1;
+  const isAllCategories = categoryFilter === 'All' && !debouncedQuery.trim();
+
+  // Extract layout slots based on page state
+  let heroArticle = null;
+  let largeArticles: typeof currentArticles = [];
+  let gridArticles: typeof currentArticles = [];
+
+  if (isFirstPage && isAllCategories && currentArticles.length > 0) {
+    heroArticle = currentArticles[0];
+    largeArticles = currentArticles.slice(1, 3);
+    gridArticles = currentArticles.slice(3);
+  } else {
+    gridArticles = currentArticles;
+  }
+
   return (
     <>
       <SEO
@@ -128,8 +152,11 @@ const BlogPage: React.FC = () => {
         structuredData={structuredData}
         url={`${window.location.origin}/#/blog`}
       />
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 overflow-hidden">
         
+        {/* Trending Stories Carousel - Only show on main view */}
+        {isFirstPage && isAllCategories && <TrendingCarousel articles={articles} />}
+
         {/* Search Bar */}
         <div className="mb-8 max-w-2xl mx-auto">
           <div className="relative group">
@@ -158,125 +185,131 @@ const BlogPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div className="flex overflow-x-auto pb-4 mb-8 -mx-3 px-3 md:mx-0 md:px-0 scrollbar-hide space-x-2">
+        {/* Rich Category Filters */}
+        <div className="flex overflow-x-auto pb-4 mb-8 -mx-3 px-3 md:mx-0 md:px-0 scrollbar-hide snap-x space-x-3">
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                categoryFilter === cat
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 hover:border-amber-500/50'
+              key={cat.name}
+              onClick={() => handleCategoryChange(cat.name)}
+              className={`snap-start flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm border ${
+                categoryFilter === cat.name
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-amber-500/20 shadow-lg scale-105'
+                  : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-amber-500/50 hover:bg-amber-50 dark:hover:bg-zinc-700'
               }`}
             >
-              {cat}
+              <span className="text-lg leading-none">{cat.icon}</span>
+              <span>{cat.name}</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                categoryFilter === cat.name 
+                  ? 'bg-white/20 text-white' 
+                  : 'bg-slate-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'
+              }`}>
+                {cat.count}
+              </span>
             </button>
           ))}
         </div>
 
-        {/* Articles Section */}
+        {/* Articles Section - Magazine Layout */}
         {sortedArticles.length > 0 ? (
-          <section aria-label="Blog articles">
-            <div className="space-y-8">
-              {/* Featured Latest Article - Only on first page */}
-              {currentPage === 1 && latestArticle && (
-                <div className="mb-12">
-                  <ArticleCard article={latestArticle} isFeatured={true} />
-                </div>
-              )}
+          <section aria-label="Blog articles" className="space-y-6 md:space-y-8 w-full">
+            
+            {/* HERO SLOT */}
+            {heroArticle && (
+              <ArticleCard article={heroArticle} variant="hero" />
+            )}
 
-              {/* Other Articles Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                {currentArticles.map((article, idx) => (
-                  <ArticleCard key={article.id} article={article} index={idx} />
+            {/* LARGE SLOTS */}
+            {largeArticles.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                {largeArticles.map((article, idx) => (
+                  <ArticleCard key={article.id} article={article} variant="large" index={idx} />
                 ))}
               </div>
+            )}
 
-              {/* Desktop Pagination Controls */}
-              {totalOtherPages > 1 && (
-                <div className="flex justify-center mt-12 overflow-x-auto padding-x-2 py-2">
-                  <div className="glass-card-ios px-2 sm:px-4 py-3 flex items-center space-x-1 flex-nowrap border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === 1
-                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95'
-                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      {t('prev') || 'পূর্ববর্তী'}
-                    </button>
+            {/* DEFAULT GRID SLOTS */}
+            {gridArticles.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {gridArticles.map((article, idx) => (
+                  <ArticleCard key={article.id} article={article} variant="default" index={idx + largeArticles.length} />
+                ))}
+              </div>
+            )}
 
-                    {Array.from({ length: totalOtherPages }, (_, i) => i + 1)
-                      .filter((page) => {
-                        // Show first, last, current, and pages around current
-                        return (
-                          page === 1 || page === totalOtherPages || Math.abs(page - currentPage) <= 1
-                        );
-                      })
-                      .map((page, index, array) => {
-                        // Add ellipses
-                        const showEllipsisStart = index > 0 && page - array[index - 1] > 1;
+            {/* Desktop Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-12 overflow-x-auto padding-x-2 py-2">
+                <div className="glass-card-ios px-2 sm:px-4 py-3 flex items-center space-x-1 flex-nowrap border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl bg-white/95 dark:bg-zinc-900/95">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === 1
+                        ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95'
+                        : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {t('prev') || 'Prev'}
+                  </button>
 
-                        return (
-                          <React.Fragment key={page}>
-                            {showEllipsisStart && <span className="text-zinc-500 dark:text-zinc-300 px-1">...</span>}
-                            <button
-                              onClick={() => handlePageChange(page)}
-                              className={`min-w-[48px] min-h-[48px] w-12 h-12 rounded-lg text-sm font-medium transition-all ${
-                                currentPage === page
-                                  ? 'bg-amber-500 dark:bg-amber-600 text-white shadow-md transform scale-105'
-                                  : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
-                              }`}
-                            >
-                              {page}
-                            </button>
-                          </React.Fragment>
-                        );
-                      })}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                    .map((page, index, array) => {
+                      const showEllipsisStart = index > 0 && page - array[index - 1] > 1;
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsisStart && <span className="text-zinc-500 dark:text-zinc-300 px-1">...</span>}
+                          <button
+                            onClick={() => handlePageChange(page)}
+                            className={`min-w-[48px] min-h-[48px] w-12 h-12 rounded-lg text-sm font-medium transition-all ${
+                              currentPage === page
+                                ? 'bg-amber-500 dark:bg-amber-600 text-white shadow-md transform scale-105'
+                                : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
 
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalOtherPages}
-                      className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === totalOtherPages
-                          ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95'
-                          : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      {t('next') || 'পরবর্তী'}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`min-w-[48px] min-h-[48px] px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === totalPages
+                        ? 'bg-slate-100 text-zinc-500 dark:text-zinc-300 cursor-not-allowed dark:bg-zinc-900/95'
+                        : 'bg-white/95 dark:bg-zinc-900/95 text-zinc-800 dark:text-zinc-100 hover:bg-amber-500/10 border border-amber-900/10 dark:border-amber-100/10 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {t('next') || 'Next'}
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </section>
         ) : (
-           <div className="text-center py-16 px-4 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 rounded-2xl glass-card-ios max-w-2xl mx-auto border border-amber-900/5 dark:border-amber-100/5 shadow-xl">
+           <div className="text-center py-16 px-4 bg-white/95 dark:bg-zinc-800/80 rounded-2xl glass-card-ios max-w-2xl mx-auto border border-amber-900/5 dark:border-amber-100/5 shadow-xl">
              <div className="w-20 h-20 bg-slate-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
              </div>
              <p className="text-xl text-zinc-700 dark:text-zinc-200 font-bold mb-2">
-               {debouncedQuery ? `No results for "${searchQuery}"` : 'No articles found right now.'}
-             </p>
-             <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-md mx-auto">
-               {debouncedQuery ? 'Try adjusting your search terms or selecting a different category.' : 'We are adding new content soon. Please check back later.'}
+               {debouncedQuery ? `No results for "${searchQuery}"` : 'No articles found.'}
              </p>
              {debouncedQuery ? (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="px-6 py-2.5 bg-amber-500 text-white rounded-full font-semibold hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/20 active:scale-95"
+                  className="px-6 py-2.5 bg-amber-500 text-white rounded-full font-semibold mt-4 hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/20 active:scale-95"
                 >
                   Clear Search
                 </button>
              ) : (
               <button
                 onClick={() => refetch()}
-                className="px-6 py-2.5 bg-slate-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-zinc-700 transition-colors active:scale-95"
+                className="px-6 py-2.5 bg-slate-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-zinc-700 mt-4 transition-colors active:scale-95"
               >
                 Check Again
               </button>

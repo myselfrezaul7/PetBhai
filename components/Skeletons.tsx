@@ -39,22 +39,16 @@ export const ProductCardSkeleton: React.FC = () => (
   </div>
 );
 
-// Article card skeleton
+export const ArticleHeroSkeleton: React.FC = () => (
+  <Skeleton className="w-full h-[320px] md:h-[420px] rounded-3xl mb-8 border border-white/10" />
+);
+
+export const ArticleLargeSkeleton: React.FC = () => (
+  <Skeleton className="w-full h-[280px] rounded-2xl border border-white/10" />
+);
+
 export const ArticleCardSkeleton: React.FC = () => (
-  <div className="glass-card-ios overflow-hidden flex flex-col h-full border border-white/30 dark:border-white/10">
-    <Skeleton className="w-full h-48 sm:h-56 rounded-none" />
-    <div className="p-5 flex flex-col flex-grow">
-      <Skeleton className="h-3 w-1/4 mb-3" />
-      <Skeleton className="h-6 w-full mb-2" />
-      <Skeleton className="h-6 w-3/4 mb-4" />
-      <Skeleton className="h-4 w-full mb-2" />
-      <Skeleton className="h-4 w-2/3" />
-      <div className="mt-auto pt-4 flex justify-between items-center">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-20" />
-      </div>
-    </div>
-  </div>
+  <Skeleton className="w-full h-[220px] md:h-[260px] rounded-2xl border border-white/10" />
 );
 
 // Vet card skeleton
@@ -251,14 +245,23 @@ export const ProductGridSkeleton: React.FC<{ count?: number }> = ({ count = 8 })
   </div>
 );
 
-// Grid of article skeletons
-export const ArticleGridSkeleton: React.FC<{ count?: number }> = ({ count = 6 }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {Array.from({ length: count }).map((_, i) => (
-      <ArticleCardSkeleton key={i} />
-    ))}
-  </div>
-);
+// Magazine layout skeleton
+export const ArticleGridSkeleton: React.FC<{ count?: number }> = ({ count = 9 }) => {
+  return (
+    <div className="space-y-8 w-full">
+      <ArticleHeroSkeleton />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <ArticleLargeSkeleton />
+        <ArticleLargeSkeleton />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {Array.from({ length: Math.max(0, count - 3) }).map((_, i) => (
+          <ArticleCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 // Spinner component for inline loading
 export const Spinner: React.FC<{ size?: 'sm' | 'md' | 'lg'; className?: string }> = ({

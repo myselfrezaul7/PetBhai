@@ -6,6 +6,7 @@ import {
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   type Auth,
 } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -41,6 +42,7 @@ let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
 let analytics: Analytics | null = null;
+let db: Firestore | null = null;
 
 if (isFirebaseConfigured()) {
   try {
@@ -48,6 +50,7 @@ if (isFirebaseConfigured()) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
+    db = getFirestore(app);
 
     if (typeof window !== 'undefined') {
       void isSupported().then((supported) => {
@@ -65,7 +68,7 @@ if (isFirebaseConfigured()) {
   console.log('Firebase not configured - Google Sign-In is unavailable');
 }
 
-export { app, auth, googleProvider, analytics };
+export { app, auth, googleProvider, analytics, db };
 
 /**
  * Send a password reset email to the specified email address
