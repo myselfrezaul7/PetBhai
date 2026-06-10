@@ -16,13 +16,15 @@ const SwipeCard: React.FC<{
   index: number;
   onSwipe: (direction: 'left' | 'right', product: Product) => void;
   active: boolean;
-}> = ({ product, index, onSwipe, active }) => {
+  exitDirection: 'left' | 'right' | null;
+}> = ({ product, index, onSwipe, active, exitDirection }) => {
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-15, 15]);
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const rotate = useTransform(x, [-300, 300], [-20, 20]);
+  const opacity = useTransform(x, [-300, -150, 0, 150, 300], [0, 1, 1, 1, 0]);
   
-  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
-  const nopeOpacity = useTransform(x, [-100, 0], [1, 0]);
+  const likeOpacity = useTransform(x, [20, 150], [0, 1]);
+  const nopeOpacity = useTransform(x, [-20, -150], [0, 1]);
+  const stampScale = useTransform(x, [-150, 0, 150], [1.1, 0.5, 1.1]);
 
   const handleDragEnd = (e: any, info: any) => {
     if (info.offset.x > 100) {
@@ -39,26 +41,33 @@ const SwipeCard: React.FC<{
       style={active ? { x, rotate, opacity } : {}}
       drag={active ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.7}
       onDragEnd={handleDragEnd}
-      initial={{ scale: 0.95, y: 20, opacity: 0 }}
+      initial={{ scale: 0.9, y: 30, opacity: 0 }}
       animate={{ 
-        scale: active ? 1 : 1 - (index * 0.05), 
-        y: active ? 0 : index * 10,
-        opacity: 1 - (index * 0.2),
-        zIndex: 100 - index
+        scale: active ? 1 : 1 - (index * 0.06), 
+        y: active ? 0 : index * 14,
+        opacity: 1 - (index * 0.15),
+        zIndex: 100 - index,
+        rotate: active ? 0 : (index % 2 === 0 ? index * 1.5 : -index * 1.5)
       }}
-      exit={{ x: x.get() > 0 ? 300 : -300, opacity: 0, transition: { duration: 0.2 } }}
-      className="absolute top-0 left-0 w-full h-[450px] origin-bottom rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 cursor-grab active:cursor-grabbing"
+      exit={{ 
+        x: exitDirection === 'right' ? 400 : exitDirection === 'left' ? -400 : (x.get() > 0 ? 400 : -400), 
+        opacity: 0, 
+        rotate: exitDirection === 'right' ? 20 : exitDirection === 'left' ? -20 : (x.get() > 0 ? 20 : -20), 
+        transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } 
+      }}
+      className="absolute top-0 left-0 w-full h-[450px] origin-bottom rounded-3xl bg-white shadow-xl hover:shadow-2xl overflow-hidden border border-slate-200 cursor-grab active:cursor-grabbing transition-shadow duration-300"
     >
       {/* Product Image */}
       <div className="w-full h-2/3 bg-slate-50 relative pointer-events-none">
         <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain p-6" draggable={false} />
         
         {/* Swipe Overlays */}
-        <motion.div style={{ opacity: likeOpacity }} className="absolute top-4 left-4 border-4 border-emerald-500 rounded-lg px-4 py-1 transform -rotate-12">
+        <motion.div style={{ opacity: likeOpacity, scale: stampScale }} className="absolute top-4 left-4 border-4 border-emerald-500 rounded-lg px-4 py-1 transform -rotate-12 bg-white/80 backdrop-blur-sm shadow-lg">
            <span className="text-emerald-500 font-black text-2xl tracking-wider">WANT</span>
         </motion.div>
-        <motion.div style={{ opacity: nopeOpacity }} className="absolute top-4 right-4 border-4 border-rose-500 rounded-lg px-4 py-1 transform rotate-12">
+        <motion.div style={{ opacity: nopeOpacity, scale: stampScale }} className="absolute top-4 right-4 border-4 border-rose-500 rounded-lg px-4 py-1 transform rotate-12 bg-white/80 backdrop-blur-sm shadow-lg">
            <span className="text-rose-500 font-black text-2xl tracking-wider">PASS</span>
         </motion.div>
       </div>
@@ -83,11 +92,13 @@ const SwipeCard: React.FC<{
 
 export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComplete }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [exitDirection, setExitDirection] = useState<'left' | 'right' | null>(null);
   const { addToCart } = useCart();
   const { showSuccess } = useDynamicIsland();
   const { hapticMedium, hapticSuccess } = useHaptics();
 
   const handleSwipe = (direction: 'left' | 'right', product: Product) => {
+    setExitDirection(direction);
     if (direction === 'right') {
       addToCart(product);
       showSuccess('Added to Cart');
@@ -116,7 +127,7 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
       </div>
 
       <div className="relative w-full max-w-[340px] h-[450px]">
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {currentProducts.map((product, i) => (
             <SwipeCard
               key={product.id}
@@ -124,6 +135,7 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
               index={i}
               active={i === 0}
               onSwipe={handleSwipe}
+              exitDirection={exitDirection}
             />
           ))}
         </AnimatePresence>
@@ -140,12 +152,24 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
       </div>
       
       <div className="flex gap-6 mt-8">
-         <button onClick={() => handleSwipe('left', currentProducts[0])} disabled={currentProducts.length === 0} className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-rose-500 border border-slate-100 hover:scale-110 transition-transform active:scale-95 disabled:opacity-50">
+         <motion.button 
+           whileTap={{ scale: 0.85 }} 
+           whileHover={{ scale: 1.1 }}
+           onClick={() => handleSwipe('left', currentProducts[0])} 
+           disabled={currentProducts.length === 0} 
+           className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-rose-500 border border-slate-100 transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
+         >
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-         </button>
-         <button onClick={() => handleSwipe('right', currentProducts[0])} disabled={currentProducts.length === 0} className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-emerald-500 border border-slate-100 hover:scale-110 transition-transform active:scale-95 disabled:opacity-50">
+         </motion.button>
+         <motion.button 
+           whileTap={{ scale: 0.85 }} 
+           whileHover={{ scale: 1.1 }}
+           onClick={() => handleSwipe('right', currentProducts[0])} 
+           disabled={currentProducts.length === 0} 
+           className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-emerald-500 border border-slate-100 transition-colors hover:bg-emerald-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
+         >
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.5 12.75l6 6 9-13.5" /></svg>
-         </button>
+         </motion.button>
       </div>
     </div>
   );

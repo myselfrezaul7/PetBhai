@@ -22,6 +22,8 @@ export default {
         float: 'float 8s ease-in-out infinite',
         glow: 'glow 3.5s ease-in-out infinite alternate',
         shimmer: 'shimmer 2s linear infinite',
+        'fade-in-up': 'fadeInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+        heartbeat: 'heartbeat 1.5s ease-in-out infinite',
       },
       fontFamily: {
         sans: ['Poppins', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
@@ -69,10 +71,22 @@ export default {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '14%': { transform: 'scale(1.1)' },
+          '28%': { transform: 'scale(1)' },
+          '42%': { transform: 'scale(1.1)' },
+          '70%': { transform: 'scale(1)' },
+        },
       },
       transitionTimingFunction: {
         ios: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
         'ios-bounce': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        spring: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
       },
       colors: {
         kw: {

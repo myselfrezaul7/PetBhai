@@ -186,6 +186,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const wishlistMutationRef = useRef(false);
   const inFlightWishlist = useRef<Set<number>>(new Set());
   const inFlightFavorites = useRef<Set<number>>(new Set());
+  const inFlightSubscription = useRef(false);
 
   const clearSession = useCallback(() => {
     setCurrentUser(null);
@@ -755,7 +756,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const subscribeToPlus = useCallback(async () => {
-    if (!currentUser) return;
+    if (!currentUser || inFlightSubscription.current) return;
 
     const oldUser = { ...currentUser };
     const updatedUser = {
@@ -763,16 +764,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isPlusMember: true,
     };
     setCurrentUser(updatedUser);
+    inFlightSubscription.current = true;
 
     try {
       await protectedApiRequest<unknown>(`/auth/${currentUser.id}/subscribe`, {
         method: 'POST',
       });
+      toast.success('Successfully subscribed to PetBhai Plus!');
     } catch (err) {
       console.error('Failed to sync subscription', err);
       setCurrentUser(oldUser);
+      toast.error('Failed to process subscription. Please try again.');
+    } finally {
+      inFlightSubscription.current = false;
     }
-  }, [currentUser, protectedApiRequest]);
+  }, [currentUser, protectedApiRequest, toast]);
 
   const addOrderToHistory = useCallback(
     async (order: Order) => {

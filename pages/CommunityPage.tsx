@@ -987,6 +987,7 @@ const CommunityPage: React.FC = () => {
                 <button
                   onClick={() => setShowLeaderboard(false)}
                   className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  aria-label="Close leaderboard"
                 >
                   ✕
                 </button>

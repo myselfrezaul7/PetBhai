@@ -98,7 +98,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         <img
           src={article.imageUrl || "/blog-images/blog-placeholder.png"}
           alt={article.title}
-          className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-1000 group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
+          className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
           onLoad={() => setIsLoaded(true)}
           onError={handleBlogImageError}
         />
@@ -145,7 +145,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         <img
           src={article.imageUrl || "/blog-images/blog-placeholder.png"}
           alt={article.title}
-          className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
+          className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
           onLoad={() => setIsLoaded(true)}
           onError={handleBlogImageError}
         />
@@ -185,7 +185,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
       <img
         src={article.imageUrl || "/blog-images/blog-placeholder.png"}
         alt={article.title}
-        className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
+        className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
         onLoad={() => setIsLoaded(true)}
         onError={handleBlogImageError}
         loading="lazy"

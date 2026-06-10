@@ -94,7 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <img 
             src={product.imageUrl}
             alt={product.name}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-spring group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
             loading="lazy"
             decoding="async"
             sizes={getResponsiveImageSizes('card')}
@@ -150,7 +150,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <img 
             src={product.imageUrl}
             alt={product.name}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-spring group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
             sizes={getResponsiveImageSizes('card')}
             onError={handleImageError}
           />
@@ -210,7 +210,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         <img 
           src={product.imageUrl}
           alt={product.name}
-          className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-700 ease-out group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
+          className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-300 ease-spring group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
           loading="lazy"
           decoding="async"
           sizes={getResponsiveImageSizes('card')}
@@ -318,7 +318,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           aria-label={
             isOutOfStock ? t('aria_out_of_stock') : `${t('aria_add_to_cart')} ${product.name}`
           }
-          className={`w-full min-h-[44px] flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-500 ease-out touch-manipulation
+          className={`w-full min-h-[44px] flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-300 ease-out touch-manipulation
             ${
               isOutOfStock
                 ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 cursor-not-allowed'

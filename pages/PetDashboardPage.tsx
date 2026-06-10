@@ -190,7 +190,10 @@ const PetDashboardPage: React.FC = () => {
   }, [selectedPet]);
 
   const weightHistory = selectedPet?.weightHistory || [];
-  const maxWeight = Math.max(1, ...weightHistory.map((item) => item.weight));
+  const maxWeight = useMemo(() => {
+    if (weightHistory.length === 0) return 1;
+    return Math.max(1, ...weightHistory.map((item) => item.weight));
+  }, [weightHistory]);
 
   const handleAddPet = async (event: React.FormEvent) => {
     event.preventDefault();
