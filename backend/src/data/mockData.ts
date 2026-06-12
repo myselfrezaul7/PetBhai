@@ -1,4 +1,4 @@
-뿯붿import {
+import {
   User,
   Post,
   Vet,
