@@ -17,6 +17,9 @@
     }
   ],
   "start_url": "/",
+  "scope": "/",
+  "lang": "en-BD",
+  "categories": ["shopping", "lifestyle", "pets"],
   "display": "standalone",
   "theme_color": "#f97316",
   "background_color": "#f8fafc"

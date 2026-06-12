@@ -150,6 +150,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <img 
             src={product.imageUrl}
             alt={product.name}
+            loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-spring group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
             sizes={getResponsiveImageSizes('card')}
             onError={handleImageError}

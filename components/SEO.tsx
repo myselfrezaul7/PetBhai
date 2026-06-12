@@ -189,6 +189,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="robots" content={robotsValue} />
       <meta name="googlebot" content={googleBotValue} />
       <link rel="alternate" hrefLang="en-BD" href={currentUrl} />
+      <link rel="alternate" hrefLang="bn-BD" href={currentUrl} />
       <link rel="alternate" hrefLang="x-default" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
