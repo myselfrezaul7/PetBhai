@@ -1,6 +1,7 @@
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 import { apiRequest, getErrorMessage } from '../services/apiClient';
 
 // Types
@@ -160,9 +161,17 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   const { currentUser } = useAuth();
   const [pets, setPets] = useState<PetProfile[]>([]);
   const [medicineReminders, setMedicineReminders] = useState<MedicineReminder[]>([]);
+  const toast = useToast();
   const [priceAlerts, setPriceAlerts] = useState<PriceAlert[]>([]);
   const [groupBuys, setGroupBuys] = useState<GroupBuyItem[]>([]);
-  const [impactStats, setImpactStats] = useState<ImpactStats>(DEFAULT_IMPACT_STATS);
+  const [impactStats, setImpactStats] = useState<ImpactStats>(() => {
+    try {
+        const stored = safeStorage.getItem(IMPACT_KEY);
+        return stored ? JSON.parse(stored) : DEFAULT_IMPACT_STATS;
+    } catch {
+        return DEFAULT_IMPACT_STATS;
+    }
+  });
 
   const getAuthHeaders = useCallback((): Record<string, string> => {
     const token = safeStorage.getItem(TOKEN_STORAGE_KEY);
@@ -288,24 +297,30 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error('Please sign in to add pets.');
       }
 
-      const response = await apiRequest<{
-        pet: PetProfile;
-        pets: PetProfile[];
-        medicineReminders: MedicineReminder[];
-      }>(`/auth/${currentUser.id}/pets`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(petData),
-      });
+      try {
+        const response = await apiRequest<{
+          pet: PetProfile;
+          pets: PetProfile[];
+          medicineReminders: MedicineReminder[];
+        }>(`/auth/${currentUser.id}/pets`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(petData),
+        });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+        setPets(Array.isArray(response?.pets) ? response.pets : []);
+        setMedicineReminders(
+          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+        );
 
-      return response.pet;
+        return response.pet;
+      } catch (error) {
+        console.error('Failed to add pet:', error);
+        toast.error(getErrorMessage(error) || 'Failed to add pet');
+        throw error;
+      }
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, toast]
   );
 
   const updatePet = useCallback(
@@ -314,21 +329,27 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error('Please sign in to update pets.');
       }
 
-      const response = await apiRequest<{
-        pets: PetProfile[];
-        medicineReminders: MedicineReminder[];
-      }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(id)}`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(updates),
-      });
+      try {
+        const response = await apiRequest<{
+          pets: PetProfile[];
+          medicineReminders: MedicineReminder[];
+        }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(updates),
+        });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+        setPets(Array.isArray(response?.pets) ? response.pets : []);
+        setMedicineReminders(
+          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+        );
+      } catch (error) {
+        console.error('Failed to update pet:', error);
+        toast.error(getErrorMessage(error) || 'Failed to update pet');
+        throw error;
+      }
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, toast]
   );
 
   const deletePet = useCallback(
@@ -337,20 +358,26 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error('Please sign in to delete pets.');
       }
 
-      const response = await apiRequest<{
-        pets: PetProfile[];
-        medicineReminders: MedicineReminder[];
-      }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      });
+      try {
+        const response = await apiRequest<{
+          pets: PetProfile[];
+          medicineReminders: MedicineReminder[];
+        }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+        setPets(Array.isArray(response?.pets) ? response.pets : []);
+        setMedicineReminders(
+          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+        );
+      } catch (error) {
+        console.error('Failed to delete pet:', error);
+        toast.error(getErrorMessage(error) || 'Failed to delete pet');
+        throw error;
+      }
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, toast]
   );
 
   const getPetById = useCallback((id: string) => pets.find((p) => p.id === id), [pets]);
@@ -361,21 +388,27 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error('Please sign in to update weight entries.');
       }
 
-      const response = await apiRequest<{
-        pets: PetProfile[];
-        medicineReminders: MedicineReminder[];
-      }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(petId)}/weights`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ weight }),
-      });
+      try {
+        const response = await apiRequest<{
+          pets: PetProfile[];
+          medicineReminders: MedicineReminder[];
+        }>(`/auth/${currentUser.id}/pets/${encodeURIComponent(petId)}/weights`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ weight }),
+        });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+        setPets(Array.isArray(response?.pets) ? response.pets : []);
+        setMedicineReminders(
+          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
+        );
+      } catch (error) {
+        console.error('Failed to add weight entry:', error);
+        toast.error(getErrorMessage(error) || 'Failed to add weight entry');
+        throw error;
+      }
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, toast]
   );
 
   // Medicine Reminder Methods

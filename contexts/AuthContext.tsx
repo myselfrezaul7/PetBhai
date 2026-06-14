@@ -639,56 +639,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
       // Optimistic update
-      const oldUser = { ...currentUser };
-      if (!oldUser.wishlist.includes(productId)) {
-        setCurrentUser({ ...oldUser, wishlist: [...oldUser.wishlist, productId] });
-        inFlightWishlist.current.add(productId);
-        wishlistMutationRef.current = true;
+      setCurrentUser(prev => prev && !prev.wishlist.includes(productId) 
+        ? { ...prev, wishlist: [...prev.wishlist, productId] } 
+        : prev);
+        
+      inFlightWishlist.current.add(productId);
+      wishlistMutationRef.current = true;
 
-        try {
-          await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ productId }),
-          });
-        } catch (err) {
-          console.error('Failed to sync wishlist', err);
-          setCurrentUser(oldUser);
-        } finally {
-          inFlightWishlist.current.delete(productId);
-          wishlistMutationRef.current = false;
-        }
+      try {
+        await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId }),
+        });
+      } catch (err) {
+        console.error('Failed to sync wishlist', err);
+        setCurrentUser(prev => prev ? { ...prev, wishlist: prev.wishlist.filter(id => id !== productId) } : prev);
+        toast.error('Failed to update wishlist. Please try again.');
+      } finally {
+        inFlightWishlist.current.delete(productId);
+        wishlistMutationRef.current = false;
       }
     },
-    [currentUser, protectedApiRequest]
+    [currentUser, protectedApiRequest, toast]
   );
 
   const removeFromWishlist = useCallback(
     async (productId: number) => {
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
-      const oldUser = { ...currentUser };
-      if (oldUser.wishlist.includes(productId)) {
-        setCurrentUser({ ...oldUser, wishlist: oldUser.wishlist.filter((id) => id !== productId) });
-        inFlightWishlist.current.add(productId);
-        wishlistMutationRef.current = true;
+      setCurrentUser(prev => prev && prev.wishlist.includes(productId) 
+        ? { ...prev, wishlist: prev.wishlist.filter(id => id !== productId) } 
+        : prev);
+        
+      inFlightWishlist.current.add(productId);
+      wishlistMutationRef.current = true;
 
-        try {
-          await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist/${productId}`, {
-            method: 'DELETE',
-          });
-        } catch (err) {
-          console.error('Failed to sync wishlist removal', err);
-          setCurrentUser(oldUser);
-        } finally {
-          inFlightWishlist.current.delete(productId);
-          wishlistMutationRef.current = false;
-        }
+      try {
+        await protectedApiRequest<unknown>(`/auth/${currentUser.id}/wishlist/${productId}`, {
+          method: 'DELETE',
+        });
+      } catch (err) {
+        console.error('Failed to sync wishlist removal', err);
+        setCurrentUser(prev => prev ? { ...prev, wishlist: [...prev.wishlist, productId] } : prev);
+        toast.error('Failed to remove from wishlist. Please try again.');
+      } finally {
+        inFlightWishlist.current.delete(productId);
+        wishlistMutationRef.current = false;
       }
     },
-    [currentUser, protectedApiRequest]
+    [currentUser, protectedApiRequest, toast]
   );
 
   const favoritePet = useCallback(
@@ -700,12 +702,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Limit favorites size to prevent abuse
       if (currentUser.favorites.length >= 100) return;
 
-      const oldUser = { ...currentUser };
-      const updatedUser = {
-        ...currentUser,
-        favorites: [...currentUser.favorites, animalId],
-      };
-      setCurrentUser(updatedUser);
+      setCurrentUser(prev => prev ? { ...prev, favorites: [...prev.favorites, animalId] } : prev);
       inFlightFavorites.current.add(animalId);
 
       try {
@@ -718,7 +715,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync favorite', err);
-        setCurrentUser(oldUser);
+        setCurrentUser(prev => prev ? { ...prev, favorites: prev.favorites.filter(id => id !== animalId) } : prev);
         toast.error('Failed to favorite pet');
       } finally {
         inFlightFavorites.current.delete(animalId);
@@ -732,12 +729,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser || inFlightFavorites.current.has(animalId)) return;
       if (!validateId(animalId)) return;
 
-      const oldUser = { ...currentUser };
-      const updatedUser = {
-        ...currentUser,
-        favorites: currentUser.favorites.filter((id) => id !== animalId),
-      };
-      setCurrentUser(updatedUser);
+      setCurrentUser(prev => prev ? { ...prev, favorites: prev.favorites.filter(id => id !== animalId) } : prev);
       inFlightFavorites.current.add(animalId);
 
       try {
@@ -746,7 +738,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync unfavorite', err);
-        setCurrentUser(oldUser);
+        setCurrentUser(prev => prev ? { ...prev, favorites: [...prev.favorites, animalId] } : prev);
         toast.error('Failed to remove pet from favorites');
       } finally {
         inFlightFavorites.current.delete(animalId);
@@ -758,12 +750,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const subscribeToPlus = useCallback(async () => {
     if (!currentUser || inFlightSubscription.current) return;
 
-    const oldUser = { ...currentUser };
-    const updatedUser = {
-      ...currentUser,
-      isPlusMember: true,
-    };
-    setCurrentUser(updatedUser);
+    setCurrentUser(prev => prev ? { ...prev, isPlusMember: true } : prev);
     inFlightSubscription.current = true;
 
     try {
@@ -773,7 +760,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success('Successfully subscribed to PetBhai Plus!');
     } catch (err) {
       console.error('Failed to sync subscription', err);
-      setCurrentUser(oldUser);
+      setCurrentUser(prev => prev ? { ...prev, isPlusMember: false } : prev);
       toast.error('Failed to process subscription. Please try again.');
     } finally {
       inFlightSubscription.current = false;
@@ -785,14 +772,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser) return;
       if (!order || !order.orderId) return;
 
-      // Limit order history size to prevent memory issues
-      const limitedHistory = currentUser.orderHistory.slice(0, 99);
-
-      const updatedUser = {
-        ...currentUser,
-        orderHistory: [order, ...limitedHistory],
-      };
-      setCurrentUser(updatedUser);
+      setCurrentUser(prev => {
+        if (!prev) return prev;
+        const limitedHistory = prev.orderHistory.slice(0, 99);
+        return { ...prev, orderHistory: [order, ...limitedHistory] };
+      });
 
       // Persist to backend
       try {
@@ -809,9 +793,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Order is still recorded locally even if backend sync fails.
         // This ensures the user sees their order immediately.
         console.error('Failed to sync order to backend', err);
+        toast.error('Order synced locally, but failed to save to server.');
       }
     },
-    [currentUser, protectedApiRequest]
+    [currentUser, protectedApiRequest, fetchProfile, toast]
   );
 
   useEffect(() => {

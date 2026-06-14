@@ -160,7 +160,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         <button
           type="button"
           onClick={handleWishlistClick}
-          className={`absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-amber-900/10 dark:border-amber-100/10 shadow-sm transition-colors ${
+          className={`absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-amber-900/10 dark:border-amber-100/10 shadow-sm transition-colors ${
             isWishlisted
               ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400'
               : 'bg-white/80 text-slate-700 dark:bg-slate-900/70 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800'

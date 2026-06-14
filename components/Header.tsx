@@ -15,6 +15,7 @@ import { useAnimals } from '../contexts/AnimalContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { sanitizeInput } from '../lib/security';
 import { useGlobalSearch, type PageResult } from '../hooks/useGlobalSearch';
+import { useDebounce } from '../hooks/useDebounce';
 import { useCart } from '../contexts/CartContext';
 import { useCookieConsent } from './CookieConsentBanner';
 import { useScrollDirection } from '../hooks/useScrollDirection';
@@ -114,9 +115,10 @@ const Header: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
   const computedResults = useGlobalSearch({
-    query: searchQuery,
+    query: debouncedSearchQuery,
     products,
     pages: ALL_PAGES,
     articles,

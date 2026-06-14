@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { HeartIcon, PawIcon } from '../components/icons';
 import { RescueMap } from '../components/RescueMap';
 
@@ -157,11 +158,13 @@ const AdoptPage: React.FC = () => {
             const isClicked = clickedChoice === choice.type;
 
             return (
-              <button
+              <motion.button
                 key={choice.type}
                 onClick={() => handleChoiceClick(choice)}
                 onMouseEnter={() => setHoveredChoice(choice.type)}
                 onMouseLeave={() => setHoveredChoice(null)}
+                whileHover={{ scale: 1.02, y: -4 }}
+                whileTap={{ scale: 0.97 }}
                 className={`
                   group relative w-full md:w-1/2 text-center
                   bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl
@@ -169,9 +172,8 @@ const AdoptPage: React.FC = () => {
                   rounded-2xl p-6 md:p-8
                   shadow-md shadow-slate-900/5 dark:shadow-black/20
                   cursor-pointer
-                  transition-all duration-300 ease-out
-                  ${isClicked ? 'scale-[0.97] opacity-80' : isHovered ? 'scale-[1.02] -translate-y-1 shadow-xl' : ''}
-                  active:scale-[0.97]
+                  transition-colors duration-300 ease-out
+                  ${isClicked ? 'opacity-80' : isHovered ? 'shadow-xl' : ''}
                   
                 `}
                 aria-label={`${choice.name} through ${choice.partnerName}`}
@@ -252,7 +254,7 @@ const AdoptPage: React.FC = () => {
                   ${isHovered ? 'opacity-100 w-20' : 'opacity-0 w-12'}
                 `}
                 />
-              </button>
+              </motion.button>
             );
           })}
         </div>

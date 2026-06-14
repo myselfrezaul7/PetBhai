@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import { CloseIcon, PlusIcon, MinusIcon, TrashIcon, ShoppingCartIcon } from './icons';
@@ -140,29 +140,35 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   }, [onClose]);
 
   return (
-    <>
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 z-40 bg-black/55 backdrop-blur-xl transition-opacity duration-300 ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={onClose}
-        aria-hidden="true"
-      ></div>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-black/55 backdrop-blur-xl"
+            onClick={onClose}
+            aria-hidden="true"
+          />
 
-      {/* Sidebar */}
-      <aside
-        ref={sidebarRef}
-        className={`safe-top safe-bottom fixed inset-x-0 bottom-0 top-auto z-50 h-[85vh] w-full transform rounded-t-[2.2rem] border-t border-white/55 bg-white/95 shadow-[0_-24px_60px_rgba(0,0,0,0.15)] backdrop-blur-glass transition-transform duration-500 ease-out dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-full md:w-full md:max-w-md md:rounded-l-[2.2rem] md:rounded-tr-none md:border-l md:border-t-0 md:shadow-[0_24px_60px_rgba(0,0,0,0.08)] ${
-          isOpen ? 'translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-y-0 md:translate-x-full'
-        }`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cart-heading"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+          {/* Sidebar */}
+          <motion.aside
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            ref={sidebarRef}
+            className="safe-top safe-bottom fixed inset-x-0 bottom-0 top-auto z-50 h-[85vh] w-full rounded-t-[2.2rem] border-t border-white/55 bg-white/95 shadow-[0_-24px_60px_rgba(0,0,0,0.15)] backdrop-blur-glass dark:border-white/10 dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92))] md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-full md:w-full md:max-w-md md:rounded-l-[2.2rem] md:rounded-tr-none md:border-l md:border-t-0 md:shadow-[0_24px_60px_rgba(0,0,0,0.08)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cart-heading"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
         <div className="flex flex-col h-full">
           {/* Header */}
           <header className="flex items-center justify-between border-b border-white/20 p-5 dark:border-white/10">
@@ -342,8 +348,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             </footer>
           )}
         </div>
-      </aside>
-    </>
+      </motion.aside>
+      </>
+      )}
+    </AnimatePresence>
   );
 };
 

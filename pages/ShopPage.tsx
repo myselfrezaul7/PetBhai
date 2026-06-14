@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import { useBrands } from '../contexts/BrandContext';
 import { SearchIcon } from '../components/icons';
@@ -565,8 +566,9 @@ const ShopPage: React.FC = () => {
           </div>
 
           {/* Advanced Filters Panel */}
-          <div
+          <section
             id="advanced-filters"
+            aria-label="Filters and Sorting"
             className={`hidden overflow-hidden transition-all duration-500 ease-in-out md:block ${
               showAdvancedFilters
                 ? 'max-h-[70dvh] md:max-h-[500px] opacity-100 overflow-y-auto overscroll-contain'
@@ -689,7 +691,7 @@ const ShopPage: React.FC = () => {
                       <button
                         key={star}
                         onClick={() => setMinRating(star)}
-                        className={`p-1 rounded transition-all duration-200 touch-manipulation active:scale-90 ${
+                        className={`p-1 rounded transition-all duration-200 touch-manipulation active:scale-90 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                           minRating === star
                             ? 'bg-amber-500/10 dark:bg-amber-500/20 ring-2 ring-orange-500'
                             : 'hover:bg-slate-100 dark:hover:bg-slate-700/50'
@@ -727,7 +729,7 @@ const ShopPage: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          </section>
         </div>
 
         {/* Visible Result Count + Active Filter Chips */}
@@ -821,11 +823,31 @@ const ShopPage: React.FC = () => {
             </button>
           </div>
         ) : !error ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "100px" }}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.05 }
+              }
+            }}
+          >
             {sortedAndFilteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} onQuickView={handleQuickView} />
+              <motion.div 
+                key={product.id}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+                }}
+              >
+                <ProductCard product={product} onQuickView={handleQuickView} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : null}
             </>
            )}
@@ -979,7 +1001,7 @@ const ShopPage: React.FC = () => {
                         <button
                           key={star}
                           onClick={() => setMinRating(star)}
-                          className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
+                          className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                             minRating === star
                               ? 'bg-amber-500 dark:bg-amber-600 text-white'
                               : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 dark:text-slate-200'

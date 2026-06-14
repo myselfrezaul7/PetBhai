@@ -493,8 +493,11 @@ const PostCard: React.FC<PostCardProps> = ({
                   <img  
                     src={post.author.profilePictureUrl}
                     alt={post.author.name}
-                    className="w-full h-full object-cover"
+                    width="48"
+                    height="48"
                     loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <UserIcon className="w-5 h-5 sm:w-7 sm:h-7 text-slate-600 dark:text-slate-300" />
@@ -679,8 +682,11 @@ const PostCard: React.FC<PostCardProps> = ({
                       <img  
                         src={currentUser.profilePictureUrl}
                         alt="You"
-                        className="w-full h-full object-cover"
+                        width="40"
+                        height="40"
                         loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -768,6 +774,10 @@ const PostCard: React.FC<PostCardProps> = ({
                             <img  
                               src={comment.author.profilePictureUrl}
                               alt={comment.author.name}
+                              width="36"
+                              height="36"
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -887,6 +897,10 @@ const PostCard: React.FC<PostCardProps> = ({
                                     <img  
                                       src={reply.author.profilePictureUrl}
                                       alt={reply.author.name}
+                                      width="32"
+                                      height="32"
+                                      loading="lazy"
+                                      decoding="async"
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
@@ -1010,8 +1024,11 @@ const PostCard: React.FC<PostCardProps> = ({
                                 <img  
                                   src={currentUser.profilePictureUrl}
                                   alt="You"
+                                  width="32"
+                                  height="32"
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-full h-full object-cover"
-                                  
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
