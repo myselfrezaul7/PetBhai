@@ -1,0 +1,147 @@
+﻿  const renderInventory = () => (
+    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
+            Real-Time Inventory Tracking
+          </h3>
+          <button
+            type="button"
+            onClick={() => void loadDashboardData()}
+            className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900"
+          >
+            Refresh Now
+          </button>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(event) =>
+              setSearchTerm(sanitizeInput(event.target.value, 120, { allowNewlines: false }))
+            }
+            placeholder="Search SKU, name, category"
+            className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
+          />
+          <select
+            value={stockFilter}
+            onChange={(event) => setStockFilter(event.target.value as StockFilter)}
+            aria-label="Filter inventory by stock status"
+            className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
+          >
+            <option value="all">All Stock States</option>
+            <option value="critical">Critical / Reorder</option>
+            <option value="healthy">Healthy Only</option>
+          </select>
+          <select
+            value={sortMode}
+            onChange={(event) => setSortMode(event.target.value as SortMode)}
+            aria-label="Sort inventory rows"
+            className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
+          >
+            <option value="risk-desc">Sort by Risk</option>
+            <option value="stock-asc">Sort by Stock (Low to High)</option>
+            <option value="name">Sort by Name</option>
+          </select>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[860px] text-left text-sm">
+          <thead className="bg-slate-800 text-slate-100">
+            <tr>
+              <th className="px-4 py-3 font-semibold">SKU ID</th>
+              <th className="px-4 py-3 font-semibold">Product Name</th>
+              <th className="px-4 py-3 font-semibold">Category</th>
+              <th className="px-4 py-3 font-semibold">Stock Level</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Reorder Point</th>
+              <th className="px-4 py-3 font-semibold">Risk</th>
+              <th className="px-4 py-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
+            {!loading &&
+              filteredInventoryRows.map((row) => {
+                const statusMeta = getStatusMeta(row.stockStatus, row.stockLevel, row.reorderPoint);
+                return (
+                  <tr key={row.sku} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                    <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-100">
+                      {row.sku}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                      {row.productName}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.category}</td>
+                    <td className="px-4 py-3 text-slate-800 dark:text-slate-100">
+                      <input
+                        type="number"
+                        min="0"
+                        aria-label={`Stock level for ${row.productName}`}
+                        value={row.stockLevel}
+                        onChange={(event) =>
+                          handleInventoryFieldChange(row.id, 'stockLevel', event.target.value)
+                        }
+                        className="w-24 rounded-lg border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-900"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badgeClass}`}
+                      >
+                        {statusMeta.label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-800 dark:text-slate-100">
+                      <input
+                        type="number"
+                        min="0"
+                        aria-label={`Reorder point for ${row.productName}`}
+                        value={row.reorderPoint}
+                        onChange={(event) =>
+                          handleInventoryFieldChange(row.id, 'reorderPoint', event.target.value)
+                        }
+                        className="w-24 rounded-lg border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-900"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                      {Math.round(row.riskScore)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveInventory(row)}
+                        disabled={savingId === row.id}
+                        className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-200 dark:text-slate-900"
+                      >
+                        {savingId === row.id ? 'Saving...' : 'Save'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            {!loading && filteredInventoryRows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={8}
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
+                >
+                  No inventory products match your filters.
+                </td>
+              </tr>
+            )}
+            {loading && (
+              <tr>
+                <td
+                  colSpan={8}
+                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
+                >
+                  Loading live inventory...
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+

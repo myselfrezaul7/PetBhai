@@ -1,3 +1,9 @@
+import { OverviewTab } from '../components/admin/OverviewTab';
+import { InventoryTab } from '../components/admin/InventoryTab';
+import { OrdersTab } from '../components/admin/OrdersTab';
+import { CreateProductTab } from '../components/admin/CreateProductTab';
+import { ModerationTab } from '../components/admin/ModerationTab';
+import { UsersTab } from '../components/admin/UsersTab';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
@@ -9,109 +15,7 @@ const TOKEN_STORAGE_KEY = 'petbhai_token';
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
 type OrderStatus = NonNullable<Order['status']>;
-type ActiveTab = 'overview' | 'inventory' | 'orders' | 'create' | 'moderation' | 'users';
-type StockFilter = 'all' | 'critical' | 'healthy';
-type SortMode = 'risk-desc' | 'stock-asc' | 'name';
-type ModerationQueueStatus = 'open' | 'reviewed' | 'dismissed';
-type ModerationStatusFilter = ModerationQueueStatus | 'all';
-type ModerationAction = 'hide' | 'restore' | 'none';
-type InventoryEditableField = 'stockLevel' | 'reorderPoint';
-
-interface DashboardStats {
-  total: number;
-  totalRevenue: number;
-  todayOrders: number;
-}
-
-interface InventoryProductResponse extends Product {
-  stockQuantity?: number;
-  reorderPoint?: number;
-  stockStatus?: Product['stockStatus'];
-}
-
-interface InventoryRow {
-  id: number;
-  sku: string;
-  productName: string;
-  category: Product['category'];
-  stockLevel: number;
-  reorderPoint: number;
-  stockStatus?: Product['stockStatus'];
-  riskScore?: number;
-}
-
-interface OrderStatusHistoryEntry {
-  status?: OrderStatus;
-  timestamp: string;
-  note?: string;
-}
-
-interface AdminOrder extends Order {
-  shippingAddress?: {
-    name?: string;
-  };
-  trackingNumber?: string;
-  statusHistory?: OrderStatusHistoryEntry[];
-}
-
-interface ModerationReportSummary {
-  id: string;
-  targetType: 'post' | 'comment' | 'reply';
-  targetPostId: number;
-  targetCommentId?: number;
-  targetReplyId?: number;
-  reporterId: number;
-  reason: string;
-  status: ModerationQueueStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface AdminUserSummary {
-  id: number;
-  name: string;
-  email: string;
-  role?: User['role'];
-  emailVerified?: boolean;
-  isBanned: boolean;
-  bannedAt?: string;
-  banReason?: string;
-  postCount: number;
-  commentCount: number;
-  replyCount: number;
-}
-
-interface OrdersPayload {
-  orders: AdminOrder[];
-}
-
-interface ModerationPayload {
-  items: ModerationReportSummary[];
-}
-
-interface UsersPayload {
-  items: AdminUserSummary[];
-}
-
-interface OrderStatusResponse {
-  order?: AdminOrder;
-}
-
-interface ModerationResponse {
-  report?: ModerationReportSummary;
-}
-
-interface NewProductForm {
-  name: string;
-  category: Product['category'];
-  price: string;
-  imageUrl: string;
-  description: string;
-  weight: string;
-  brandId: string;
-  stockQuantity: string;
-  reorderPoint: string;
-}
+import type { OrderStatus, ActiveTab, StockFilter, SortMode, ModerationQueueStatus, ModerationStatusFilter, ModerationAction, InventoryEditableField, DashboardStats, InventoryProductResponse, InventoryRow, OrderStatusHistoryEntry, AdminOrder, ModerationReportSummary, AdminUserSummary, OrdersPayload, ModerationPayload, UsersPayload, OrderStatusResponse, ModerationResponse, NewProductForm } from '../types/admin';
 
 const categoryOptions: Product['category'][] = [
   'Cat Food',
@@ -769,763 +673,6 @@ const AdminDashboard = () => {
     window.location.hash = '#/login';
   };
 
-  const renderOverview = () => (
-    <>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        {metrics.map((metric) => (
-          <div key={metric.label} className={`rounded-2xl p-5 shadow-sm ${metric.tone}`}>
-            <p className="text-sm opacity-90">{metric.label}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight">{metric.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-3">
-        <section className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700 xl:col-span-2">
-          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-            Inventory Risk Radar
-          </h3>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-            Highest risk products based on stock level versus reorder point.
-          </p>
-          <div className="mt-4 space-y-3">
-            {topRiskItems.length === 0 && (
-              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-500 dark:bg-slate-900 dark:text-slate-300">
-                No inventory data available.
-              </div>
-            )}
-            {topRiskItems.map((item) => {
-              const statusMeta = getStatusMeta(
-                item.stockStatus,
-                item.stockLevel,
-                item.reorderPoint
-              );
-              const progress = Math.max(5, Math.min(100, 100 - item.riskScore));
-              return (
-                <div
-                  key={item.id}
-                  className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-semibold text-slate-800 dark:text-slate-100">
-                      {item.productName}
-                    </p>
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badgeClass}`}
-                    >
-                      {statusMeta.label}
-                    </span>
-                  </div>
-                  <div className="mt-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700">
-                    <div
-                      className="h-2 rounded-full bg-orange-500"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
-                    Stock: {item.stockLevel} • Reorder: {item.reorderPoint} • SKU: {item.sku}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
-          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-            Security Center
-          </h3>
-          <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
-            <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">
-                Admin Session
-              </p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
-                {currentUser?.email || 'Unknown'}
-              </p>
-            </div>
-            <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">
-                Last Sync
-              </p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
-                {lastSyncAt ? new Date(lastSyncAt).toLocaleString() : 'N/A'}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={secureLogout}
-              className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900"
-            >
-              Secure Sign Out
-            </button>
-          </div>
-        </section>
-      </div>
-    </>
-  );
-
-  const renderInventory = () => (
-    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
-      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-            Real-Time Inventory Tracking
-          </h3>
-          <button
-            type="button"
-            onClick={() => void loadDashboardData()}
-            className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900"
-          >
-            Refresh Now
-          </button>
-        </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) =>
-              setSearchTerm(sanitizeInput(event.target.value, 120, { allowNewlines: false }))
-            }
-            placeholder="Search SKU, name, category"
-            className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          />
-          <select
-            value={stockFilter}
-            onChange={(event) => setStockFilter(event.target.value as StockFilter)}
-            aria-label="Filter inventory by stock status"
-            className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          >
-            <option value="all">All Stock States</option>
-            <option value="critical">Critical / Reorder</option>
-            <option value="healthy">Healthy Only</option>
-          </select>
-          <select
-            value={sortMode}
-            onChange={(event) => setSortMode(event.target.value as SortMode)}
-            aria-label="Sort inventory rows"
-            className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          >
-            <option value="risk-desc">Sort by Risk</option>
-            <option value="stock-asc">Sort by Stock (Low to High)</option>
-            <option value="name">Sort by Name</option>
-          </select>
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[860px] text-left text-sm">
-          <thead className="bg-slate-800 text-slate-100">
-            <tr>
-              <th className="px-4 py-3 font-semibold">SKU ID</th>
-              <th className="px-4 py-3 font-semibold">Product Name</th>
-              <th className="px-4 py-3 font-semibold">Category</th>
-              <th className="px-4 py-3 font-semibold">Stock Level</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Reorder Point</th>
-              <th className="px-4 py-3 font-semibold">Risk</th>
-              <th className="px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
-            {!loading &&
-              filteredInventoryRows.map((row) => {
-                const statusMeta = getStatusMeta(row.stockStatus, row.stockLevel, row.reorderPoint);
-                return (
-                  <tr key={row.sku} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
-                    <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-100">
-                      {row.sku}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                      {row.productName}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.category}</td>
-                    <td className="px-4 py-3 text-slate-800 dark:text-slate-100">
-                      <input
-                        type="number"
-                        min="0"
-                        aria-label={`Stock level for ${row.productName}`}
-                        value={row.stockLevel}
-                        onChange={(event) =>
-                          handleInventoryFieldChange(row.id, 'stockLevel', event.target.value)
-                        }
-                        className="w-24 rounded-lg border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-900"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.badgeClass}`}
-                      >
-                        {statusMeta.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-800 dark:text-slate-100">
-                      <input
-                        type="number"
-                        min="0"
-                        aria-label={`Reorder point for ${row.productName}`}
-                        value={row.reorderPoint}
-                        onChange={(event) =>
-                          handleInventoryFieldChange(row.id, 'reorderPoint', event.target.value)
-                        }
-                        className="w-24 rounded-lg border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-900"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                      {Math.round(row.riskScore)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => handleSaveInventory(row)}
-                        disabled={savingId === row.id}
-                        className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-200 dark:text-slate-900"
-                      >
-                        {savingId === row.id ? 'Saving...' : 'Save'}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            {!loading && filteredInventoryRows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  No inventory products match your filters.
-                </td>
-              </tr>
-            )}
-            {loading && (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  Loading live inventory...
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
-  const renderOrders = () => (
-    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
-      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
-        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-          Recent Orders Command Center
-        </h3>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[860px] text-left text-sm">
-          <thead className="bg-slate-800 text-slate-100">
-            <tr>
-              <th className="px-4 py-3 font-semibold">Order ID</th>
-              <th className="px-4 py-3 font-semibold">Customer</th>
-              <th className="px-4 py-3 font-semibold">Amount</th>
-              <th className="px-4 py-3 font-semibold">Date</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Update</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
-            {!loading &&
-              recentOrders.map((order) => (
-                <tr key={order.orderId} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
-                  <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-100">
-                    {order.orderId}
-                  </td>
-                  <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                    {order?.shippingAddress?.name || 'N/A'}
-                  </td>
-                  <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                    ৳{toNumeric(order.total, 0).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                    {order.date ? new Date(order.date).toLocaleString() : 'N/A'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getOrderStatusTone(order.status)}`}
-                    >
-                      {order.status || 'pending'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={selectedStatuses[order.orderId] || order.status || 'pending'}
-                        onChange={(event) =>
-                          setSelectedStatuses((prev) => ({
-                            ...prev,
-                            [order.orderId]: event.target.value as OrderStatus,
-                          }))
-                        }
-                        aria-label={`Update order status for ${order.orderId}`}
-                        className="rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
-                      >
-                        {orderStatusOptions.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        placeholder="Tracking"
-                        aria-label={`Tracking number for ${order.orderId}`}
-                        value={trackingNumbers[order.orderId] || ''}
-                        onChange={(event) =>
-                          setTrackingNumbers((prev) => ({
-                            ...prev,
-                            [order.orderId]: sanitizeInput(event.target.value, 120, {
-                              allowNewlines: false,
-                            }),
-                          }))
-                        }
-                        className="w-28 rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Note"
-                        aria-label={`Admin note for ${order.orderId}`}
-                        value={orderNotes[order.orderId] || ''}
-                        onChange={(event) =>
-                          setOrderNotes((prev) => ({
-                            ...prev,
-                            [order.orderId]: sanitizeInput(event.target.value, 500),
-                          }))
-                        }
-                        className="w-40 rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => void handleOrderStatusSave(order.orderId)}
-                        disabled={savingOrderId === order.orderId}
-                        className="rounded-lg bg-orange-500 px-3 py-1 text-xs font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {savingOrderId === order.orderId ? 'Updating...' : 'Apply'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            {!loading && recentOrders.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  No orders found.
-                </td>
-              </tr>
-            )}
-            {loading && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  Loading latest orders...
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
-  const renderCreateProduct = () => (
-    <section className="mt-1 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
-      <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-        Add New Inventory Product
-      </h3>
-      <form className="mt-4 grid gap-3 md:grid-cols-4" onSubmit={handleCreateProduct}>
-        <input
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          placeholder="Product Name"
-          value={newProduct.name}
-          onChange={(event) =>
-            setNewProduct((prev) => ({ ...prev, name: sanitizeInput(event.target.value, 250) }))
-          }
-          required
-        />
-        <select
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          value={newProduct.category}
-          onChange={(event) =>
-            setNewProduct((prev) => ({
-              ...prev,
-              category: event.target.value as Product['category'],
-            }))
-          }
-          aria-label="New product category"
-          required
-        >
-          {categoryOptions.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          min="1"
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          placeholder="Price"
-          value={newProduct.price}
-          onChange={(event) => setNewProduct((prev) => ({ ...prev, price: event.target.value }))}
-          required
-        />
-        <input
-          type="number"
-          min="1"
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          placeholder="Brand ID"
-          value={newProduct.brandId}
-          onChange={(event) => setNewProduct((prev) => ({ ...prev, brandId: event.target.value }))}
-          required
-        />
-        <input
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 md:col-span-2"
-          placeholder="Image URL"
-          value={newProduct.imageUrl}
-          onChange={(event) =>
-            setNewProduct((prev) => ({
-              ...prev,
-              imageUrl: sanitizeInput(event.target.value, 3000, { allowNewlines: false }),
-            }))
-          }
-          required
-        />
-        <input
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          placeholder="Weight (e.g. 10kg)"
-          value={newProduct.weight}
-          onChange={(event) =>
-            setNewProduct((prev) => ({ ...prev, weight: sanitizeInput(event.target.value, 50) }))
-          }
-          required
-        />
-        <input
-          type="number"
-          min="0"
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          placeholder="Stock Qty"
-          value={newProduct.stockQuantity}
-          onChange={(event) =>
-            setNewProduct((prev) => ({
-              ...prev,
-              stockQuantity: event.target.value,
-            }))
-          }
-          required
-        />
-        <input
-          type="number"
-          min="0"
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
-          placeholder="Reorder Point"
-          value={newProduct.reorderPoint}
-          onChange={(event) =>
-            setNewProduct((prev) => ({
-              ...prev,
-              reorderPoint: event.target.value,
-            }))
-          }
-          required
-        />
-        <input
-          className="rounded-xl border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 md:col-span-3"
-          placeholder="Short Description"
-          value={newProduct.description}
-          onChange={(event) =>
-            setNewProduct((prev) => ({
-              ...prev,
-              description: sanitizeInput(event.target.value, 3000),
-            }))
-          }
-          required
-        />
-        <button
-          type="submit"
-          disabled={addingProduct}
-          className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {addingProduct ? 'Adding...' : 'Add Product'}
-        </button>
-      </form>
-    </section>
-  );
-
-  const renderModeration = () => (
-    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
-      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-            Community Moderation Queue
-          </h3>
-          <div className="flex items-center gap-2">
-            <select
-              value={moderationStatusFilter}
-              onChange={(event) =>
-                setModerationStatusFilter(event.target.value as ModerationStatusFilter)
-              }
-              aria-label="Filter moderation reports"
-              className="rounded-lg border border-slate-300 px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900"
-            >
-              <option value="open">Open</option>
-              <option value="reviewed">Reviewed</option>
-              <option value="dismissed">Dismissed</option>
-              <option value="all">All</option>
-            </select>
-            <button
-              type="button"
-              onClick={() => void loadDashboardData()}
-              className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900"
-            >
-              Refresh
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead className="bg-slate-800 text-slate-100">
-            <tr>
-              <th className="px-4 py-3 font-semibold">Type</th>
-              <th className="px-4 py-3 font-semibold">Target</th>
-              <th className="px-4 py-3 font-semibold">Reason</th>
-              <th className="px-4 py-3 font-semibold">Reporter</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Created</th>
-              <th className="px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
-            {!loading &&
-              filteredModerationReports.map((report) => {
-                const isSaving = savingModerationId === report.id;
-                const targetLabel =
-                  report.targetType === 'post'
-                    ? `Post #${report.targetPostId}`
-                    : report.targetType === 'comment'
-                      ? `Comment #${report.targetCommentId} on Post #${report.targetPostId}`
-                      : `Reply #${report.targetReplyId} on Comment #${report.targetCommentId}`;
-
-                return (
-                  <tr key={report.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200 capitalize">
-                      {report.targetType}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{targetLabel}</td>
-                    <td
-                      className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[260px] truncate"
-                      title={report.reason}
-                    >
-                      {report.reason}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                      #{report.reporterId}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                        {report.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                      {report.createdAt ? new Date(report.createdAt).toLocaleString() : 'N/A'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void handleModerationAction(
-                              report.id,
-                              'reviewed',
-                              'hide',
-                              'Hidden by admin'
-                            )
-                          }
-                          disabled={isSaving}
-                          className="rounded-lg bg-rose-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-rose-600 disabled:opacity-60"
-                        >
-                          Hide
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void handleModerationAction(
-                              report.id,
-                              'reviewed',
-                              'restore',
-                              'Restored by admin'
-                            )
-                          }
-                          disabled={isSaving}
-                          className="rounded-lg bg-emerald-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-60"
-                        >
-                          Restore
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void handleModerationAction(
-                              report.id,
-                              'dismissed',
-                              'none',
-                              'Dismissed by admin'
-                            )
-                          }
-                          disabled={isSaving}
-                          className="rounded-lg bg-slate-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-slate-600 disabled:opacity-60"
-                        >
-                          Dismiss
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-            {!loading && filteredModerationReports.length === 0 && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  No moderation reports found for the selected filter.
-                </td>
-              </tr>
-            )}
-
-            {loading && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  Loading moderation queue...
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
-  const renderUsers = () => (
-    <section className="mt-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
-      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">
-            User Management
-          </h3>
-          <input
-            type="text"
-            value={userSearchTerm}
-            onChange={(event) =>
-              setUserSearchTerm(sanitizeInput(event.target.value, 120, { allowNewlines: false }))
-            }
-            placeholder="Search by name or email"
-            className="w-64 max-w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900"
-          />
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[860px] text-left text-sm">
-          <thead className="bg-slate-800 text-slate-100">
-            <tr>
-              <th className="px-4 py-3 font-semibold">User</th>
-              <th className="px-4 py-3 font-semibold">Role</th>
-              <th className="px-4 py-3 font-semibold">Verified</th>
-              <th className="px-4 py-3 font-semibold">Community Activity</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-800">
-            {!loading &&
-              filteredAdminUsers.map((user) => {
-                const banning = savingUserActionId === `ban-${user.id}`;
-                const unbanning = savingUserActionId === `unban-${user.id}`;
-                return (
-                  <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
-                    <td className="px-4 py-3">
-                      <p className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-300">{user.email}</p>
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200 capitalize">
-                      {user.role || 'customer'}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                      {user.emailVerified ? 'Yes' : 'No'}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                      {user.postCount} posts • {user.commentCount} comments • {user.replyCount} replies
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          user.isBanned
-                            ? 'bg-rose-100 text-rose-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}
-                      >
-                        {user.isBanned ? 'Banned' : 'Active'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {user.role === 'admin' ? (
-                        <span className="text-xs text-slate-500 dark:text-slate-300">Protected</span>
-                      ) : user.isBanned ? (
-                        <button
-                          type="button"
-                          onClick={() => void handleUnbanUser(user.id)}
-                          disabled={unbanning}
-                          className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-60"
-                        >
-                          {unbanning ? 'Unbanning...' : 'Unban'}
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => void handleBanUser(user.id)}
-                          disabled={banning}
-                          className="rounded-lg bg-rose-500 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-600 disabled:opacity-60"
-                        >
-                          {banning ? 'Banning...' : 'Ban'}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-
-            {!loading && filteredAdminUsers.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300"
-                >
-                  No users found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
   return (
     <div className="min-h-screen px-4 py-6 md:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl gap-6">
@@ -1673,12 +820,85 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {activeTab === 'overview' && renderOverview()}
-          {activeTab === 'inventory' && renderInventory()}
-          {activeTab === 'orders' && renderOrders()}
-          {activeTab === 'create' && renderCreateProduct()}
-          {activeTab === 'moderation' && renderModeration()}
-          {activeTab === 'users' && renderUsers()}
+          {activeTab === 'overview' && (
+            <OverviewTab
+              metrics={metrics}
+              topRiskItems={topRiskItems}
+              currentUser={currentUser}
+              lastSyncAt={lastSyncAt}
+              secureLogout={secureLogout}
+              getStatusMeta={getStatusMeta}
+            />
+          )}
+          {activeTab === 'inventory' && (
+            <InventoryTab
+              filteredInventoryRows={filteredInventoryRows}
+              loading={loading}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              stockFilter={stockFilter}
+              setStockFilter={setStockFilter}
+              sortMode={sortMode}
+              setSortMode={setSortMode}
+              savingId={savingId}
+              loadDashboardData={loadDashboardData}
+              getStatusMeta={getStatusMeta}
+              handleInventoryFieldChange={handleInventoryFieldChange}
+              handleSaveInventory={handleSaveInventory}
+              sanitizeInput={sanitizeInput}
+            />
+          )}
+          {activeTab === 'orders' && (
+            <OrdersTab
+              recentOrders={recentOrders}
+              loading={loading}
+              selectedStatuses={selectedStatuses}
+              setSelectedStatuses={setSelectedStatuses}
+              orderNotes={orderNotes}
+              setOrderNotes={setOrderNotes}
+              trackingNumbers={trackingNumbers}
+              setTrackingNumbers={setTrackingNumbers}
+              savingOrderId={savingOrderId}
+              handleOrderStatusSave={handleOrderStatusSave}
+              orderStatusOptions={orderStatusOptions}
+              getOrderStatusTone={getOrderStatusTone}
+              toNumeric={toNumeric}
+              sanitizeInput={sanitizeInput}
+            />
+          )}
+          {activeTab === 'create' && (
+            <CreateProductTab
+              newProduct={newProduct}
+              setNewProduct={setNewProduct}
+              categoryOptions={categoryOptions}
+              addingProduct={addingProduct}
+              handleCreateProduct={handleCreateProduct}
+              sanitizeInput={sanitizeInput}
+            />
+          )}
+          {activeTab === 'moderation' && (
+            <ModerationTab
+              filteredModerationReports={filteredModerationReports}
+              loading={loading}
+              moderationStatusFilter={moderationStatusFilter}
+              setModerationStatusFilter={setModerationStatusFilter}
+              savingModerationId={savingModerationId}
+              loadDashboardData={loadDashboardData}
+              handleModerationAction={handleModerationAction}
+            />
+          )}
+          {activeTab === 'users' && (
+            <UsersTab
+              filteredAdminUsers={filteredAdminUsers}
+              loading={loading}
+              userSearchTerm={userSearchTerm}
+              setUserSearchTerm={setUserSearchTerm}
+              savingUserActionId={savingUserActionId}
+              handleBanUser={handleBanUser}
+              handleUnbanUser={handleUnbanUser}
+              sanitizeInput={sanitizeInput}
+            />
+          )}
         </main>
       </div>
     </div>
