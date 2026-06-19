@@ -1,0 +1,2 @@
+node scripts/validate-encoding.cjs
+npx lint-staged
