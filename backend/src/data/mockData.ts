@@ -3678,6 +3678,8 @@ export const MOCK_ANIMALS: Animal[] = [
     description:
       'A lovely fluffy Persian cat looking for a forever home. Very friendly and great with kids.',
     sex: 'Female',
+    gender: 'Female',
+    size: 'Medium',
     color: 'White',
     vaccinated: true,
     spayedNeutered: true,
@@ -3694,6 +3696,8 @@ export const MOCK_ANIMALS: Animal[] = [
     status: 'available',
     description: 'Energetic and playful German Shepherd puppy. Needs a loving family with space.',
     sex: 'Male',
+    gender: 'Male',
+    size: 'Large',
     color: 'Black & Tan',
     vaccinated: true,
     spayedNeutered: false,

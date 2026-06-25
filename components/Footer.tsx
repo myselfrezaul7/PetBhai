@@ -29,7 +29,10 @@ const Footer: React.FC = () => {
             <nav aria-label="Quick links">
               <p className="section-eyebrow">Explore</p>
               <div className="mt-3 flex flex-col gap-2">
-                <Link to="/shop" className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300">
+                <Link
+                  to="/shop"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
                   Shop
                 </Link>
                 <Link
@@ -44,8 +47,29 @@ const Footer: React.FC = () => {
                 >
                   Adopt
                 </Link>
-                <Link to="/blog" className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300">
+                <Link
+                  to="/blog"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
                   Blog
+                </Link>
+                <Link
+                  to="/faq"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
+                  FAQ
+                </Link>
+                <Link
+                  to="/safety"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
+                  Trust & Safety
+                </Link>
+                <Link
+                  to="/compatibility-quiz"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
+                  Compatibility Quiz
                 </Link>
               </div>
             </nav>
@@ -81,15 +105,22 @@ const Footer: React.FC = () => {
                   <YouTubeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </a>
               </div>
-              <p className="mt-4 text-xs text-slate-500 dark:text-zinc-300">Payments: bKash, Nagad, COD</p>
-              <Link to="/terms" className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-300">
+              <p className="mt-4 text-xs text-slate-500 dark:text-zinc-300">
+                Payments: bKash, Nagad, COD
+              </p>
+              <Link
+                to="/terms"
+                className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-300"
+              >
                 Terms & Conditions
               </Link>
             </div>
           </div>
         </div>
       </div>
-      <p className="mt-4 text-center text-xs text-slate-500 dark:text-zinc-300">© 2026 PetBhai. All rights reserved.</p>
+      <p className="mt-4 text-center text-xs text-slate-500 dark:text-zinc-300">
+        © 2026 PetBhai. All rights reserved.
+      </p>
     </footer>
   );
 };

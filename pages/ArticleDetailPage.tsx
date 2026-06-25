@@ -315,6 +315,9 @@ const ArticleDetailPage: React.FC = () => {
                 alt={article.title}
                 className="w-full h-full object-cover"
                 loading="lazy"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
+                }}
               />
             ) : (
               <div className="w-full min-h-[300px] h-full flex flex-col items-center justify-center p-6 text-center">

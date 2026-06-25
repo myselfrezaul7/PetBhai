@@ -379,8 +379,18 @@ const CheckoutPage: React.FC = () => {
                 }`}
               />
               {formErrors.name && (
-                <div id="name-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                <div
+                  id="name-error"
+                  className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400"
+                  role="alert"
+                >
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                   {formErrors.name}
                 </div>
               )}
@@ -413,8 +423,18 @@ const CheckoutPage: React.FC = () => {
                 }`}
               />
               {formErrors.phone && (
-                <div id="phone-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                <div
+                  id="phone-error"
+                  className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400"
+                  role="alert"
+                >
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                   {formErrors.phone}
                 </div>
               )}
@@ -446,12 +466,21 @@ const CheckoutPage: React.FC = () => {
                 }`}
               ></textarea>
               {formErrors.address && (
-                <div id="address-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                <div
+                  id="address-error"
+                  className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400"
+                  role="alert"
+                >
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                   {formErrors.address}
                 </div>
               )}
-
             </div>
             <div>
               <label
@@ -482,8 +511,18 @@ const CheckoutPage: React.FC = () => {
                 }`}
               />
               {formErrors.email && (
-                <div id="email-error" className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400" role="alert">
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                <div
+                  id="email-error"
+                  className="mt-2 flex items-center rounded-lg border-l-4 border-red-500 bg-red-50 p-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400"
+                  role="alert"
+                >
+                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                   {formErrors.email}
                 </div>
               )}
@@ -521,7 +560,6 @@ const CheckoutPage: React.FC = () => {
                   />
                   <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
                     bKash
-                    
                   </span>
                 </label>
                 <label
@@ -537,7 +575,6 @@ const CheckoutPage: React.FC = () => {
                   />
                   <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
                     Nagad
-                    
                   </span>
                 </label>
               </div>
@@ -601,6 +638,9 @@ const CheckoutPage: React.FC = () => {
                     alt=""
                     className="w-16 h-16 rounded-md object-cover flex-shrink-0 bg-slate-200 dark:bg-slate-700"
                     loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
+                    }}
                   />
                   <div className="min-w-0">
                     <p className="font-semibold text-slate-800 dark:text-white truncate max-w-[150px] sm:max-w-[200px]">
