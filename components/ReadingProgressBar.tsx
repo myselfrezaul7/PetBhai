@@ -5,7 +5,8 @@ const ReadingProgressBar: React.FC = () => {
 
   const scrollListener = () => {
     if (!window) return;
-    const documentHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const documentHeight =
+      document.documentElement.scrollHeight - document.documentElement.clientHeight;
     if (documentHeight > 0) {
       const scrollPosition = document.documentElement.scrollTop || document.body.scrollTop;
       const progress = (scrollPosition / documentHeight) * 100;
@@ -22,16 +23,27 @@ const ReadingProgressBar: React.FC = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 w-full h-1.5 z-50 pointer-events-none"
+      className="fixed top-[64px] lg:top-[72px] left-0 w-full h-2 z-40 pointer-events-none animate-fade-in"
       role="progressbar"
       aria-valuenow={Math.round(readingProgress)}
       aria-valuemin={0}
       aria-valuemax={100}
     >
-      <div
-        className="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 backdrop-blur-md shadow-[0_0_10px_rgba(249,115,22,0.5)] transition-all duration-150 ease-out"
-        style={{ width: `${readingProgress}%` }}
-      />
+      <div className="relative w-full h-full">
+        <div
+          className="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 backdrop-blur-md shadow-[0_0_10px_rgba(249,115,22,0.5)] transition-all duration-150 ease-out"
+          style={{ width: `${readingProgress}%` }}
+        />
+        {/* Completion Indicator */}
+        <div
+          className={`absolute right-4 top-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 transition-all duration-500 transform ${readingProgress > 99 ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+          </svg>
+          Read
+        </div>
+      </div>
     </div>
   );
 };

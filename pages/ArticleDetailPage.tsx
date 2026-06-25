@@ -7,13 +7,34 @@ import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 import BlogCommunityCTA from '../components/BlogCommunityCTA';
 import ReadingProgressBar from '../components/ReadingProgressBar';
+import { useArticleEngagement } from '../hooks/useArticleEngagement';
+import { useAuth } from '../contexts/AuthContext';
 
 const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { articles, loading, error } = useArticles();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [shareToast, setShareToast] = React.useState<string | null>(null);
+  const { currentUser } = useAuth();
+  const [toastMsg, setToastMsg] = React.useState<string | null>(null);
+  const [commentText, setCommentText] = React.useState('');
+
+  const article = useMemo(
+    () => articles.find((a) => a.slug === slug || a.id.toString() === slug),
+    [slug, articles]
+  );
+
+  const {
+    likeCount,
+    commentCount,
+    viewCount,
+    isLiked,
+    comments,
+    loadingComments,
+    toggleLike,
+    addComment,
+    deleteComment,
+  } = useArticleEngagement(article?.id || '');
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -32,15 +53,40 @@ const ArticleDetailPage: React.FC = () => {
     } else {
       try {
         await navigator.clipboard.writeText(url);
-        setShareToast('Link copied to clipboard!');
-        setTimeout(() => setShareToast(null), 3000);
+        setToastMsg('Link copied to clipboard!');
+        setTimeout(() => setToastMsg(null), 3000);
       } catch (err) {
         console.error('Failed to copy!', err);
       }
     }
   };
 
-  const article = useMemo(() => articles.find((a) => a.slug === slug || a.id.toString() === slug), [slug, articles]);
+  const handleToggleLike = async () => {
+    try {
+      await toggleLike();
+    } catch (err: any) {
+      if (err.message === 'AUTH_REQUIRED') {
+        setToastMsg('Please sign in to like this article.');
+        setTimeout(() => setToastMsg(null), 3000);
+      }
+    }
+  };
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    try {
+      await addComment(commentText);
+      setCommentText('');
+      setToastMsg('Comment added successfully!');
+      setTimeout(() => setToastMsg(null), 3000);
+    } catch (err: any) {
+      if (err.message === 'AUTH_REQUIRED') {
+        setToastMsg('Please sign in to comment.');
+        setTimeout(() => setToastMsg(null), 3000);
+      }
+    }
+  };
 
   const recentArticles = useMemo(
     () =>
@@ -87,15 +133,18 @@ const ArticleDetailPage: React.FC = () => {
 
   const headings = useMemo(() => {
     if (!article?.content || typeof article.content !== 'string') return [];
-    
+
     const lines = article.content.split('\n');
-    const extracted: { text: string, id: string }[] = [];
-    
-    lines.forEach(line => {
+    const extracted: { text: string; id: string }[] = [];
+
+    lines.forEach((line) => {
       const trimmedLine = line.trim();
       if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
         const text = trimmedLine.substring(2, trimmedLine.length - 2);
-        const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/(^-|-$)/g, '');
+        const id = text
+          .toLowerCase()
+          .replace(/[^\w]+/g, '-')
+          .replace(/(^-|-$)/g, '');
         extracted.push({ text, id });
       }
     });
@@ -112,7 +161,13 @@ const ArticleDetailPage: React.FC = () => {
           <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-300 mt-4">
             {t('article_not_found_desc')}
           </p>
-          <button onClick={() => { if(window.history.length > 2) navigate(-1); else navigate('/blog'); }} className="mt-8 inline-block bg-amber-500 dark:bg-amber-600 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95">
+          <button
+            onClick={() => {
+              if (window.history.length > 2) navigate(-1);
+              else navigate('/blog');
+            }}
+            className="mt-8 inline-block bg-amber-500 dark:bg-amber-600 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
+          >
             {t('btn_back_blog')}
           </button>
         </div>
@@ -138,13 +193,25 @@ const ArticleDetailPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Main Article Content */}
         <article className="lg:col-span-2">
-
-        <div className="mb-4 -ml-2">
-            <button onClick={() => { if(window.history.length > 2) navigate(-1); else navigate('/blog'); }} className="text-zinc-500 hover:text-orange-500 font-medium inline-flex items-center transition-colors px-2 py-1">
-              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          <div className="mb-4 -ml-2">
+            <button
+              onClick={() => {
+                if (window.history.length > 2) navigate(-1);
+                else navigate('/blog');
+              }}
+              className="text-zinc-500 hover:text-orange-500 font-medium inline-flex items-center transition-colors px-2 py-1"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
               {t('btn_back_blog') || 'Back to Blog'}
             </button>
-        </div>
+          </div>
           {/* Article Header */}
           <header className="mb-6 md:mb-8 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-8">
             <span className="inline-flex items-center rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-amber-900/10 dark:border-amber-100/10 px-3 py-1 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-500 mb-3">
@@ -173,6 +240,70 @@ const ArticleDetailPage: React.FC = () => {
               <span className="whitespace-nowrap">
                 {article.readTime} {t('blog_min_read')}
               </span>
+            </div>
+
+            {/* Engagement Bar */}
+            <div className="mt-4 pt-4 flex items-center gap-6 text-zinc-600 dark:text-zinc-300">
+              <button
+                onClick={handleToggleLike}
+                className="flex items-center gap-2 hover:text-red-500 transition-colors group"
+                aria-label={isLiked ? 'Unlike article' : 'Like article'}
+              >
+                <svg
+                  className={`w-6 h-6 transition-transform ${isLiked ? 'text-red-500 fill-current scale-110' : 'text-zinc-400 group-hover:scale-110'}`}
+                  fill={isLiked ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={isLiked ? 0 : 2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+                <span className="font-semibold">{likeCount || 0}</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-6 h-6 text-zinc-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+                <span className="font-semibold">{commentCount || 0}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-6 h-6 text-zinc-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                <span className="font-semibold">{viewCount || 0}</span>
+              </div>
             </div>
           </header>
 
@@ -214,7 +345,12 @@ const ArticleDetailPage: React.FC = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </summary>
               <div className="p-4 md:p-5 pt-0 mt-[-8px] border-t border-amber-900/5 dark:border-amber-100/5">
@@ -237,14 +373,128 @@ const ArticleDetailPage: React.FC = () => {
           )}
 
           {/* Article Body */}
-          <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10">
+          <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10 mb-8">
             <MarkdownRenderer content={article.content} />
             <BlogCommunityCTA />
+          </section>
+
+          {/* Comment Section */}
+          <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
+              <svg
+                className="w-6 h-6 text-orange-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+                />
+              </svg>
+              Comments ({commentCount || 0})
+            </h2>
+
+            {currentUser ? (
+              <form onSubmit={handleAddComment} className="mb-8">
+                <div className="relative">
+                  <textarea
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Share your thoughts..."
+                    className="w-full bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-xl p-4 pr-12 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none min-h-[100px]"
+                    maxLength={1000}
+                  />
+                  <div className="absolute bottom-3 right-3 text-xs text-zinc-400">
+                    {commentText.length}/1000
+                  </div>
+                </div>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={!commentText.trim()}
+                    className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-semibold py-2 px-6 rounded-full transition-colors flex items-center gap-2"
+                  >
+                    Post Comment
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="mb-8 bg-slate-50 dark:bg-zinc-800/50 rounded-xl p-6 text-center border border-slate-200 dark:border-zinc-700/50">
+                <p className="text-zinc-600 dark:text-zinc-300 mb-4">
+                  Please sign in to join the conversation.
+                </p>
+                <Link
+                  to="/login"
+                  className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-full transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {loadingComments ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+                </div>
+              ) : comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
+                      {comment.author.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-slate-50 dark:bg-zinc-800/50 rounded-2xl p-4 border border-slate-200 dark:border-zinc-700/50">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                            {comment.author}
+                          </h4>
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                            {new Date(comment.timestamp).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap text-sm md:text-base">
+                          {comment.text}
+                        </p>
+                      </div>
+                      {currentUser?.id?.toString() === comment.userId && (
+                        <div className="mt-2 ml-2">
+                          <button
+                            onClick={() => deleteComment(comment.id)}
+                            className="text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-zinc-500 dark:text-zinc-400 py-8">
+                  No comments yet. Be the first to share your thoughts!
+                </p>
+              )}
+            </div>
           </section>
         </article>
 
         {/* Sidebar */}
-        <aside className="lg:col-span-1 mt-8 lg:mt-0 space-y-8" aria-labelledby="recent-articles-heading">
+        <aside
+          className="lg:col-span-1 mt-8 lg:mt-0 space-y-8"
+          aria-labelledby="recent-articles-heading"
+        >
           {headings.length > 0 && (
             <div className="lg:sticky lg:top-24 hidden lg:block glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5 mb-8">
               <h2
@@ -270,7 +520,9 @@ const ArticleDetailPage: React.FC = () => {
             </div>
           )}
 
-          <div className={`${headings.length > 0 ? '' : 'lg:sticky lg:top-24'} glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5`}>
+          <div
+            className={`${headings.length > 0 ? '' : 'lg:sticky lg:top-24'} glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5`}
+          >
             <h2
               id="recent-articles-heading"
               className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50"
@@ -317,11 +569,11 @@ const ArticleDetailPage: React.FC = () => {
         </aside>
       </div>
 
-      {/* Floating Share Button */}
+      {/* Floating Share Button and Toasts */}
       <div className="fixed bottom-[120px] md:bottom-[120px] right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
-        {shareToast && (
+        {toastMsg && (
           <div className="mb-4 bg-zinc-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-auto transform transition-all animate-fade-in-up">
-            {shareToast}
+            {toastMsg}
           </div>
         )}
         <button
@@ -330,7 +582,12 @@ const ArticleDetailPage: React.FC = () => {
           aria-label="Share article"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+            />
           </svg>
         </button>
       </div>
