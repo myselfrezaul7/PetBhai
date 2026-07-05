@@ -25,6 +25,8 @@ const VetCard: React.FC<VetCardProps> = ({ vet }) => {
           className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover ring-2 sm:ring-4 ring-amber-200 dark:ring-zinc-700 dark:ring-amber-200 dark:ring-zinc-700 transition-all duration-500 group-hover:ring-slate-400 dark:group-hover:ring-slate-500 group-hover:scale-105"
           src={vet.imageUrl}
           alt={`Dr. ${vet.name}`}
+          width={200}
+          height={200}
           loading="lazy"
           decoding="async"
           sizes={getResponsiveImageSizes('avatar')}

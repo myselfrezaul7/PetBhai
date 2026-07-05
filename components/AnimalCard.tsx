@@ -45,6 +45,8 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           <img
             src={animal.imageUrl}
             alt={animal.name}
+            width={600}
+            height={400}
             className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-110"
             loading="lazy"
             decoding="async"

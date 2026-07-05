@@ -98,7 +98,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         <img
           src={article.imageUrl || "/blog-images/blog-placeholder.png"}
           alt={article.title}
+          width={600}
+          height={338}
           loading="eager"
+          fetchPriority="high"
+          sizes="(max-width: 768px) 100vw, 66vw"
           className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
           onLoad={() => setIsLoaded(true)}
           onError={handleBlogImageError}
@@ -146,7 +150,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         <img
           src={article.imageUrl || "/blog-images/blog-placeholder.png"}
           alt={article.title}
+          width={600}
+          height={400}
           loading="lazy"
+          decoding="async"
+          sizes={getResponsiveImageSizes('card')}
           className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
           onLoad={() => setIsLoaded(true)}
           onError={handleBlogImageError}
@@ -187,10 +195,14 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
       <img
         src={article.imageUrl || "/blog-images/blog-placeholder.png"}
         alt={article.title}
+        width={600}
+        height={400}
+        loading="lazy"
+        decoding="async"
+        sizes={getResponsiveImageSizes('card')}
         className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
         onLoad={() => setIsLoaded(true)}
         onError={handleBlogImageError}
-        loading="lazy"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
       

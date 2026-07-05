@@ -94,6 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <img 
             src={product.imageUrl}
             alt={product.name}
+            width={80}
+            height={80}
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-spring group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
             loading="lazy"
             decoding="async"
@@ -150,7 +152,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <img 
             src={product.imageUrl}
             alt={product.name}
+            width={600}
+            height={750}
             loading="lazy"
+            decoding="async"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-spring group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
             sizes={getResponsiveImageSizes('card')}
             onError={handleImageError}
@@ -199,7 +204,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
   }
 
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">
+    <div className="group card-virtualized relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-950">
       <Link
         to={`/product/${product.id}`}
         className="relative block overflow-hidden aspect-[4/3] sm:aspect-square bg-slate-100 dark:bg-slate-800"
@@ -211,6 +216,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         <img 
           src={product.imageUrl}
           alt={product.name}
+          width={600}
+          height={400}
           className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-300 ease-spring group-hover:scale-110 ${isOutOfStock ? 'grayscale opacity-70' : ''}`}
           loading="lazy"
           decoding="async"

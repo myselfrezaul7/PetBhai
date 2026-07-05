@@ -313,8 +313,12 @@ const ArticleDetailPage: React.FC = () => {
               <img
                 src={article.imageUrl}
                 alt={article.title}
+                width={800}
+                height={500}
                 className="w-full h-full object-cover"
-                loading="lazy"
+                loading="eager"
+                fetchPriority="high"
+                sizes="(max-width: 768px) 100vw, 800px"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
                 }}
