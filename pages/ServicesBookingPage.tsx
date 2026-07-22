@@ -11,7 +11,7 @@ const ServicesBookingPage: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const formData = new FormData(e.target as HTMLFormElement);
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
     const data: Record<string, string> = {};
     formData.forEach((value, key) => {
       data[key] = value.toString();
@@ -49,14 +49,16 @@ Please contact the customer to confirm the booking.
       const mailtoLink = `mailto:petbhaibd@gmail.com?subject=New ${encodeURIComponent(serviceType)} Booking&body=${encodeURIComponent(emailBody)}`;
 
       // Open default email client
-      window.location.href = mailtoLink;
+      if (typeof window !== 'undefined') {
+        window.location.href = mailtoLink;
+      }
 
       toast.success(
         'Booking request sent! We will contact you shortly via your provided mobile number.'
       );
 
       // Reset form
-      (e.target as HTMLFormElement).reset();
+      (e.currentTarget as HTMLFormElement).reset();
     } catch (error) {
       console.error('Booking error:', error);
       toast.error('Failed to send booking request. Please try again or contact us directly.');

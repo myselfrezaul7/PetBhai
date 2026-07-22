@@ -11,11 +11,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 import type { Order, Product, User } from '../types';
 
+import type { OrderStatus, ActiveTab, StockFilter, SortMode, ModerationQueueStatus, ModerationStatusFilter, ModerationAction, InventoryEditableField, DashboardStats, InventoryProductResponse, InventoryRow, OrderStatusHistoryEntry, AdminOrder, ModerationReportSummary, AdminUserSummary, OrdersPayload, ModerationPayload, UsersPayload, OrderStatusResponse, ModerationResponse, NewProductForm } from '../types/admin';
+
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
-
-type OrderStatus = NonNullable<Order['status']>;
-import type { OrderStatus, ActiveTab, StockFilter, SortMode, ModerationQueueStatus, ModerationStatusFilter, ModerationAction, InventoryEditableField, DashboardStats, InventoryProductResponse, InventoryRow, OrderStatusHistoryEntry, AdminOrder, ModerationReportSummary, AdminUserSummary, OrdersPayload, ModerationPayload, UsersPayload, OrderStatusResponse, ModerationResponse, NewProductForm } from '../types/admin';
 
 const categoryOptions: Product['category'][] = [
   'Cat Food',

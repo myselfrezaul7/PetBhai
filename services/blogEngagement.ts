@@ -16,6 +16,7 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { safeSessionStorage } from '../lib/storage';
 
 export interface Comment {
   id: string;
@@ -35,19 +36,19 @@ export interface EngagementState {
 const ensureArticleDoc = async (articleId: string | number) => {
   if (!db) return;
   const docRef = doc(db, 'articles', String(articleId));
-  const docSnap = await getDoc(docRef);
-  
-  if (!docSnap.exists()) {
-    try {
+  try {
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
       await setDoc(docRef, {
         likeCount: 0,
         likedBy: [],
         commentCount: 0,
         viewCount: 0
       });
-    } catch (e) {
-      console.warn('Failed to initialize article doc:', e);
     }
+  } catch (e) {
+    console.warn('Failed to initialize article doc:', e);
   }
 };
 
@@ -135,8 +136,8 @@ export const incrementViews = async (articleId: string | number) => {
   
   // Prevent duplicate views in the same session
   const viewedKey = `viewed_${articleId}`;
-  if (sessionStorage.getItem(viewedKey)) return;
-  sessionStorage.setItem(viewedKey, 'true');
+  if (safeSessionStorage.getItem(viewedKey)) return;
+  safeSessionStorage.setItem(viewedKey, 'true');
 
   const docRef = doc(db, 'articles', String(articleId));
   await ensureArticleDoc(articleId);
@@ -162,19 +163,26 @@ export const subscribeEngagement = (
   
   const docRef = doc(db, 'articles', String(articleId));
   
-  return onSnapshot(docRef, (snap) => {
-    if (snap.exists()) {
-      const data = snap.data();
-      const likedBy = data.likedBy || [];
-      callback({
-        likeCount: data.likeCount || 0,
-        commentCount: data.commentCount || 0,
-        viewCount: data.viewCount || 0
-      }, userId ? likedBy.includes(userId) : false);
-    } else {
+  return onSnapshot(
+    docRef, 
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        const likedBy = data.likedBy || [];
+        callback({
+          likeCount: data.likeCount || 0,
+          commentCount: data.commentCount || 0,
+          viewCount: data.viewCount || 0
+        }, userId ? likedBy.includes(userId) : false);
+      } else {
+        callback({ likeCount: 0, commentCount: 0, viewCount: 0 }, false);
+      }
+    },
+    (err) => {
+      console.warn('Error subscribing to article engagement:', err);
       callback({ likeCount: 0, commentCount: 0, viewCount: 0 }, false);
     }
-  });
+  );
 };
 
 /**
@@ -190,20 +198,27 @@ export const subscribeComments = (
   const commentsRef = collection(db, 'articles', String(articleId), 'comments');
   const q = query(commentsRef, orderBy('createdAt', 'desc'), limit(limitCount));
 
-  return onSnapshot(q, (snapshot) => {
-    const comments: Comment[] = [];
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      comments.push({
-        id: docSnap.id,
-        userId: data.userId,
-        userName: data.userName,
-        text: data.text,
-        createdAt: data.createdAt?.toMillis() || Date.now()
+  return onSnapshot(
+    q, 
+    (snapshot) => {
+      const comments: Comment[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        comments.push({
+          id: docSnap.id,
+          userId: data.userId,
+          userName: data.userName,
+          text: data.text,
+          createdAt: data.createdAt?.toMillis() || Date.now()
+        });
       });
-    });
-    callback(comments);
-  });
+      callback(comments);
+    },
+    (err) => {
+      console.warn('Error subscribing to comments:', err);
+      callback([]);
+    }
+  );
 };
 
 /**

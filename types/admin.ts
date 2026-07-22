@@ -1,4 +1,6 @@
-﻿import type { Order, Product, User } from './index';
+import type { Order, Product, User } from '../types';
+
+export type OrderStatus = NonNullable<Order['status']>;
 
 export type ActiveTab = 'overview' | 'inventory' | 'orders' | 'create' | 'moderation' | 'users';
 export type StockFilter = 'all' | 'critical' | 'healthy';

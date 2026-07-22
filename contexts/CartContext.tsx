@@ -23,9 +23,10 @@ type CartAction =
 
 const CART_STORAGE_KEY = 'petbhai_cart_items';
 
-const clampQuantity = (quantity: number): number => {
+const clampQuantity = (quantity: number, allowZero = false): number => {
   if (!Number.isFinite(quantity)) return 1;
-  return Math.min(99, Math.max(1, Math.floor(quantity)));
+  const min = allowZero ? 0 : 1;
+  return Math.min(99, Math.max(min, Math.floor(quantity)));
 };
 
 const getInitialState = (): CartState => {
@@ -93,7 +94,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         items: state.items
           .map((item) =>
             item.id === action.payload.id
-              ? { ...item, quantity: clampQuantity(action.payload.quantity) }
+              ? { ...item, quantity: clampQuantity(action.payload.quantity, true) }
               : item
           )
           .filter((item) => item.quantity > 0), // Remove if quantity is 0

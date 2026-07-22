@@ -639,8 +639,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
       // Optimistic update
-      setCurrentUser(prev => prev && !prev.wishlist.includes(productId) 
-        ? { ...prev, wishlist: [...prev.wishlist, productId] } 
+      setCurrentUser(prev => prev && !(prev.wishlist ?? []).includes(productId) 
+        ? { ...prev, wishlist: [...(prev.wishlist ?? []), productId] } 
         : prev);
         
       inFlightWishlist.current.add(productId);
@@ -656,7 +656,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync wishlist', err);
-        setCurrentUser(prev => prev ? { ...prev, wishlist: prev.wishlist.filter(id => id !== productId) } : prev);
+        setCurrentUser(prev => prev ? { ...prev, wishlist: (prev.wishlist ?? []).filter(id => id !== productId) } : prev);
         toast.error('Failed to update wishlist. Please try again.');
       } finally {
         inFlightWishlist.current.delete(productId);
@@ -670,8 +670,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async (productId: number) => {
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
-      setCurrentUser(prev => prev && prev.wishlist.includes(productId) 
-        ? { ...prev, wishlist: prev.wishlist.filter(id => id !== productId) } 
+      setCurrentUser(prev => prev && (prev.wishlist ?? []).includes(productId) 
+        ? { ...prev, wishlist: (prev.wishlist ?? []).filter(id => id !== productId) } 
         : prev);
         
       inFlightWishlist.current.add(productId);
@@ -683,7 +683,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync wishlist removal', err);
-        setCurrentUser(prev => prev ? { ...prev, wishlist: [...prev.wishlist, productId] } : prev);
+        setCurrentUser(prev => prev ? { ...prev, wishlist: [...(prev.wishlist ?? []), productId] } : prev);
         toast.error('Failed to remove from wishlist. Please try again.');
       } finally {
         inFlightWishlist.current.delete(productId);
@@ -697,12 +697,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async (animalId: number) => {
       if (!currentUser || inFlightFavorites.current.has(animalId)) return;
       if (!validateId(animalId)) return;
-      if (currentUser.favorites.includes(animalId)) return;
+      if ((currentUser.favorites ?? []).includes(animalId)) return;
 
       // Limit favorites size to prevent abuse
-      if (currentUser.favorites.length >= 100) return;
+      if ((currentUser.favorites ?? []).length >= 100) return;
 
-      setCurrentUser(prev => prev ? { ...prev, favorites: [...prev.favorites, animalId] } : prev);
+      setCurrentUser(prev => prev ? { ...prev, favorites: [...(prev.favorites ?? []), animalId] } : prev);
       inFlightFavorites.current.add(animalId);
 
       try {
@@ -715,7 +715,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync favorite', err);
-        setCurrentUser(prev => prev ? { ...prev, favorites: prev.favorites.filter(id => id !== animalId) } : prev);
+        setCurrentUser(prev => prev ? { ...prev, favorites: (prev.favorites ?? []).filter(id => id !== animalId) } : prev);
         toast.error('Failed to favorite pet');
       } finally {
         inFlightFavorites.current.delete(animalId);
@@ -729,7 +729,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser || inFlightFavorites.current.has(animalId)) return;
       if (!validateId(animalId)) return;
 
-      setCurrentUser(prev => prev ? { ...prev, favorites: prev.favorites.filter(id => id !== animalId) } : prev);
+      setCurrentUser(prev => prev ? { ...prev, favorites: (prev.favorites ?? []).filter(id => id !== animalId) } : prev);
       inFlightFavorites.current.add(animalId);
 
       try {
@@ -738,7 +738,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync unfavorite', err);
-        setCurrentUser(prev => prev ? { ...prev, favorites: [...prev.favorites, animalId] } : prev);
+        setCurrentUser(prev => prev ? { ...prev, favorites: [...(prev.favorites ?? []), animalId] } : prev);
         toast.error('Failed to remove pet from favorites');
       } finally {
         inFlightFavorites.current.delete(animalId);
@@ -774,7 +774,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setCurrentUser(prev => {
         if (!prev) return prev;
-        const limitedHistory = prev.orderHistory.slice(0, 99);
+        const limitedHistory = (prev.orderHistory ?? []).slice(0, 99);
         return { ...prev, orderHistory: [order, ...limitedHistory] };
       });
 

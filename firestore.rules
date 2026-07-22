@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Article engagement data (likes, views, comments)
+    match /articles/{articleId} {
+      // Anyone can read engagement counts
+      allow read: if true;
+      // Anyone can increment views (anonymous visitors)
+      allow create: if true;
+      allow update: if true;
+      
+      // Comments subcollection
+      match /comments/{commentId} {
+        allow read: if true;
+        // Authenticated users can add comments
+        allow create: if request.auth != null;
+        // Only comment author can delete
+        allow delete: if request.auth != null;
+      }
+    }
+  }
+}
