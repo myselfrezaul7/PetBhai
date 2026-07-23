@@ -385,10 +385,10 @@ const reminderUpdateSchema = z
 
 const shippingAddressSchema = z
   .object({
-    fullName: z.string().trim().min(2).max(120),
-    address: z.string().trim().min(5).max(240),
-    city: z.string().trim().min(2).max(80),
-    phone: z.string().trim().min(6).max(30),
+    fullName: z.string().trim().max(120).optional(),
+    address: z.string().trim().max(240).optional(),
+    city: z.string().trim().max(80).optional(),
+    phone: z.string().trim().max(30).optional(),
   })
   .strict();
 
@@ -1008,11 +1008,12 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
     updatedUser.bio = sanitizeString(bio);
   }
   if (defaultShippingAddress) {
+    const existing = updatedUser.defaultShippingAddress || { fullName: '', address: '', city: '', phone: '' };
     updatedUser.defaultShippingAddress = {
-      fullName: sanitizeString(defaultShippingAddress.fullName).slice(0, 120),
-      address: sanitizeString(defaultShippingAddress.address).slice(0, 240),
-      city: sanitizeString(defaultShippingAddress.city).slice(0, 80),
-      phone: sanitizeString(defaultShippingAddress.phone).slice(0, 30),
+      fullName: typeof defaultShippingAddress.fullName === 'string' ? sanitizeString(defaultShippingAddress.fullName).slice(0, 120) : existing.fullName || '',
+      address: typeof defaultShippingAddress.address === 'string' ? sanitizeString(defaultShippingAddress.address).slice(0, 240) : existing.address || '',
+      city: typeof defaultShippingAddress.city === 'string' ? sanitizeString(defaultShippingAddress.city).slice(0, 80) : existing.city || '',
+      phone: typeof defaultShippingAddress.phone === 'string' ? sanitizeString(defaultShippingAddress.phone).slice(0, 30) : existing.phone || '',
     };
   }
 

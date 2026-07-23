@@ -46,8 +46,10 @@ const LoginPage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<boolean>(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [showMathFallback, setShowMathFallback] = useState(false);
+  const hasValidRecaptchaKey = Boolean(
+    import.meta.env.VITE_RECAPTCHA_SITE_KEY && import.meta.env.VITE_RECAPTCHA_SITE_KEY !== 'dummy-key'
+  );
+  const [showMathFallback, setShowMathFallback] = useState(!hasValidRecaptchaKey);
   const [mathChallenge, setMathChallenge] = useState<MathChallenge>(createMathChallenge);
   const [mathAnswer, setMathAnswer] = useState('');
   const { login, socialLogin } = useAuth();
@@ -332,21 +334,22 @@ const LoginPage: React.FC = () => {
           </div>
 
           {/* reCAPTCHA */}
-          <div className="flex justify-center">
-            <ReCaptcha
-              onVerify={handleVerify}
-              onExpire={() => {
-                handleExpire();
-                setShowMathFallback(true);
-              }}
-              onError={() => {
-                setShowMathFallback(true);
-                setError('reCAPTCHA failed to load. Use the math challenge below.');
-              }}
-              theme="light"
-              size="normal"
-            />
-          </div>
+          {hasValidRecaptchaKey && (
+            <div className="flex justify-center mb-4">
+              <ReCaptcha
+                onVerify={handleVerify}
+                onExpire={() => {
+                  handleExpire();
+                  setShowMathFallback(true);
+                }}
+                onError={() => {
+                  setShowMathFallback(true);
+                }}
+                theme="light"
+                size="normal"
+              />
+            </div>
+          )}
 
           {showMathFallback && (
             <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-500/40 dark:bg-amber-500/10">

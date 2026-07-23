@@ -39,7 +39,7 @@ interface AdoptionChoice {
   partnerColor: string;
   partnerColorDark: string;
   description: string;
-  emoji: string;
+  image: string;
 }
 
 const adoptionChoices: AdoptionChoice[] = [
@@ -53,8 +53,8 @@ const adoptionChoices: AdoptionChoice[] = [
     iconGradient: 'from-purple-500 via-pink-500 to-rose-500',
     partnerColor: 'text-pink-600',
     partnerColorDark: 'dark:text-pink-400',
-    description: 'Find your perfect feline companion through our trusted partner',
-    emoji: '🐱',
+    description: 'Find your perfect newborn kitten through our trusted partner',
+    image: '/adopt/newborn_cat.jpg',
   },
   {
     type: 'dog',
@@ -66,8 +66,8 @@ const adoptionChoices: AdoptionChoice[] = [
     iconGradient: 'from-amber-500 via-orange-500 to-red-500',
     partnerColor: 'text-orange-600',
     partnerColorDark: 'dark:text-orange-400',
-    description: 'Find your loyal canine friend through our trusted partner',
-    emoji: '🐕',
+    description: 'Find your loyal newborn puppy friend through our trusted partner',
+    image: '/adopt/newborn_dog.jpg',
   },
 ];
 
@@ -183,25 +183,22 @@ const AdoptPage: React.FC = () => {
                   className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${choice.gradient} transition-opacity duration-500 pointer-events-none ${isHovered ? 'opacity-[0.04]' : 'opacity-0'}`}
                 />
 
-                {/* Icon Container */}
+                {/* Image Container */}
                 <div
                   className={`
-                  relative w-24 h-24 md:w-28 md:h-28 mx-auto mb-5
-                  rounded-2xl bg-gradient-to-br ${choice.iconGradient}
-                  flex items-center justify-center
-                  shadow-lg
+                  relative w-32 h-32 md:w-36 md:h-36 mx-auto mb-5
+                  rounded-2xl overflow-hidden
+                  shadow-lg border-2 border-white/80 dark:border-slate-700/80
                   transition-all duration-300 ease-out
-                  ${isHovered ? 'scale-105 shadow-xl' : ''}
+                  ${isHovered ? 'scale-105 shadow-xl ring-4 ring-orange-500/20' : ''}
                 `}
                 >
-                  <Icon className="w-12 h-12 md:w-14 md:h-14 text-white" />
-
-                  {/* Floating Emoji Badge */}
-                  <div
-                    className={`absolute -top-2 -right-2 w-9 h-9 rounded-full bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 flex items-center justify-center shadow-md transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
-                  >
-                    <span className="text-lg">{choice.emoji}</span>
-                  </div>
+                  <img
+                    src={choice.image}
+                    alt={choice.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 </div>
 
                 {/* Content */}

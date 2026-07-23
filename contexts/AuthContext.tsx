@@ -420,6 +420,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isApiError = err instanceof ApiRequestError;
       const retryable = isApiError ? err.retryable : true;
 
+      if (isApiError && err.statusCode === 404) {
+        clearSession();
+        toast.error('Session expired or user not found. Please sign in again.');
+        throw err;
+      }
+
       // Surface non-retryable API errors to the user instead of failing silently in background
       if (isApiError && !retryable) {
         toast.error(getErrorMessage(err, 'Failed to sync profile data.'));

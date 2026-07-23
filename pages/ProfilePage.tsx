@@ -147,11 +147,21 @@ const ProfilePage: React.FC = () => {
 
   const handleUpdate = async (field: string, value: string, isAddress = false) => {
     try {
-      const payload = isAddress ? { defaultShippingAddress: { ...currentUser.defaultShippingAddress, [field]: value } } : { [field]: value };
+      const payload = isAddress
+        ? {
+            defaultShippingAddress: {
+              fullName: currentUser.defaultShippingAddress?.fullName || currentUser.name || '',
+              address: currentUser.defaultShippingAddress?.address || '',
+              city: currentUser.defaultShippingAddress?.city || '',
+              phone: currentUser.defaultShippingAddress?.phone || '',
+              [field]: value,
+            },
+          }
+        : { [field]: value };
       const updatedUser = await updateProfile(payload as any);
-      if (updatedUser) toast.success(`${field} updated successfully`);
+      if (updatedUser) toast.success(`Saved successfully`);
     } catch {
-      toast.error('Failed to update. Try again.');
+      toast.error('Failed to save changes. Please check input values.');
     }
   };
 
