@@ -46,6 +46,7 @@ const LoginPage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<boolean>(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const hasValidRecaptchaKey = Boolean(
     import.meta.env.VITE_RECAPTCHA_SITE_KEY && import.meta.env.VITE_RECAPTCHA_SITE_KEY !== 'dummy-key'
   );
