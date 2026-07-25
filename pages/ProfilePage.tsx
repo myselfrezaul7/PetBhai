@@ -56,24 +56,42 @@ const InlineEditField: React.FC<{
   };
 
   return (
-    <div className="group flex flex-col gap-1 transition-all">
-      <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">{label}</label>
-      <div className="flex items-start gap-2 max-w-lg">
+    <div className="group flex flex-col gap-1.5 transition-all">
+      <label className="text-[11px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-widest pl-1">{label}</label>
+      <div className="flex items-start gap-2 max-w-lg min-h-[44px]">
+        <AnimatePresence mode="wait">
         {isEditing ? (
-          <div className="relative flex-1 flex items-center gap-2 animate-fade-in">
+          <motion.div 
+            key="edit"
+            initial={{ opacity: 0, y: -5, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="relative flex-1 flex items-center gap-2"
+          >
             {multiline ? (
-              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue((e.target as HTMLTextAreaElement).value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" rows={3} />
+              <textarea autoFocus value={currentValue} onChange={(e) => setCurrentValue((e.target as HTMLTextAreaElement).value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-2xl bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-slate-200 dark:border-zinc-700/50 px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/50 shadow-sm disabled:opacity-50 transition-all resize-none" rows={3} />
             ) : (
-              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue((e.target as HTMLInputElement).value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50" />
+              <input autoFocus type={type} value={currentValue} onChange={(e) => setCurrentValue((e.target as HTMLInputElement).value)} onBlur={handleSave} onKeyDown={handleKeyDown} disabled={isSaving} className="w-full rounded-2xl bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-slate-200 dark:border-zinc-700/50 px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/50 shadow-sm disabled:opacity-50 transition-all" />
             )}
-            {isSaving && <div className="absolute right-3"><LoaderIcon className="w-4 h-4 animate-spin text-amber-500" /></div>}
-          </div>
+            {isSaving && <div className="absolute right-4"><LoaderIcon className="w-5 h-5 animate-spin text-amber-500" /></div>}
+          </motion.div>
         ) : (
-          <div onClick={() => setIsEditing(true)} className="flex-1 flex items-center justify-between p-2 -mx-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors">
-            <span className={`text-sm ${currentValue ? 'text-slate-800 dark:text-zinc-200' : 'text-slate-400 italic'}`}>{currentValue || 'Click to add ' + label.toLowerCase()}</span>
-            <EditIcon className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
+          <motion.div 
+            key="view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsEditing(true)} 
+            className="flex-1 flex items-center justify-between px-4 py-3 -ml-4 rounded-2xl hover:bg-white/80 dark:hover:bg-zinc-800/80 hover:shadow-sm cursor-pointer transition-all border border-transparent hover:border-slate-200 dark:hover:border-zinc-700/50 backdrop-blur-sm"
+          >
+            <span className={`text-sm font-medium ${currentValue ? 'text-slate-700 dark:text-zinc-200' : 'text-slate-400 italic'}`}>{currentValue || `Click to add ${label.toLowerCase()}`}</span>
+            <div className="p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100">
+                <EditIcon className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
+            </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -248,7 +266,15 @@ const ProfilePage: React.FC = () => {
                   <header className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-6 border-b border-slate-100 dark:border-zinc-800/50">
                     <Avatar src={currentUser.profilePictureUrl} name={currentUser.name} size="xl" className="ring-4 ring-slate-50 dark:ring-zinc-800" />
                     <div>
-                      <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">{currentUser.name}</h1>
+                      <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                        {(() => {
+                          const hour = new Date().getHours();
+                          if (hour < 12) return 'Good morning';
+                          if (hour < 18) return 'Good afternoon';
+                          return 'Good evening';
+                        })()},{' '}
+                        <span className="text-amber-500">{currentUser.name.split(' ')[0]}</span>!
+                      </h1>
                       <div className="flex items-center gap-3 mt-1.5 opacity-80">
                         <span className="inline-flex py-0.5 px-2.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20 text-xs font-semibold text-amber-700 dark:text-amber-400">
                           {currentUser.role === 'admin' ? 'Admin' : currentUser.isPlusMember ? 'PetBhai Plus' : 'Customer'}

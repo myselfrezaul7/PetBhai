@@ -144,9 +144,16 @@ async function generateBlogImages(ai, blogImagesDir) {
     }
 
     if (successCount > 0) {
-        // Write back to DB
-        fs.writeFileSync(dbPath, JSON.stringify(dbData, null, 2));
-        console.log(`Updated db.json with ${successCount} new images.`);
+        // Write back to DB atomically
+        const tempPath = `${dbPath}.tmp.${Date.now()}`;
+        try {
+            fs.writeFileSync(tempPath, JSON.stringify(dbData, null, 2));
+            fs.renameSync(tempPath, dbPath);
+            console.log(`Updated db.json with ${successCount} new images.`);
+        } catch (error) {
+            console.error('Failed to update db.json:', error);
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        }
     }
 }
 
