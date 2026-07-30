@@ -46,6 +46,7 @@ const SignUpPage: React.FC = () => {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSocialLoading, setIsSocialLoading] = useState(false);
   const hasValidRecaptchaKey = Boolean(
     import.meta.env.VITE_RECAPTCHA_SITE_KEY && import.meta.env.VITE_RECAPTCHA_SITE_KEY !== 'dummy-key'
   );
@@ -93,7 +94,7 @@ const SignUpPage: React.FC = () => {
 
   const validateMathAnswer = useCallback(
     (value: string): string | undefined => {
-      if (!showMathFallback) return undefined;
+      // Caller already checks shouldUseMathFallback before calling this
       if (!value.trim()) return 'Math answer is required';
       const parsed = Number(value);
       if (!Number.isFinite(parsed)) return 'Math answer must be a valid number';

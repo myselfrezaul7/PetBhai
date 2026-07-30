@@ -35,6 +35,7 @@ const InlineEditField: React.FC<{
   useEffect(() => { setCurrentValue(value); }, [value]);
 
   const handleSave = async () => {
+    if (isSaving) return;
     if (currentValue === value || (!currentValue.trim() && !value)) {
       setIsEditing(false);
       return;
@@ -44,7 +45,8 @@ const InlineEditField: React.FC<{
       await onSave(currentValue);
       setIsEditing(false);
     } catch (err) {
-      setCurrentValue(value);
+      // Keep user's input so they can retry
+      console.error('Failed to save field:', err);
     } finally {
       setIsSaving(false);
     }
@@ -112,14 +114,16 @@ const ProfilePage: React.FC = () => {
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [postsError, setPostsError] = useState<string | null>(null);
   useEffect(() => {
+    let ignore = false;
     if (activeTab === 'posts' && currentUser) {
       setIsLoadingPosts(true);
       setPostsError(null);
       postService.fetchPostsPage(undefined, 20, currentUser.id)
-        .then(res => setUserPosts(res.items))
-        .catch((err: any) => setPostsError(err.message || 'Failed to load posts.'))
-        .finally(() => setIsLoadingPosts(false));
+        .then(res => { if (!ignore) setUserPosts(res.items); })
+        .catch((err: any) => { if (!ignore) setPostsError(err.message || 'Failed to load posts.'); })
+        .finally(() => { if (!ignore) setIsLoadingPosts(false); });
     }
+    return () => { ignore = true; };
   }, [activeTab, currentUser]);
 
   const toggleOrder = (id: string) => {

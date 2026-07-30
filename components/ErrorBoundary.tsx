@@ -31,6 +31,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   private handleReset = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    window.location.href = '/';
   };
 
   private handleClearAndReload = () => {

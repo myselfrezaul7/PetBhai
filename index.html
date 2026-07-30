@@ -4,11 +4,13 @@
     <script>
       // Performance Polyfill (Fixes crashes in ad-blocked/legacy browsers: "mgt.clearMarks is not a function")
       if (typeof window !== 'undefined') {
-        window.performance = window.performance || {};
-        window.performance.mark = window.performance.mark || function() {};
-        window.performance.clearMarks = window.performance.clearMarks || function() {};
-        window.performance.measure = window.performance.measure || function() {};
-        window.performance.clearMeasures = window.performance.clearMeasures || function() {};
+        try {
+          var perf = window.performance || {};
+          if (!perf.mark) perf.mark = function() {};
+          if (!perf.clearMarks) perf.clearMarks = function() {};
+          if (!perf.measure) perf.measure = function() {};
+          if (!perf.clearMeasures) perf.clearMeasures = function() {};
+        } catch(e) { /* performance is read-only in some environments */ }
       }
     </script>
     <meta charset="UTF-8" />
@@ -240,13 +242,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <!-- Preload LCP Image (Hero) for faster rendering -->
-    <link
-      rel="preload"
-      as="image"
-      href="/landing-hero-mobile.webp"
-      type="image/webp"
-      fetchpriority="high"
-    />
     <link
       rel="preload"
       as="image"

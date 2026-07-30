@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
 // Icons
 const CalculatorIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -66,7 +66,7 @@ type PetType = 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster';
 type ToolTab = 'age' | 'name' | 'tips' | 'food';
 
 // Pet name data organized by characteristics
-import { PET_NAMES, PET_TIPS, FOOD_GUIDE } from '../lib/petConstants';
+import { PET_NAMES, PET_TIPS, FOOD_GUIDE, AGE_MULTIPLIERS } from '../lib/petConstants';
 
 const PetTools: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ToolTab>('age');

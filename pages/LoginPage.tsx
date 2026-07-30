@@ -81,7 +81,7 @@ const LoginPage: React.FC = () => {
 
   const validateMathAnswer = useCallback(
     (value: string): string | undefined => {
-      if (!showMathFallback) return undefined;
+      // Caller already checks shouldUseMathFallback before calling this
       if (!value.trim()) return 'Math answer is required';
       const parsed = Number(value);
       if (!Number.isFinite(parsed)) return 'Math answer must be a valid number';

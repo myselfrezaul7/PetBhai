@@ -206,9 +206,11 @@ app.use('/api/', apiLimiter);
 // CSRF token endpoint
 app.get('/api/csrf-token', getCSRFTokenHandler);
 
-// Honeypot validation for form submissions
-app.use('/api/auth', honeypotValidation);
-app.use('/api/orders', honeypotValidation);
+// Honeypot validation for form submissions (POST only)
+app.post('/api/auth/login', honeypotValidation);
+app.post('/api/auth/signup', honeypotValidation);
+app.post('/api/auth/register', honeypotValidation);
+app.post('/api/orders', honeypotValidation);
 
 // reCAPTCHA verification for sensitive endpoints
 // Applied to login, signup, and order creation
