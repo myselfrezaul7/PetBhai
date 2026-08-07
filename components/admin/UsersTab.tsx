@@ -1,5 +1,6 @@
 import React from 'react';
 import type { AdminUserSummary } from '../../types/admin';
+import type { User } from '../../types';
 
 interface UsersTabProps {
   filteredAdminUsers: AdminUserSummary[];
@@ -9,6 +10,8 @@ interface UsersTabProps {
   savingUserActionId: string;
   handleBanUser: (userId: number) => Promise<void>;
   handleUnbanUser: (userId: number) => Promise<void>;
+  handleUpdateRole: (userId: number, role: string) => Promise<void>;
+  currentUser: User | null;
   sanitizeInput: (input: string, limit?: number, options?: any) => string;
 }
 
@@ -20,6 +23,8 @@ export const UsersTab: React.FC<UsersTabProps> = ({
   savingUserActionId,
   handleBanUser,
   handleUnbanUser,
+  handleUpdateRole,
+  currentUser,
   sanitizeInput,
 }) => {
   return (
@@ -65,8 +70,22 @@ export const UsersTab: React.FC<UsersTabProps> = ({
                       <p className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-300">{user.email}</p>
                     </td>
-                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200 capitalize">
-                      {user.role || 'customer'}
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                      {currentUser?.role === 'super_admin' && user.id !== currentUser?.id ? (
+                        <select
+                          value={user.role || 'customer'}
+                          onChange={(e) => handleUpdateRole(user.id, e.target.value)}
+                          disabled={savingUserActionId === `role-${user.id}`}
+                          className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900 disabled:opacity-50"
+                        >
+                          <option value="customer">Customer</option>
+                          <option value="moderator">Moderator</option>
+                          <option value="store_manager">Store Manager</option>
+                          <option value="super_admin">Super Admin</option>
+                        </select>
+                      ) : (
+                        <span className="capitalize">{user.role || 'customer'}</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
                       {user.emailVerified ? 'Yes' : 'No'}
@@ -86,7 +105,7 @@ export const UsersTab: React.FC<UsersTabProps> = ({
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      {user.role === 'admin' ? (
+                      {user.role === 'super_admin' ? (
                         <span className="text-xs text-slate-500 dark:text-slate-300">Protected</span>
                       ) : user.isBanned ? (
                         <button

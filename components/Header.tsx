@@ -82,7 +82,9 @@ const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
 const isAdminUser = (user?: { role?: string; email?: string }): boolean => {
   if (!user) return false;
-  return user.role === 'admin' || user.email?.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
+  const normalizedEmail = typeof user.email === 'string' ? user.email.trim().toLowerCase() : '';
+  const validRoles = ['super_admin', 'store_manager', 'moderator'];
+  return validRoles.includes(user.role || '') || normalizedEmail === 'petbhaibd@gmail.com';
 };
 
 const Header: React.FC = () => {
@@ -684,7 +686,7 @@ const Header: React.FC = () => {
                     </Link>
                     {isAdminUser(currentUser) && (
                       <Link
-                        to="/admin-dashboard"
+                        to="/admin"
                         onClick={() => setIsProfileMenuOpen(false)}
                         className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                       >

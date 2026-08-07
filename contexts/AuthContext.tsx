@@ -405,12 +405,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = useCallback(async (): Promise<User> => {
     try {
-      const profile = await protectedApiRequest<User>('/auth/me', {
+      const endpoint = currentUser?.id ? `/auth/${currentUser.id}` : '/auth/me';
+      const profile = await protectedApiRequest<User>(endpoint, {
         method: 'GET',
       });
 
       if (isAdminEmail(profile.email)) {
-        profile.role = 'admin';
+        profile.role = 'super_admin';
       }
 
       setCurrentUser(profile);
@@ -421,8 +422,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const retryable = isApiError ? err.retryable : true;
 
       if (isApiError && err.statusCode === 404) {
-        clearSession();
-        toast.error('Session expired or user not found. Please sign in again.');
+        // Do not clear session instantly on 404, as the mock DB might have reset while the JWT is still valid.
+        toast.error('User record not found in database. Please log in again.');
         throw err;
       }
 
@@ -432,7 +433,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       throw err;
     }
-  }, [protectedApiRequest, toast]);
+  }, [protectedApiRequest, toast, currentUser?.id]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {

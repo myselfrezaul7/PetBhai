@@ -4,13 +4,14 @@ import { OrdersTab } from '../components/admin/OrdersTab';
 import { CreateProductTab } from '../components/admin/CreateProductTab';
 import { ModerationTab } from '../components/admin/ModerationTab';
 import { UsersTab } from '../components/admin/UsersTab';
+import { AdoptionTab } from '../components/admin/AdoptionTab';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 import type { Order, Product, User } from '../types';
-
+import { motion, AnimatePresence } from 'framer-motion';
 import type { OrderStatus, ActiveTab, StockFilter, SortMode, ModerationQueueStatus, ModerationStatusFilter, ModerationAction, InventoryEditableField, DashboardStats, InventoryProductResponse, InventoryRow, OrderStatusHistoryEntry, AdminOrder, ModerationReportSummary, AdminUserSummary, OrdersPayload, ModerationPayload, UsersPayload, OrderStatusResponse, ModerationResponse, NewProductForm } from '../types/admin';
 
 const TOKEN_STORAGE_KEY = 'petbhai_token';
@@ -42,6 +43,7 @@ const mobileTabs: Array<{ key: ActiveTab; label: string }> = [
   { key: 'create', label: 'Add Product' },
   { key: 'moderation', label: 'Moderation' },
   { key: 'users', label: 'Users' },
+  { key: 'adoption', label: 'Adoptions' },
 ];
 
 const getStatusMeta = (
@@ -96,7 +98,8 @@ const toBoundedInteger = (value: unknown, min = 0, max = 100000): number => {
 const isAdminUser = (user: User | null): boolean => {
   if (!user) return false;
   const normalizedEmail = typeof user.email === 'string' ? user.email.trim().toLowerCase() : '';
-  return user.role === 'admin' || normalizedEmail === DEFAULT_ADMIN_EMAIL;
+  const validRoles = ['super_admin', 'store_manager', 'moderator'];
+  return validRoles.includes(user.role || '') || normalizedEmail === DEFAULT_ADMIN_EMAIL;
 };
 
 const AdminDashboard = () => {
@@ -598,6 +601,36 @@ const AdminDashboard = () => {
     );
   }, [adminUsers, userSearchTerm]);
 
+  const handleUpdateRole = async (userId: number, role: string): Promise<void> => {
+    setSavingUserActionId(`role-${userId}`);
+    setError('');
+
+    try {
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      };
+
+      await apiRequest(`/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ role }),
+      });
+
+      setAdminUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId
+            ? { ...user, role }
+            : user
+        )
+      );
+    } catch (requestError) {
+      setError(getErrorMessage(requestError, 'Failed to update user role.'));
+    } finally {
+      setSavingUserActionId('');
+    }
+  };
+
   const handleBanUser = async (userId: number): Promise<void> => {
     setSavingUserActionId(`ban-${userId}`);
     setError('');
@@ -747,6 +780,17 @@ const AdminDashboard = () => {
             >
               👥 Users
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('adoption')}
+              className={`w-full rounded-xl px-3 py-2 text-left ${
+                activeTab === 'adoption'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              🐾 Adoptions
+            </button>
           </nav>
 
           <div className="mt-8 rounded-xl border border-white/35 dark:border-white/10 bg-white/50 dark:bg-slate-900/40 px-3 py-3 text-xs dark:text-slate-300">
@@ -796,19 +840,27 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
+          <div className="mb-4 flex gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x lg:hidden">
             {mobileTabs.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                className={`relative shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   activeTab === tab.key
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
+                    ? 'text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
-                {tab.label}
+                {activeTab === tab.key && (
+                  <motion.div
+                    layoutId="activeAdminTabMobile"
+                    className="absolute inset-0 rounded-full bg-slate-950 dark:bg-slate-500"
+                    style={{ zIndex: -1 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -819,7 +871,15 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {activeTab === 'overview' && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {activeTab === 'overview' && (
             <OverviewTab
               metrics={metrics}
               topRiskItems={topRiskItems}
@@ -895,9 +955,14 @@ const AdminDashboard = () => {
               savingUserActionId={savingUserActionId}
               handleBanUser={handleBanUser}
               handleUnbanUser={handleUnbanUser}
+              handleUpdateRole={handleUpdateRole}
+              currentUser={currentUser}
               sanitizeInput={sanitizeInput}
             />
           )}
+          {activeTab === 'adoption' && <AdoptionTab />}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

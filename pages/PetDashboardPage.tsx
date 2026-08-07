@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { HeartIcon, PawIcon } from '../components/icons';
 import { generateText } from '../services/geminiService';
 import { RateLimiter, sanitizeInput } from '../lib/security';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type DashboardTab = 'overview' | 'reminders' | 'profile' | 'add-pet';
 
@@ -592,10 +593,10 @@ const PetDashboardPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-          <aside className="space-y-5">
-            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
+          <aside className="flex flex-row lg:flex-col gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 hide-scrollbar">
+            <div className="min-w-[260px] lg:min-w-0 flex-1 rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Pets</h3>
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible hide-scrollbar pb-1 lg:pb-0">
                 {pets.map((pet) => (
                   <button
                     key={pet.id}
@@ -619,11 +620,11 @@ const PetDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
+            <div className="min-w-[260px] lg:min-w-0 flex-1 rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Care Queue
               </h3>
-              <div className="mt-3 space-y-2 text-sm">
+              <div className="mt-3 flex flex-row lg:flex-col gap-2 text-sm">
                 <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                   <p className="text-slate-500">Upcoming (7d)</p>
                   <p className="font-bold text-slate-800 dark:text-white">
@@ -637,11 +638,11 @@ const PetDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
+            <div className="min-w-[260px] lg:min-w-0 flex-1 rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Dashboard Shortcuts
               </h3>
-              <div className="mt-3 space-y-2 text-sm">
+              <div className="mt-3 flex flex-row lg:flex-col gap-2 text-sm">
                 <button
                   type="button"
                   onClick={() => setActiveTab('overview')}
@@ -666,8 +667,15 @@ const PetDashboardPage: React.FC = () => {
               </div>
             </div>
           </aside>
-
-          <main className="space-y-5 rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-5">
+          <AnimatePresence mode="wait">
+            <motion.main
+              key={activeTab + (selectedPetId || '')}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-5 rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-5"
+            >
             <div
               className="flex flex-wrap gap-2 border-b border-slate-200/70 pb-2 dark:border-slate-700"
               role="tablist"
@@ -684,13 +692,21 @@ const PetDashboardPage: React.FC = () => {
                   type="button"
                   onClick={() => setActiveTab(tab.key as DashboardTab)}
                   role="tab"
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                  className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                     activeTab === tab.key
-                      ? 'bg-slate-950 text-white'
-                      : 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                      ? 'text-white'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200'
                   }`}
                 >
-                  {tab.label}
+                  {activeTab === tab.key && (
+                    <motion.div
+                      layoutId="activeDashTab"
+                      className="absolute inset-0 rounded-full bg-slate-950 dark:bg-white"
+                      style={{ zIndex: -1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -1143,7 +1159,8 @@ const PetDashboardPage: React.FC = () => {
                 </div>
               </form>
             )}
-          </main>
+            </motion.main>
+          </AnimatePresence>
         </div>
       )}
     </div>

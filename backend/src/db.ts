@@ -102,7 +102,7 @@ class Database {
   public data: DatabaseSchema;
   private isLoaded: boolean = false;
   private loadError: Error | null = null;
-  private writeQueue: Promise<boolean> = Promise.resolve(true);
+  private writeLock: Promise<void> = Promise.resolve();
   private hasWarnedAboutServerlessPersistence = false;
 
   constructor() {
@@ -153,7 +153,25 @@ class Database {
       if (fs.existsSync(DB_PATH)) {
         console.log('Loading database from disk...');
         const fileContent = fs.readFileSync(DB_PATH, 'utf-8');
-        return JSON.parse(fileContent);
+        try {
+          return JSON.parse(fileContent);
+        } catch (parseError) {
+          console.warn('Error parsing db.json, attempting backup recovery...', parseError);
+          const backupPath = `${DB_PATH}.bak`;
+          if (fs.existsSync(backupPath)) {
+            const backupContent = fs.readFileSync(backupPath, 'utf-8');
+            try {
+              const recovered = JSON.parse(backupContent);
+              console.warn('Successfully recovered database from backup.');
+              return recovered;
+            } catch (backupParseError) {
+              console.error('Error parsing db.json.bak as well.', backupParseError);
+              throw backupParseError;
+            }
+          } else {
+            throw parseError;
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading database, using initial data:', error);
@@ -224,18 +242,16 @@ class Database {
     throw new PersistenceError(`Failed to persist database to disk after ${retries} attempts. Last error: ${lastError?.message}`);
   }
 
-  private enqueueSave(data: DatabaseSchema): Promise<boolean> {
-    this.writeQueue = this.writeQueue
-      .catch(() => false) // Ignore previous failures in the queue chain
-      .then(() => {
-        try {
-          return this.persistToDisk(data);
-        } catch (error) {
-          // We must re-throw so the caller knows the persistence failed
-          throw error;
-        }
-      });
-    return this.writeQueue;
+  private async enqueueSave(data: DatabaseSchema): Promise<boolean> {
+    const previousLock = this.writeLock;
+    let releaseLock!: () => void;
+    this.writeLock = new Promise(resolve => { releaseLock = resolve; });
+    try {
+      await previousLock;
+      return this.persistToDisk(data);
+    } finally {
+      releaseLock();
+    }
   }
 
   public async write(): Promise<boolean> {

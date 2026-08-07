@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { securityLog } from './logger';
+import { db } from '../db';
 
 const JWT_ISSUER = 'petbhai-api';
 const JWT_AUDIENCE = 'petbhai-client';
@@ -14,13 +15,9 @@ const getJwtSecret = (): string => {
     return configuredSecret;
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'JWT_SECRET is missing or too weak in production. Configure a strong secret with at least 32 characters.'
-    );
-  }
-
-  return 'dev_secret_local_only_not_for_production_use';
+  throw new Error(
+    'JWT_SECRET is missing or too weak. Configure a strong secret with at least 32 characters in your .env file.'
+  );
 };
 
 // Extended Request type with user info
@@ -31,6 +28,7 @@ export interface AuthRequest extends Request {
     name: string;
     isPlusMember?: boolean;
     isAdmin?: boolean;
+    role?: 'customer' | 'moderator' | 'store_manager' | 'super_admin';
   };
 }
 
@@ -41,6 +39,7 @@ export interface JwtPayload {
   name: string;
   isPlusMember?: boolean;
   isAdmin?: boolean;
+  role?: 'customer' | 'moderator' | 'store_manager' | 'super_admin';
   tokenType?: 'access' | 'refresh';
   tokenVersion?: number;
   iat?: number;
@@ -149,6 +148,17 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
     return;
   }
 
+  const user = db.users.find((u: any) => String(u.id) === String(decoded.id));
+  if (!user || user.bannedAt || (user.tokenVersion !== undefined && decoded.tokenVersion !== undefined && user.tokenVersion !== decoded.tokenVersion)) {
+    securityLog('AUTH_USER_SUSPENDED_OR_INVALIDATED', req, {
+      path: req.originalUrl || req.url,
+      method: req.method,
+      userId: decoded.id
+    });
+    res.status(401).json({ error: 'Authentication Error', message: 'Account suspended or session invalidated', reqId });
+    return;
+  }
+
   req.user = decoded;
   next();
 };
@@ -173,31 +183,38 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
   next();
 };
 
-// Admin only middleware
-export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  const reqId = (req as any).reqId || 'unknown';
+export const requireRole = (allowedRoles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    const reqId = (req as any).reqId || 'unknown';
 
-  if (!req.user) {
-    securityLog('ADMIN_AUTH_REQUIRED', req, {
-      path: req.originalUrl || req.url,
-      method: req.method,
-    });
-    res.status(401).json({ error: 'Authentication Error', message: 'Authentication required', reqId });
-    return;
-  }
+    if (!req.user) {
+      securityLog('AUTH_REQUIRED_FOR_ROLE', req, {
+        path: req.originalUrl || req.url,
+        method: req.method,
+      });
+      res.status(401).json({ error: 'Authentication Error', message: 'Authentication required', reqId });
+      return;
+    }
 
-  if (!req.user.isAdmin) {
-    securityLog('ADMIN_FORBIDDEN', req, {
-      userId: req.user.id,
-      path: req.originalUrl || req.url,
-      method: req.method,
-    });
-    res.status(403).json({ error: 'Authorization Error', message: 'Admin access required', reqId });
-    return;
-  }
+    const userRole = req.user.role || (req.user.isAdmin ? 'super_admin' : 'customer');
+    if (!allowedRoles.includes(userRole)) {
+      securityLog('ROLE_FORBIDDEN', req, {
+        userId: req.user.id,
+        role: userRole,
+        required: allowedRoles,
+        path: req.originalUrl || req.url,
+        method: req.method,
+      });
+      res.status(403).json({ error: 'Authorization Error', message: 'Insufficient permissions', reqId });
+      return;
+    }
 
-  next();
+    next();
+  };
 };
+
+// Admin only middleware (Legacy - aliases to super_admin or store_manager)
+export const requireAdmin = requireRole(['super_admin', 'store_manager']);
 
 // Plus member middleware
 export const requirePlusMember = (req: AuthRequest, res: Response, next: NextFunction): void => {

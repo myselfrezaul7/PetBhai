@@ -279,7 +279,7 @@ const RouteSEO: React.FC = () => {
   if (path === '/signup') return <SEO title="Sign Up" noindex />;
   if (path === '/profile') return <SEO title="My Profile | PetBhai" noindex />;
   if (path === '/dashboard') return <SEO title="Dashboard" noindex />;
-  if (path === '/admin-dashboard') return <SEO title="Admin Dashboard" noindex />;
+  if (path === '/admin') return <SEO title="Admin Dashboard" noindex />;
   if (path === '/thumbnail-generator') {
     return (
       <SEO
@@ -370,7 +370,7 @@ const AppContent: React.FC = () => {
                   <Routes location={location}>
                     <Route path="/" element={<HomePage />} />
                     <Route
-                      path="/admin-dashboard"
+                      path="/admin"
                       element={
                         <AdminRoute>
                           <AdminDashboard />

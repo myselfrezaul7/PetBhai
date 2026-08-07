@@ -150,6 +150,14 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
 
+  if (requestOptions.signal) {
+    if (requestOptions.signal.aborted) {
+      controller.abort();
+    } else {
+      requestOptions.signal.addEventListener('abort', () => controller.abort(), { once: true });
+    }
+  }
+
   try {
     const response = await fetch(buildUrl(path), {
       ...requestOptions,

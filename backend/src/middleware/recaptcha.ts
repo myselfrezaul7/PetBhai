@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { randomUUID } from 'crypto';
 import { securityLog } from './logger';
 
 // reCAPTCHA v2 Secret Key - stored in environment variable for security
@@ -13,11 +14,38 @@ interface RecaptchaVerifyResponse {
 
 interface MathFallbackPayload {
   type: 'math-v1';
-  left: number;
-  right: number;
-  operator: '+' | '-';
+  challengeId: string;
   answer: number;
 }
+
+const mathChallengeStore = new Map<string, { answer: number; expiresAt: number }>();
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, challenge] of mathChallengeStore.entries()) {
+    if (now > challenge.expiresAt) {
+      mathChallengeStore.delete(id);
+    }
+  }
+}, 60 * 1000); // Check every minute
+
+export const getMathChallengeHandler = (req: Request, res: Response) => {
+  const left = Math.floor(Math.random() * 20) + 1;
+  const right = Math.floor(Math.random() * 20) + 1;
+  const operator = Math.random() > 0.5 ? '+' : '-';
+  const answer = operator === '+' ? left + right : left - right;
+  
+  const challengeId = randomUUID();
+  mathChallengeStore.set(challengeId, {
+    answer,
+    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes TTL
+  });
+  
+  res.json({
+    challengeId,
+    question: `${left} ${operator} ${right}`
+  });
+};
 
 const isValidMathFallback = (payload: unknown): payload is MathFallbackPayload => {
   if (!payload || typeof payload !== 'object') {
@@ -25,41 +53,26 @@ const isValidMathFallback = (payload: unknown): payload is MathFallbackPayload =
   }
 
   const candidate = payload as Partial<MathFallbackPayload>;
-  if (candidate.type !== 'math-v1') {
+  if (candidate.type !== 'math-v1' || typeof candidate.challengeId !== 'string' || typeof candidate.answer !== 'number') {
     return false;
   }
 
-  if (
-    !Number.isInteger(candidate.left) ||
-    !Number.isInteger(candidate.right) ||
-    !Number.isInteger(candidate.answer)
-  ) {
+  const challenge = mathChallengeStore.get(candidate.challengeId);
+  if (!challenge) {
     return false;
   }
 
-  if (!['+', '-'].includes(String(candidate.operator))) {
+  if (Date.now() > challenge.expiresAt) {
+    mathChallengeStore.delete(candidate.challengeId);
     return false;
   }
 
-  const left = candidate.left;
-  const right = candidate.right;
-  const answer = candidate.answer;
-  const operator = candidate.operator;
-
-  if (typeof left !== 'number' || typeof right !== 'number' || typeof answer !== 'number') {
-    return false;
+  const isValid = challenge.answer === candidate.answer;
+  if (isValid) {
+    mathChallengeStore.delete(candidate.challengeId);
   }
 
-  if (operator !== '+' && operator !== '-') {
-    return false;
-  }
-
-  if (left < 0 || left > 100 || right < 0 || right > 100) {
-    return false;
-  }
-
-  const expected = operator === '+' ? left + right : left - right;
-  return expected === answer;
+  return isValid;
 };
 
 /**

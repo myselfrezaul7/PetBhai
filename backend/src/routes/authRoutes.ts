@@ -93,10 +93,10 @@ const userWithAuthMetadata = (user: User): UserAuthMetadata => {
   return user as UserAuthMetadata;
 };
 
-const getRoleByEmail = (email: string, emailVerified: boolean): 'admin' | 'customer' => {
+const getRoleByEmail = (email: string, emailVerified: boolean): 'super_admin' | 'customer' => {
   if (!emailVerified) return 'customer';
   const normalizedEmail = normalizeEmail(email);
-  return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'admin' : 'customer';
+  return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'super_admin' : 'customer';
 };
 
 const syncRoleByEmail = (user: User): boolean => {
@@ -104,7 +104,7 @@ const syncRoleByEmail = (user: User): boolean => {
     return false;
   }
 
-  const isVerified = Boolean(userWithAuthMetadata(user).emailVerified);
+  const isVerified = Boolean(userWithAuthMetadata(user!).emailVerified);
   const expectedRole = getRoleByEmail(user.email, isVerified);
   if (user.role === expectedRole) {
     return false;
@@ -156,10 +156,10 @@ const sanitizeUser = (user: User): Omit<User, 'password'> => {
   return safeUser;
 };
 
-const canAccessUser = (req: AuthRequest, userId: number): boolean => {
+const canAccessUser = (req: AuthRequest, userId: number | string): boolean => {
   if (!req.user) return false;
-  const requesterId = Number(req.user.id);
-  return requesterId === userId || !!req.user.isAdmin;
+  const requesterId = String(req.user.id);
+  return String(requesterId) === String(userId) || !!req.user.isAdmin;
 };
 
 const persistChanges = (res: any): boolean => {
@@ -248,22 +248,22 @@ const generateVerificationToken = (): string => {
 };
 
 const getTokenVersion = (user: User): number => {
-  const raw = userWithAuthMetadata(user).tokenVersion;
+  const raw = userWithAuthMetadata(user!).tokenVersion;
   return typeof raw === 'number' && Number.isFinite(raw) && raw >= 0 ? Math.floor(raw) : 0;
 };
 
 const setTokenVersion = (user: User, nextValue: number): void => {
-  userWithAuthMetadata(user).tokenVersion = Math.max(0, Math.floor(nextValue));
+  userWithAuthMetadata(user!).tokenVersion = Math.max(0, Math.floor(nextValue));
 };
 
 const setRefreshTokenState = (user: User, refreshToken: string): void => {
-  const rawUser = userWithAuthMetadata(user);
+  const rawUser = userWithAuthMetadata(user!);
   rawUser.refreshTokenHash = hashToken(refreshToken);
   rawUser.refreshTokenExpiresAt = new Date(nowMs() + 30 * 24 * 60 * 60 * 1000).toISOString();
 };
 
 const clearRefreshTokenState = (user: User): void => {
-  const rawUser = userWithAuthMetadata(user);
+  const rawUser = userWithAuthMetadata(user!);
   delete rawUser.refreshTokenHash;
   delete rawUser.refreshTokenExpiresAt;
 };
@@ -280,7 +280,7 @@ const issueAuthSession = (
     email: user.email,
     name: user.name,
     isPlusMember: user.isPlusMember,
-    isAdmin: user.role === 'admin',
+    isAdmin: user.role === 'super_admin',
   });
   const refreshToken = generateRefreshToken(
     {
@@ -288,7 +288,7 @@ const issueAuthSession = (
       email: user.email,
       name: user.name,
       isPlusMember: user.isPlusMember,
-      isAdmin: user.role === 'admin',
+      isAdmin: user.role === 'super_admin',
     },
     tokenVersion
   );
@@ -298,7 +298,7 @@ const issueAuthSession = (
 
 const assignNewEmailVerification = (user: User): string => {
   const token = generateVerificationToken();
-  const rawUser = userWithAuthMetadata(user);
+  const rawUser = userWithAuthMetadata(user!);
   rawUser.emailVerified = false;
   rawUser.emailVerificationTokenHash = hashToken(token);
   rawUser.emailVerificationExpiresAt = new Date(
@@ -308,7 +308,7 @@ const assignNewEmailVerification = (user: User): string => {
 };
 
 const isEmailVerified = (user: User): boolean => {
-  return Boolean(userWithAuthMetadata(user).emailVerified);
+  return Boolean(userWithAuthMetadata(user!).emailVerified);
 };
 
 const getNextUserId = (): number => {
@@ -413,8 +413,8 @@ const ensurePetCollections = (user: User): void => {
 };
 
 const parseUserFromParam = (req: AuthRequest, res: any): User | null => {
-  const userId = parseInt(req.params.id, 10);
-  if (Number.isNaN(userId)) {
+  const userId = Number(req.params.id);
+  if (!userId) {
     res.status(400).json({ message: 'Invalid user ID' });
     return null;
   }
@@ -528,13 +528,13 @@ router.post('/login', authLimiter, async (req, res) => {
       persistChanges(res);
     }
 
-    const { accessToken, refreshToken } = issueAuthSession(user);
+    const { accessToken, refreshToken } = issueAuthSession(user!);
     persistChanges(res);
 
     auditLog('LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
 
     return res.json({
-      user: sanitizeUser(user),
+      user: sanitizeUser(user!),
       token: accessToken,
       refreshToken,
     });
@@ -582,12 +582,12 @@ router.post('/signup', authLimiter, async (req, res) => {
     const hashedPassword = await hashPassword(password);
 
     const newUser: User = {
-      id: getNextUserId(),
+      id: String(getNextUserId()),
       name: sanitizedName,
       email: sanitizedEmail,
       createdAt: new Date().toISOString(),
       password: hashedPassword,
-      role: getRoleByEmail(sanitizedEmail, false),
+      role: getRoleByEmail(sanitizedEmail, false) as any,
       wishlist: [],
       orderHistory: [],
       favorites: [],
@@ -713,7 +713,7 @@ router.post('/social', authLimiter, async (req, res) => {
         shouldPersist = true;
       }
 
-      const rawUser = userWithAuthMetadata(user);
+      const rawUser = userWithAuthMetadata(user!);
       const existingProviderUserId =
         typeof rawUser.socialProviderId === 'string' ? rawUser.socialProviderId : '';
 
@@ -746,11 +746,11 @@ router.post('/social', authLimiter, async (req, res) => {
       }
     } else {
       user = {
-        id: getNextUserId(),
+        id: String(getNextUserId()),
         name: sanitizedName,
         email: sanitizedEmail,
         createdAt: new Date().toISOString(),
-        role: getRoleByEmail(sanitizedEmail, true),
+        role: getRoleByEmail(sanitizedEmail, true) as any,
         profilePictureUrl:
           typeof photoUrl === 'string' && /^https?:\/\//.test(photoUrl)
             ? photoUrl.slice(0, 500)
@@ -761,24 +761,24 @@ router.post('/social', authLimiter, async (req, res) => {
         isPlusMember: false,
       };
 
-      const rawUser = userWithAuthMetadata(user);
+      const rawUser = userWithAuthMetadata(user!);
       rawUser.emailVerified = true;
       rawUser.socialProvider = 'google';
       if (providerUserId) {
         rawUser.socialProviderId = providerUserId;
       }
-      setTokenVersion(user, 0);
+      setTokenVersion(user!, 0);
 
-      db.users.push(user);
+      db.users.push(user!);
       persistChanges(res);
-      auditLog('USER_SOCIAL_SIGNUP', user.id, { email: sanitizedEmail });
+      auditLog('USER_SOCIAL_SIGNUP', user!.id, { email: sanitizedEmail });
     }
 
-    const { accessToken, refreshToken } = issueAuthSession(user);
+    const { accessToken, refreshToken } = issueAuthSession(user!);
     persistChanges(res);
 
-    auditLog('SOCIAL_LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
-    return res.json({ user: sanitizeUser(user), token: accessToken, refreshToken });
+    auditLog('SOCIAL_LOGIN_SUCCESS', user!.id, { email: sanitizedEmail });
+    return res.json({ user: sanitizeUser(user!), token: accessToken, refreshToken });
   } catch (error) {
     console.error('Social login error:', error);
     return res.status(500).json({ message: 'An error occurred during social login' });
@@ -804,7 +804,7 @@ router.post('/refresh', authLimiter, async (req, res) => {
       return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Invalid refresh session');
     }
 
-    const rawUser = userWithAuthMetadata(user);
+    const rawUser = userWithAuthMetadata(user!);
     const storedHash = typeof rawUser.refreshTokenHash === 'string' ? rawUser.refreshTokenHash : '';
     const storedExpiry =
       typeof rawUser.refreshTokenExpiresAt === 'string'
@@ -826,13 +826,13 @@ router.post('/refresh', authLimiter, async (req, res) => {
       return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Refresh token version mismatch');
     }
 
-    const { accessToken, refreshToken: rotatedRefreshToken } = issueAuthSession(user);
+    const { accessToken, refreshToken: rotatedRefreshToken } = issueAuthSession(user!);
     persistChanges(res);
 
     return res.json({
       token: accessToken,
       refreshToken: rotatedRefreshToken,
-      user: sanitizeUser(user),
+      user: sanitizeUser(user!),
     });
   } catch (error) {
     console.error('Refresh token error:', error);
@@ -873,7 +873,7 @@ router.post('/verify-email', authLimiter, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const rawUser = userWithAuthMetadata(user);
+    const rawUser = userWithAuthMetadata(user!);
     const tokenHash =
       typeof rawUser.emailVerificationTokenHash === 'string'
         ? rawUser.emailVerificationTokenHash
@@ -929,706 +929,6 @@ router.post('/resend-verification', authLimiter, async (req, res) => {
   } catch (error) {
     console.error('Resend verification error:', error);
     return res.status(500).json({ message: 'Failed to resend verification token' });
-  }
-});
-
-router.get('/me', requireAuth, async (req: AuthRequest, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    const requesterId = Number(req.user.id);
-    if (!Number.isFinite(requesterId)) {
-      return res.status(401).json({ message: 'Invalid auth context' });
-    }
-
-    const user = db.users.find((record) => Number(record.id) === requesterId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const roleSynced = syncRoleByEmail(user);
-    if (roleSynced) {
-      persistChanges(res);
-    }
-
-    ensureUserCollections(user);
-    return res.json(sanitizeUser(user));
-  } catch (error) {
-    console.error('Fetch profile error:', error);
-    return res.status(500).json({ message: 'Failed to fetch profile' });
-  }
-});
-
-// Update Profile
-router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id, 10);
-
-  if (isNaN(userId)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const userIndex = db.users.findIndex((u) => u.id === userId);
-
-  if (userIndex === -1) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  const parsed = profileUpdateSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({
-      message: 'Invalid profile payload',
-      errors: parsed.error.flatten(),
-    });
-  }
-
-  const { name, profilePictureUrl, phone, bio, defaultShippingAddress } = parsed.data;
-
-  const updatedUser = { ...db.users[userIndex] };
-  if (typeof name === 'string') {
-    updatedUser.name = sanitizeString(name);
-  }
-  if (typeof profilePictureUrl === 'string') {
-    const isHttpUrl =
-      profilePictureUrl.startsWith('http://') || profilePictureUrl.startsWith('https://');
-    const isDataImageUrl = profilePictureUrl.startsWith('data:image/');
-    if (isHttpUrl || isDataImageUrl) {
-      updatedUser.profilePictureUrl = profilePictureUrl.slice(0, 5000);
-    }
-  }
-  if (typeof phone === 'string') {
-    updatedUser.phone = sanitizeString(phone).slice(0, 30);
-  }
-  if (typeof bio === 'string') {
-    updatedUser.bio = sanitizeString(bio);
-  }
-  if (defaultShippingAddress) {
-    const existing = updatedUser.defaultShippingAddress || { fullName: '', address: '', city: '', phone: '' };
-    updatedUser.defaultShippingAddress = {
-      fullName: typeof defaultShippingAddress.fullName === 'string' ? sanitizeString(defaultShippingAddress.fullName).slice(0, 120) : existing.fullName || '',
-      address: typeof defaultShippingAddress.address === 'string' ? sanitizeString(defaultShippingAddress.address).slice(0, 240) : existing.address || '',
-      city: typeof defaultShippingAddress.city === 'string' ? sanitizeString(defaultShippingAddress.city).slice(0, 80) : existing.city || '',
-      phone: typeof defaultShippingAddress.phone === 'string' ? sanitizeString(defaultShippingAddress.phone).slice(0, 30) : existing.phone || '',
-    };
-  }
-
-  db.users[userIndex] = updatedUser;
-  persistChanges(res);
-
-  auditLog('PROFILE_UPDATE', userId, { fields: Object.keys(req.body) });
-  res.json(sanitizeUser(updatedUser));
-});
-
-router.delete('/:id', requireAuth, authLimiter, async (req: AuthRequest, res) => {
-  try {
-    const userId = parseInt(req.params.id, 10);
-    if (Number.isNaN(userId)) {
-      return res.status(400).json({ message: 'Invalid user ID' });
-    }
-
-    if (!canAccessUser(req, userId)) {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-
-    const userIndex = db.users.findIndex((u) => Number(u.id) === userId);
-    if (userIndex === -1) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const candidate = db.users[userIndex];
-    const passwordConfirmation =
-      typeof req.body?.password === 'string' ? req.body.password : undefined;
-
-    if (candidate.password && !candidate.socialProvider) {
-      if (!passwordConfirmation) {
-        return res.status(400).json({ message: 'Password confirmation is required' });
-      }
-
-      const isValidPassword = candidate.password.startsWith('$2')
-        ? await comparePassword(passwordConfirmation, candidate.password)
-        : candidate.password === passwordConfirmation;
-
-      if (!isValidPassword) {
-        auditLog('FAILED_ACCOUNT_DELETE', userId, { reason: 'invalid_password' });
-        return res.status(401).json({ message: 'Password confirmation is incorrect' });
-      }
-    }
-
-    db.users.splice(userIndex, 1);
-    persistChanges(res);
-
-    auditLog('ACCOUNT_DELETED', userId, {
-      byAdmin: !!req.user?.isAdmin,
-    });
-
-    return res.status(204).send();
-  } catch (error) {
-    console.error('Account deletion error:', error);
-    return res.status(500).json({ message: 'Failed to delete account' });
-  }
-});
-
-// Add to Wishlist
-router.post('/:id/wishlist', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-  const { productId } = req.body;
-
-  if (isNaN(userId) || typeof productId !== 'number') {
-    return res.status(400).json({ message: 'Invalid user ID or product ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const user = db.users.find((u) => u.id === userId);
-
-  if (user) {
-    // Initialize wishlist if not exists
-    if (!user.wishlist) user.wishlist = [];
-    if (!user.wishlist.includes(productId)) {
-      user.wishlist.push(productId);
-      persistChanges(res);
-    }
-    res.json(sanitizeUser(user));
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
-});
-
-// Remove from Wishlist
-router.delete('/:id/wishlist/:productId', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-  const productId = parseInt(req.params.productId);
-
-  if (isNaN(userId) || isNaN(productId)) {
-    return res.status(400).json({ message: 'Invalid user ID or product ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const user = db.users.find((u) => u.id === userId);
-
-  if (user) {
-    // Initialize wishlist if not exists
-    if (!user.wishlist) user.wishlist = [];
-    user.wishlist = user.wishlist.filter((id) => id !== productId);
-    persistChanges(res);
-    res.json(sanitizeUser(user));
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
-});
-
-// Add to Favorites (Animals)
-router.post('/:id/favorites', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-  const { animalId } = req.body;
-
-  if (isNaN(userId) || typeof animalId !== 'number') {
-    return res.status(400).json({ message: 'Invalid user ID or animal ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const user = db.users.find((u) => u.id === userId);
-
-  if (user) {
-    // Initialize favorites if not exists
-    if (!user.favorites) user.favorites = [];
-    if (!user.favorites.includes(animalId)) {
-      user.favorites.push(animalId);
-      persistChanges(res);
-    }
-    res.json(sanitizeUser(user));
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
-});
-
-// Remove from Favorites
-router.delete('/:id/favorites/:animalId', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-  const animalId = parseInt(req.params.animalId);
-
-  if (isNaN(userId) || isNaN(animalId)) {
-    return res.status(400).json({ message: 'Invalid user ID or animal ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const user = db.users.find((u) => u.id === userId);
-
-  if (user) {
-    // Initialize favorites if not exists
-    if (!user.favorites) user.favorites = [];
-    user.favorites = user.favorites.filter((id) => id !== animalId);
-    persistChanges(res);
-    res.json(sanitizeUser(user));
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
-});
-
-// Subscribe to Plus
-router.post('/:id/subscribe', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-
-  if (isNaN(userId)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const user = db.users.find((u) => u.id === userId);
-
-  if (user) {
-    user.isPlusMember = true;
-    persistChanges(res);
-    auditLog('PLUS_SUBSCRIPTION', userId, { status: 'subscribed' });
-    res.json(sanitizeUser(user));
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
-});
-
-// Add to Order History
-router.post('/:id/orders', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.id);
-  const order = req.body;
-
-  if (isNaN(userId)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
-  }
-
-  if (!canAccessUser(req, userId)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  if (!order || typeof order !== 'object' || !order.orderId) {
-    return res.status(400).json({ message: 'Invalid order payload' });
-  }
-
-  const user = db.users.find((u) => u.id === userId);
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  if (!user.orderHistory) {
-    user.orderHistory = [];
-  }
-
-  const alreadyExists = user.orderHistory.some(
-    (existingOrder) => existingOrder.orderId === order.orderId
-  );
-  if (!alreadyExists) {
-    user.orderHistory.unshift(order);
-    if (user.orderHistory.length > 100) {
-      user.orderHistory = user.orderHistory.slice(0, 100);
-    }
-    persistChanges(res);
-  }
-
-  res.status(201).json(sanitizeUser(user));
-});
-
-router.get('/:id/pet-management', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  return res.json({
-    pets: user.petProfiles,
-    medicineReminders: user.medicineReminders,
-  });
-});
-
-router.post('/:id/pets', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const parsed = petCreateSchema.safeParse(req.body || {});
-  if (!parsed.success) {
-    return res.status(400).json({
-      message: 'Invalid pet payload',
-      details: parsed.error.errors.map((error) => ({
-        field: error.path.join('.'),
-        message: error.message,
-      })),
-    });
-  }
-
-  const payload = parsed.data;
-  const now = new Date().toISOString();
-  const weight = typeof payload.weight === 'number' ? Number(payload.weight.toFixed(2)) : undefined;
-
-  const pet: PetProfileRecord = {
-    id: generateRecordId(),
-    name: sanitizeString(payload.name).slice(0, 80),
-    type: payload.type,
-    gender: payload.gender,
-    breed: payload.breed ? sanitizeString(payload.breed).slice(0, 80) : undefined,
-    birthDate: payload.birthDate,
-    weight,
-    weightHistory: typeof weight === 'number' ? [{ date: now, weight }] : [],
-    activityLevel: payload.activityLevel,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  user.petProfiles?.push(pet);
-  persistChanges(res);
-  auditLog('PET_PROFILE_CREATED', user.id, { petId: pet.id });
-
-  return res
-    .status(201)
-    .json({ pet, pets: user.petProfiles, medicineReminders: user.medicineReminders });
-});
-
-router.patch('/:id/pets/:petId', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const parsed = petUpdateSchema.safeParse(req.body || {});
-  if (!parsed.success) {
-    return res.status(400).json({
-      message: 'Invalid pet update payload',
-      details: parsed.error.errors.map((error) => ({
-        field: error.path.join('.'),
-        message: error.message,
-      })),
-    });
-  }
-
-  const petId = sanitizeString(req.params.petId).slice(0, 80);
-  const petIndex = (user.petProfiles || []).findIndex((pet) => pet.id === petId);
-  if (petIndex === -1) {
-    return res.status(404).json({ message: 'Pet not found' });
-  }
-
-  const updates = parsed.data;
-  const currentPet = user.petProfiles![petIndex];
-  const updatedPet: PetProfileRecord = {
-    ...currentPet,
-    name: updates.name ? sanitizeString(updates.name).slice(0, 80) : currentPet.name,
-    breed:
-      typeof updates.breed === 'string'
-        ? sanitizeString(updates.breed).slice(0, 80)
-        : currentPet.breed,
-    gender: updates.gender || currentPet.gender,
-    activityLevel: updates.activityLevel || currentPet.activityLevel,
-    birthDate: updates.birthDate || currentPet.birthDate,
-    weight:
-      typeof updates.weight === 'number' ? Number(updates.weight.toFixed(2)) : currentPet.weight,
-    updatedAt: new Date().toISOString(),
-  };
-
-  user.petProfiles![petIndex] = updatedPet;
-  persistChanges(res);
-  auditLog('PET_PROFILE_UPDATED', user.id, { petId: updatedPet.id });
-
-  return res.json({
-    pet: updatedPet,
-    pets: user.petProfiles,
-    medicineReminders: user.medicineReminders,
-  });
-});
-
-router.post('/:id/pets/:petId/weights', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const parsed = petWeightSchema.safeParse(req.body || {});
-  if (!parsed.success) {
-    return res.status(400).json({ message: 'Invalid weight payload' });
-  }
-
-  const petId = sanitizeString(req.params.petId).slice(0, 80);
-  const petIndex = (user.petProfiles || []).findIndex((pet) => pet.id === petId);
-  if (petIndex === -1) {
-    return res.status(404).json({ message: 'Pet not found' });
-  }
-
-  const weight = Number(parsed.data.weight.toFixed(2));
-  const now = new Date().toISOString();
-  const pet = user.petProfiles![petIndex];
-
-  pet.weight = weight;
-  pet.weightHistory = [...(pet.weightHistory || []), { date: now, weight }].slice(-120);
-  pet.updatedAt = now;
-  user.petProfiles![petIndex] = pet;
-
-  persistChanges(res);
-  auditLog('PET_WEIGHT_ADDED', user.id, { petId: pet.id });
-
-  return res
-    .status(201)
-    .json({ pet, pets: user.petProfiles, medicineReminders: user.medicineReminders });
-});
-
-router.delete('/:id/pets/:petId', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const petId = sanitizeString(req.params.petId).slice(0, 80);
-  const beforeCount = (user.petProfiles || []).length;
-  user.petProfiles = (user.petProfiles || []).filter((pet) => pet.id !== petId);
-
-  if (user.petProfiles.length === beforeCount) {
-    return res.status(404).json({ message: 'Pet not found' });
-  }
-
-  user.medicineReminders = (user.medicineReminders || []).filter(
-    (reminder) => reminder.petId !== petId
-  );
-  persistChanges(res);
-  auditLog('PET_PROFILE_DELETED', user.id, { petId });
-
-  return res.json({ pets: user.petProfiles, medicineReminders: user.medicineReminders });
-});
-
-router.post('/:id/reminders', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const parsed = reminderCreateSchema.safeParse(req.body || {});
-  if (!parsed.success) {
-    return res.status(400).json({
-      message: 'Invalid reminder payload',
-      details: parsed.error.errors.map((error) => ({
-        field: error.path.join('.'),
-        message: error.message,
-      })),
-    });
-  }
-
-  const payload = parsed.data;
-  const hasPet = (user.petProfiles || []).some((pet) => pet.id === payload.petId);
-  if (!hasPet) {
-    return res.status(400).json({ message: 'Reminder petId does not belong to this user' });
-  }
-
-  const reminder: MedicineReminderRecord = {
-    id: generateRecordId(),
-    petId: payload.petId,
-    medicineName: sanitizeString(payload.medicineName).slice(0, 100),
-    dosage: sanitizeString(payload.dosage).slice(0, 100),
-    frequency: payload.frequency,
-    customDays: payload.frequency === 'custom' ? payload.customDays || 1 : undefined,
-    startDate: payload.startDate,
-    nextDueDate: payload.nextDueDate,
-    notes: payload.notes ? sanitizeString(payload.notes).slice(0, 300) : undefined,
-    isActive: payload.isActive,
-    notificationEnabled: payload.notificationEnabled,
-  };
-
-  user.medicineReminders?.push(reminder);
-  persistChanges(res);
-  auditLog('MEDICINE_REMINDER_CREATED', user.id, {
-    reminderId: reminder.id,
-    petId: reminder.petId,
-  });
-
-  return res
-    .status(201)
-    .json({ reminder, pets: user.petProfiles, medicineReminders: user.medicineReminders });
-});
-
-router.patch('/:id/reminders/:reminderId', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const parsed = reminderUpdateSchema.safeParse(req.body || {});
-  if (!parsed.success) {
-    return res.status(400).json({
-      message: 'Invalid reminder update payload',
-      details: parsed.error.errors.map((error) => ({
-        field: error.path.join('.'),
-        message: error.message,
-      })),
-    });
-  }
-
-  const reminderId = sanitizeString(req.params.reminderId).slice(0, 80);
-  const reminderIndex = (user.medicineReminders || []).findIndex(
-    (record) => record.id === reminderId
-  );
-  if (reminderIndex === -1) {
-    return res.status(404).json({ message: 'Reminder not found' });
-  }
-
-  const updates = parsed.data;
-  const current = user.medicineReminders![reminderIndex];
-  const updated: MedicineReminderRecord = {
-    ...current,
-    medicineName:
-      typeof updates.medicineName === 'string'
-        ? sanitizeString(updates.medicineName).slice(0, 100)
-        : current.medicineName,
-    dosage:
-      typeof updates.dosage === 'string'
-        ? sanitizeString(updates.dosage).slice(0, 100)
-        : current.dosage,
-    frequency: updates.frequency || current.frequency,
-    customDays:
-      (updates.frequency || current.frequency) === 'custom'
-        ? updates.customDays || current.customDays || 1
-        : undefined,
-    startDate: updates.startDate || current.startDate,
-    nextDueDate: updates.nextDueDate || current.nextDueDate,
-    notes:
-      typeof updates.notes === 'string'
-        ? sanitizeString(updates.notes).slice(0, 300)
-        : current.notes,
-    isActive: typeof updates.isActive === 'boolean' ? updates.isActive : current.isActive,
-    notificationEnabled:
-      typeof updates.notificationEnabled === 'boolean'
-        ? updates.notificationEnabled
-        : current.notificationEnabled,
-    lastGivenDate: updates.lastGivenDate || current.lastGivenDate,
-  };
-
-  user.medicineReminders![reminderIndex] = updated;
-  persistChanges(res);
-  auditLog('MEDICINE_REMINDER_UPDATED', user.id, { reminderId: updated.id });
-
-  return res.json({
-    reminder: updated,
-    pets: user.petProfiles,
-    medicineReminders: user.medicineReminders,
-  });
-});
-
-router.post('/:id/reminders/:reminderId/mark-given', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const reminderId = sanitizeString(req.params.reminderId).slice(0, 80);
-  const reminderIndex = (user.medicineReminders || []).findIndex(
-    (record) => record.id === reminderId
-  );
-  if (reminderIndex === -1) {
-    return res.status(404).json({ message: 'Reminder not found' });
-  }
-
-  const current = user.medicineReminders![reminderIndex];
-  const now = new Date().toISOString();
-  const updated: MedicineReminderRecord = {
-    ...current,
-    lastGivenDate: now,
-    nextDueDate: calculateNextDueDate(current.frequency, current.customDays),
-  };
-
-  user.medicineReminders![reminderIndex] = updated;
-  persistChanges(res);
-  auditLog('MEDICINE_REMINDER_MARKED_GIVEN', user.id, { reminderId: updated.id });
-
-  return res.json({
-    reminder: updated,
-    pets: user.petProfiles,
-    medicineReminders: user.medicineReminders,
-  });
-});
-
-router.delete('/:id/reminders/:reminderId', requireAuth, async (req: AuthRequest, res) => {
-  const user = parseUserFromParam(req, res);
-  if (!user) {
-    return;
-  }
-
-  const reminderId = sanitizeString(req.params.reminderId).slice(0, 80);
-  const beforeCount = (user.medicineReminders || []).length;
-  user.medicineReminders = (user.medicineReminders || []).filter(
-    (record) => record.id !== reminderId
-  );
-
-  if (beforeCount === user.medicineReminders.length) {
-    return res.status(404).json({ message: 'Reminder not found' });
-  }
-
-  persistChanges(res);
-  auditLog('MEDICINE_REMINDER_DELETED', user.id, { reminderId });
-
-  return res.json({ pets: user.petProfiles, medicineReminders: user.medicineReminders });
-});
-
-// Change Password
-router.post('/:id/change-password', requireAuth, authLimiter, async (req: AuthRequest, res) => {
-  try {
-    const userId = parseInt(req.params.id);
-    const { currentPassword, newPassword } = req.body;
-
-    if (isNaN(userId)) {
-      return res.status(400).json({ message: 'Invalid user ID' });
-    }
-
-    if (!canAccessUser(req, userId)) {
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Current password and new password are required' });
-    }
-
-    const user = db.users.find((u) => u.id === userId);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Verify current password
-    const isValidPassword = user.password?.startsWith('$2')
-      ? await comparePassword(currentPassword, user.password)
-      : user.password === currentPassword;
-
-    if (!isValidPassword) {
-      auditLog('FAILED_PASSWORD_CHANGE', userId, { reason: 'invalid_current_password' });
-      return res.status(401).json({ message: 'Current password is incorrect' });
-    }
-
-    // Validate new password strength
-    const passwordCheck = isStrongPassword(newPassword);
-    if (!passwordCheck.valid) {
-      return res.status(400).json({ message: passwordCheck.message });
-    }
-
-    // Hash and save new password
-    user.password = await hashPassword(newPassword);
-    persistChanges(res);
-
-    auditLog('PASSWORD_CHANGED', userId, {});
-    res.json({ message: 'Password changed successfully' });
-  } catch (error) {
-    console.error('Password change error:', error);
-    return res.status(500).json({ message: 'An error occurred while changing password' });
   }
 });
 

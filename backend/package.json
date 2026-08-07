@@ -26,7 +26,6 @@
     "firebase-admin": "^13.7.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
-    "lorem-ipsum": "^2.0.8",
     "nodemailer": "^7.0.12",
     "zod": "^3.23.8"
   },
@@ -40,6 +39,7 @@
     "@types/node": "^20.10.5",
     "@types/nodemailer": "^7.0.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "lorem-ipsum": "^2.0.8"
   }
 }

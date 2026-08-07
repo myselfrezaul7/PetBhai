@@ -77,7 +77,7 @@ export interface User {
   profilePictureUrl?: string;
   phone?: string;
   bio?: string;
-  role?: 'customer' | 'admin';
+  role?: 'customer' | 'moderator' | 'store_manager' | 'super_admin';
   emailVerified?: boolean;
   socialProvider?: 'google';
   socialProviderId?: string;

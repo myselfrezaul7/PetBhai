@@ -325,8 +325,8 @@ router.post(
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    const requesterId = Number(req.user.id);
-    const user = db.users.find((dbUser) => Number(dbUser.id) === requesterId);
+    const requesterId = String(req.user.id);
+    const user = db.users.find((dbUser) => Number(dbUser.id) === Number(requesterId));
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }

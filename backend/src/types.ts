@@ -109,7 +109,6 @@ export interface Animal {
   species?: string;
   age: AnimalAge;
   gender?: AnimalGender;
-  sex?: 'Male' | 'Female';
   size?: AnimalSize;
   status: AnimalStatus;
   description: string;
@@ -132,10 +131,9 @@ export interface User {
   bio?: string;
   wishlist?: number[]; // Array of product IDs
   orderHistory?: Order[];
-  orders?: Order[]; // Alternative orders field
   favorites?: number[]; // Array of animal IDs
   isPlusMember?: boolean;
-  role?: 'customer' | 'admin';
+  role?: 'customer' | 'moderator' | 'store_manager' | 'super_admin';
   emailVerified?: boolean;
   emailVerificationTokenHash?: string;
   emailVerificationExpiresAt?: string;
@@ -157,10 +155,10 @@ export interface User {
 }
 
 export interface AdminUsersSummary {
-  id: number;
+  id: number | string;
   name: string;
   email: string;
-  role?: 'customer' | 'admin';
+  role?: 'customer' | 'moderator' | 'store_manager' | 'super_admin';
   emailVerified?: boolean;
   isBanned: boolean;
   bannedAt?: string;
@@ -173,7 +171,7 @@ export interface AdminUsersSummary {
 export interface CommentReply {
   id: number;
   author: {
-    id: number;
+    id: number | string;
     name: string;
     profilePictureUrl?: string;
   };
@@ -187,7 +185,7 @@ export interface CommentReply {
 export interface Comment {
   id: number;
   author: {
-    id: number;
+    id: number | string;
     name: string;
     profilePictureUrl?: string;
   };
@@ -202,7 +200,7 @@ export interface Comment {
 export interface Post {
   id: number;
   author: {
-    id: number;
+    id: number | string;
     name: string;
     profilePictureUrl?: string;
   };
@@ -223,7 +221,7 @@ export interface ModerationReport {
   targetPostId: number;
   targetCommentId?: number;
   targetReplyId?: number;
-  reporterId: number;
+  reporterId: number | string;
   reason: string;
   status: 'open' | 'reviewed' | 'dismissed';
   createdAt: string;
@@ -325,24 +323,3 @@ export interface PetSitter extends BaseProfessional {
   petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
 }
 
-declare global {
-  // Extend the Window interface to include properties added by the Facebook SDK.
-  interface Window {
-    fbAsyncInit: () => void;
-    FB: {
-      init: (params: { xfbml: boolean; version: string }) => void;
-    };
-  }
-
-  // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace React {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    interface HTMLAttributes<T> {
-      page_id?: string;
-      attribution?: string;
-      logged_in_greeting?: string;
-      logged_out_greeting?: string;
-    }
-  }
-}

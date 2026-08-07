@@ -11,15 +11,20 @@ import vetRoutes from './routes/vetRoutes';
 import animalRoutes from './routes/animalRoutes';
 import brandRoutes from './routes/brandRoutes';
 import authRoutes from './routes/authRoutes';
+import profileRoutes from './routes/profileRoutes';
+import petRoutes from './routes/petRoutes';
+import reminderRoutes from './routes/reminderRoutes';
 import orderRoutes from './routes/orderRoutes';
 import aiRoutes from './routes/aiRoutes';
 import postRoutes from './routes/postRoutes';
+import commentRoutes from './routes/commentRoutes';
+import moderationRoutes from './routes/moderationRoutes';
 import adminRoutes from './routes/adminRoutes';
 import { requestLogger, errorLogger } from './middleware/logger';
 import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
 import { botProtection, honeypotValidation, getCSRFTokenHandler } from './middleware/botProtection';
-import { recaptchaMiddleware } from './middleware/recaptcha';
+import { recaptchaMiddleware, getMathChallengeHandler } from './middleware/recaptcha';
 import { db } from './db';
 import crypto from 'crypto';
 
@@ -194,7 +199,7 @@ app.use(requestLogger);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Security: XSS and SQL injection protection
+// Security: XSS protection
 app.use(securityMiddleware);
 
 // Bot protection middleware
@@ -205,6 +210,9 @@ app.use('/api/', apiLimiter);
 
 // CSRF token endpoint
 app.get('/api/csrf-token', getCSRFTokenHandler);
+
+// Server-side math captcha challenge endpoint
+app.get('/api/captcha/math-challenge', getMathChallengeHandler);
 
 // Honeypot validation for form submissions (POST only)
 app.post('/api/auth/login', honeypotValidation);
@@ -235,9 +243,14 @@ app.use('/api/vets', publicCache, vetRoutes);
 app.use('/api/animals', publicCache, animalRoutes);
 app.use('/api/brands', publicCache, brandRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', profileRoutes);
+app.use('/api/auth', petRoutes);
+app.use('/api/auth', reminderRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/posts', moderationRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/posts', commentRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Enhanced health check endpoint
@@ -266,18 +279,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve static files from the React frontend app
-// const frontendDistPath = path.join(__dirname, '../../dist');
-// app.use(express.static(frontendDistPath));
 
-// Anything that doesn't match the above, send back index.html
-// app.get('*', (req, res) => {
-//   if (req.path.startsWith('/api')) {
-//     // If it's an API route that wasn't found, return 404 JSON
-//     return res.status(404).json({ message: 'API endpoint not found' });
-//   }
-//   res.sendFile(path.join(frontendDistPath, 'index.html'));
-// });
 
 // 404 handler for API routes
 app.use((req, res) => {

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import type { AdminUsersSummary } from '../types';
-import { requireAdmin, requireAuth, verifyToken } from '../middleware/auth';
+import { requireRole, requireAuth, verifyToken } from '../middleware/auth';
 import { subscribeAdminClient } from '../realtime/adminEvents';
 
 const router = Router();
@@ -56,7 +56,7 @@ const buildAdminUserSummary = (): AdminUsersSummary[] => {
 
       const stats = postStats.get(id) || { postCount: 0, commentCount: 0, replyCount: 0 };
       return {
-        id,
+        id: String(id),
         name: user.name,
         email: user.email,
         role: user.role,
@@ -78,7 +78,7 @@ const buildAdminUserSummary = (): AdminUsersSummary[] => {
     });
 };
 
-router.get('/users', requireAuth, requireAdmin, (_req, res) => {
+router.get('/users', requireAuth, requireRole(['super_admin', 'store_manager', 'moderator']), (_req, res) => {
   return res.json({ items: buildAdminUserSummary(), total: db.users.length });
 });
 
@@ -88,9 +88,9 @@ const banPayloadSchema = z
   })
   .strict();
 
-router.post('/users/:id/ban', requireAuth, requireAdmin, async (req, res) => {
+router.post('/users/:id/ban', requireAuth, requireRole(['super_admin', 'store_manager', 'moderator']), async (req, res) => {
   const userId = Number(req.params.id);
-  if (!Number.isFinite(userId) || userId <= 0) {
+  if (!Number.isFinite(Number(userId)) || Number(userId) <= 0) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
 
@@ -99,13 +99,13 @@ router.post('/users/:id/ban', requireAuth, requireAdmin, async (req, res) => {
     return res.status(400).json({ message: 'Invalid ban payload' });
   }
 
-  const targetUser = db.users.find((u) => Number(u.id) === userId);
+  const targetUser = db.users.find((u) => Number(u.id) === Number(userId));
   if (!targetUser) {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  if (targetUser.role === 'admin') {
-    return res.status(400).json({ message: 'Admin accounts cannot be banned from this endpoint' });
+  if (targetUser.role && targetUser.role !== 'customer') {
+    return res.status(400).json({ message: 'Staff accounts cannot be banned from this endpoint' });
   }
 
   if (!Array.isArray(db.data.bannedUsers)) {
@@ -128,13 +128,13 @@ router.post('/users/:id/ban', requireAuth, requireAdmin, async (req, res) => {
   });
 });
 
-router.post('/users/:id/unban', requireAuth, requireAdmin, async (req, res) => {
+router.post('/users/:id/unban', requireAuth, requireRole(['super_admin', 'store_manager', 'moderator']), async (req, res) => {
   const userId = Number(req.params.id);
-  if (!Number.isFinite(userId) || userId <= 0) {
+  if (!Number.isFinite(Number(userId)) || Number(userId) <= 0) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
 
-  const targetUser = db.users.find((u) => Number(u.id) === userId);
+  const targetUser = db.users.find((u) => Number(u.id) === Number(userId));
   if (!targetUser) {
     return res.status(404).json({ message: 'User not found' });
   }
@@ -151,14 +151,43 @@ router.post('/users/:id/unban', requireAuth, requireAdmin, async (req, res) => {
   return res.json({ message: 'User unbanned successfully', userId });
 });
 
-router.get('/posts', requireAuth, requireAdmin, (_req, res) => {
+const roleUpdateSchema = z.object({
+  role: z.enum(['customer', 'moderator', 'store_manager', 'super_admin']),
+});
+
+router.put('/users/:id/role', requireAuth, requireRole(['super_admin']), async (req, res) => {
+  const userId = Number(req.params.id);
+  if (!Number.isFinite(Number(userId)) || Number(userId) <= 0) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  const parsed = roleUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: 'Invalid role' });
+  }
+
+  const targetUser = db.users.find((u) => Number(u.id) === Number(userId));
+  if (!targetUser) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (userId === (req as any).user?.id) {
+    return res.status(400).json({ message: 'You cannot change your own role' });
+  }
+
+  targetUser.role = parsed.data.role;
+  db.write();
+  return res.json({ message: 'User role updated successfully', role: targetUser.role });
+});
+
+router.get('/posts', requireAuth, requireRole(['super_admin', 'moderator']), (_req, res) => {
   const items = [...db.posts].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
   return res.json({ items, total: items.length });
 });
 
-router.delete('/posts/:id', requireAuth, requireAdmin, async (req, res) => {
+router.delete('/posts/:id', requireAuth, requireRole(['super_admin', 'moderator']), async (req, res) => {
   const postId = Number(req.params.id);
   if (!Number.isFinite(postId) || postId <= 0) {
     return res.status(400).json({ message: 'Invalid post ID' });
@@ -175,10 +204,12 @@ router.delete('/posts/:id', requireAuth, requireAdmin, async (req, res) => {
 });
 
 router.get('/stream', async (req, res) => {
-  const token = typeof req.query.token === 'string' ? req.query.token.trim() : '';
-  if (!token) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Admin authentication required' });
   }
+
+  const token = authHeader.split(' ')[1];
 
   const decoded = verifyToken(token);
   if (!decoded?.isAdmin) {

@@ -228,11 +228,11 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
   }
 
   const orderData = parseResult.data;
-  const requesterId = req.user ? Number(req.user.id) : null;
-  const hasRequester = requesterId !== null && Number.isFinite(requesterId) && requesterId > 0;
+  const requesterId = req.user ? String(req.user.id) : null;
+  const hasRequester = requesterId !== null && Number.isFinite(requesterId) && Number(requesterId) > 0;
 
   if (typeof orderData.userId === 'number') {
-    if (!hasRequester || requesterId !== orderData.userId) {
+    if (!hasRequester || String(requesterId) !== String(orderData.userId)) {
       securityLog('ORDER_USER_ID_MISMATCH', req, {
         requesterId,
         payloadUserId: orderData.userId,
@@ -256,7 +256,7 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
         throw new Error(`Product with ID ${item.id} no longer exists`);
       }
 
-      if (product.stockStatus === 'out-of-stock') {
+      if (product.stockStatus === 'out-of-stock' as const) {
         throw new Error(`${product.name || 'Product'} is out of stock`);
       }
 
@@ -293,78 +293,106 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
     return res.status(400).json({ message: 'Invalid order total' });
   }
 
+  // Track stock changes for potential rollback
+  const stockSnapshot: Array<{id: number; originalQuantity: number; originalStatus: string}> = [];
   const updatedProductsInfo: Array<{id: number; stockQuantity: number; stockStatus: string}> = [];
-  validatedItems.forEach((item) => {
-    const productList = db.products as Array<Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }>;
-    const dbProduct = productList.find((p) => p.id === item.id);
-    if (dbProduct && typeof dbProduct.stockQuantity === 'number') {
-      dbProduct.stockQuantity = Math.max(0, dbProduct.stockQuantity - item.quantity);
-      
-      if (dbProduct.stockQuantity <= 0) {
-        dbProduct.stockStatus = 'out-of-stock';
-      } else if (dbProduct.reorderPoint !== undefined && dbProduct.stockQuantity <= dbProduct.reorderPoint) {
-        dbProduct.stockStatus = 'low-stock';
-      } else {
-        dbProduct.stockStatus = 'in-stock';
+
+  try {
+    // Deduct inventory
+    validatedItems.forEach((item) => {
+      const productList = db.products as Array<Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }>;
+      const dbProduct = productList.find((p) => p.id === item.id);
+      if (dbProduct && typeof dbProduct.stockQuantity === 'number') {
+        // Snapshot before mutation for rollback
+        stockSnapshot.push({
+          id: dbProduct.id,
+          originalQuantity: dbProduct.stockQuantity,
+          originalStatus: dbProduct.stockStatus,
+        });
+
+        dbProduct.stockQuantity = Math.max(0, dbProduct.stockQuantity - item.quantity);
+        
+        if (dbProduct.stockQuantity <= 0) {
+          dbProduct.stockStatus = 'out-of-stock' as const;
+        } else if (dbProduct.reorderPoint !== undefined && dbProduct.stockQuantity <= dbProduct.reorderPoint) {
+          dbProduct.stockStatus = 'low-stock' as const;
+        } else {
+          dbProduct.stockStatus = 'in-stock' as const;
+        }
+
+        updatedProductsInfo.push({
+          id: dbProduct.id,
+          stockQuantity: dbProduct.stockQuantity,
+          stockStatus: dbProduct.stockStatus,
+        });
       }
+    });
 
-      updatedProductsInfo.push({
-        id: dbProduct.id,
-        stockQuantity: dbProduct.stockQuantity,
-        stockStatus: dbProduct.stockStatus,
-      });
+    const orderId = generateOrderId();
+    const now = new Date().toISOString();
+
+    const newOrder: ExtendedOrder = {
+      ...orderData,
+      userId: resolvedUserId ? Number(resolvedUserId) : undefined,
+      items: validatedItems,
+      orderId,
+      date: now,
+      total: calculatedTotal,
+      status: 'pending',
+      statusHistory: [
+        {
+          status: 'pending',
+          timestamp: now,
+          note: 'Order placed successfully',
+        },
+      ],
+      estimatedDelivery: calculateEstimatedDelivery(),
+      shippingAddress: orderData.shippingAddress,
+    };
+
+    db.orders.push(newOrder);
+
+    // If userId is provided, add to user's history
+    if (resolvedUserId) {
+      const user = db.users.find((u) => Number(u.id) === Number(resolvedUserId));
+      if (user) {
+        // Initialize orderHistory if not exists
+        if (!user.orderHistory) user.orderHistory = [];
+        user.orderHistory.unshift(newOrder);
+      }
     }
-  });
 
-  const orderId = generateOrderId();
-  const now = new Date().toISOString();
+    await db.write();
+    emitAdminEvent('order-created', {
+      orderId: newOrder.orderId,
+      status: newOrder.status,
+      total: newOrder.total,
+    });
 
-  const newOrder: ExtendedOrder = {
-    ...orderData,
-    userId: resolvedUserId,
-    items: validatedItems,
-    orderId,
-    date: now,
-    total: calculatedTotal,
-    status: 'pending',
-    statusHistory: [
-      {
-        status: 'pending',
-        timestamp: now,
-        note: 'Order placed successfully',
-      },
-    ],
-    estimatedDelivery: calculateEstimatedDelivery(),
-    shippingAddress: orderData.shippingAddress,
-  };
+    // Send email notification asynchronously
+    sendOrderEmail(newOrder).catch((err) => console.error('Failed to trigger email:', err));
 
-  db.orders.push(newOrder);
-
-  // If userId is provided, add to user's history
-  if (resolvedUserId) {
-    const user = db.users.find((u) => Number(u.id) === resolvedUserId);
-    if (user) {
-      // Initialize orderHistory if not exists
-      if (!user.orderHistory) user.orderHistory = [];
-      user.orderHistory.unshift(newOrder);
+    res.status(201).json({
+      message: 'Order placed successfully',
+      order: newOrder,
+      inventoryUpdates: updatedProductsInfo,
+    });
+  } catch (orderError) {
+    // Rollback stock changes
+    for (const snap of stockSnapshot) {
+      const productList = db.products as Array<Product & { stockQuantity?: number; stockStatus: string }>;
+      const dbProduct = productList.find((p) => p.id === snap.id);
+      if (dbProduct) {
+        dbProduct.stockQuantity = snap.originalQuantity;
+        dbProduct.stockStatus = snap.originalStatus as any;
+      }
     }
+    console.error('Order creation failed, stock rolled back:', orderError);
+    return res.status(500).json({
+      message: 'Failed to create order. Inventory has been restored.',
+    });
   }
 
-  db.write();
-  emitAdminEvent('order-created', {
-    orderId: newOrder.orderId,
-    status: newOrder.status,
-    total: newOrder.total,
-  });
-
-  // Send email notification asynchronously
-  sendOrderEmail(newOrder).catch((err) => console.error('Failed to trigger email:', err));
-
-  res.status(201).json({
-    message: 'Order placed successfully',
-    order: newOrder,
-    inventoryUpdates: updatedProductsInfo,
-  });
 });
 
 // Get all orders (admin only)
@@ -403,12 +431,12 @@ router.get('/reorder-suggestions', requireAuth, async (req: AuthRequest, res) =>
     return res.status(401).json({ message: 'Authentication required' });
   }
 
-  const requesterId = Number(req.user.id);
+  const requesterId = String(req.user.id);
   if (!Number.isFinite(requesterId)) {
     return res.status(400).json({ message: 'Invalid user context' });
   }
 
-  const user = db.users.find((u) => Number(u.id) === requesterId);
+  const user = db.users.find((u) => Number(u.id) === Number(requesterId));
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
@@ -450,7 +478,7 @@ router.get('/reorder-suggestions', requireAuth, async (req: AuthRequest, res) =>
   const suggestions = Array.from(productStats.entries())
     .map(([productId, stat]) => {
       const product = db.products.find((p) => p.id === productId);
-      if (!product || product.stockStatus === 'out-of-stock') {
+      if (!product || product.stockStatus === 'out-of-stock' as const) {
         return null;
       }
 
@@ -510,8 +538,8 @@ router.get('/:orderId', requireAuth, async (req: AuthRequest, res) => {
     return res.status(401).json({ message: 'Authentication required' });
   }
 
-  const requesterId = Number(req.user.id);
-  const isOwner = Number.isFinite(requesterId) && order.userId === requesterId;
+  const requesterId = String(req.user.id);
+  const isOwner = Number.isFinite(requesterId) && Number(order.userId) === Number(requesterId);
   if (!isOwner && !req.user.isAdmin) {
     securityLog('ORDER_READ_FORBIDDEN', req, {
       requesterId,
@@ -526,9 +554,9 @@ router.get('/:orderId', requireAuth, async (req: AuthRequest, res) => {
 
 // Get User Orders
 router.get('/user/:userId', requireAuth, async (req: AuthRequest, res) => {
-  const userId = parseInt(req.params.userId);
+  const userId = String(req.params.userId);
 
-  if (Number.isNaN(userId)) {
+  if (!userId) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
 
@@ -536,7 +564,7 @@ router.get('/user/:userId', requireAuth, async (req: AuthRequest, res) => {
     return res.status(401).json({ message: 'Authentication required' });
   }
 
-  const requesterId = Number(req.user.id);
+  const requesterId = String(req.user.id);
   if (!Number.isFinite(requesterId) || (requesterId !== userId && !req.user.isAdmin)) {
     securityLog('ORDER_HISTORY_FORBIDDEN', req, {
       requesterId,
@@ -545,7 +573,7 @@ router.get('/user/:userId', requireAuth, async (req: AuthRequest, res) => {
     return res.status(403).json({ message: 'Forbidden' });
   }
 
-  const user = db.users.find((u) => u.id === userId);
+  const user = db.users.find((u) => String(u.id) === String(userId));
 
   if (user) {
     res.json(user.orderHistory);
@@ -647,8 +675,8 @@ router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
     return res.status(401).json({ message: 'Authentication required' });
   }
 
-  const requesterId = Number(req.user.id);
-  const isOwner = Number.isFinite(requesterId) && order.userId === requesterId;
+  const requesterId = String(req.user.id);
+  const isOwner = Number.isFinite(requesterId) && Number(order.userId) === Number(requesterId);
   if (!isOwner && !req.user.isAdmin) {
     securityLog('ORDER_CANCEL_FORBIDDEN', req, {
       requesterId,

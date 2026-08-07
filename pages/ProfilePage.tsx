@@ -423,7 +423,11 @@ const ProfilePage: React.FC = () => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                      {wishlistedProducts.map(p => (<ProductCard key={p.id} product={p} />))}
+                      {wishlistedProducts.map((p, i) => (
+                        <motion.div key={p.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05, duration: 0.2 }}>
+                          <ProductCard product={p} />
+                        </motion.div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -440,7 +444,11 @@ const ProfilePage: React.FC = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {savedAnimals.map(a => (<AnimalCard key={a.id} animal={a} />))}
+                        {savedAnimals.map((a, i) => (
+                          <motion.div key={a.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05, duration: 0.2 }}>
+                            <AnimalCard animal={a} />
+                          </motion.div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -454,10 +462,10 @@ const ProfilePage: React.FC = () => {
                       </div>
                     ) : (
                       <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
-                        {recentProducts.map(p => (
-                          <div key={p.id} className="min-w-[160px] md:min-w-[200px] snap-center shrink-0">
+                        {recentProducts.map((p, i) => (
+                          <motion.div key={p.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.2 }} className="min-w-[160px] md:min-w-[200px] snap-center shrink-0">
                             <ProductCard product={p} />
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
                     )}

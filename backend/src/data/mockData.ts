@@ -479,7 +479,7 @@ export const MOCK_PRODUCTS: Product[] = [
       'High-quality stainless steel bowl with a rubber base to prevent sliding and tipping. Easy to clean.',
     weight: 'Medium',
     brandId: 16,
-    stockStatus: 'in-stock',
+    stockStatus: 'in-stock' as const,
     rating: 4.5,
     reviews: [],
     searchTags: ['bowl', 'barty', 'food bowl', 'water bowl', 'kukur', 'biral'],
@@ -723,7 +723,7 @@ const MOCK_COMMENTS: Comment[] = [
   {
     id: 1,
     author: {
-      id: 2,
+      id: '2',
       name: 'Jamal Khan',
       profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
     },
@@ -734,7 +734,7 @@ const MOCK_COMMENTS: Comment[] = [
       {
         id: 101,
         author: {
-          id: 1,
+          id: '1',
           name: 'Aisha Rahman',
           profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
         },
@@ -750,7 +750,7 @@ export const MOCK_POSTS: Post[] = [
   {
     id: 1,
     author: {
-      id: 1,
+      id: '1',
       name: 'Aisha Rahman',
       profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
     },
@@ -764,7 +764,7 @@ export const MOCK_POSTS: Post[] = [
   {
     id: 2,
     author: {
-      id: 2,
+      id: '2',
       name: 'Jamal Khan',
       profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
     },
@@ -778,7 +778,7 @@ export const MOCK_POSTS: Post[] = [
   {
     id: 3,
     author: {
-      id: 3,
+      id: '3',
       name: 'Fatima Akter',
       profilePictureUrl: 'https://picsum.photos/seed/fatima/200',
     },
@@ -790,7 +790,7 @@ export const MOCK_POSTS: Post[] = [
       {
         id: 2,
         author: {
-          id: 1,
+          id: '1',
           name: 'Aisha Rahman',
           profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
         },
@@ -3693,7 +3693,7 @@ export const MOCK_ANIMALS: Animal[] = [
 
 export const MOCK_USERS: User[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Rahim Ahmed',
     email: 'rahim@example.com',
     role: 'customer',
@@ -3708,10 +3708,10 @@ export const MOCK_USERS: User[] = [
     },
   },
   {
-    id: 2,
+    id: '2',
     name: 'Admin User',
     email: 'petbhaibd@gmail.com',
-    role: 'admin',
+    role: 'super_admin',
     wishlist: [],
     orderHistory: [],
     favorites: [],

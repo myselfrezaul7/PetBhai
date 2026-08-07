@@ -112,13 +112,7 @@ const dangerousPatterns = [
   /<img.*onerror/i,
 ];
 
-// SQL injection patterns
-const sqlInjectionPatterns = [
-  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)/i,
-  /(--|\/\*|\*\/|;)/,
-  /(\bOR\b|\bAND\b)\s*[\d'"]?\s*[=<>]/i,
-  /'\s*(OR|AND)\s*'/i,
-];
+
 
 // Detect potentially malicious content
 export const detectMaliciousContent = (str: string): boolean => {
@@ -132,16 +126,7 @@ export const detectMaliciousContent = (str: string): boolean => {
   return false;
 };
 
-// Detect SQL injection attempts
-export const detectSqlInjection = (str: string): boolean => {
-  if (typeof str !== 'string') return false;
 
-  for (const pattern of sqlInjectionPatterns) {
-    if (pattern.test(str)) return true;
-  }
-
-  return false;
-};
 
 // Check object for malicious content
 const checkObjectForMalicious = (obj: unknown, path = ''): string[] => {
@@ -150,9 +135,6 @@ const checkObjectForMalicious = (obj: unknown, path = ''): string[] => {
   if (typeof obj === 'string') {
     if (detectMaliciousContent(obj)) {
       threats.push(`XSS attempt at ${path || 'root'}`);
-    }
-    if (detectSqlInjection(obj)) {
-      threats.push(`SQL injection attempt at ${path || 'root'}`);
     }
   } else if (Array.isArray(obj)) {
     obj.forEach((item, index) => {
@@ -203,33 +185,6 @@ export const xssProtection = (req: Request, res: Response, next: NextFunction): 
   next();
 };
 
-// SQL injection protection middleware
-export const sqlInjectionProtection = (req: Request, res: Response, next: NextFunction): void => {
-  const checkValue = (val: unknown): boolean => {
-    if (typeof val === 'string') {
-      return detectSqlInjection(val);
-    }
-    if (Array.isArray(val)) {
-      return val.some(checkValue);
-    }
-    if (typeof val === 'object' && val !== null) {
-      return Object.values(val).some(checkValue);
-    }
-    return false;
-  };
-
-  if (checkValue(req.body) || checkValue(req.query) || checkValue(req.params)) {
-    securityLog('POTENTIAL_SQL_INJECTION', req);
-    res.status(400).json({
-      error: 'Invalid input detected',
-      message: 'Your request contains potentially harmful content',
-    });
-    return;
-  }
-
-  next();
-};
-
 // Combined security middleware
 export const securityMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const socialAuthPath = '/api/auth/social';
@@ -249,10 +204,7 @@ export const securityMiddleware = (req: Request, res: Response, next: NextFuncti
   }
 
   // Apply XSS protection
-  xssProtection(req, res, () => {
-    // Apply SQL injection protection
-    sqlInjectionProtection(req, res, next);
-  });
+  xssProtection(req, res, next);
 };
 
 // Utility: Sanitize user input for display

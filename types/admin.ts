@@ -2,7 +2,7 @@ import type { Order, Product, User } from '../types';
 
 export type OrderStatus = NonNullable<Order['status']>;
 
-export type ActiveTab = 'overview' | 'inventory' | 'orders' | 'create' | 'moderation' | 'users';
+export type ActiveTab = 'overview' | 'inventory' | 'orders' | 'create' | 'moderation' | 'users' | 'adoption';
 export type StockFilter = 'all' | 'critical' | 'healthy';
 export type SortMode = 'risk-desc' | 'stock-asc' | 'name';
 export type ModerationQueueStatus = 'open' | 'reviewed' | 'dismissed';
