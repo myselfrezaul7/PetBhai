@@ -12,7 +12,29 @@ import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 import type { Order, Product, User } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { OrderStatus, ActiveTab, StockFilter, SortMode, ModerationQueueStatus, ModerationStatusFilter, ModerationAction, InventoryEditableField, DashboardStats, InventoryProductResponse, InventoryRow, OrderStatusHistoryEntry, AdminOrder, ModerationReportSummary, AdminUserSummary, OrdersPayload, ModerationPayload, UsersPayload, OrderStatusResponse, ModerationResponse, NewProductForm } from '../types/admin';
+import type {
+  OrderStatus,
+  ActiveTab,
+  StockFilter,
+  SortMode,
+  ModerationQueueStatus,
+  ModerationStatusFilter,
+  ModerationAction,
+  InventoryEditableField,
+  DashboardStats,
+  InventoryProductResponse,
+  InventoryRow,
+  OrderStatusHistoryEntry,
+  AdminOrder,
+  ModerationReportSummary,
+  AdminUserSummary,
+  OrdersPayload,
+  ModerationPayload,
+  UsersPayload,
+  OrderStatusResponse,
+  ModerationResponse,
+  NewProductForm,
+} from '../types/admin';
 
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
@@ -151,14 +173,13 @@ const AdminDashboard = () => {
 
     try {
       const headers = getAuthHeaders();
-      const [inventory, stats, ordersPayload, moderationPayload, usersPayload] =
-        await Promise.all([
-          apiRequest<InventoryProductResponse[]>('/products/admin/inventory', { headers }),
-          apiRequest<DashboardStats>('/orders/stats/summary', { headers }),
-          apiRequest<OrdersPayload>('/orders?limit=20&page=1', { headers }),
-          apiRequest<ModerationPayload>('/posts/moderation/reports', { headers }),
-          apiRequest<UsersPayload>('/admin/users', { headers }),
-        ]);
+      const [inventory, stats, ordersPayload, moderationPayload, usersPayload] = await Promise.all([
+        apiRequest<InventoryProductResponse[]>('/products/admin/inventory', { headers }),
+        apiRequest<DashboardStats>('/orders/stats/summary', { headers }),
+        apiRequest<OrdersPayload>('/orders?limit=20&page=1', { headers }),
+        apiRequest<ModerationPayload>('/posts/moderation/reports', { headers }),
+        apiRequest<UsersPayload>('/admin/users', { headers }),
+      ]);
 
       setInventoryRows(
         inventory.map((product: InventoryProductResponse) => ({
@@ -356,13 +377,13 @@ const AdminDashboard = () => {
       const response = await apiRequest<OrderStatusResponse>(
         `/orders/${encodeURIComponent(orderId)}/status`,
         {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({
-          status,
-          note: safeNote || `Updated from admin dashboard (${currentUser?.email || 'admin'})`,
-          trackingNumber: safeTracking || undefined,
-        }),
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({
+            status,
+            note: safeNote || `Updated from admin dashboard (${currentUser?.email || 'admin'})`,
+            trackingNumber: safeTracking || undefined,
+          }),
         }
       );
 
@@ -601,7 +622,10 @@ const AdminDashboard = () => {
     );
   }, [adminUsers, userSearchTerm]);
 
-  const handleUpdateRole = async (userId: number, role: string): Promise<void> => {
+  const handleUpdateRole = async (
+    userId: number,
+    role: AdminUserSummary['role']
+  ): Promise<void> => {
     setSavingUserActionId(`role-${userId}`);
     setError('');
 
@@ -617,13 +641,7 @@ const AdminDashboard = () => {
         body: JSON.stringify({ role }),
       });
 
-      setAdminUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? { ...user, role }
-            : user
-        )
-      );
+      setAdminUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, role } : user)));
     } catch (requestError) {
       setError(getErrorMessage(requestError, 'Failed to update user role.'));
     } finally {
@@ -857,7 +875,7 @@ const AdminDashboard = () => {
                     layoutId="activeAdminTabMobile"
                     className="absolute inset-0 rounded-full bg-slate-950 dark:bg-slate-500"
                     style={{ zIndex: -1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                   />
                 )}
                 <span className="relative z-10">{tab.label}</span>
@@ -880,87 +898,87 @@ const AdminDashboard = () => {
               transition={{ duration: 0.2 }}
             >
               {activeTab === 'overview' && (
-            <OverviewTab
-              metrics={metrics}
-              topRiskItems={topRiskItems}
-              currentUser={currentUser}
-              lastSyncAt={lastSyncAt}
-              secureLogout={secureLogout}
-              getStatusMeta={getStatusMeta}
-            />
-          )}
-          {activeTab === 'inventory' && (
-            <InventoryTab
-              filteredInventoryRows={filteredInventoryRows}
-              loading={loading}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              stockFilter={stockFilter}
-              setStockFilter={setStockFilter}
-              sortMode={sortMode}
-              setSortMode={setSortMode}
-              savingId={savingId}
-              loadDashboardData={loadDashboardData}
-              getStatusMeta={getStatusMeta}
-              handleInventoryFieldChange={handleInventoryFieldChange}
-              handleSaveInventory={handleSaveInventory}
-              sanitizeInput={sanitizeInput}
-            />
-          )}
-          {activeTab === 'orders' && (
-            <OrdersTab
-              recentOrders={recentOrders}
-              loading={loading}
-              selectedStatuses={selectedStatuses}
-              setSelectedStatuses={setSelectedStatuses}
-              orderNotes={orderNotes}
-              setOrderNotes={setOrderNotes}
-              trackingNumbers={trackingNumbers}
-              setTrackingNumbers={setTrackingNumbers}
-              savingOrderId={savingOrderId}
-              handleOrderStatusSave={handleOrderStatusSave}
-              orderStatusOptions={orderStatusOptions}
-              getOrderStatusTone={getOrderStatusTone}
-              toNumeric={toNumeric}
-              sanitizeInput={sanitizeInput}
-            />
-          )}
-          {activeTab === 'create' && (
-            <CreateProductTab
-              newProduct={newProduct}
-              setNewProduct={setNewProduct}
-              categoryOptions={categoryOptions}
-              addingProduct={addingProduct}
-              handleCreateProduct={handleCreateProduct}
-              sanitizeInput={sanitizeInput}
-            />
-          )}
-          {activeTab === 'moderation' && (
-            <ModerationTab
-              filteredModerationReports={filteredModerationReports}
-              loading={loading}
-              moderationStatusFilter={moderationStatusFilter}
-              setModerationStatusFilter={setModerationStatusFilter}
-              savingModerationId={savingModerationId}
-              loadDashboardData={loadDashboardData}
-              handleModerationAction={handleModerationAction}
-            />
-          )}
-          {activeTab === 'users' && (
-            <UsersTab
-              filteredAdminUsers={filteredAdminUsers}
-              loading={loading}
-              userSearchTerm={userSearchTerm}
-              setUserSearchTerm={setUserSearchTerm}
-              savingUserActionId={savingUserActionId}
-              handleBanUser={handleBanUser}
-              handleUnbanUser={handleUnbanUser}
-              handleUpdateRole={handleUpdateRole}
-              currentUser={currentUser}
-              sanitizeInput={sanitizeInput}
-            />
-          )}
-          {activeTab === 'adoption' && <AdoptionTab />}
+                <OverviewTab
+                  metrics={metrics}
+                  topRiskItems={topRiskItems}
+                  currentUser={currentUser}
+                  lastSyncAt={lastSyncAt}
+                  secureLogout={secureLogout}
+                  getStatusMeta={getStatusMeta}
+                />
+              )}
+              {activeTab === 'inventory' && (
+                <InventoryTab
+                  filteredInventoryRows={filteredInventoryRows}
+                  loading={loading}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  stockFilter={stockFilter}
+                  setStockFilter={setStockFilter}
+                  sortMode={sortMode}
+                  setSortMode={setSortMode}
+                  savingId={savingId}
+                  loadDashboardData={loadDashboardData}
+                  getStatusMeta={getStatusMeta}
+                  handleInventoryFieldChange={handleInventoryFieldChange}
+                  handleSaveInventory={handleSaveInventory}
+                  sanitizeInput={sanitizeInput}
+                />
+              )}
+              {activeTab === 'orders' && (
+                <OrdersTab
+                  recentOrders={recentOrders}
+                  loading={loading}
+                  selectedStatuses={selectedStatuses}
+                  setSelectedStatuses={setSelectedStatuses}
+                  orderNotes={orderNotes}
+                  setOrderNotes={setOrderNotes}
+                  trackingNumbers={trackingNumbers}
+                  setTrackingNumbers={setTrackingNumbers}
+                  savingOrderId={savingOrderId}
+                  handleOrderStatusSave={handleOrderStatusSave}
+                  orderStatusOptions={orderStatusOptions}
+                  getOrderStatusTone={getOrderStatusTone}
+                  toNumeric={toNumeric}
+                  sanitizeInput={sanitizeInput}
+                />
+              )}
+              {activeTab === 'create' && (
+                <CreateProductTab
+                  newProduct={newProduct}
+                  setNewProduct={setNewProduct}
+                  categoryOptions={categoryOptions}
+                  addingProduct={addingProduct}
+                  handleCreateProduct={handleCreateProduct}
+                  sanitizeInput={sanitizeInput}
+                />
+              )}
+              {activeTab === 'moderation' && (
+                <ModerationTab
+                  filteredModerationReports={filteredModerationReports}
+                  loading={loading}
+                  moderationStatusFilter={moderationStatusFilter}
+                  setModerationStatusFilter={setModerationStatusFilter}
+                  savingModerationId={savingModerationId}
+                  loadDashboardData={loadDashboardData}
+                  handleModerationAction={handleModerationAction}
+                />
+              )}
+              {activeTab === 'users' && (
+                <UsersTab
+                  filteredAdminUsers={filteredAdminUsers}
+                  loading={loading}
+                  userSearchTerm={userSearchTerm}
+                  setUserSearchTerm={setUserSearchTerm}
+                  savingUserActionId={savingUserActionId}
+                  handleBanUser={handleBanUser}
+                  handleUnbanUser={handleUnbanUser}
+                  handleUpdateRole={handleUpdateRole}
+                  currentUser={currentUser}
+                  sanitizeInput={sanitizeInput}
+                />
+              )}
+              {activeTab === 'adoption' && <AdoptionTab />}
             </motion.div>
           </AnimatePresence>
         </main>

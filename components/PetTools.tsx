@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 
 // Icons
 const CalculatorIcon: React.FC<{ className?: string }> = ({ className }) => (

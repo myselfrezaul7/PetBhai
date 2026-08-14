@@ -334,10 +334,12 @@ export interface DeliveryArea {
 declare global {
   // Extend the Window interface to include properties added by the Facebook SDK.
   interface Window {
-    fbAsyncInit: () => void;
-    FB: {
+    fbAsyncInit?: () => void;
+    FB?: {
       init: (params: { xfbml: boolean; version: string }) => void;
     };
+    localStorage: Storage;
+    sessionStorage: Storage;
   }
 
   // Extend React's HTMLAttributes to allow for Facebook's custom chat plugin attributes.

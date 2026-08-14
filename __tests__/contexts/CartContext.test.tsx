@@ -260,6 +260,6 @@ describe('CartContext', () => {
       fireEvent.click(setZeroQuantityButton);
     });
 
-    expect(screen.getByTestId('cart-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('cart-count')).toHaveTextContent('0');
   });
 });

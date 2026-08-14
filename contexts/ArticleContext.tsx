@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useMemo, useCall
 import type { Article } from '../types';
 import { normalizeArticle } from '../lib/articleUtils';
 import { apiRequest, getErrorMessage, ApiRequestError } from '../services/apiClient';
+import { safeSessionStorage } from '../lib/storage';
 
 interface ArticleContextType {
   articles: Article[];
@@ -24,16 +25,16 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const data = await apiRequest<Article[]>('/articles');
       const validData = Array.isArray(data) ? data.filter(Boolean) : [];
       const normalizedData = validData.map(normalizeArticle);
-      
+
       setArticles(normalizedData);
-      
+
       // Save to cache
       try {
-        sessionStorage.setItem('petbhai_articles_cache', JSON.stringify(normalizedData));
+        safeSessionStorage.setItem('petbhai_articles_cache', JSON.stringify(normalizedData));
       } catch (e) {
         /* ignore storage quota errors */
       }
-      
+
       if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching articles:', err);
@@ -49,7 +50,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Try falling back to cache
       let cachedData = null;
       try {
-        const cachedString = sessionStorage.getItem('petbhai_articles_cache');
+        const cachedString = safeSessionStorage.getItem('petbhai_articles_cache');
         if (cachedString) {
           cachedData = JSON.parse(cachedString);
         }

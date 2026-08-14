@@ -72,7 +72,7 @@ const AdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) =>
 
   const isAdminUser =
     currentUser?.role === 'super_admin' ||
-    currentUser?.role === 'admin' ||
+    (currentUser?.role as string) === 'admin' ||
     currentUser?.email?.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
 
   if (!isAdminUser) {
@@ -122,9 +122,7 @@ const GlobalCartElements: React.FC = () => {
         key={lastActionTimestamp || 'initial'}
         onClick={openCart}
         className={`fixed right-5 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-44 md:h-14 md:w-14 ${
-          isVisible
-            ? 'translate-y-0 opacity-100'
-            : 'translate-y-20 opacity-0 pointer-events-none'
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'
         } bottom-[calc(10rem+var(--safe-bottom))]`}
         aria-label={`Open shopping cart with ${cartCount} items`}
       >
@@ -380,10 +378,7 @@ const AppContent: React.FC = () => {
                     />
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/services" element={<ServicesPage />} />
-                    <Route
-                      path="/services/professional/:id"
-                      element={<ProfessionalDetailPage />}
-                    />
+                    <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
                     <Route path="/vet/:id" element={<VetDetailPage />} />
                     <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
                     <Route path="/login" element={<LoginPage />} />
@@ -392,14 +387,17 @@ const AppContent: React.FC = () => {
                     <Route path="/product/:id" element={<ProductDetailPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/blog/*" element={
-                    <BlogErrorBoundary>
-                      <Routes>
-                        <Route path="" element={<BlogPage />} />
-                        <Route path=":slug" element={<ArticleDetailPage />} />
-                      </Routes>
-                    </BlogErrorBoundary>
-                  } />
+                    <Route
+                      path="/blog/*"
+                      element={
+                        <BlogErrorBoundary>
+                          <Routes>
+                            <Route path="" element={<BlogPage />} />
+                            <Route path=":slug" element={<ArticleDetailPage />} />
+                          </Routes>
+                        </BlogErrorBoundary>
+                      }
+                    />
                     <Route path="/plus-membership" element={<PlusMembershipPage />} />
                     <Route path="/adopt" element={<AdoptPage />} />
                     <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />

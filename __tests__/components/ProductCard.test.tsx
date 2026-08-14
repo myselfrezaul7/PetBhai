@@ -41,7 +41,7 @@ describe('ProductCard', () => {
   it('renders product information correctly', () => {
     renderWithProviders(<ProductCard product={mockProduct} />);
 
-    expect(screen.getByText('Test Product')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Test Product' })).toBeInTheDocument();
     expect(screen.getByText('1kg')).toBeInTheDocument();
     expect(screen.getByText('1,500')).toBeInTheDocument();
     expect(screen.getByText('Dog Food')).toBeInTheDocument();

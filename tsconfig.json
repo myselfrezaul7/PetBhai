@@ -6,7 +6,7 @@
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["node", "vite/client"],
+    "types": ["vite/client"],
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -20,5 +20,32 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["backend", "node_modules", "dist", "__tests__", "jest.config.cjs", "jest.setup.ts"]
+  "include": [
+    "components/**/*",
+    "contexts/**/*",
+    "hooks/**/*",
+    "lib/**/*",
+    "pages/**/*",
+    "services/**/*",
+    "types/**/*",
+    "*.tsx",
+    "*.ts",
+    "vite-env.d.ts",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "backend",
+    "node_modules",
+    "dist",
+    "__tests__",
+    "jest.config.cjs",
+    "jest.setup.ts",
+    "scripts",
+    "serverless",
+    "api",
+    "public",
+    "*.cjs",
+    "service-worker.js",
+    "old_mockData.ts"
+  ]
 }

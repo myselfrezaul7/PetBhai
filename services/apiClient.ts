@@ -32,7 +32,7 @@ export class ApiRequestError extends Error {
   ) {
     super(message);
     this.name = 'ApiRequestError';
-    
+
     if (payload) {
       this.code = typeof payload.code === 'string' ? payload.code : undefined;
       this.reqId = typeof payload.reqId === 'string' ? payload.reqId : undefined;
@@ -40,7 +40,7 @@ export class ApiRequestError extends Error {
     }
 
     // Determine if the error is likely transient and safe to retry
-    this.retryable = 
+    this.retryable =
       statusCode === 408 || // Request Timeout
       statusCode === 429 || // Too Many Requests
       statusCode === 502 || // Bad Gateway
@@ -92,7 +92,10 @@ const getStoredAuthToken = (): string | null => {
   }
 };
 
-export const getErrorMessage = (error: unknown, fallbackMessage: string): string => {
+export const getErrorMessage = (
+  error: unknown,
+  fallbackMessage = 'An unexpected error occurred'
+): string => {
   if (error instanceof Error && error.message.trim().length > 0) {
     return error.message;
   }
@@ -105,8 +108,9 @@ const parseResponseBody = async (response: Response): Promise<unknown> => {
     | { get?: (name: string) => string | null; ['content-type']?: string }
     | undefined;
   const contentType =
-    (typeof headers?.get === 'function' ? headers.get('content-type') : headers?.['content-type']) ||
-    '';
+    (typeof headers?.get === 'function'
+      ? headers.get('content-type')
+      : headers?.['content-type']) || '';
   const hasJsonBody = typeof response.json === 'function';
   const hasTextBody = typeof response.text === 'function';
 

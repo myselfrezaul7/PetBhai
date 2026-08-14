@@ -9,7 +9,7 @@ import {
   createReport,
   sanitizeText,
   applyAutoHideByThreshold,
-  emitPostEvent
+  emitPostEvent,
 } from './postHelpers';
 
 const router = express.Router();
@@ -21,81 +21,97 @@ const reportSchema = z
   })
   .strict();
 
-router.post('/:id(\\d+)/report', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
-  const postId = validateId(req.params.id);
-  if (!postId) {
-    return res.status(400).json({ message: 'Invalid post ID' });
+router.post(
+  '/:id(\\d+)/report',
+  postMutationLimiter,
+  requireAuth,
+  async (req: AuthRequest, res) => {
+    const postId = validateId(req.params.id);
+    if (!postId) {
+      return res.status(400).json({ message: 'Invalid post ID' });
+    }
+
+    const requesterId = String(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const parsed = reportSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid report payload' });
+    }
+
+    const { reporterId, reason } = parsed.data;
+    if (String(reporterId) !== String(requesterId)) {
+      return res.status(403).json({ message: 'Cannot report as another user' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const reports = ensureModerationCollection();
+    const report = createReport('post', Number(reporterId), sanitizeText(reason, 500), postId);
+    reports.push(report);
+    applyAutoHideByThreshold(post, 'post');
+    await db.write();
+    emitPostEvent('post-reported', postId);
+    return res.status(201).json({ message: 'Report submitted', reportId: report.id });
   }
+);
 
-  const requesterId = String(req.user?.id);
-  if (!requesterId) {
-    return res.status(401).json({ message: 'Authentication required' });
+router.post(
+  '/:postId/comments/:commentId/report',
+  postMutationLimiter,
+  requireAuth,
+  async (req: AuthRequest, res) => {
+    const postId = validateId(req.params.postId);
+    const commentId = validateId(req.params.commentId);
+    if (!postId || !commentId) {
+      return res.status(400).json({ message: 'Invalid post or comment ID' });
+    }
+
+    const requesterId = String(req.user?.id);
+    if (!requesterId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const parsed = reportSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: 'Invalid report payload' });
+    }
+
+    const { reporterId, reason } = parsed.data;
+    if (String(reporterId) !== String(requesterId)) {
+      return res.status(403).json({ message: 'Cannot report as another user' });
+    }
+
+    const post = db.posts.find((entry) => entry.id === postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.find((entry) => entry.id === commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const reports = ensureModerationCollection();
+    const report = createReport(
+      'comment',
+      Number(reporterId),
+      sanitizeText(reason, 500),
+      postId,
+      commentId
+    );
+    reports.push(report);
+    applyAutoHideByThreshold(post, 'comment', commentId);
+    await db.write();
+    emitPostEvent('comment-reported', postId);
+    return res.status(201).json({ message: 'Report submitted', reportId: report.id });
   }
-
-  const parsed = reportSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ message: 'Invalid report payload' });
-  }
-
-  const { reporterId, reason } = parsed.data;
-  if (String(reporterId) !== String(requesterId)) {
-    return res.status(403).json({ message: 'Cannot report as another user' });
-  }
-
-  const post = db.posts.find((entry) => entry.id === postId);
-  if (!post) {
-    return res.status(404).json({ message: 'Post not found' });
-  }
-
-  const reports = ensureModerationCollection();
-  const report = createReport('post', reporterId, sanitizeText(reason, 500), postId);
-  reports.push(report);
-  applyAutoHideByThreshold(post, 'post');
-  await db.write();
-  emitPostEvent('post-reported', postId);
-  return res.status(201).json({ message: 'Report submitted', reportId: report.id });
-});
-
-router.post('/:postId/comments/:commentId/report', postMutationLimiter, requireAuth, async (req: AuthRequest, res) => {
-  const postId = validateId(req.params.postId);
-  const commentId = validateId(req.params.commentId);
-  if (!postId || !commentId) {
-    return res.status(400).json({ message: 'Invalid post or comment ID' });
-  }
-
-  const requesterId = String(req.user?.id);
-  if (!requesterId) {
-    return res.status(401).json({ message: 'Authentication required' });
-  }
-
-  const parsed = reportSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ message: 'Invalid report payload' });
-  }
-
-  const { reporterId, reason } = parsed.data;
-  if (String(reporterId) !== String(requesterId)) {
-    return res.status(403).json({ message: 'Cannot report as another user' });
-  }
-
-  const post = db.posts.find((entry) => entry.id === postId);
-  if (!post) {
-    return res.status(404).json({ message: 'Post not found' });
-  }
-
-  const comment = post.comments.find((entry) => entry.id === commentId);
-  if (!comment) {
-    return res.status(404).json({ message: 'Comment not found' });
-  }
-
-  const reports = ensureModerationCollection();
-  const report = createReport('comment', reporterId, sanitizeText(reason, 500), postId, commentId);
-  reports.push(report);
-  applyAutoHideByThreshold(post, 'comment', commentId);
-  await db.write();
-  emitPostEvent('comment-reported', postId);
-  return res.status(201).json({ message: 'Report submitted', reportId: report.id });
-});
+);
 
 router.post(
   '/:postId/comments/:commentId/replies/:replyId/report',
@@ -142,7 +158,7 @@ router.post(
     const reports = ensureModerationCollection();
     const report = createReport(
       'reply',
-      reporterId,
+      Number(reporterId),
       sanitizeText(reason, 500),
       postId,
       commentId,

@@ -459,16 +459,16 @@ const ArticleDetailPage: React.FC = () => {
                 comments.map((comment) => (
                   <div key={comment.id} className="flex gap-4">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
-                      {comment.author.charAt(0).toUpperCase()}
+                      {(comment.userName || 'U').charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
                       <div className="bg-slate-50 dark:bg-zinc-800/50 rounded-2xl p-4 border border-slate-200 dark:border-zinc-700/50">
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                            {comment.author}
+                            {comment.userName}
                           </h4>
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {new Date(comment.timestamp).toLocaleDateString()}
+                            {new Date(comment.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                         <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap text-sm md:text-base">

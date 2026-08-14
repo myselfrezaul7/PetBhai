@@ -7,7 +7,7 @@ interface CreateProductTabProps {
   setNewProduct: React.Dispatch<React.SetStateAction<NewProductForm>>;
   categoryOptions: Product['category'][];
   addingProduct: boolean;
-  handleCreateProduct: (e: React.FormEvent) => void;
+  handleCreateProduct: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
   sanitizeInput: (input: string, limit?: number, options?: any) => string;
 }
 

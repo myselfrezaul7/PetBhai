@@ -10,7 +10,7 @@ interface UsersTabProps {
   savingUserActionId: string;
   handleBanUser: (userId: number) => Promise<void>;
   handleUnbanUser: (userId: number) => Promise<void>;
-  handleUpdateRole: (userId: number, role: string) => Promise<void>;
+  handleUpdateRole: (userId: number, role: AdminUserSummary['role']) => Promise<void>;
   currentUser: User | null;
   sanitizeInput: (input: string, limit?: number, options?: any) => string;
 }
@@ -67,14 +67,18 @@ export const UsersTab: React.FC<UsersTabProps> = ({
                 return (
                   <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</p>
+                      <p className="font-semibold text-slate-800 dark:text-slate-100">
+                        {user.name}
+                      </p>
                       <p className="text-xs text-slate-500 dark:text-slate-300">{user.email}</p>
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
                       {currentUser?.role === 'super_admin' && user.id !== currentUser?.id ? (
                         <select
                           value={user.role || 'customer'}
-                          onChange={(e) => handleUpdateRole(user.id, e.target.value)}
+                          onChange={(e) =>
+                            handleUpdateRole(user.id, e.target.value as AdminUserSummary['role'])
+                          }
                           disabled={savingUserActionId === `role-${user.id}`}
                           className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-600 dark:bg-slate-900 disabled:opacity-50"
                         >
@@ -91,7 +95,8 @@ export const UsersTab: React.FC<UsersTabProps> = ({
                       {user.emailVerified ? 'Yes' : 'No'}
                     </td>
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                      {user.postCount} posts • {user.commentCount} comments • {user.replyCount} replies
+                      {user.postCount} posts • {user.commentCount} comments • {user.replyCount}{' '}
+                      replies
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -106,7 +111,9 @@ export const UsersTab: React.FC<UsersTabProps> = ({
                     </td>
                     <td className="px-4 py-3">
                       {user.role === 'super_admin' ? (
-                        <span className="text-xs text-slate-500 dark:text-slate-300">Protected</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-300">
+                          Protected
+                        </span>
                       ) : user.isBanned ? (
                         <button
                           type="button"
