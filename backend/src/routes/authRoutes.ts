@@ -275,18 +275,23 @@ const issueAuthSession = (
   refreshToken: string;
 } => {
   const tokenVersion = getTokenVersion(user);
-  const accessToken = generateAccessToken({
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    isPlusMember: user.isPlusMember,
-    isAdmin: user.role === 'super_admin',
-  });
+  const accessToken = generateAccessToken(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isPlusMember: user.isPlusMember,
+      isAdmin: user.role === 'super_admin',
+    },
+    tokenVersion
+  );
   const refreshToken = generateRefreshToken(
     {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
       isPlusMember: user.isPlusMember,
       isAdmin: user.role === 'super_admin',
     },
@@ -669,26 +674,31 @@ router.post('/social', authLimiter, async (req, res) => {
       typeof payload.providerUserId === 'string' ? sanitizeString(payload.providerUserId) : '';
 
     // ── Firebase ID token verification ──
-    // If the client sent a Firebase ID token, verify it server-side.
-    if (firebaseToken) {
-      const verified = await verifyFirebaseToken(firebaseToken);
-      if (verified) {
-        // Trust the uid from the verified token over the client-supplied one
-        providerUserId = verified.uid;
-        // If backend email doesn't match the verified token, warn but allow
-        // (the route already validates the email format below)
-      } else {
-        console.warn(
-          'Firebase token provided but could not be verified — proceeding without trust'
-        );
-      }
+    // Require valid Firebase ID token for social authentication
+    if (!firebaseToken) {
+      return sendAuthError(
+        res,
+        401,
+        'AUTH_FIREBASE_TOKEN_REQUIRED',
+        'Firebase ID token is required for social authentication'
+      );
     }
 
-    if (!email || typeof email !== 'string') {
-      return sendAuthError(res, 400, 'AUTH_MISSING_EMAIL', 'Email is required');
+    const verified = await verifyFirebaseToken(firebaseToken);
+    if (!verified || !verified.email) {
+      return sendAuthError(
+        res,
+        401,
+        'AUTH_FIREBASE_TOKEN_INVALID',
+        'Invalid or expired Firebase ID token'
+      );
     }
 
-    const sanitizedEmail = sanitizeString(email).toLowerCase();
+    // Trust uid and email from the verified token
+    providerUserId = verified.uid;
+    const emailToUse = verified.email;
+
+    const sanitizedEmail = sanitizeString(emailToUse).toLowerCase();
     if (!isValidEmail(sanitizedEmail)) {
       return sendAuthError(res, 400, 'AUTH_INVALID_EMAIL_FORMAT', 'Invalid email format');
     }

@@ -11,15 +11,24 @@ import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-ch
 import { getPerformance } from 'firebase/performance';
 
 
+const getEnvVar = (key: string): string => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+      return import.meta.env[key];
+    }
+  } catch {}
+  return (typeof process !== 'undefined' && process.env?.[key]) || '';
+};
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+  apiKey: getEnvVar('VITE_FIREBASE_API_KEY'),
+  authDomain: getEnvVar('VITE_FIREBASE_AUTH_DOMAIN'),
+  projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID'),
+  storageBucket: getEnvVar('VITE_FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+  appId: getEnvVar('VITE_FIREBASE_APP_ID'),
+  measurementId: getEnvVar('VITE_FIREBASE_MEASUREMENT_ID'),
 };
 
 // Check if Firebase is properly configured
@@ -63,7 +72,7 @@ if (isFirebaseConfigured()) {
       });
 
       // Initialize App Check (Security)
-      const siteKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY;
+      const siteKey = getEnvVar('VITE_RECAPTCHA_ENTERPRISE_SITE_KEY');
       if (siteKey && siteKey !== 'your_recaptcha_enterprise_site_key_here') {
         try {
           initializeAppCheck(app, {

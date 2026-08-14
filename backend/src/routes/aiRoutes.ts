@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { db } from '../db';
 import fs from 'fs';
 import path from 'path';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, requireRole } from '../middleware/auth';
 import { aiLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
@@ -244,6 +244,8 @@ router.post(
 // Image Analysis Endpoint
 router.post(
   '/analyze-image',
+  aiLimiter,
+  requireAuth,
   asyncHandler(async (req, res) => {
     const { mimeType, data } = req.body;
 
@@ -323,6 +325,8 @@ router.post(
 // Batch Generate Blog Images
 router.post(
   '/generate-blog-images',
+  requireAuth,
+  requireRole(['super_admin']),
   asyncHandler(async (req, res) => {
     const articles = db.articles;
     const ai = getAiInstance();
@@ -435,7 +439,7 @@ router.post(
     }
 
     // Persist changes
-    db.write();
+    await db.write();
 
     res.json({
       message: 'Blog image generation complete',

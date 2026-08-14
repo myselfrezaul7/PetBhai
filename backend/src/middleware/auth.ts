@@ -56,8 +56,12 @@ export const generateToken = (user: Omit<JwtPayload, 'iat' | 'exp'>): string => 
   return generateAccessToken(user);
 };
 
-export const generateAccessToken = (user: Omit<JwtPayload, 'iat' | 'exp'>): string => {
-  return jwt.sign(user, getJwtSecret(), {
+export const generateAccessToken = (
+  user: Omit<JwtPayload, 'iat' | 'exp'>,
+  tokenVersion?: number
+): string => {
+  const payload = tokenVersion !== undefined ? { ...user, tokenVersion } : user;
+  return jwt.sign(payload, getJwtSecret(), {
     algorithm: 'HS256',
     expiresIn: ACCESS_TOKEN_TTL,
     issuer: JWT_ISSUER,

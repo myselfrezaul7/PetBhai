@@ -1,4 +1,4 @@
-import { safeStorage, safeSessionStorage } from './lib\storage';
+import { safeStorage, safeSessionStorage } from './lib/storage';
 import '@testing-library/jest-dom';
 
 // Mock window.matchMedia

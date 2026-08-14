@@ -17,7 +17,7 @@ const AnimalDetailPage: React.FC = () => {
   const toast = useToast();
 
   const isFavorited = useMemo(() => {
-    return currentUser?.favorites.includes(animal?.id ?? -1) ?? false;
+    return currentUser?.favorites?.includes(animal?.id ?? -1) ?? false;
   }, [currentUser, animal]);
 
   const handleFavoriteClick = useCallback(() => {

@@ -229,7 +229,7 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
 
   const orderData = parseResult.data;
   const requesterId = req.user ? String(req.user.id) : null;
-  const hasRequester = requesterId !== null && Number.isFinite(requesterId) && Number(requesterId) > 0;
+  const hasRequester = requesterId !== null && Number.isFinite(Number(requesterId)) && Number(requesterId) > 0;
 
   if (typeof orderData.userId === 'number') {
     if (!hasRequester || String(requesterId) !== String(orderData.userId)) {
@@ -432,7 +432,7 @@ router.get('/reorder-suggestions', requireAuth, async (req: AuthRequest, res) =>
   }
 
   const requesterId = String(req.user.id);
-  if (!Number.isFinite(requesterId)) {
+  if (!Number.isFinite(Number(requesterId))) {
     return res.status(400).json({ message: 'Invalid user context' });
   }
 
@@ -539,7 +539,7 @@ router.get('/:orderId', requireAuth, async (req: AuthRequest, res) => {
   }
 
   const requesterId = String(req.user.id);
-  const isOwner = Number.isFinite(requesterId) && Number(order.userId) === Number(requesterId);
+  const isOwner = Number.isFinite(Number(requesterId)) && Number(order.userId) === Number(requesterId);
   if (!isOwner && !req.user.isAdmin) {
     securityLog('ORDER_READ_FORBIDDEN', req, {
       requesterId,
@@ -565,7 +565,7 @@ router.get('/user/:userId', requireAuth, async (req: AuthRequest, res) => {
   }
 
   const requesterId = String(req.user.id);
-  if (!Number.isFinite(requesterId) || (requesterId !== userId && !req.user.isAdmin)) {
+  if (!Number.isFinite(Number(requesterId)) || (requesterId !== userId && !req.user.isAdmin)) {
     securityLog('ORDER_HISTORY_FORBIDDEN', req, {
       requesterId,
       requestedUserId: userId,
@@ -676,7 +676,7 @@ router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
   }
 
   const requesterId = String(req.user.id);
-  const isOwner = Number.isFinite(requesterId) && Number(order.userId) === Number(requesterId);
+  const isOwner = Number.isFinite(Number(requesterId)) && Number(order.userId) === Number(requesterId);
   if (!isOwner && !req.user.isAdmin) {
     securityLog('ORDER_CANCEL_FORBIDDEN', req, {
       requesterId,

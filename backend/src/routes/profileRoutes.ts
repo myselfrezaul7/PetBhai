@@ -24,7 +24,7 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
     }
 
     const requesterId = String(req.user.id);
-    if (!Number.isFinite(requesterId)) {
+    if (!Number.isFinite(Number(requesterId))) {
       return res.status(401).json({ message: 'Invalid auth context' });
     }
 

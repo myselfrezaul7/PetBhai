@@ -216,7 +216,7 @@ class Database {
         try {
           fs.renameSync(tempPath, DB_PATH);
           if (hadBackup && fs.existsSync(backupPath)) {
-            fs.unlinkSync(backupPath);
+            // Keep backupPath as the previous valid snapshot for corruption recovery.
           }
           return true; // Success
         } catch (replaceError) {

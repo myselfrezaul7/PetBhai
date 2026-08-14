@@ -15,7 +15,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
   const toast = useToast();
 
   const isFavorited = useMemo(() => {
-    return currentUser?.favorites.includes(animal.id) ?? false;
+    return currentUser?.favorites?.includes(animal.id) ?? false;
   }, [currentUser, animal.id]);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {

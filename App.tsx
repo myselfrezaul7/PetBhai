@@ -71,6 +71,7 @@ const AdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) =>
   }
 
   const isAdminUser =
+    currentUser?.role === 'super_admin' ||
     currentUser?.role === 'admin' ||
     currentUser?.email?.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
 
@@ -394,8 +395,8 @@ const AppContent: React.FC = () => {
                     <Route path="/blog/*" element={
                     <BlogErrorBoundary>
                       <Routes>
-                        <Route path="/" element={<BlogPage />} />
-                        <Route path="/:slug" element={<ArticleDetailPage />} />
+                        <Route path="" element={<BlogPage />} />
+                        <Route path=":slug" element={<ArticleDetailPage />} />
                       </Routes>
                     </BlogErrorBoundary>
                   } />

@@ -11,7 +11,8 @@ const ServicesBookingPage: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
     const data: Record<string, string> = {};
     formData.forEach((value, key) => {
       data[key] = value.toString();
@@ -58,7 +59,7 @@ Please contact the customer to confirm the booking.
       );
 
       // Reset form
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
     } catch (error) {
       console.error('Booking error:', error);
       toast.error('Failed to send booking request. Please try again or contact us directly.');

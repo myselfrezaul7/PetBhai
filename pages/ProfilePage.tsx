@@ -281,7 +281,7 @@ const ProfilePage: React.FC = () => {
                       </h1>
                       <div className="flex items-center gap-3 mt-1.5 opacity-80">
                         <span className="inline-flex py-0.5 px-2.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20 text-xs font-semibold text-amber-700 dark:text-amber-400">
-                          {currentUser.role === 'admin' ? 'Admin' : currentUser.isPlusMember ? 'PetBhai Plus' : 'Customer'}
+                          {['super_admin','store_manager','moderator','admin'].includes(currentUser.role || '') ? 'Admin' : currentUser.isPlusMember ? 'PetBhai Plus' : 'Customer'}
                         </span>
                         <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">{currentUser.email}</span>
                       </div>
@@ -486,7 +486,7 @@ const ProfilePage: React.FC = () => {
                     <div className="text-center py-12 rounded-3xl border border-dashed border-slate-200 dark:border-zinc-800">
                        <ChatBubbleIcon className="w-12 h-12 mx-auto text-slate-300 dark:text-zinc-600 mb-4" />
                        <h3 className="text-lg font-medium text-slate-800 dark:text-zinc-200 mb-2">No posts yet</h3>
-                       <p className="text-slate-500 dark:text-zinc-400">You haven\'t posted anything in the community.</p>
+                       <p className="text-slate-500 dark:text-zinc-400">You haven't posted anything in the community.</p>
                        <Link to="/community" className="inline-block mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-medium transition-colors">Go to Community</Link>
                     </div>
                   ) : (

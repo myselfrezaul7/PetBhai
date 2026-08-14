@@ -62,17 +62,14 @@ const isValidMathFallback = (payload: unknown): payload is MathFallbackPayload =
     return false;
   }
 
+  // Always invalidate the challenge on verification attempt to prevent brute-force attacks
+  mathChallengeStore.delete(candidate.challengeId);
+
   if (Date.now() > challenge.expiresAt) {
-    mathChallengeStore.delete(candidate.challengeId);
     return false;
   }
 
-  const isValid = challenge.answer === candidate.answer;
-  if (isValid) {
-    mathChallengeStore.delete(candidate.challengeId);
-  }
-
-  return isValid;
+  return challenge.answer === candidate.answer;
 };
 
 /**

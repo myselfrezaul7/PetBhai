@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { db } from '../db';
 import type { AdminUsersSummary } from '../types';
@@ -49,19 +50,15 @@ const buildAdminUserSummary = (): AdminUsersSummary[] => {
 
   return db.users
     .map((user) => {
-      const id = Number(user.id);
-      if (!Number.isFinite(id)) {
-        return null;
-      }
-
-      const stats = postStats.get(id) || { postCount: 0, commentCount: 0, replyCount: 0 };
+      const idStr = String(user.id);
+      const stats = postStats.get(Number(user.id)) || (postStats.get(user.id as any)) || { postCount: 0, commentCount: 0, replyCount: 0 };
       return {
-        id: String(id),
+        id: idStr,
         name: user.name,
         email: user.email,
         role: user.role,
         emailVerified: Boolean(user.emailVerified),
-        isBanned: bannedSet.has(id),
+        isBanned: bannedSet.has(Number(user.id)) || (bannedSet.has(user.id as any)),
         bannedAt: user.bannedAt,
         banReason: user.banReason,
         postCount: stats.postCount,
@@ -69,7 +66,6 @@ const buildAdminUserSummary = (): AdminUsersSummary[] => {
         replyCount: stats.replyCount,
       } as AdminUsersSummary;
     })
-    .filter((item): item is AdminUsersSummary => item !== null)
     .sort((a, b) => {
       if (a.isBanned !== b.isBanned) {
         return a.isBanned ? -1 : 1;
@@ -78,15 +74,27 @@ const buildAdminUserSummary = (): AdminUsersSummary[] => {
     });
 };
 
-router.get('/users', requireAuth, requireRole(['super_admin', 'store_manager', 'moderator']), (_req, res) => {
-  return res.json({ items: buildAdminUserSummary(), total: db.users.length });
+const adminActionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many admin actions, please try again shortly' },
 });
 
-const banPayloadSchema = z
-  .object({
-    reason: z.string().trim().min(3).max(500).optional(),
-  })
-  .strict();
+router.use(adminActionLimiter);
+
+router.get('/users', requireAuth, requireRole(['super_admin', 'store_manager', 'moderator']), (_req, res) => {
+  const users = buildAdminUserSummary();
+  return res.json({
+    items: users,
+    total: users.length,
+  });
+});
+
+const banSchema = z.object({
+  reason: z.string().trim().min(3).max(300).optional(),
+});
 
 router.post('/users/:id/ban', requireAuth, requireRole(['super_admin', 'store_manager', 'moderator']), async (req, res) => {
   const userId = Number(req.params.id);
@@ -94,9 +102,9 @@ router.post('/users/:id/ban', requireAuth, requireRole(['super_admin', 'store_ma
     return res.status(400).json({ message: 'Invalid user ID' });
   }
 
-  const parsed = banPayloadSchema.safeParse(req.body || {});
+  const parsed = banSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: 'Invalid ban payload' });
+    return res.status(400).json({ message: 'Invalid reason format' });
   }
 
   const targetUser = db.users.find((u) => Number(u.id) === Number(userId));
@@ -104,8 +112,8 @@ router.post('/users/:id/ban', requireAuth, requireRole(['super_admin', 'store_ma
     return res.status(404).json({ message: 'User not found' });
   }
 
-  if (targetUser.role && targetUser.role !== 'customer') {
-    return res.status(400).json({ message: 'Staff accounts cannot be banned from this endpoint' });
+  if (targetUser.role === 'super_admin') {
+    return res.status(403).json({ message: 'Cannot ban a super admin' });
   }
 
   if (!Array.isArray(db.data.bannedUsers)) {
@@ -118,7 +126,7 @@ router.post('/users/:id/ban', requireAuth, requireRole(['super_admin', 'store_ma
 
   targetUser.bannedAt = new Date().toISOString();
   targetUser.banReason = parsed.data.reason || 'Banned by admin moderation';
-  db.write();
+  await db.write();
 
   return res.json({
     message: 'User banned successfully',
@@ -146,7 +154,7 @@ router.post('/users/:id/unban', requireAuth, requireRole(['super_admin', 'store_
   db.data.bannedUsers = db.data.bannedUsers.filter((id) => Number(id) !== userId);
   delete targetUser.bannedAt;
   delete targetUser.banReason;
-  db.write();
+  await db.write();
 
   return res.json({ message: 'User unbanned successfully', userId });
 });
@@ -171,12 +179,12 @@ router.put('/users/:id/role', requireAuth, requireRole(['super_admin']), async (
     return res.status(404).json({ message: 'User not found' });
   }
 
-  if (userId === (req as any).user?.id) {
+  if (String(userId) === String((req as any).user?.id)) {
     return res.status(400).json({ message: 'You cannot change your own role' });
   }
 
   targetUser.role = parsed.data.role;
-  db.write();
+  await db.write();
   return res.json({ message: 'User role updated successfully', role: targetUser.role });
 });
 
@@ -199,20 +207,20 @@ router.delete('/posts/:id', requireAuth, requireRole(['super_admin', 'moderator'
     return res.status(404).json({ message: 'Post not found' });
   }
 
-  db.write();
+  await db.write();
   return res.json({ message: 'Post deleted permanently', postId });
 });
 
 router.get('/stream', async (req, res) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const queryToken = typeof req.query.token === 'string' ? req.query.token : undefined;
+  const token = (authHeader && authHeader.startsWith('Bearer ')) ? authHeader.split(' ')[1] : queryToken;
+  if (!token) {
     return res.status(401).json({ message: 'Admin authentication required' });
   }
 
-  const token = authHeader.split(' ')[1];
-
   const decoded = verifyToken(token);
-  if (!decoded?.isAdmin) {
+  if (!decoded?.isAdmin && decoded?.role !== 'super_admin' && decoded?.role !== 'store_manager') {
     return res.status(403).json({ message: 'Admin access required' });
   }
 

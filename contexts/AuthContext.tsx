@@ -248,7 +248,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const refreshToken = getStoredRefreshToken();
 
     if (!token) {
-      if (!currentUser) {
+      if (currentUser) {
         clearSession();
       }
       return;
@@ -556,7 +556,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isAdminEmail(data.user.email)) {
           data.user = {
             ...data.user,
-            role: 'admin',
+            role: 'super_admin',
           };
         }
         return persistSession(data);
