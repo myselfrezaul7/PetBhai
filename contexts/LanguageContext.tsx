@@ -184,6 +184,7 @@ const translations: Translations = {
   btn_added: { en: 'Added!', bn: 'যুক্ত হয়েছে!' },
   btn_add_more: { en: 'Add More', bn: 'আরও যোগ করুন' },
   btn_add_to_cart: { en: 'Add to Cart', bn: 'কার্টে যোগ করুন' },
+  aria_add_to_cart: { en: 'Add to cart', bn: 'কার্টে যোগ করুন' },
   aria_out_of_stock: { en: 'Out of stock', bn: 'স্টক নেই' },
   // Product Quick View
   aria_close_modal: { en: 'Close modal', bn: 'বন্ধ করুন' },

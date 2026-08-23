@@ -5,15 +5,56 @@ import { AuthRequest, requireAuth, verifyRefreshToken } from '../middleware/auth
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
 import {
-  loginAttemptTracker, SALT_ROUNDS, EMAIL_VERIFICATION_TOKEN_TTL_MS, LOCKOUT_WINDOW_MS, LOCKOUT_THRESHOLD, LOCKOUT_DURATION_MS,
-  DEFAULT_ADMIN_EMAIL, ADMIN_EMAIL_ALLOWLIST, isValidEmail, sanitizeString, normalizeEmail, isRecordObject, ensureUserCollections,
-  userWithAuthMetadata, getRoleByEmail, syncRoleByEmail, isStrongPassword, hashPassword, comparePassword, sanitizeUser,
-  canAccessUser, persistChanges, sendAuthError, getClientIp, getLoginAttemptKey, nowMs, checkIpEmailLock, recordFailedLogin,
-  clearFailedLogin, hashToken, generateVerificationToken, getTokenVersion, setTokenVersion, setRefreshTokenState,
-  clearRefreshTokenState, issueAuthSession, assignNewEmailVerification, isEmailVerified, getNextUserId, generateRecordId,
-  ensurePetCollections, parseUserFromParam, calculateNextDueDate,
-  petCreateSchema, petUpdateSchema, petWeightSchema, reminderCreateSchema, reminderUpdateSchema, profileUpdateSchema,
-  shippingAddressSchema
+  loginAttemptTracker,
+  SALT_ROUNDS,
+  EMAIL_VERIFICATION_TOKEN_TTL_MS,
+  LOCKOUT_WINDOW_MS,
+  LOCKOUT_THRESHOLD,
+  LOCKOUT_DURATION_MS,
+  DEFAULT_ADMIN_EMAIL,
+  ADMIN_EMAIL_ALLOWLIST,
+  isValidEmail,
+  sanitizeString,
+  normalizeEmail,
+  isRecordObject,
+  ensureUserCollections,
+  userWithAuthMetadata,
+  getRoleByEmail,
+  syncRoleByEmail,
+  isStrongPassword,
+  hashPassword,
+  comparePassword,
+  sanitizeUser,
+  canAccessUser,
+  persistChanges,
+  sendAuthError,
+  getClientIp,
+  getLoginAttemptKey,
+  nowMs,
+  checkIpEmailLock,
+  recordFailedLogin,
+  clearFailedLogin,
+  hashToken,
+  generateVerificationToken,
+  getTokenVersion,
+  setTokenVersion,
+  setRefreshTokenState,
+  clearRefreshTokenState,
+  issueAuthSession,
+  assignNewEmailVerification,
+  isEmailVerified,
+  getNextUserId,
+  generateRecordId,
+  ensurePetCollections,
+  parseUserFromParam,
+  calculateNextDueDate,
+  petCreateSchema,
+  petUpdateSchema,
+  petWeightSchema,
+  reminderCreateSchema,
+  reminderUpdateSchema,
+  profileUpdateSchema,
+  shippingAddressSchema,
 } from './authHelpers';
 
 const router = Router();
@@ -35,7 +76,7 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
 
     const roleSynced = syncRoleByEmail(user);
     if (roleSynced) {
-      persistChanges(res);
+      await persistChanges(res);
     }
 
     ensureUserCollections(user);
@@ -93,17 +134,34 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
     updatedUser.bio = sanitizeString(bio);
   }
   if (defaultShippingAddress) {
-    const existing = updatedUser.defaultShippingAddress || { fullName: '', address: '', city: '', phone: '' };
+    const existing = updatedUser.defaultShippingAddress || {
+      fullName: '',
+      address: '',
+      city: '',
+      phone: '',
+    };
     updatedUser.defaultShippingAddress = {
-      fullName: typeof defaultShippingAddress.fullName === 'string' ? sanitizeString(defaultShippingAddress.fullName).slice(0, 120) : existing.fullName || '',
-      address: typeof defaultShippingAddress.address === 'string' ? sanitizeString(defaultShippingAddress.address).slice(0, 240) : existing.address || '',
-      city: typeof defaultShippingAddress.city === 'string' ? sanitizeString(defaultShippingAddress.city).slice(0, 80) : existing.city || '',
-      phone: typeof defaultShippingAddress.phone === 'string' ? sanitizeString(defaultShippingAddress.phone).slice(0, 30) : existing.phone || '',
+      fullName:
+        typeof defaultShippingAddress.fullName === 'string'
+          ? sanitizeString(defaultShippingAddress.fullName).slice(0, 120)
+          : existing.fullName || '',
+      address:
+        typeof defaultShippingAddress.address === 'string'
+          ? sanitizeString(defaultShippingAddress.address).slice(0, 240)
+          : existing.address || '',
+      city:
+        typeof defaultShippingAddress.city === 'string'
+          ? sanitizeString(defaultShippingAddress.city).slice(0, 80)
+          : existing.city || '',
+      phone:
+        typeof defaultShippingAddress.phone === 'string'
+          ? sanitizeString(defaultShippingAddress.phone).slice(0, 30)
+          : existing.phone || '',
     };
   }
 
   db.users[userIndex] = updatedUser;
-  persistChanges(res);
+  await persistChanges(res);
 
   auditLog('PROFILE_UPDATE', userId, { fields: Object.keys(req.body) });
   res.json(sanitizeUser(updatedUser));
@@ -145,7 +203,7 @@ router.delete('/:id', requireAuth, authLimiter, async (req: AuthRequest, res) =>
     }
 
     db.users.splice(userIndex, 1);
-    persistChanges(res);
+    await persistChanges(res);
 
     auditLog('ACCOUNT_DELETED', userId, {
       byAdmin: !!req.user?.isAdmin,
@@ -178,7 +236,7 @@ router.post('/:id/wishlist', requireAuth, async (req: AuthRequest, res) => {
     if (!user.wishlist) user.wishlist = [];
     if (!user.wishlist.includes(productId)) {
       user.wishlist.push(productId);
-      persistChanges(res);
+      await persistChanges(res);
     }
     res.json(sanitizeUser(user));
   } else {
@@ -205,7 +263,7 @@ router.delete('/:id/wishlist/:productId', requireAuth, async (req: AuthRequest, 
     // Initialize wishlist if not exists
     if (!user.wishlist) user.wishlist = [];
     user.wishlist = user.wishlist.filter((id) => id !== productId);
-    persistChanges(res);
+    await persistChanges(res);
     res.json(sanitizeUser(user));
   } else {
     res.status(404).json({ message: 'User not found' });
@@ -232,7 +290,7 @@ router.post('/:id/favorites', requireAuth, async (req: AuthRequest, res) => {
     if (!user.favorites) user.favorites = [];
     if (!user.favorites.includes(animalId)) {
       user.favorites.push(animalId);
-      persistChanges(res);
+      await persistChanges(res);
     }
     res.json(sanitizeUser(user));
   } else {
@@ -259,7 +317,7 @@ router.delete('/:id/favorites/:animalId', requireAuth, async (req: AuthRequest, 
     // Initialize favorites if not exists
     if (!user.favorites) user.favorites = [];
     user.favorites = user.favorites.filter((id) => id !== animalId);
-    persistChanges(res);
+    await persistChanges(res);
     res.json(sanitizeUser(user));
   } else {
     res.status(404).json({ message: 'User not found' });
@@ -282,7 +340,7 @@ router.post('/:id/subscribe', requireAuth, async (req: AuthRequest, res) => {
 
   if (user) {
     user.isPlusMember = true;
-    persistChanges(res);
+    await persistChanges(res);
     auditLog('PLUS_SUBSCRIPTION', userId, { status: 'subscribed' });
     res.json(sanitizeUser(user));
   } else {
@@ -324,7 +382,7 @@ router.post('/:id/orders', requireAuth, async (req: AuthRequest, res) => {
     if (user.orderHistory.length > 100) {
       user.orderHistory = user.orderHistory.slice(0, 100);
     }
-    persistChanges(res);
+    await persistChanges(res);
   }
 
   res.status(201).json(sanitizeUser(user));
@@ -371,7 +429,7 @@ router.post('/:id/change-password', requireAuth, authLimiter, async (req: AuthRe
 
     // Hash and save new password
     user.password = await hashPassword(newPassword);
-    persistChanges(res);
+    await persistChanges(res);
 
     auditLog('PASSWORD_CHANGED', userId, {});
     res.json({ message: 'Password changed successfully' });

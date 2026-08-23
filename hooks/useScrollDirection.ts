@@ -20,15 +20,19 @@ export function useScrollDirection() {
       ticking = false;
     };
 
+    let frameId: number;
     const onScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(updateScrollDir);
+        frameId = window.requestAnimationFrame(updateScrollDir);
         ticking = true;
       }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frameId) window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   return { scrollDirection, isAtTop };

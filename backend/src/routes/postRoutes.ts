@@ -48,7 +48,7 @@ router.get('/feed', async (req, res) => {
     let sortedPosts = getSortedVisiblePosts();
     if (req.query.authorId) {
       const authorId = Number(req.query.authorId);
-      sortedPosts = sortedPosts.filter(p => p.author.id === authorId);
+      sortedPosts = sortedPosts.filter((p) => p.author.id === authorId);
     }
     const startIndex = cursor
       ? Math.max(sortedPosts.findIndex((post) => String(post.id) === cursor) + 1, 0)
@@ -243,7 +243,7 @@ router.put('/:id(\\d+)', postMutationLimiter, requireAuth, async (req: AuthReque
     }
 
     // Check if the user is the author
-    if (db.posts[postIndex].author.id !== validAuthorId) {
+    if (String(db.posts[postIndex].author.id) !== validAuthorId) {
       securityLog('POST_EDIT_FORBIDDEN', req, {
         postId,
         requesterId: validAuthorId,

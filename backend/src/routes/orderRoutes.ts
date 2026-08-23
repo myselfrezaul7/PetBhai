@@ -229,7 +229,8 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
 
   const orderData = parseResult.data;
   const requesterId = req.user ? String(req.user.id) : null;
-  const hasRequester = requesterId !== null && Number.isFinite(Number(requesterId)) && Number(requesterId) > 0;
+  const hasRequester =
+    requesterId !== null && Number.isFinite(Number(requesterId)) && Number(requesterId) > 0;
 
   if (typeof orderData.userId === 'number') {
     if (!hasRequester || String(requesterId) !== String(orderData.userId)) {
@@ -256,7 +257,7 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
         throw new Error(`Product with ID ${item.id} no longer exists`);
       }
 
-      if (product.stockStatus === 'out-of-stock' as const) {
+      if (product.stockStatus === ('out-of-stock' as const)) {
         throw new Error(`${product.name || 'Product'} is out of stock`);
       }
 
@@ -294,13 +295,15 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
   }
 
   // Track stock changes for potential rollback
-  const stockSnapshot: Array<{id: number; originalQuantity: number; originalStatus: string}> = [];
-  const updatedProductsInfo: Array<{id: number; stockQuantity: number; stockStatus: string}> = [];
+  const stockSnapshot: Array<{ id: number; originalQuantity: number; originalStatus: string }> = [];
+  const updatedProductsInfo: Array<{ id: number; stockQuantity: number; stockStatus: string }> = [];
 
   try {
     // Deduct inventory
     validatedItems.forEach((item) => {
-      const productList = db.products as Array<Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }>;
+      const productList = db.products as Array<
+        Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }
+      >;
       const dbProduct = productList.find((p) => p.id === item.id);
       if (dbProduct && typeof dbProduct.stockQuantity === 'number') {
         // Snapshot before mutation for rollback
@@ -311,10 +314,13 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
         });
 
         dbProduct.stockQuantity = Math.max(0, dbProduct.stockQuantity - item.quantity);
-        
+
         if (dbProduct.stockQuantity <= 0) {
           dbProduct.stockStatus = 'out-of-stock' as const;
-        } else if (dbProduct.reorderPoint !== undefined && dbProduct.stockQuantity <= dbProduct.reorderPoint) {
+        } else if (
+          dbProduct.reorderPoint !== undefined &&
+          dbProduct.stockQuantity <= dbProduct.reorderPoint
+        ) {
           dbProduct.stockStatus = 'low-stock' as const;
         } else {
           dbProduct.stockStatus = 'in-stock' as const;
@@ -380,7 +386,9 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
   } catch (orderError) {
     // Rollback stock changes
     for (const snap of stockSnapshot) {
-      const productList = db.products as Array<Product & { stockQuantity?: number; stockStatus: string }>;
+      const productList = db.products as Array<
+        Product & { stockQuantity?: number; stockStatus: string }
+      >;
       const dbProduct = productList.find((p) => p.id === snap.id);
       if (dbProduct) {
         dbProduct.stockQuantity = snap.originalQuantity;
@@ -392,7 +400,6 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
       message: 'Failed to create order. Inventory has been restored.',
     });
   }
-
 });
 
 // Get all orders (admin only)
@@ -478,7 +485,7 @@ router.get('/reorder-suggestions', requireAuth, async (req: AuthRequest, res) =>
   const suggestions = Array.from(productStats.entries())
     .map(([productId, stat]) => {
       const product = db.products.find((p) => p.id === productId);
-      if (!product || product.stockStatus === 'out-of-stock' as const) {
+      if (!product || product.stockStatus === ('out-of-stock' as const)) {
         return null;
       }
 
@@ -539,7 +546,8 @@ router.get('/:orderId', requireAuth, async (req: AuthRequest, res) => {
   }
 
   const requesterId = String(req.user.id);
-  const isOwner = Number.isFinite(Number(requesterId)) && Number(order.userId) === Number(requesterId);
+  const isOwner =
+    Number.isFinite(Number(requesterId)) && Number(order.userId) === Number(requesterId);
   if (!isOwner && !req.user.isAdmin) {
     securityLog('ORDER_READ_FORBIDDEN', req, {
       requesterId,
@@ -583,76 +591,81 @@ router.get('/user/:userId', requireAuth, async (req: AuthRequest, res) => {
 });
 
 // Update order status (admin only)
-router.patch('/:orderId/status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
-  const { orderId } = req.params;
-  const parseResult = orderStatusUpdateSchema.safeParse(req.body || {});
-  if (!parseResult.success) {
-    return res.status(400).json({
-      message: 'Invalid status update payload',
-      details: parseResult.error.errors.map((error) => ({
-        field: error.path.join('.'),
-        message: error.message,
-      })),
+router.patch(
+  '/:orderId/status',
+  requireAuth,
+  requireAdmin,
+  async (req: AuthRequest, res: Response) => {
+    const { orderId } = req.params;
+    const parseResult = orderStatusUpdateSchema.safeParse(req.body || {});
+    if (!parseResult.success) {
+      return res.status(400).json({
+        message: 'Invalid status update payload',
+        details: parseResult.error.errors.map((error) => ({
+          field: error.path.join('.'),
+          message: error.message,
+        })),
+      });
+    }
+
+    const { status, note, trackingNumber } = parseResult.data;
+
+    const orderIndex = db.orders.findIndex((o) => o.orderId === orderId);
+    if (orderIndex === -1) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const order = db.orders[orderIndex] as ExtendedOrder;
+    const now = new Date().toISOString();
+
+    // Update order status
+    order.status = status;
+    order.statusHistory = order.statusHistory || [];
+    order.statusHistory.push({
+      status,
+      timestamp: now,
+      note: note ?? `Status updated to ${status}`,
     });
-  }
 
-  const { status, note, trackingNumber } = parseResult.data;
+    // Add tracking number if provided
+    if (trackingNumber) {
+      order.trackingNumber = trackingNumber;
+    }
 
-  const orderIndex = db.orders.findIndex((o) => o.orderId === orderId);
-  if (orderIndex === -1) {
-    return res.status(404).json({ message: 'Order not found' });
-  }
+    securityLog('ORDER_STATUS_UPDATED', req, {
+      orderId,
+      status,
+      hasTrackingNumber: Boolean(trackingNumber),
+    });
 
-  const order = db.orders[orderIndex] as ExtendedOrder;
-  const now = new Date().toISOString();
+    db.orders[orderIndex] = order;
 
-  // Update order status
-  order.status = status;
-  order.statusHistory = order.statusHistory || [];
-  order.statusHistory.push({
-    status,
-    timestamp: now,
-    note: note ?? `Status updated to ${status}`,
-  });
-
-  // Add tracking number if provided
-  if (trackingNumber) {
-    order.trackingNumber = trackingNumber;
-  }
-
-  securityLog('ORDER_STATUS_UPDATED', req, {
-    orderId,
-    status,
-    hasTrackingNumber: Boolean(trackingNumber),
-  });
-
-  db.orders[orderIndex] = order;
-
-  // Update user's order history if user exists
-  if ((order as any).userId) {
-    const user = db.users.find((u) => u.id === (order as any).userId);
-    if (user) {
-      // Initialize orderHistory if not exists
-      if (!user.orderHistory) user.orderHistory = [];
-      const userOrderIndex = user.orderHistory.findIndex((o) => o.orderId === orderId);
-      if (userOrderIndex !== -1) {
-        user.orderHistory[userOrderIndex] = order;
+    // Update user's order history if user exists
+    if ((order as any).userId) {
+      const user = db.users.find((u) => String(u.id) === String((order as any).userId));
+      if (user) {
+        // Initialize orderHistory if not exists
+        if (!user.orderHistory) user.orderHistory = [];
+        const userOrderIndex = user.orderHistory.findIndex((o) => o.orderId === orderId);
+        if (userOrderIndex !== -1) {
+          user.orderHistory[userOrderIndex] = order;
+        }
       }
     }
+
+    await db.write();
+    emitAdminEvent('order-updated', {
+      orderId,
+      status: order.status,
+      trackingNumber: order.trackingNumber,
+    });
+
+    res.json({
+      message: 'Order status updated',
+      order,
+    });
   }
-
-  db.write();
-  emitAdminEvent('order-updated', {
-    orderId,
-    status: order.status,
-    trackingNumber: order.trackingNumber,
-  });
-
-  res.json({
-    message: 'Order status updated',
-    order,
-  });
-});
+);
 
 // Cancel order (user can cancel pending orders)
 router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
@@ -676,7 +689,8 @@ router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
   }
 
   const requesterId = String(req.user.id);
-  const isOwner = Number.isFinite(Number(requesterId)) && Number(order.userId) === Number(requesterId);
+  const isOwner =
+    Number.isFinite(Number(requesterId)) && Number(order.userId) === Number(requesterId);
   if (!isOwner && !req.user.isAdmin) {
     securityLog('ORDER_CANCEL_FORBIDDEN', req, {
       requesterId,
@@ -704,7 +718,7 @@ router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
 
   db.orders[orderIndex] = order;
 
-  db.write();
+  await db.write();
   emitAdminEvent('order-cancelled', {
     orderId,
     status: order.status,

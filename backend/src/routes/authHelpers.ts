@@ -1,4 +1,3 @@
-
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { z } from 'zod';
@@ -13,8 +12,6 @@ import {
 } from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
-
-
 
 // Password hashing configuration
 export const SALT_ROUNDS = 12;
@@ -93,7 +90,10 @@ export const userWithAuthMetadata = (user: User): UserAuthMetadata => {
   return user as UserAuthMetadata;
 };
 
-export const getRoleByEmail = (email: string, emailVerified: boolean): 'super_admin' | 'customer' => {
+export const getRoleByEmail = (
+  email: string,
+  emailVerified: boolean
+): 'super_admin' | 'customer' => {
   if (!emailVerified) return 'customer';
   const normalizedEmail = normalizeEmail(email);
   return ADMIN_EMAIL_ALLOWLIST.has(normalizedEmail) ? 'super_admin' : 'customer';
@@ -162,8 +162,8 @@ export const canAccessUser = (req: AuthRequest, userId: number | string): boolea
   return String(requesterId) === String(userId) || !!req.user.isAdmin;
 };
 
-export const persistChanges = (res: any): boolean => {
-  db.write();
+export const persistChanges = async (res: any): Promise<boolean> => {
+  await db.write();
   return true;
 };
 

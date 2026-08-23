@@ -56,13 +56,13 @@ describe('ProductCard', () => {
   it('renders add to cart button', () => {
     renderWithProviders(<ProductCard product={mockProduct} />);
 
-    expect(screen.getByRole('button', { name: /aria_add_to_cart/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument();
   });
 
   it('calls addToCart when button is clicked', () => {
     renderWithProviders(<ProductCard product={mockProduct} />);
 
-    const addButton = screen.getByRole('button', { name: /aria_add_to_cart/i });
+    const addButton = screen.getByRole('button', { name: /add to cart/i });
     fireEvent.click(addButton);
 
     // After clicking, button text should change to "Added"

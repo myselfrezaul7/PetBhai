@@ -164,8 +164,8 @@ const canAccessUser = (req: AuthRequest, userId: number | string): boolean => {
   return String(requesterId) === String(userId) || !!req.user.isAdmin;
 };
 
-const persistChanges = (res: any): boolean => {
-  db.write();
+const persistChanges = async (res: any): Promise<boolean> => {
+  await db.write();
   return true;
 };
 
@@ -521,22 +521,22 @@ router.post('/login', authLimiter, async (req, res) => {
 
     if (isLegacyPlainTextPassword) {
       user.password = await hashPassword(password);
-      persistChanges(res);
+      await persistChanges(res);
       auditLog('LEGACY_PASSWORD_MIGRATED', user.id, { email: sanitizedEmail });
     }
 
     if (syncRoleByEmail(user)) {
-      persistChanges(res);
+      await persistChanges(res);
       auditLog('USER_ROLE_SYNCED', user.id, { email: sanitizedEmail, role: user.role });
     }
 
     if (!user.createdAt) {
       user.createdAt = new Date().toISOString();
-      persistChanges(res);
+      await persistChanges(res);
     }
 
     const { accessToken, refreshToken } = issueAuthSession(user!);
-    persistChanges(res);
+    await persistChanges(res);
 
     auditLog('LOGIN_SUCCESS', user.id, { email: sanitizedEmail });
 
@@ -606,7 +606,7 @@ router.post('/signup', authLimiter, async (req, res) => {
 
     db.users.push(newUser);
     const { accessToken, refreshToken } = issueAuthSession(newUser);
-    persistChanges(res);
+    await persistChanges(res);
 
     auditLog('USER_SIGNUP', newUser.id, { email: sanitizedEmail });
 
@@ -754,7 +754,7 @@ router.post('/social', authLimiter, async (req, res) => {
         shouldPersist = true;
       }
       if (shouldPersist) {
-        persistChanges(res);
+        await persistChanges(res);
       }
     } else {
       user = {
@@ -782,12 +782,12 @@ router.post('/social', authLimiter, async (req, res) => {
       setTokenVersion(user!, 0);
 
       db.users.push(user!);
-      persistChanges(res);
+      await persistChanges(res);
       auditLog('USER_SOCIAL_SIGNUP', user!.id, { email: sanitizedEmail });
     }
 
     const { accessToken, refreshToken } = issueAuthSession(user!);
-    persistChanges(res);
+    await persistChanges(res);
 
     auditLog('SOCIAL_LOGIN_SUCCESS', user!.id, { email: sanitizedEmail });
     return res.json({ user: sanitizeUser(user!), token: accessToken, refreshToken });
@@ -830,7 +830,7 @@ router.post('/refresh', authLimiter, async (req, res) => {
 
     if (!Number.isFinite(storedExpiry) || storedExpiry <= nowMs()) {
       clearRefreshTokenState(user);
-      persistChanges(res);
+      await persistChanges(res);
       return sendAuthError(res, 401, 'AUTH_REFRESH_INVALID', 'Refresh token expired');
     }
 
@@ -839,7 +839,7 @@ router.post('/refresh', authLimiter, async (req, res) => {
     }
 
     const { accessToken, refreshToken: rotatedRefreshToken } = issueAuthSession(user!);
-    persistChanges(res);
+    await persistChanges(res);
 
     return res.json({
       token: accessToken,
@@ -865,7 +865,7 @@ router.post('/logout', requireAuth, async (req: AuthRequest, res) => {
 
   setTokenVersion(user, getTokenVersion(user) + 1);
   clearRefreshTokenState(user);
-  persistChanges(res);
+  await persistChanges(res);
 
   auditLog('LOGOUT_SUCCESS', user.id, { email: user.email });
   return res.status(200).json({ success: true });
@@ -906,7 +906,7 @@ router.post('/verify-email', authLimiter, async (req, res) => {
     rawUser.emailVerified = true;
     delete rawUser.emailVerificationTokenHash;
     delete rawUser.emailVerificationExpiresAt;
-    persistChanges(res);
+    await persistChanges(res);
 
     return res.json({ message: 'Email verified successfully' });
   } catch (error) {
@@ -932,7 +932,7 @@ router.post('/resend-verification', authLimiter, async (req, res) => {
     }
 
     const token = assignNewEmailVerification(user);
-    persistChanges(res);
+    await persistChanges(res);
 
     return res.status(200).json({
       message: 'Verification token generated',

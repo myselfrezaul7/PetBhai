@@ -160,6 +160,7 @@ const CheckoutPage: React.FC = () => {
       if (isSubmitting) return;
       setIsSubmitting(true);
 
+      let orderPlaced = false;
       try {
         // Sanitize all form data before submission
         const sanitizedFormData = {
@@ -267,13 +268,16 @@ const CheckoutPage: React.FC = () => {
             ? 'Order placed successfully. Some item prices were updated to current values.'
             : 'Thank you for your order! It has been placed successfully.'
         );
+        orderPlaced = true;
         clearCart();
         navigate('/');
       } catch (error) {
         console.error('Order placement error:', error);
         toast.error(getErrorMessage(error, 'Failed to place order. Please try again.'));
       } finally {
-        setIsSubmitting(false);
+        if (!orderPlaced) {
+          setIsSubmitting(false);
+        }
       }
     },
     [

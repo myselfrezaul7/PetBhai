@@ -109,16 +109,18 @@ export function useLocalStorage<T>(
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        setStoredValue(valueToStore);
-        if (typeof window !== 'undefined') {
-          safeStorage.setItem(key, JSON.stringify(valueToStore));
-        }
+        setStoredValue((prev) => {
+          const valueToStore = value instanceof Function ? value(prev) : value;
+          if (typeof window !== 'undefined') {
+            safeStorage.setItem(key, JSON.stringify(valueToStore));
+          }
+          return valueToStore;
+        });
       } catch (error) {
         console.error(`Error setting safeStorage key "${key}":`, error);
       }
     },
-    [key, storedValue]
+    [key]
   );
 
   const removeValue = useCallback(() => {
@@ -146,7 +148,7 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     const media = window.matchMedia(query);
-    
+
     // Ensure accurate initial state
     setMatches(media.matches);
 

@@ -5,15 +5,56 @@ import { AuthRequest, requireAuth, verifyRefreshToken } from '../middleware/auth
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
 import {
-  loginAttemptTracker, SALT_ROUNDS, EMAIL_VERIFICATION_TOKEN_TTL_MS, LOCKOUT_WINDOW_MS, LOCKOUT_THRESHOLD, LOCKOUT_DURATION_MS,
-  DEFAULT_ADMIN_EMAIL, ADMIN_EMAIL_ALLOWLIST, isValidEmail, sanitizeString, normalizeEmail, isRecordObject, ensureUserCollections,
-  userWithAuthMetadata, getRoleByEmail, syncRoleByEmail, isStrongPassword, hashPassword, comparePassword, sanitizeUser,
-  canAccessUser, persistChanges, sendAuthError, getClientIp, getLoginAttemptKey, nowMs, checkIpEmailLock, recordFailedLogin,
-  clearFailedLogin, hashToken, generateVerificationToken, getTokenVersion, setTokenVersion, setRefreshTokenState,
-  clearRefreshTokenState, issueAuthSession, assignNewEmailVerification, isEmailVerified, getNextUserId, generateRecordId,
-  ensurePetCollections, parseUserFromParam, calculateNextDueDate,
-  petCreateSchema, petUpdateSchema, petWeightSchema, reminderCreateSchema, reminderUpdateSchema, profileUpdateSchema,
-  shippingAddressSchema
+  loginAttemptTracker,
+  SALT_ROUNDS,
+  EMAIL_VERIFICATION_TOKEN_TTL_MS,
+  LOCKOUT_WINDOW_MS,
+  LOCKOUT_THRESHOLD,
+  LOCKOUT_DURATION_MS,
+  DEFAULT_ADMIN_EMAIL,
+  ADMIN_EMAIL_ALLOWLIST,
+  isValidEmail,
+  sanitizeString,
+  normalizeEmail,
+  isRecordObject,
+  ensureUserCollections,
+  userWithAuthMetadata,
+  getRoleByEmail,
+  syncRoleByEmail,
+  isStrongPassword,
+  hashPassword,
+  comparePassword,
+  sanitizeUser,
+  canAccessUser,
+  persistChanges,
+  sendAuthError,
+  getClientIp,
+  getLoginAttemptKey,
+  nowMs,
+  checkIpEmailLock,
+  recordFailedLogin,
+  clearFailedLogin,
+  hashToken,
+  generateVerificationToken,
+  getTokenVersion,
+  setTokenVersion,
+  setRefreshTokenState,
+  clearRefreshTokenState,
+  issueAuthSession,
+  assignNewEmailVerification,
+  isEmailVerified,
+  getNextUserId,
+  generateRecordId,
+  ensurePetCollections,
+  parseUserFromParam,
+  calculateNextDueDate,
+  petCreateSchema,
+  petUpdateSchema,
+  petWeightSchema,
+  reminderCreateSchema,
+  reminderUpdateSchema,
+  profileUpdateSchema,
+  shippingAddressSchema,
 } from './authHelpers';
 
 const router = Router();
@@ -55,7 +96,7 @@ router.post('/:id/reminders', requireAuth, async (req: AuthRequest, res) => {
   };
 
   user.medicineReminders?.push(reminder);
-  persistChanges(res);
+  await persistChanges(res);
   auditLog('MEDICINE_REMINDER_CREATED', user.id, {
     reminderId: reminder.id,
     petId: reminder.petId,
@@ -123,7 +164,7 @@ router.patch('/:id/reminders/:reminderId', requireAuth, async (req: AuthRequest,
   };
 
   user.medicineReminders![reminderIndex] = updated;
-  persistChanges(res);
+  await persistChanges(res);
   auditLog('MEDICINE_REMINDER_UPDATED', user.id, { reminderId: updated.id });
 
   return res.json({
@@ -156,7 +197,7 @@ router.post('/:id/reminders/:reminderId/mark-given', requireAuth, async (req: Au
   };
 
   user.medicineReminders![reminderIndex] = updated;
-  persistChanges(res);
+  await persistChanges(res);
   auditLog('MEDICINE_REMINDER_MARKED_GIVEN', user.id, { reminderId: updated.id });
 
   return res.json({
@@ -182,7 +223,7 @@ router.delete('/:id/reminders/:reminderId', requireAuth, async (req: AuthRequest
     return res.status(404).json({ message: 'Reminder not found' });
   }
 
-  persistChanges(res);
+  await persistChanges(res);
   auditLog('MEDICINE_REMINDER_DELETED', user.id, { reminderId });
 
   return res.json({ pets: user.petProfiles, medicineReminders: user.medicineReminders });

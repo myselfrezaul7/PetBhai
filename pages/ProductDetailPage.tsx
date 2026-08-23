@@ -116,7 +116,7 @@ const ProductDetailPage: React.FC = () => {
         name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
         price: product.price * 0.95, // 5% discount
         isAutoShip: true,
-        autoShipFrequency: autoShipFrequency
+        autoShipFrequency: autoShipFrequency,
       };
     }
     addToCart(finalProduct);
@@ -219,12 +219,12 @@ const ProductDetailPage: React.FC = () => {
         name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
         price: product.price * 0.95, // 5% discount
         isAutoShip: true,
-        autoShipFrequency: autoShipFrequency
+        autoShipFrequency: autoShipFrequency,
       };
     }
     addToCart(finalProduct);
     bundleOffer.items.forEach((bundleItem) => addToCart(bundleItem));
-  }, [addToCart, bundleOffer, product]);
+  }, [addToCart, bundleOffer, product, isAutoShip, autoShipFrequency]);
 
   const StarRatingDisplay = memo(
     ({ rating, className = 'w-5 h-5' }: { rating: number; className?: string }) => (

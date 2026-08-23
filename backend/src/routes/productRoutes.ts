@@ -157,7 +157,7 @@ router.post(
     };
 
     db.products.push(newProduct);
-    db.write();
+    await db.write();
     emitAdminEvent('product-created', {
       productId: newProduct.id,
       category: newProduct.category,
@@ -205,7 +205,7 @@ router.patch(
     };
 
     db.products[productIndex] = updatedProduct;
-    db.write();
+    await db.write();
     emitAdminEvent('inventory-updated', {
       productId: updatedProduct.id,
       stockQuantity: updatedProduct.stockQuantity,
@@ -359,7 +359,7 @@ router.post(
       rating: Number(averageRating.toFixed(2)),
     };
 
-    db.write();
+    await db.write();
 
     return res.status(201).json({
       message: 'Review submitted successfully',
