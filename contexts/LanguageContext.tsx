@@ -108,6 +108,7 @@ const translations: Translations = {
   },
   blog_latest_post: { en: 'Latest Post', bn: 'সর্বশেষ লেখা' },
   blog_min_read: { en: 'min read', bn: 'মিনিট সময় লাগবে' },
+  blog_readers: { en: 'readers', bn: 'জন পড়েছেন' },
 
   // Article Detail
   article_not_found: { en: 'Article not found!', bn: 'আর্টিকেলটি পাওয়া যায়নি!' },

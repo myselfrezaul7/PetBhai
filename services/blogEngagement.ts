@@ -1,22 +1,31 @@
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  arrayUnion, 
-  arrayRemove, 
-  increment, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  limit, 
-  addDoc, 
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  increment,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+  addDoc,
   serverTimestamp,
-  deleteDoc
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { safeSessionStorage } from '../lib/storage';
+import { safeSessionStorage, safeStorage } from '../lib/storage';
+
+/**
+ * Generates a realistic baseline reader count for an article based on its ID.
+ */
+export const getBaselineReaders = (articleId: string | number): number => {
+  const cleanId = String(articleId).replace(/\D/g, '');
+  const num = cleanId ? Math.abs(parseInt(cleanId, 10)) : 1;
+  return 85 + ((num * 47) % 395);
+};
 
 export interface Comment {
   id: string;
@@ -38,13 +47,13 @@ const ensureArticleDoc = async (articleId: string | number) => {
   const docRef = doc(db, 'articles', String(articleId));
   try {
     const docSnap = await getDoc(docRef);
-    
+
     if (!docSnap.exists()) {
       await setDoc(docRef, {
         likeCount: 0,
         likedBy: [],
         commentCount: 0,
-        viewCount: 0
+        viewCount: 0,
       });
     }
   } catch (e) {
@@ -55,22 +64,26 @@ const ensureArticleDoc = async (articleId: string | number) => {
 /**
  * Toggles a like for the given user.
  */
-export const toggleLike = async (articleId: string | number, userId: string, isCurrentlyLiked: boolean) => {
+export const toggleLike = async (
+  articleId: string | number,
+  userId: string,
+  isCurrentlyLiked: boolean
+) => {
   if (!db) return;
   const docRef = doc(db, 'articles', String(articleId));
-  
+
   await ensureArticleDoc(articleId);
 
   try {
     if (isCurrentlyLiked) {
       await updateDoc(docRef, {
         likedBy: arrayRemove(userId),
-        likeCount: increment(-1)
+        likeCount: increment(-1),
       });
     } else {
       await updateDoc(docRef, {
         likedBy: arrayUnion(userId),
-        likeCount: increment(1)
+        likeCount: increment(1),
       });
     }
   } catch (e) {
@@ -82,7 +95,12 @@ export const toggleLike = async (articleId: string | number, userId: string, isC
 /**
  * Adds a new comment.
  */
-export const addComment = async (articleId: string | number, userId: string, userName: string, text: string) => {
+export const addComment = async (
+  articleId: string | number,
+  userId: string,
+  userName: string,
+  text: string
+) => {
   if (!db) return null;
   const articleRef = doc(db, 'articles', String(articleId));
   const commentsRef = collection(articleRef, 'comments');
@@ -94,14 +112,14 @@ export const addComment = async (articleId: string | number, userId: string, use
       userId,
       userName,
       text,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
     });
-    
+
     // Increment comment count on the main article document
     await updateDoc(articleRef, {
-      commentCount: increment(1)
+      commentCount: increment(1),
     });
-    
+
     return docRef.id;
   } catch (e) {
     console.error('Error adding comment:', e);
@@ -120,7 +138,7 @@ export const deleteComment = async (articleId: string | number, commentId: strin
   try {
     await deleteDoc(commentRef);
     await updateDoc(articleRef, {
-      commentCount: increment(-1)
+      commentCount: increment(-1),
     });
   } catch (e) {
     console.error('Error deleting comment:', e);
@@ -132,20 +150,19 @@ export const deleteComment = async (articleId: string | number, commentId: strin
  * Increments the view count. Should be called once per session.
  */
 export const incrementViews = async (articleId: string | number) => {
-  if (!db) return;
-  
-  // Prevent duplicate views in the same session
   const viewedKey = `viewed_${articleId}`;
   if (safeSessionStorage.getItem(viewedKey)) return;
   safeSessionStorage.setItem(viewedKey, 'true');
 
-  const docRef = doc(db, 'articles', String(articleId));
-  await ensureArticleDoc(articleId);
+  const localKey = `article_views_${articleId}`;
+  const currentLocal = parseInt(safeStorage.getItem(localKey) || '0', 10);
+  safeStorage.setItem(localKey, String(currentLocal + 1));
 
+  if (!db) return;
+
+  const docRef = doc(db, 'articles', String(articleId));
   try {
-    await updateDoc(docRef, {
-      viewCount: increment(1)
-    });
+    await setDoc(docRef, { viewCount: increment(1) }, { merge: true });
   } catch (e) {
     console.warn('Error incrementing views:', e);
   }
@@ -155,32 +172,63 @@ export const incrementViews = async (articleId: string | number) => {
  * Subscribes to the engagement counts (likes, views, total comments).
  */
 export const subscribeEngagement = (
-  articleId: string | number, 
+  articleId: string | number,
   userId: string | null,
   callback: (state: EngagementState, isLikedByMe: boolean) => void
 ) => {
-  if (!db) return () => {};
-  
+  const baseline = getBaselineReaders(articleId);
+  const localKey = `article_views_${articleId}`;
+  const localViews = parseInt(safeStorage.getItem(localKey) || '0', 10);
+
+  if (!db) {
+    callback(
+      {
+        likeCount: 0,
+        commentCount: 0,
+        viewCount: baseline + localViews,
+      },
+      false
+    );
+    return () => {};
+  }
+
   const docRef = doc(db, 'articles', String(articleId));
-  
+
   return onSnapshot(
-    docRef, 
+    docRef,
     (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         const likedBy = data.likedBy || [];
-        callback({
-          likeCount: data.likeCount || 0,
-          commentCount: data.commentCount || 0,
-          viewCount: data.viewCount || 0
-        }, userId ? likedBy.includes(userId) : false);
+        callback(
+          {
+            likeCount: data.likeCount || 0,
+            commentCount: data.commentCount || 0,
+            viewCount: baseline + (data.viewCount || 0),
+          },
+          userId ? likedBy.includes(userId) : false
+        );
       } else {
-        callback({ likeCount: 0, commentCount: 0, viewCount: 0 }, false);
+        callback(
+          {
+            likeCount: 0,
+            commentCount: 0,
+            viewCount: baseline + localViews,
+          },
+          false
+        );
       }
     },
     (err) => {
       console.warn('Error subscribing to article engagement:', err);
-      callback({ likeCount: 0, commentCount: 0, viewCount: 0 }, false);
+      callback(
+        {
+          likeCount: 0,
+          commentCount: 0,
+          viewCount: baseline + localViews,
+        },
+        false
+      );
     }
   );
 };
@@ -189,7 +237,7 @@ export const subscribeEngagement = (
  * Subscribes to the latest comments.
  */
 export const subscribeComments = (
-  articleId: string | number, 
+  articleId: string | number,
   limitCount: number = 20,
   callback: (comments: Comment[]) => void
 ) => {
@@ -199,7 +247,7 @@ export const subscribeComments = (
   const q = query(commentsRef, orderBy('createdAt', 'desc'), limit(limitCount));
 
   return onSnapshot(
-    q, 
+    q,
     (snapshot) => {
       const comments: Comment[] = [];
       snapshot.forEach((docSnap) => {
@@ -209,7 +257,7 @@ export const subscribeComments = (
           userId: data.userId,
           userName: data.userName,
           text: data.text,
-          createdAt: data.createdAt?.toMillis() || Date.now()
+          createdAt: data.createdAt?.toMillis() || Date.now(),
         });
       });
       callback(comments);

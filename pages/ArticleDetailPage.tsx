@@ -240,6 +240,26 @@ const ArticleDetailPage: React.FC = () => {
               <span className="whitespace-nowrap">
                 {article.readTime} {t('blog_min_read')}
               </span>
+              <span className="text-slate-400" aria-hidden="true">
+                •
+              </span>
+              <span className="whitespace-nowrap flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                {viewCount} {t('blog_readers') || 'readers'}
+              </span>
             </div>
 
             {/* Engagement Bar */}
@@ -282,7 +302,10 @@ const ArticleDetailPage: React.FC = () => {
                 <span className="font-semibold">{commentCount || 0}</span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                title={`${viewCount} ${t('blog_readers') || 'readers'}`}
+              >
                 <svg
                   className="w-6 h-6 text-zinc-400"
                   fill="none"
@@ -302,7 +325,10 @@ const ArticleDetailPage: React.FC = () => {
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                <span className="font-semibold">{viewCount || 0}</span>
+                <span className="font-semibold">{viewCount}</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {t('blog_readers') || 'readers'}
+                </span>
               </div>
             </div>
           </header>
