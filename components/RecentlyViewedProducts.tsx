@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
+import { handleImageError } from '../lib/imageUtils';
 import type { Product } from '../types';
 
 interface RecentlyViewedProductsProps {
@@ -56,6 +57,7 @@ const RecentlyViewedItem: React.FC<{ product: Product }> = ({ product }) => {
         <img
           src={product.imageUrl}
           alt={product.name}
+          onError={handleImageError}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />
@@ -70,7 +72,9 @@ const RecentlyViewedItem: React.FC<{ product: Product }> = ({ product }) => {
         <h3 className="text-sm font-semibold text-slate-800 dark:text-white line-clamp-2 leading-tight mb-1 group-hover:text-orange-500 transition-colors">
           {product.name}
         </h3>
-        <p className="text-sm font-bold text-orange-600 dark:text-orange-400">৳{product.price}</p>
+        <p className="text-sm font-bold text-orange-600 dark:text-orange-400">
+          ৳{product.price.toLocaleString('en-BD')}
+        </p>
       </div>
     </Link>
   );

@@ -15,6 +15,7 @@ dist-ssr
 # Backend build artifacts
 backend/node_modules
 backend/dist
+backend/data/
 
 # Editor directories and files
 .vscode/*

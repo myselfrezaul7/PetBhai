@@ -5,6 +5,7 @@ import { PawIcon, HeartIcon } from './icons';
 import { useCart } from '../contexts/CartContext';
 import { useDynamicIsland } from '../contexts/DynamicIslandContext';
 import { useHaptics } from '../hooks/useHaptics';
+import { handleImageError } from '../lib/imageUtils';
 
 interface SwipeDiscoveryProps {
   products: Product[];
@@ -21,7 +22,7 @@ const SwipeCard: React.FC<{
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-300, 300], [-20, 20]);
   const opacity = useTransform(x, [-300, -150, 0, 150, 300], [0, 1, 1, 1, 0]);
-  
+
   const likeOpacity = useTransform(x, [20, 150], [0, 1]);
   const nopeOpacity = useTransform(x, [-20, -150], [0, 1]);
   const stampScale = useTransform(x, [-150, 0, 150], [1.1, 0.5, 1.1]);
@@ -44,46 +45,70 @@ const SwipeCard: React.FC<{
       dragElastic={0.7}
       onDragEnd={handleDragEnd}
       initial={{ scale: 0.9, y: 30, opacity: 0 }}
-      animate={{ 
-        scale: active ? 1 : 1 - (index * 0.06), 
+      animate={{
+        scale: active ? 1 : 1 - index * 0.06,
         y: active ? 0 : index * 14,
-        opacity: 1 - (index * 0.15),
+        opacity: 1 - index * 0.15,
         zIndex: 100 - index,
-        rotate: active ? 0 : (index % 2 === 0 ? index * 1.5 : -index * 1.5)
+        rotate: active ? 0 : index % 2 === 0 ? index * 1.5 : -index * 1.5,
       }}
-      exit={{ 
-        x: exitDirection === 'right' ? 400 : exitDirection === 'left' ? -400 : (x.get() > 0 ? 400 : -400), 
-        opacity: 0, 
-        rotate: exitDirection === 'right' ? 20 : exitDirection === 'left' ? -20 : (x.get() > 0 ? 20 : -20), 
-        transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } 
+      exit={{
+        x:
+          exitDirection === 'right'
+            ? 400
+            : exitDirection === 'left'
+              ? -400
+              : x.get() > 0
+                ? 400
+                : -400,
+        opacity: 0,
+        rotate:
+          exitDirection === 'right' ? 20 : exitDirection === 'left' ? -20 : x.get() > 0 ? 20 : -20,
+        transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] },
       }}
       className="absolute top-0 left-0 w-full h-[450px] origin-bottom rounded-3xl bg-white shadow-xl hover:shadow-2xl overflow-hidden border border-slate-200 cursor-grab active:cursor-grabbing transition-shadow duration-300"
     >
       {/* Product Image */}
       <div className="w-full h-2/3 bg-slate-50 relative pointer-events-none">
-        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain p-6" draggable={false} />
-        
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full h-full object-contain p-6"
+          draggable={false}
+          onError={handleImageError}
+        />
+
         {/* Swipe Overlays */}
-        <motion.div style={{ opacity: likeOpacity, scale: stampScale }} className="absolute top-4 left-4 border-4 border-emerald-500 rounded-lg px-4 py-1 transform -rotate-12 bg-white/80 backdrop-blur-sm shadow-lg">
-           <span className="text-emerald-500 font-black text-2xl tracking-wider">WANT</span>
+        <motion.div
+          style={{ opacity: likeOpacity, scale: stampScale }}
+          className="absolute top-4 left-4 border-4 border-emerald-500 rounded-lg px-4 py-1 transform -rotate-12 bg-white/80 backdrop-blur-sm shadow-lg"
+        >
+          <span className="text-emerald-500 font-black text-2xl tracking-wider">WANT</span>
         </motion.div>
-        <motion.div style={{ opacity: nopeOpacity, scale: stampScale }} className="absolute top-4 right-4 border-4 border-rose-500 rounded-lg px-4 py-1 transform rotate-12 bg-white/80 backdrop-blur-sm shadow-lg">
-           <span className="text-rose-500 font-black text-2xl tracking-wider">PASS</span>
+        <motion.div
+          style={{ opacity: nopeOpacity, scale: stampScale }}
+          className="absolute top-4 right-4 border-4 border-rose-500 rounded-lg px-4 py-1 transform rotate-12 bg-white/80 backdrop-blur-sm shadow-lg"
+        >
+          <span className="text-rose-500 font-black text-2xl tracking-wider">PASS</span>
         </motion.div>
       </div>
 
       {/* Product Details */}
       <div className="p-5 h-1/3 flex flex-col justify-between pointer-events-none bg-gradient-to-t from-white via-white to-transparent">
         <div>
-           <div className="flex justify-between items-start">
-             <h3 className="font-black text-xl text-slate-800 line-clamp-1">{product.name}</h3>
-             <span className="font-bold text-lg text-orange-500 bg-orange-50 px-2 py-0.5 rounded-lg">৳{product.price}</span>
-           </div>
-           <p className="text-sm text-slate-500 mt-1 line-clamp-2">{product.description}</p>
+          <div className="flex justify-between items-start">
+            <h3 className="font-black text-xl text-slate-800 line-clamp-1">{product.name}</h3>
+            <span className="font-bold text-lg text-orange-500 bg-orange-50 px-2 py-0.5 rounded-lg">
+              ৳{product.price.toLocaleString('en-BD')}
+            </span>
+          </div>
+          <p className="text-sm text-slate-500 mt-1 line-clamp-2">{product.description}</p>
         </div>
         <div className="flex justify-between items-center text-xs font-bold text-slate-400">
-           <span className="uppercase tracking-widest">{product.category}</span>
-           <span className="flex items-center text-amber-400"><HeartIcon className="w-4 h-4 mr-1" /> {product.rating}</span>
+          <span className="uppercase tracking-widest">{product.category}</span>
+          <span className="flex items-center text-amber-400">
+            <HeartIcon className="w-4 h-4 mr-1" /> {product.rating}
+          </span>
         </div>
       </div>
     </motion.div>
@@ -110,7 +135,7 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
     if (currentIndex + 1 >= products.length) {
       setTimeout(onComplete, 300);
     } else {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex((prev) => prev + 1);
     }
   };
 
@@ -119,11 +144,13 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
   return (
     <div className="flex flex-col items-center justify-center py-10 px-4 min-h-[600px]">
       <div className="text-center mb-8">
-         <h2 className="text-2xl font-black text-slate-800 dark:text-white flex items-center justify-center gap-2">
-            <PawIcon className="w-6 h-6 text-orange-500" />
-            Discovery Mode
-         </h2>
-         <p className="text-sm text-slate-500 mt-2">Swipe Right to add to cart. Swipe Left to pass.</p>
+        <h2 className="text-2xl font-black text-slate-800 dark:text-white flex items-center justify-center gap-2">
+          <PawIcon className="w-6 h-6 text-orange-500" />
+          Discovery Mode
+        </h2>
+        <p className="text-sm text-slate-500 mt-2">
+          Swipe Right to add to cart. Swipe Left to pass.
+        </p>
       </div>
 
       <div className="relative w-full max-w-[340px] h-[450px]">
@@ -139,37 +166,63 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
             />
           ))}
         </AnimatePresence>
-        
+
         {currentProducts.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
-             <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 text-emerald-500">
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-             </div>
-             <p className="font-bold text-slate-800 dark:text-white">You're all caught up!</p>
-             <button onClick={onComplete} className="mt-4 text-orange-500 font-bold text-sm hover:underline">Back to Shop</button>
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 text-emerald-500">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <p className="font-bold text-slate-800 dark:text-white">You're all caught up!</p>
+            <button
+              onClick={onComplete}
+              className="mt-4 text-orange-500 font-bold text-sm hover:underline"
+            >
+              Back to Shop
+            </button>
           </div>
         )}
       </div>
-      
+
       <div className="flex gap-6 mt-8">
-         <motion.button 
-           whileTap={{ scale: 0.85 }} 
-           whileHover={{ scale: 1.1 }}
-           onClick={() => handleSwipe('left', currentProducts[0])} 
-           disabled={currentProducts.length === 0} 
-           className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-rose-500 border border-slate-100 transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
-         >
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-         </motion.button>
-         <motion.button 
-           whileTap={{ scale: 0.85 }} 
-           whileHover={{ scale: 1.1 }}
-           onClick={() => handleSwipe('right', currentProducts[0])} 
-           disabled={currentProducts.length === 0} 
-           className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-emerald-500 border border-slate-100 transition-colors hover:bg-emerald-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
-         >
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.5 12.75l6 6 9-13.5" /></svg>
-         </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          whileHover={{ scale: 1.1 }}
+          onClick={() => handleSwipe('left', currentProducts[0])}
+          disabled={currentProducts.length === 0}
+          className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-rose-500 border border-slate-100 transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          whileHover={{ scale: 1.1 }}
+          onClick={() => handleSwipe('right', currentProducts[0])}
+          disabled={currentProducts.length === 0}
+          className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-emerald-500 border border-slate-100 transition-colors hover:bg-emerald-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4.5 12.75l6 6 9-13.5"
+            />
+          </svg>
+        </motion.button>
       </div>
     </div>
   );

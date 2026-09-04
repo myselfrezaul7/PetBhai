@@ -39,7 +39,7 @@ const CATEGORY_OPTIONS: CategoryFilter[] = [
 
 const PRICE_MIN = 10;
 const PRICE_MAX = 20000;
-const QUICK_SEARCH_TERMS = ['Royal Canin', 'Kitten Food', 'Dog Treats', 'Cat Litter'];
+const QUICK_SEARCH_TERMS = ['Royal Canin', 'Cat Food', 'Dog Food', 'Cat Litter'];
 
 const ShopPage: React.FC = () => {
   const { t } = useLanguage();
@@ -393,9 +393,7 @@ const ShopPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300">
-              Popular:
-            </span>
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300">Popular:</span>
             {QUICK_SEARCH_TERMS.map((term) => (
               <button
                 key={term}
@@ -409,13 +407,13 @@ const ShopPage: React.FC = () => {
 
           {/* Discovery Mode Toggle */}
           <div className="flex justify-end mb-4">
-             <button 
-               onClick={() => setIsDiscoveryMode(true)}
-               className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 transition-all active:scale-95"
-             >
-               <SparklesIcon className="w-5 h-5" />
-               Try Discovery Mode
-             </button>
+            <button
+              onClick={() => setIsDiscoveryMode(true)}
+              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 transition-all active:scale-95"
+            >
+              <SparklesIcon className="w-5 h-5" />
+              Try Discovery Mode
+            </button>
           </div>
 
           {/* Category Filter Buttons */}
@@ -429,35 +427,34 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
 
-            {/* Filter & Sort Bottom Action (Mobile) */}
-            <div className="md:hidden mt-2 flex w-full">
-              <button
-                onClick={() => setIsFilterSheetOpen(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-amber-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-md transition-transform active:scale-95"
+          {/* Filter & Sort Bottom Action (Mobile) */}
+          <div className="md:hidden mt-2 flex w-full">
+            <button
+              onClick={() => setIsFilterSheetOpen(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-amber-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-md transition-transform active:scale-95"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                  />
-                </svg>
-                Filter & Sort
-                {activeFiltersCount > 0 && (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold leading-none text-white">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-            </div>
-
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                />
+              </svg>
+              Filter & Sort
+              {activeFiltersCount > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold leading-none text-white">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+          </div>
 
           {/* Brand, Sort & Advanced Filters Toggle */}
           <div className="hidden md:flex flex-col items-stretch justify-center gap-3 border-t border-amber-900/10 dark:border-amber-100/10 pt-4 dark:border-amber-100/10 sm:flex-row sm:items-center sm:gap-4 sm:pt-6">
@@ -785,72 +782,79 @@ const ShopPage: React.FC = () => {
           {!loading && `${resultCount} ${t('shop_products_found')}`}
         </div>
 
-            {isDiscoveryMode ? (
-               <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner min-h-[600px] mt-6">
-                 <SwipeDiscovery products={sortedAndFilteredProducts} onComplete={() => setIsDiscoveryMode(false)} />
-               </div>
-            ) : (
-               <>
-        {!loading && error && (
-          <div className="mb-6">
-            <ApiStateCard
-              title="Shop inventory is temporarily unavailable"
-              message={error}
-              actionLabel="Retry"
-              onAction={refetch}
+        {isDiscoveryMode ? (
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner min-h-[600px] mt-6">
+            <SwipeDiscovery
+              products={sortedAndFilteredProducts}
+              onComplete={() => setIsDiscoveryMode(false)}
             />
           </div>
-        )}
+        ) : (
+          <>
+            {!loading && error && (
+              <div className="mb-6">
+                <ApiStateCard
+                  title="Shop inventory is temporarily unavailable"
+                  message={error}
+                  actionLabel="Retry"
+                  onAction={refetch}
+                />
+              </div>
+            )}
 
-        {/* Loading State */}
-        {loading ? (
-          <div
-            className="flex justify-center items-center h-64"
-            role="status"
-            aria-label={t('shop_loading')}
-          >
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-            <span className="sr-only">{t('shop_loading')}</span>
-          </div>
-        ) : !error && resultCount === 0 ? (
-          <div className="text-center py-16 glass-card-ios">
-            <p className="text-lg text-zinc-500 dark:text-zinc-300">{t('shop_no_results')}</p>
-            <button
-              onClick={resetAllFilters}
-              className="mt-4 px-6 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-full font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
-            >
-              {t('shop_clear_filters')}
-            </button>
-          </div>
-        ) : !error ? (
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8"
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "100px" }}
-            variants={{
-              hidden: { opacity: 0 },
-              show: {
-                opacity: 1,
-                transition: { staggerChildren: 0.05 }
-              }
-            }}
-          >
-            {sortedAndFilteredProducts.map((product) => (
-              <motion.div 
-                key={product.id}
+            {/* Loading State */}
+            {loading ? (
+              <div
+                className="flex justify-center items-center h-64"
+                role="status"
+                aria-label={t('shop_loading')}
+              >
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+                <span className="sr-only">{t('shop_loading')}</span>
+              </div>
+            ) : !error && resultCount === 0 ? (
+              <div className="text-center py-16 glass-card-ios">
+                <p className="text-lg text-zinc-500 dark:text-zinc-300">{t('shop_no_results')}</p>
+                <button
+                  onClick={resetAllFilters}
+                  className="mt-4 px-6 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-full font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors touch-manipulation active:scale-95"
+                >
+                  {t('shop_clear_filters')}
+                </button>
+              </div>
+            ) : !error ? (
+              <motion.div
+                className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8"
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: '100px' }}
                 variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.05 },
+                  },
                 }}
               >
-                <ProductCard product={product} onQuickView={handleQuickView} />
+                {sortedAndFilteredProducts.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      show: {
+                        opacity: 1,
+                        y: 0,
+                        transition: { type: 'spring', stiffness: 300, damping: 24 },
+                      },
+                    }}
+                  >
+                    <ProductCard product={product} onQuickView={handleQuickView} />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
-        ) : null}
-            </>
-           )}
+            ) : null}
+          </>
+        )}
       </main>
 
       {/* Quick View Modal */}
@@ -859,7 +863,12 @@ const ShopPage: React.FC = () => {
       )}
 
       {isFilterSheetOpen && (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Filters and sorting">
+        <div
+          className="fixed inset-0 z-50 md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filters and sorting"
+        >
           <button
             type="button"
             onClick={() => setIsFilterSheetOpen(false)}
@@ -894,7 +903,10 @@ const ShopPage: React.FC = () => {
 
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <label htmlFor="brand-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
+                <label
+                  htmlFor="brand-filter-mobile"
+                  className="text-sm font-semibold text-zinc-500 dark:text-zinc-300"
+                >
                   {t('filter_brand')}
                 </label>
                 <select
@@ -913,7 +925,10 @@ const ShopPage: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <label htmlFor="sort-by-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
+                <label
+                  htmlFor="sort-by-mobile"
+                  className="text-sm font-semibold text-zinc-500 dark:text-zinc-300"
+                >
                   {t('filter_sort')}
                 </label>
                 <select
@@ -945,7 +960,8 @@ const ShopPage: React.FC = () => {
                       {t('filter_price_range')}
                     </label>
                     <p className="text-xs font-semibold text-amber-600 dark:text-amber-500">
-                      ৳{priceRange[0].toLocaleString('en-BD')} - ৳{priceRange[1].toLocaleString('en-BD')}
+                      ৳{priceRange[0].toLocaleString('en-BD')} - ৳
+                      {priceRange[1].toLocaleString('en-BD')}
                     </p>
                     <input
                       type="range"
@@ -976,7 +992,10 @@ const ShopPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label htmlFor="weight-filter-mobile" className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
+                    <label
+                      htmlFor="weight-filter-mobile"
+                      className="text-sm font-semibold text-zinc-500 dark:text-zinc-300"
+                    >
                       {t('filter_weight')}
                     </label>
                     <select
@@ -995,7 +1014,9 @@ const ShopPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-300">{t('filter_min_rating')}</p>
+                    <p className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-300">
+                      {t('filter_min_rating')}
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {[0, 1, 2, 3, 4, 5].map((star) => (
                         <button

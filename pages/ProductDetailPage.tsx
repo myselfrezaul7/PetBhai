@@ -327,9 +327,24 @@ const ProductDetailPage: React.FC = () => {
                 ({product.reviews.length} reviews)
               </span>
             </div>
-            <p className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white my-4">
-              ৳{product.price}
-            </p>
+            <div className="flex items-baseline space-x-3 my-4">
+              <p className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white">
+                ৳{product.price.toLocaleString('en-BD')}
+              </p>
+              {product.originalPrice && product.originalPrice > product.price && (
+                <>
+                  <span className="text-lg sm:text-xl text-slate-400 dark:text-slate-500 line-through">
+                    ৳{product.originalPrice.toLocaleString('en-BD')}
+                  </span>
+                  <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs sm:text-sm font-semibold text-red-700 dark:text-red-300">
+                    {Math.round(
+                      ((product.originalPrice - product.price) / product.originalPrice) * 100
+                    )}
+                    % OFF
+                  </span>
+                </>
+              )}
+            </div>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
               {product.description}
             </p>
@@ -561,7 +576,9 @@ const ProductDetailPage: React.FC = () => {
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
               Price
             </p>
-            <p className="text-base font-bold text-slate-800 dark:text-white">৳{product.price}</p>
+            <p className="text-base font-bold text-slate-800 dark:text-white">
+              ৳{product.price.toLocaleString('en-BD')}
+            </p>
           </div>
 
           <button

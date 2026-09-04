@@ -102,6 +102,11 @@ describe('backend route protection', () => {
 
   beforeEach(async () => {
     db.data = JSON.parse(JSON.stringify(initialData)) as typeof db.data;
+    db.data.users = [
+      { id: 1, name: 'User 1', email: 'user1@petbhai.test', role: 'customer' },
+      { id: 2, name: 'User 2', email: 'other@petbhai.test', role: 'customer' },
+      { id: 7, name: 'Post Owner', email: 'owner@petbhai.test', role: 'customer' },
+    ] as any;
 
     server = app.listen(0);
     await new Promise<void>((resolve) => {
@@ -146,7 +151,7 @@ describe('backend route protection', () => {
     expect(db.data.posts).toHaveLength(1);
   });
 
-  it('rejects deleting another user\'s post even with a valid token', async () => {
+  it("rejects deleting another user's post even with a valid token", async () => {
     db.data.posts = [seedPost(1)];
 
     const { response, payload } = await requestJson('/api/posts/101', {

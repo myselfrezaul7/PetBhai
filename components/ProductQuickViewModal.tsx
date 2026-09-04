@@ -166,64 +166,80 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
         {/* Details Section - Scrollable content */}
         <div className="w-full md:w-1/2 flex flex-col overflow-y-auto overscroll-contain">
           <div className="p-6 md:p-10">
-          <div className="flex-grow">
-            <h2
-              id="quick-view-title"
-              className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight mb-2 pr-8"
-            >
-              {product.name}
-            </h2>
-            <div className="flex items-center space-x-3 mb-6">
-              <StarRatingDisplay rating={product.rating} />
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-300">
-                ({product.reviews.length} {t('label_reviews')})
-              </span>
-            </div>
+            <div className="flex-grow">
+              <h2
+                id="quick-view-title"
+                className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight mb-2 pr-8"
+              >
+                {product.name}
+              </h2>
+              <div className="flex items-center space-x-3 mb-6">
+                <StarRatingDisplay rating={product.rating} />
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-300">
+                  ({product.reviews.length} {t('label_reviews')})
+                </span>
+              </div>
 
-            <div className="mb-6">
-              <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                ৳{product.price}
-              </p>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-300 mt-1">
-                {t('label_weight')} {product.weight}
-              </p>
-            </div>
+              <div className="mb-6">
+                <div className="flex items-baseline gap-3">
+                  <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                    ৳{product.price.toLocaleString('en-BD')}
+                  </p>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <p className="text-lg text-slate-400 line-through">
+                      ৳{product.originalPrice.toLocaleString('en-BD')}
+                    </p>
+                  )}
+                  {product.discount && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                      -{product.discount}%
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-300 mt-1">
+                  {t('label_weight')} {product.weight}
+                </p>
+              </div>
 
-            <div className="prose prose-sm dark:prose-invert text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-              <p>{product.description}</p>
+              <div className="prose prose-sm dark:prose-invert text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
+                <p>{product.description}</p>
+              </div>
             </div>
-          </div>
           </div>
 
           <div className="sticky bottom-0 z-10 mt-auto border-t border-slate-200 bg-white/92 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/92 md:static md:border-t md:bg-transparent md:p-6 md:pt-6 md:backdrop-blur-0">
             <div className="flex flex-col gap-4">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={isAdding}
-              className={`w-full py-3.5 rounded-xl font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isAdding || product.stockStatus === 'out-of-stock'}
+                className={`w-full py-3.5 rounded-xl font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg
                     ${
-                      isAdding
-                        ? 'bg-green-500 text-white scale-95 cursor-default'
-                        : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95 animate-pulse'
+                      product.stockStatus === 'out-of-stock'
+                        ? 'bg-slate-400 text-white cursor-not-allowed'
+                        : isAdding
+                          ? 'bg-green-500 text-white scale-95 cursor-default'
+                          : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95 animate-pulse'
                     }`}
-            >
-              <ShoppingCartIcon className="w-5 h-5" />
-              <span>
-                {isAdding
-                  ? t('btn_added_full')
-                  : quantityInCart > 0
-                    ? `${t('btn_add_more')} (${quantityInCart} ${t('text_in_cart')})`
-                    : t('btn_add_to_cart')}
-              </span>
-            </button>
-            <Link
-              to={`/product/${product.id}`}
-              onClick={onClose}
-              className="w-full py-3.5 rounded-xl font-bold text-center border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-slate-800 transition-colors"
-            >
-              {t('btn_view_full_details')}
-            </Link>
+              >
+                <ShoppingCartIcon className="w-5 h-5" />
+                <span>
+                  {product.stockStatus === 'out-of-stock'
+                    ? t('badge_out_of_stock') || 'Out of Stock'
+                    : isAdding
+                      ? t('btn_added_full')
+                      : quantityInCart > 0
+                        ? `${t('btn_add_more')} (${quantityInCart} ${t('text_in_cart')})`
+                        : t('btn_add_to_cart')}
+                </span>
+              </button>
+              <Link
+                to={`/product/${product.id}`}
+                onClick={onClose}
+                className="w-full py-3.5 rounded-xl font-bold text-center border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                {t('btn_view_full_details')}
+              </Link>
             </div>
           </div>
         </div>

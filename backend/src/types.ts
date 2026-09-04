@@ -281,6 +281,8 @@ export interface Product {
   stockStatus?: 'in-stock' | 'low-stock' | 'out-of-stock';
   stockQuantity?: number;
   reorderPoint?: number;
+  originalPrice?: number;
+  discount?: number;
 }
 
 export interface CartItem extends Product {
@@ -322,4 +324,3 @@ export interface PetSitter extends BaseProfessional {
   servicesOffered: ('Boarding' | 'House Sitting' | 'Drop-in Visits')[];
   petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
 }
-
