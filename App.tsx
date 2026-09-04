@@ -378,6 +378,8 @@ const AppContent: React.FC = () => {
                     />
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/find-vet" element={<Navigate to="/services" replace />} />
+                    <Route path="/consult-vet" element={<Navigate to="/services" replace />} />
                     <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
                     <Route path="/vet/:id" element={<VetDetailPage />} />
                     <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />

@@ -1,20 +1,46 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { BANGLADESH_DISTRICTS } from '../constants';
+import { useVets } from '../contexts/VetContext';
+import VetCard from '../components/VetCard';
 
 type ServiceTab = 'Vets' | 'Groomers' | 'Trainers' | 'Sitters';
 
 // Tab options for consistency
 const SERVICE_TABS: ServiceTab[] = ['Vets', 'Groomers', 'Trainers', 'Sitters'];
 
-const SERVICE_PREVIEWS: Record<ServiceTab, Array<{ title: string; subtitle: string; icon: string }>> = {
+const getServiceParam = (tab: ServiceTab): string => {
+  switch (tab) {
+    case 'Vets':
+      return 'vet';
+    case 'Groomers':
+      return 'grooming';
+    case 'Trainers':
+      return 'training';
+    case 'Sitters':
+      return 'sitting';
+  }
+};
+
+const SERVICE_PREVIEWS: Record<
+  ServiceTab,
+  Array<{ title: string; subtitle: string; icon: string }>
+> = {
   Vets: [
     { title: 'Home Consultation', subtitle: 'Doctor visits your home in Dhaka zones', icon: '🩺' },
-    { title: 'Video Vet Session', subtitle: 'Quick telehealth follow-up for mild issues', icon: '📹' },
+    {
+      title: 'Video Vet Session',
+      subtitle: 'Quick telehealth follow-up for mild issues',
+      icon: '📹',
+    },
     { title: 'Emergency Support', subtitle: 'Priority queue for urgent requests', icon: '🚑' },
   ],
   Groomers: [
-    { title: 'At-Home Grooming', subtitle: 'Bath, trim, and hygiene care at your doorstep', icon: '✂️' },
+    {
+      title: 'At-Home Grooming',
+      subtitle: 'Bath, trim, and hygiene care at your doorstep',
+      icon: '✂️',
+    },
     { title: 'Spa & Coat Care', subtitle: 'Skin-safe treatment for sensitive pets', icon: '🫧' },
     { title: 'Nail & Ear Care', subtitle: 'Quick maintenance appointments', icon: '🐾' },
   ],
@@ -53,6 +79,7 @@ TabButton.displayName = 'TabButton';
 const ServicesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ServiceTab>('Vets');
   const [locationFilter, setLocationFilter] = useState<string>('All');
+  const { vets, loading: vetsLoading } = useVets();
 
   // Memoized handlers
   const handleTabChange = useCallback((tab: ServiceTab) => {
@@ -62,6 +89,13 @@ const ServicesPage: React.FC = () => {
   const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setLocationFilter(e.target.value);
   }, []);
+
+  const filteredVets = useMemo(() => {
+    if (locationFilter === 'All') return vets;
+    const q = locationFilter.toLowerCase();
+    const matched = vets.filter((v) => v.address.toLowerCase().includes(q));
+    return matched.length > 0 ? matched : vets;
+  }, [vets, locationFilter]);
 
   const servicePreview = SERVICE_PREVIEWS[activeTab];
 
@@ -75,7 +109,7 @@ const ServicesPage: React.FC = () => {
           Professional Pet Services
         </h1>
         <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-200 max-w-3xl mx-auto mt-3 md:mt-4 px-2">
-          Find and book trusted local professionals for every pet need.
+          Find and book trusted local professionals for every pet need across Bangladesh.
         </p>
       </header>
 
@@ -108,7 +142,7 @@ const ServicesPage: React.FC = () => {
               id="location-filter"
               value={locationFilter}
               onChange={handleLocationChange}
-              className="w-full sm:w-auto p-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation"
+              className="w-full sm:w-auto p-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 focus:ring-orange-500 focus:outline-none focus:ring-2 cursor-pointer touch-manipulation text-slate-800 dark:text-slate-100"
             >
               <option value="All">All Bangladesh</option>
               {BANGLADESH_DISTRICTS.map((d) => (
@@ -121,23 +155,26 @@ const ServicesPage: React.FC = () => {
         </div>
       </div>
 
-      <section className="space-y-3">
+      {/* Service offerings */}
+      <section className="space-y-3 mb-12">
         {servicePreview.map((service) => (
           <article
             key={service.title}
-            className="glass-card-ios rounded-2xl border border-white/35 bg-white/55 p-4 shadow-md backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/40"
+            className="glass-card-ios rounded-2xl border border-white/35 bg-white/55 p-4 shadow-md backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/40 transition-all hover:border-orange-500/40"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-2xl dark:bg-slate-800/75">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-2xl dark:bg-slate-800/75 shadow-sm">
                 <span aria-hidden="true">{service.icon}</span>
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{service.title}</h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                  {service.title}
+                </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-300">{service.subtitle}</p>
               </div>
               <Link
-                to="/services/booking"
-                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-orange-500 text-white shadow-sm transition-colors hover:bg-orange-600"
+                to={`/services/booking?service=${getServiceParam(activeTab)}&subservice=${encodeURIComponent(service.title)}`}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-orange-500 text-white shadow-sm transition-all hover:bg-orange-600 hover:scale-105 active:scale-95 touch-manipulation"
                 aria-label={`Request ${service.title}`}
               >
                 <svg
@@ -158,20 +195,72 @@ const ServicesPage: React.FC = () => {
         ))}
       </section>
 
+      {/* When Vets tab is active, show Verified Veterinarians */}
+      {activeTab === 'Vets' && (
+        <section className="mb-14">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                Verified Veterinarians
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Book online video consultations or visit clinics directly
+                {locationFilter !== 'All' ? ` in ${locationFilter}` : ' in Bangladesh'}.
+              </p>
+            </div>
+            <Link
+              to="/services/booking?service=vet"
+              className="text-sm font-bold text-orange-600 dark:text-orange-400 hover:underline self-start sm:self-auto"
+            >
+              Request Home Vet Visit &rarr;
+            </Link>
+          </div>
+
+          {vetsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="h-64 rounded-3xl bg-slate-200/60 dark:bg-slate-800/60 animate-pulse"
+                />
+              ))}
+            </div>
+          ) : filteredVets.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {filteredVets.map((vet) => (
+                <VetCard key={vet.id} vet={vet} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 glass-card-ios p-6">
+              <p className="text-slate-600 dark:text-slate-300">
+                No clinics found matching "{locationFilter}".
+              </p>
+              <button
+                onClick={() => setLocationFilter('All')}
+                className="mt-3 text-sm font-bold text-orange-500 hover:underline"
+              >
+                Show all veterinarians
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Specialized Services CTA */}
-      <div className="mt-16 text-center">
+      <div className="mt-12 text-center">
         <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">
           Looking for something else?
         </h2>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
-            to="/services/booking"
+            to="/services/booking?service=transport"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl text-white font-bold shadow-lg hover:shadow-orange-500/30 hover:scale-105 transition-all"
           >
             <span>🚚 Pet Taxi & Transport</span>
           </Link>
           <Link
-            to="/services/booking"
+            to="/services/booking?service=photography"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl text-white font-bold shadow-lg hover:shadow-pink-500/30 hover:scale-105 transition-all"
           >
             <span>📸 Pet Photography</span>
@@ -181,7 +270,7 @@ const ServicesPage: React.FC = () => {
 
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/65 bg-white/90 px-3 pb-[calc(0.65rem+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/90 md:hidden">
         <Link
-          to="/services/booking"
+          to={`/services/booking?service=${getServiceParam(activeTab)}`}
           className="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg"
         >
           Request {activeTab} Service

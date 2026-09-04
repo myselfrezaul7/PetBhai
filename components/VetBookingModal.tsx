@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Vet } from '../types';
 import { CloseIcon } from './icons';
 import { useHaptics } from '../hooks/useHaptics';
+import { useToast } from '../contexts/ToastContext';
 
 interface VetBookingModalProps {
   vet: Vet;
@@ -12,8 +13,11 @@ interface VetBookingModalProps {
 
 const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose }) => {
   const { hapticLight, hapticSuccess, hapticError, triggerCustom } = useHaptics();
+  const toast = useToast();
   const [step, setStep] = useState(1);
   const [selectedTime, setSelectedTime] = useState('');
+  const [petName, setPetName] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
   const [issue, setIssue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() =>
@@ -26,6 +30,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
 
   const handleTimeSelect = (time: string) => {
     triggerCustom(10);
+    hapticLight();
     setSelectedTime(time);
     setStep(2);
   };
@@ -33,27 +38,35 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (issue.trim() && !isSubmitting) {
+      if (issue.trim().length < 5) {
+        hapticError();
+        toast.error('Please provide a few more details about your pet condition.');
+        return;
+      }
+
       setIsSubmitting(true);
-      // Simulate backend request boundary
       setTimeout(() => {
         setIsSubmitting(false);
+        hapticSuccess();
+        toast.success('Consultation request recorded!');
         setStep(3); // Confirmation step
       }, 800);
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     triggerCustom(10);
+    hapticLight();
     onClose();
-    // Reset state after a short delay to allow closing animation
     setTimeout(() => {
       setStep(1);
       setSelectedTime('');
+      setPetName('');
+      setContactNumber('');
       setIssue('');
     }, 300);
-  };
+  }, [hapticLight, onClose, triggerCustom]);
 
-  // Temporary static slots until booking availability is served by the backend.
   const timeSlots = ['10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'];
 
   useEffect(() => {
@@ -110,7 +123,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   return (
     <motion.div
@@ -132,29 +145,22 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
         animate={isDesktop ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: 0 }}
         exit={isDesktop ? { opacity: 0, y: 20, scale: 0.98 } : { opacity: 0, y: 90 }}
         transition={{ type: 'spring', stiffness: 220, damping: 24 }}
-        drag={isDesktop ? false : 'y'}
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={isDesktop ? 0 : 0.22}
-        dragMomentum={false}
-        onDragEnd={(_, info) => {
-          if (!isDesktop && info.offset.y > 110) {
-            handleClose();
-          }
-        }}
       >
         {!isDesktop && (
-          <div className="absolute left-1/2 top-2.5 z-20 h-1.5 w-12 -translate-x-1/2 rounded-full bg-slate-300/90 dark:bg-slate-600/90" />
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="h-1.5 w-12 rounded-full bg-slate-300/90 dark:bg-slate-600/90" />
+          </div>
         )}
         <div className="p-6 sm:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2
                 id="vet-booking-title"
-                className="text-3xl font-bold text-slate-800 dark:text-white"
+                className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white"
               >
                 Book Online Consultation
               </h2>
-              <p className="text-slate-700 dark:text-slate-200 text-lg mt-1">
+              <p className="text-slate-700 dark:text-slate-200 text-sm sm:text-base mt-1">
                 with <span className="font-bold text-slate-800 dark:text-white">{vet.name}</span>
               </p>
             </div>
@@ -165,7 +171,7 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
               className="glass-pill p-2 text-slate-500 hover:text-slate-800 dark:text-zinc-300 dark:hover:text-zinc-200"
               aria-label="Close booking modal"
             >
-              <CloseIcon className="w-7 h-7" />
+              <CloseIcon className="w-6 h-6 sm:w-7 sm:h-7" />
             </button>
           </div>
 
@@ -178,20 +184,27 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                 exit={{ opacity: 0, x: 24 }}
                 transition={{ duration: 0.22, ease: 'easeOut' }}
               >
-                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4">
                   Select a preferred consultation time:
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                  {timeSlots.map((time) => (
-                    <button
-                      key={time}
-                      type="button"
-                      onClick={() => handleTimeSelect(time)}
-                      className="glass-pill min-h-[44px] p-3 text-center font-semibold text-orange-700 transition-colors hover:bg-orange-500 hover:text-white active:scale-[0.98] touch-manipulation dark:text-orange-300"
-                    >
-                      {time}
-                    </button>
-                  ))}
+                  {timeSlots.map((time) => {
+                    const isSelected = selectedTime === time;
+                    return (
+                      <button
+                        key={time}
+                        type="button"
+                        onClick={() => handleTimeSelect(time)}
+                        className={`glass-pill min-h-[44px] p-3 text-center font-semibold transition-all touch-manipulation active:scale-[0.98] ${
+                          isSelected
+                            ? 'bg-orange-500 text-white shadow-md'
+                            : 'text-orange-700 hover:bg-orange-500 hover:text-white dark:text-orange-300'
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -204,14 +217,54 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -24 }}
                 transition={{ duration: 0.22, ease: 'easeOut' }}
+                className="space-y-4"
               >
-                <p className="text-slate-600 dark:text-slate-300 mb-4">
-                  You have selected: <span className="font-bold">{selectedTime}</span>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">
+                  Selected time slot:{' '}
+                  <span className="font-bold text-orange-600 dark:text-orange-400">
+                    {selectedTime}
+                  </span>
                 </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      htmlFor="pet-name"
+                      className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1"
+                    >
+                      Pet Name (Optional):
+                    </label>
+                    <input
+                      id="pet-name"
+                      type="text"
+                      value={petName}
+                      onChange={(e) => setPetName(e.target.value)}
+                      placeholder="e.g. Leo"
+                      className="glass-panel w-full rounded-xl border border-white/20 p-2.5 text-sm focus:ring-2 focus:ring-orange-500 dark:border-white/10 text-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="contact-number"
+                      className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1"
+                    >
+                      Contact Phone (Optional):
+                    </label>
+                    <input
+                      id="contact-number"
+                      type="tel"
+                      value={contactNumber}
+                      onChange={(e) => setContactNumber(e.target.value)}
+                      placeholder="01XXXXXXXXX"
+                      className="glass-panel w-full rounded-xl border border-white/20 p-2.5 text-sm focus:ring-2 focus:ring-orange-500 dark:border-white/10 text-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label
                     htmlFor="issue"
-                    className="block text-base font-semibold text-slate-700 dark:text-slate-200 mb-2"
+                    className="block text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-200 mb-1"
                   >
                     Briefly describe your pet's issue:
                   </label>
@@ -223,21 +276,22 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                     required
                     autoComplete="off"
                     placeholder="e.g., My dog is lethargic and not eating."
-                    className="glass-panel w-full rounded-2xl border border-white/20 p-3 text-base focus:ring-2 focus:ring-orange-500 dark:border-white/10"
+                    className="glass-panel w-full rounded-2xl border border-white/20 p-3 text-sm sm:text-base focus:ring-2 focus:ring-orange-500 dark:border-white/10 text-slate-800 dark:text-slate-100"
                   ></textarea>
                 </div>
-                <div className="flex justify-between items-center mt-6">
+
+                <div className="flex justify-between items-center pt-2">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="text-sm font-semibold text-slate-600 hover:underline dark:text-zinc-300"
+                    className="text-xs sm:text-sm font-semibold text-slate-600 hover:underline dark:text-zinc-300"
                   >
                     Back to time selection
                   </button>
                   <button
                     type="submit"
                     disabled={!issue.trim() || isSubmitting}
-                    className="rounded-full bg-orange-500 px-6 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="rounded-full bg-orange-500 px-6 py-2.5 font-bold text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base shadow-md"
                   >
                     {isSubmitting ? 'Processing...' : 'Proceed to Confirmation'}
                   </button>
@@ -254,32 +308,24 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
                 exit={{ opacity: 0, x: -24 }}
                 transition={{ duration: 0.22, ease: 'easeOut' }}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 text-green-500 mx-auto mb-4"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
+                  ✓
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">
                   Consultation Request Received
                 </h3>
-                <p className="text-slate-700 dark:text-slate-200 mt-2">
+                <p className="text-slate-700 dark:text-slate-200 mt-2 text-sm sm:text-base">
                   Your request for an online consultation with {vet.name} at{' '}
-                  <strong>{selectedTime}</strong> has been recorded.
+                  <strong className="text-orange-600 dark:text-orange-400">{selectedTime}</strong>{' '}
+                  has been recorded.
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mt-4">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3">
                   We will confirm availability before sending your final consultation details.
                 </p>
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="mt-6 rounded-full bg-orange-500 px-8 py-2 font-bold text-white hover:bg-orange-600"
+                  className="mt-6 rounded-full bg-orange-500 px-8 py-2.5 font-bold text-white hover:bg-orange-600 shadow-lg text-sm sm:text-base"
                 >
                   Close
                 </button>

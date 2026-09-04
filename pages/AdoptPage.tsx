@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HeartIcon, PawIcon } from '../components/icons';
-import { RescueMap } from '../components/RescueMap';
 
 // Cat Icon SVG Component
 const CatIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -255,15 +254,6 @@ const AdoptPage: React.FC = () => {
             );
           })}
         </div>
-
-        {/* Spatial Rescue Map Section */}
-        <section className="max-w-5xl mx-auto mb-16">
-           <div className="text-center mb-6">
-              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">Live Rescue Radar</h3>
-              <p className="text-slate-600 dark:text-slate-300">Discover pets needing immediate help in your area.</p>
-           </div>
-           <RescueMap />
-        </section>
 
         {/* Info Section */}
         <section className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/40 rounded-2xl p-6 md:p-10 max-w-3xl mx-auto text-center shadow-lg shadow-slate-900/5 dark:shadow-black/20">

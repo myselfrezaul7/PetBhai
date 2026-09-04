@@ -237,7 +237,11 @@ const VetDetailPage: React.FC = () => {
                 className="w-full bg-orange-500 text-white font-bold py-2.5 sm:py-3 px-4 rounded-lg text-base sm:text-lg hover:bg-orange-600 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2 touch-manipulation active:scale-95"
               >
                 <VideoCameraIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-                <span>Book Online Now</span>
+                <span>
+                  {vet.services.some((s) => s.type === 'online')
+                    ? 'Book Online Consultation'
+                    : 'Request Consultation'}
+                </span>
               </button>
               <div className="flex items-center my-4">
                 <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
