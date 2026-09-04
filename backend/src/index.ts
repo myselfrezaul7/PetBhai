@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
-import path from 'path';
 import compression from 'compression';
 import productRoutes from './routes/productRoutes';
 import articleRoutes from './routes/articleRoutes';
@@ -283,16 +282,6 @@ app.get('/api/health', (req, res) => {
 app.use('/api', (req, res) => {
   res.status(404).json({ message: 'API endpoint not found', path: req.path });
 });
-
-// Serve frontend static files and handle SPA fallback in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.resolve(__dirname, '../../dist');
-  app.use(express.static(distPath));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-}
 
 // Catch-all 404 handler for any remaining unhandled routes
 app.use((req, res) => {
