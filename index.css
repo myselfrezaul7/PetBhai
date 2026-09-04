@@ -5,15 +5,15 @@
   --color-kw-primary: var(--kw-primary);
   --color-kw-primary-hover: var(--kw-primary-hover);
   --color-kw-secondary: var(--kw-secondary);
-  
+
   --color-kw-text-main: var(--kw-text-main);
   --color-kw-text-muted: var(--kw-text-muted);
   --color-kw-text-inverse: var(--kw-text-inverse);
-  
+
   --color-kw-bg-page: var(--kw-bg-page);
   --color-kw-bg-surface: var(--kw-bg-surface);
   --color-kw-bg-surface-hover: var(--kw-bg-surface-hover);
-  
+
   --color-kw-border: var(--kw-border);
   --color-kw-border-strong: var(--kw-border-strong);
 }
@@ -25,15 +25,15 @@
   --kw-primary: #ff6b35; /* Warm coral/orange */
   --kw-primary-hover: #e55a2b;
   --kw-secondary: #004e64; /* Teal contrast */
-  
+
   --kw-text-main: #2d2a26;
   --kw-text-muted: #6b6965;
   --kw-text-inverse: #ffffff;
-  
+
   --kw-bg-page: #fdfbf7; /* Soft cream */
   --kw-bg-surface: rgba(255, 255, 255, 0.95);
   --kw-bg-surface-hover: #f5f2ed;
-  
+
   --kw-border: rgba(45, 42, 38, 0.08);
   --kw-border-strong: rgba(45, 42, 38, 0.16);
 
@@ -46,7 +46,7 @@
   --ui-input-bg: #ffffff;
   --ui-focus-ring: rgba(255, 107, 53, 0.3);
   --ui-border-glass: var(--kw-border);
-  
+
   --ui-blur: 16px;
   --ui-blur-heavy: 32px;
   --ui-shadow: 0 14px 28px rgba(0, 0, 0, 0.05);
@@ -55,7 +55,7 @@
   --ui-bg-secondary: #f4f0ea;
   --ui-accent: var(--kw-primary);
   --ui-accent-hover: var(--kw-primary-hover);
-  
+
   --motion-fast: 150ms;
   --motion-base: 200ms;
   --motion-slow: 300ms;
@@ -69,14 +69,14 @@
 html.dark {
   --kw-primary: #ff8c61;
   --kw-primary-hover: #ffa07a;
-  
+
   --kw-text-main: #fcfcfc;
   --kw-text-muted: #a3a19e;
-  
+
   --kw-bg-page: #161514;
   --kw-bg-surface: rgba(34, 32, 30, 0.95);
   --kw-bg-surface-hover: #2d2a28;
-  
+
   --kw-border: rgba(255, 255, 255, 0.1);
   --kw-border-strong: rgba(255, 255, 255, 0.18);
 
@@ -104,7 +104,7 @@ body,
 }
 
 html {
-    -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
   color-scheme: light;
   scroll-behavior: smooth;
   overscroll-behavior-x: none;
@@ -240,9 +240,15 @@ textarea,
 }
 
 @keyframes badge-pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .animate-badge-pop {
@@ -371,13 +377,25 @@ html {
 }
 
 /* Apply safe, smooth transitions to interactive and common structural elements */
-a, button, input, textarea, select, label, [role="button"], .card, .menu-item, .nav-item {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+a,
+button,
+input,
+textarea,
+select,
+label,
+[role='button'],
+.card,
+.menu-item,
+.nav-item {
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke, opacity, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 250ms;
+  transition-duration: 200ms;
 }
 
 /* Subtle scale effect on interactive elements when hovered/active */
-a:active, button:active, [role="button"]:active {
+a:active,
+button:active,
+[role='button']:active {
   transform: scale(0.98);
 }

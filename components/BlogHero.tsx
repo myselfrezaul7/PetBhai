@@ -10,6 +10,10 @@ const BlogHero: React.FC = () => {
         <img
           src="/blog-hero.png"
           alt="PetBhai Blog Hero - Deshi Animals"
+          width={1200}
+          height={380}
+          fetchPriority="high"
+          decoding="sync"
           className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/75 via-slate-900/55 to-orange-900/55" />

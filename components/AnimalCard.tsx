@@ -60,7 +60,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           </div>
         </Link>
         <div
-          className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[9px] font-bold shadow-sm sm:left-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs ${statusColors[animal.status]}`}
+          className={`absolute left-2 top-2 rounded-full px-2.5 py-1 text-xs font-bold shadow-sm sm:left-3 sm:top-3 sm:px-3 sm:py-1 ${statusColors[animal.status]}`}
         >
           {animal.status}
         </div>
@@ -83,7 +83,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
             <h3 className="text-sm sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-amber-600 dark:text-amber-500 transition-colors">
               {animal.name}
             </h3>
-            <p className="text-zinc-500 dark:text-zinc-300 font-medium text-[10px] sm:text-sm mt-0.5 sm:mt-1 line-clamp-1">
+            <p className="text-zinc-500 dark:text-zinc-300 font-medium text-xs sm:text-sm mt-0.5 sm:mt-1 line-clamp-1">
               {animal.breed}
             </p>
           </div>
@@ -97,7 +97,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           </div>
         </div>
 
-        <div className="mt-1 sm:mt-4 pt-1 sm:pt-4 border-t border-amber-900/10 dark:border-amber-100/10 dark:border-amber-900/5 dark:border-amber-100/5 flex flex-wrap items-center justify-between text-[10px] sm:text-sm text-zinc-500 dark:text-zinc-300 gap-1">
+        <div className="mt-1 sm:mt-4 pt-1 sm:pt-4 border-t border-amber-900/10 dark:border-amber-100/10 dark:border-amber-900/5 dark:border-amber-100/5 flex flex-wrap items-center justify-between text-xs sm:text-sm text-zinc-500 dark:text-zinc-300 gap-1">
           <span className="sm:hidden font-semibold">{animal.age}</span>
           <span className="sm:hidden text-zinc-500 dark:text-zinc-300">&bull;</span>
           <span>{animal.gender}</span>
@@ -105,7 +105,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal }) => {
           <span>{animal.size}</span>
         </div>
 
-        <p className="text-zinc-500 dark:text-zinc-300 mt-1 sm:mt-4 flex-grow text-[10px] sm:text-sm line-clamp-2 leading-relaxed">
+        <p className="text-zinc-500 dark:text-zinc-300 mt-1 sm:mt-4 flex-grow text-xs sm:text-sm line-clamp-2 leading-relaxed">
           {animal.description}
         </p>
       </div>

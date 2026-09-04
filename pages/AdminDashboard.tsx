@@ -858,7 +858,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="mb-4 flex gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x lg:hidden">
+          <div className="mb-4 flex gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x lg:hidden -mx-5 px-5">
             {mobileTabs.map((tab) => (
               <button
                 key={tab.key}

@@ -279,11 +279,24 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-
-
 // 404 handler for API routes
-app.use((req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({ message: 'API endpoint not found', path: req.path });
+});
+
+// Serve frontend static files and handle SPA fallback in production
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.resolve(__dirname, '../../dist');
+  app.use(express.static(distPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
+// Catch-all 404 handler for any remaining unhandled routes
+app.use((req, res) => {
+  res.status(404).json({ message: 'Not found', path: req.path });
 });
 
 // Error logging middleware

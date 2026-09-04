@@ -49,24 +49,26 @@
       }
     </style>
     <script>
-      // For SPA on GitHub Pages: redirect paths to hash-based routes so HashRouter can handle them.
+      // Single Page Apps redirect for GitHub Pages / static hosting
       (function () {
         try {
           var path = window.location.pathname;
           var repoName = '/PetBhai';
-          if (path.startsWith(repoName)) {
+          var isRepo = path.startsWith(repoName);
+          if (isRepo) {
             path = path.substring(repoName.length);
           }
-          // Only redirect if there's an actual path to redirect to
           if (path && path !== '/' && path !== '') {
-            var redirect = repoName + '/#' + path + window.location.search;
-            setTimeout(function () {
-              window.location.replace(redirect);
-            }, 3000);
+            var base = isRepo ? repoName : '';
+            var target =
+              base +
+              '/?p=' +
+              encodeURIComponent(path) +
+              (window.location.search ? '&' + window.location.search.slice(1) : '') +
+              window.location.hash;
+            window.location.replace(target);
           }
-        } catch (e) {
-          // Fail silently - let user click links
-        }
+        } catch (e) {}
       })();
     </script>
   </head>

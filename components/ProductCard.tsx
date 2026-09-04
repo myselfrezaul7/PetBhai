@@ -88,10 +88,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
       >
         <div className="relative shrink-0 overflow-hidden rounded-2xl h-20 w-20 bg-slate-100 dark:bg-slate-800">
           <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mb-0.5 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
-            <span className="text-[8px] text-center font-medium line-clamp-2 px-1">{product.name}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 mb-0.5 opacity-40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+              />
+            </svg>
+            <span className="text-xs text-center font-medium line-clamp-2 px-1">
+              {product.name}
+            </span>
           </div>
-          <img 
+          <img
             src={product.imageUrl}
             alt={product.name}
             width={80}
@@ -108,7 +123,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
             {product.name}
           </h3>
-          <p className="mt-1 line-clamp-1 text-sm text-zinc-500 dark:text-zinc-400">{product.description}</p>
+          <p className="mt-1 line-clamp-1 text-sm text-zinc-500 dark:text-zinc-400">
+            {product.description}
+          </p>
           <div className="mt-2 flex items-end gap-2">
             <p className="text-3xl font-bold leading-none text-amber-600 dark:text-amber-500">
               ৳{product.price.toLocaleString('en-BD')}
@@ -144,12 +161,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
   if (variant === 'mobile-featured') {
     return (
       <div className="group relative overflow-hidden rounded-[2rem] border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-2 shadow-[0_14px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm dark:border-amber-100/10 dark:bg-zinc-900/95">
-        <Link to={`/product/${product.id}`} className="block relative overflow-hidden rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 aspect-[4/5]">
+        <Link
+          to={`/product/${product.id}`}
+          className="block relative overflow-hidden rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 aspect-[4/5]"
+        >
           <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 mb-1 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
-            <span className="text-[10px] text-center font-medium line-clamp-2 px-2">{product.name}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-8 h-8 mb-1 opacity-40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+              />
+            </svg>
+            <span className="text-xs text-center font-medium line-clamp-2 px-2">
+              {product.name}
+            </span>
           </div>
-          <img 
+          <img
             src={product.imageUrl}
             alt={product.name}
             width={600}
@@ -175,18 +210,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
-            fill={isWishlisted ? "currentColor" : "none"}
+            fill={isWishlisted ? 'currentColor' : 'none'}
             stroke="currentColor"
-            strokeWidth={isWishlisted ? "0" : "1.5"}
+            strokeWidth={isWishlisted ? '0' : '1.5'}
             className="h-4 w-4"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35C12 21.35 10.55 20 5.4 15.36C2 12.28 2 8.5 2 5.5C2 2.81 4.19 0.62 6.88 0.62C8.61 0.62 10.22 1.5 11.2 2.92C11.53 3.4 12.47 3.4 12.8 2.92C13.78 1.5 15.39 0.62 17.12 0.62C19.81 0.62 22 2.81 22 5.5C22 8.5 18.6 12.28 13.45 15.36L12 21.35Z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 21.35C12 21.35 10.55 20 5.4 15.36C2 12.28 2 8.5 2 5.5C2 2.81 4.19 0.62 6.88 0.62C8.61 0.62 10.22 1.5 11.2 2.92C11.53 3.4 12.47 3.4 12.8 2.92C13.78 1.5 15.39 0.62 17.12 0.62C19.81 0.62 22 2.81 22 5.5C22 8.5 18.6 12.28 13.45 15.36L12 21.35Z"
+            />
           </svg>
         </button>
 
         <div className="px-2 pb-2 pt-3">
           <Link to={`/product/${product.id}`}>
-            <h3 className="line-clamp-1 text-xl font-semibold text-zinc-900 dark:text-zinc-50">{product.name}</h3>
+            <h3 className="line-clamp-1 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+              {product.name}
+            </h3>
           </Link>
           <div className="mt-1 flex items-end gap-2">
             <p className="text-3xl font-bold leading-none text-amber-600 dark:text-amber-500">
@@ -210,10 +251,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
         className="relative block overflow-hidden aspect-[4/3] sm:aspect-square bg-slate-100 dark:bg-slate-800"
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 mb-1 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-10 h-10 mb-1 opacity-40"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+            />
+          </svg>
           <span className="text-xs text-center font-medium line-clamp-2 px-2">{product.name}</span>
         </div>
-        <img 
+        <img
           src={product.imageUrl}
           alt={product.name}
           width={600}
@@ -224,7 +278,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           sizes={getResponsiveImageSizes('card')}
           onError={handleImageError}
         />
-        <div className="absolute right-2 top-2 z-10 rounded-full border border-slate-300 bg-white/95 px-2 py-0.5 text-[9px] font-bold text-slate-700 sm:right-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs dark:border-slate-700 dark:bg-slate-950/95 dark:text-zinc-200">
+        <div className="absolute right-2 top-2 z-10 rounded-full border border-slate-300 bg-white/95 px-2.5 py-1 text-xs font-bold text-slate-700 sm:right-3 sm:top-3 sm:px-3 sm:py-1 dark:border-slate-700 dark:bg-slate-950/95 dark:text-zinc-200">
           {product.category}
         </div>
 
@@ -249,15 +303,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
         {/* In Cart Badge */}
         {quantityInCart > 0 && (
-          <div className="absolute bottom-2 left-2 rounded-lg bg-green-600 text-white text-[9px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 shadow-md z-10 flex items-center gap-1 animate-scale-in">
-            <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full animate-pulse"></span>
+          <div className="absolute bottom-2 left-2 rounded-lg bg-green-600 text-white text-xs font-bold px-2 py-1 shadow-md z-10 flex items-center gap-1 animate-scale-in">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
             <span className="hidden sm:inline">In Cart:</span> {quantityInCart}
           </div>
         )}
 
         {/* Discount Badge */}
         {product.discount && product.discount > 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-600 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-md z-10">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-md z-10">
             -{product.discount}%
           </div>
         )}
@@ -275,7 +329,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
             {product.name}
           </h3>
         </Link>
-        <p className="text-zinc-500 dark:text-zinc-400 font-medium mt-1 sm:mt-2 text-[10px] sm:text-sm">
+        <p className="text-zinc-500 dark:text-zinc-400 font-medium mt-1 sm:mt-2 text-xs sm:text-sm">
           {product.weight}
         </p>
         <div className="flex justify-between items-end mt-1 sm:mt-4 mb-1 sm:mb-3">
@@ -284,7 +338,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
               ৳<span className="ml-0.5">{product.price.toLocaleString('en-BD')}</span>
             </p>
             {product.originalPrice && product.originalPrice > product.price && (
-              <p className="text-[9px] sm:text-xs text-slate-400 line-through tabular-nums">
+              <p className="text-xs text-slate-400 line-through tabular-nums">
                 ৳{product.originalPrice.toLocaleString('en-BD')}
               </p>
             )}
@@ -296,7 +350,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className={`text-[8px] sm:text-xs ${
+                      className={`text-xs ${
                         star <= Math.round(product.rating)
                           ? 'text-yellow-500'
                           : 'text-slate-300 dark:text-slate-600'
@@ -306,12 +360,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
                     </span>
                   ))}
                 </span>
-                <span className="font-bold text-slate-700 dark:text-slate-200 text-[10px] sm:text-sm tabular-nums">
+                <span className="font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm tabular-nums">
                   {product.rating.toFixed(1)}
                 </span>
               </div>
               {product.reviews && product.reviews.length > 0 && (
-                <span className="text-[8px] sm:text-[10px] text-slate-400 dark:text-slate-500 tabular-nums">
+                <span className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 tabular-nums">
                   ({product.reviews.length} {product.reviews.length === 1 ? 'review' : 'reviews'})
                 </span>
               )}
@@ -326,13 +380,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           aria-label={
             isOutOfStock ? t('aria_out_of_stock') : `${t('aria_add_to_cart')} ${product.name}`
           }
-          className={`w-full min-h-[44px] flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-300 ease-out touch-manipulation
+          className={`w-full min-h-[44px] flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ease-out touch-manipulation
             ${
               isOutOfStock
                 ? 'bg-slate-300/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 cursor-not-allowed'
                 : isAdding
-                    ? 'bg-emerald-600 text-white cursor-default scale-95'
-                    : 'bg-slate-950 text-white hover:bg-black shadow-md active:scale-95'
+                  ? 'bg-emerald-600 text-white cursor-default scale-95'
+                  : 'bg-slate-950 text-white hover:bg-black shadow-md active:scale-95'
             }`}
         >
           <ShoppingCartIcon className="w-3 h-3 sm:w-4 sm:h-4" />

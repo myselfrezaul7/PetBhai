@@ -3,22 +3,36 @@ import React, { useEffect, useState } from 'react';
 const ReadingProgressBar: React.FC = () => {
   const [readingProgress, setReadingProgress] = useState(0);
 
-  const scrollListener = () => {
-    if (!window) return;
-    const documentHeight =
-      document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    if (documentHeight > 0) {
-      const scrollPosition = document.documentElement.scrollTop || document.body.scrollTop;
-      const progress = (scrollPosition / documentHeight) * 100;
-      setReadingProgress(Math.min(100, Math.max(0, progress)));
-    }
-  };
-
   useEffect(() => {
-    window.addEventListener('scroll', scrollListener);
-    // Initial check
-    scrollListener();
-    return () => window.removeEventListener('scroll', scrollListener);
+    let frameId: number | null = null;
+
+    const updateProgress = () => {
+      const documentHeight =
+        document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (documentHeight > 0) {
+        const scrollPosition =
+          window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        const progress = (scrollPosition / documentHeight) * 100;
+        setReadingProgress(Math.min(100, Math.max(0, progress)));
+      }
+      frameId = null;
+    };
+
+    const scrollListener = () => {
+      if (frameId === null) {
+        frameId = window.requestAnimationFrame(updateProgress);
+      }
+    };
+
+    window.addEventListener('scroll', scrollListener, { passive: true });
+    updateProgress();
+
+    return () => {
+      window.removeEventListener('scroll', scrollListener);
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
   }, []);
 
   return (

@@ -490,7 +490,7 @@ const PostCard: React.FC<PostCardProps> = ({
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-md">
                 {post.author.profilePictureUrl ? (
-                  <img  
+                  <img
                     src={post.author.profilePictureUrl}
                     alt={post.author.name}
                     width="48"
@@ -605,8 +605,6 @@ const PostCard: React.FC<PostCardProps> = ({
           )}
         </div>
 
-        
-
         {/* Action Buttons */}
         <div className="px-3 sm:px-6 py-2 sm:py-3 border-y border-white/20 dark:border-slate-700/50 flex justify-around">
           <button
@@ -614,7 +612,7 @@ const PostCard: React.FC<PostCardProps> = ({
             disabled={isLiking || !currentUser}
             aria-label={hasLikedPost ? 'Unlike post' : 'Like post'}
             data-pressed={hasLikedPost}
-            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation disabled:opacity-50 ${
+            className={`min-h-[44px] flex items-center justify-center space-x-1 sm:space-x-2 font-semibold transition-all rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation disabled:opacity-50 ${
               hasLikedPost
                 ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
                 : 'text-slate-700 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-slate-700/50'
@@ -633,7 +631,7 @@ const PostCard: React.FC<PostCardProps> = ({
             onClick={() => setShowComments(!showComments)}
             data-expanded={showComments}
             aria-label={`${showComments ? 'Hide' : 'Show'} comments`}
-            className={`flex items-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation ${
+            className={`min-h-[44px] flex items-center justify-center space-x-1 sm:space-x-2 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base active:scale-95 touch-manipulation ${
               showComments
                 ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20'
                 : 'text-slate-700 dark:text-slate-300 hover:text-amber-600 hover:bg-amber-50/50 dark:hover:bg-slate-700/50'
@@ -651,7 +649,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={handleShare}
             aria-label="Share post"
-            className="flex items-center space-x-1 sm:space-x-2 text-slate-700 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50 active:scale-95 touch-manipulation"
+            className="min-h-[44px] flex items-center justify-center space-x-1 sm:space-x-2 text-slate-700 dark:text-slate-300 hover:text-green-600 font-semibold transition-colors rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-base hover:bg-green-50/50 dark:hover:bg-slate-700/50 active:scale-95 touch-manipulation"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5"
@@ -679,7 +677,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 <div className="flex items-start gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                     {currentUser.profilePictureUrl ? (
-                      <img  
+                      <img
                         src={currentUser.profilePictureUrl}
                         alt="You"
                         width="40"
@@ -771,7 +769,7 @@ const PostCard: React.FC<PostCardProps> = ({
                       <div className="flex items-start space-x-3">
                         <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                           {comment.author.profilePictureUrl ? (
-                            <img  
+                            <img
                               src={comment.author.profilePictureUrl}
                               alt={comment.author.name}
                               width="36"
@@ -894,7 +892,7 @@ const PostCard: React.FC<PostCardProps> = ({
                               >
                                 <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                                   {reply.author.profilePictureUrl ? (
-                                    <img  
+                                    <img
                                       src={reply.author.profilePictureUrl}
                                       alt={reply.author.name}
                                       width="32"
@@ -1021,7 +1019,7 @@ const PostCard: React.FC<PostCardProps> = ({
                           <div className="flex items-start gap-2 sm:gap-3">
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
                               {currentUser.profilePictureUrl ? (
-                                <img  
+                                <img
                                   src={currentUser.profilePictureUrl}
                                   alt="You"
                                   width="32"
@@ -1102,8 +1100,6 @@ const PostCard: React.FC<PostCardProps> = ({
           </div>
         )}
       </div>
-
-      
     </>
   );
 };
