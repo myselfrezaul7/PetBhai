@@ -15,12 +15,19 @@ export interface Brand {
 
 export interface Article {
   id: number;
+  slug?: string;
   title: string;
+  excerpt?: string;
+  category?: string;
+  tags?: string[];
   content: string;
   imageUrl: string;
   author: string;
   date: string; // ISO string
+  updatedAt?: string; // ISO string
   readTime: number; // in minutes
+  featured?: boolean;
+  image?: string;
 }
 
 export interface ChatMessage {
