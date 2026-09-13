@@ -8,7 +8,9 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  const article = db.articles.find((a) => a.id === parseInt(req.params.id));
+  const param = req.params.id;
+  const numId = parseInt(param, 10);
+  const article = db.articles.find((a) => (!isNaN(numId) && a.id === numId) || a.slug === param);
   if (article) {
     res.json(article);
   } else {

@@ -105,8 +105,8 @@ const ReadingProgress = ({ minutes }: { minutes: number }) => {
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-20">
-      <div className={`h-full ${colorClass} rounded-r-full`} style={{ width }} />
+    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/40 dark:bg-black/60 backdrop-blur-xs z-20">
+      <div className={`h-full ${colorClass} rounded-r-full shadow-xs`} style={{ width }} />
     </div>
   );
 };
@@ -150,7 +150,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
 
         <div className="absolute top-4 left-4 flex gap-2">
-          <span className="glass-card-ios bg-amber-500/90 text-white text-sm font-bold px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg flex items-center gap-1.5">
+          <span className="bg-amber-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md border border-amber-500 flex items-center gap-1.5">
             <span className="text-lg leading-none">{emoji}</span> {article.category || 'General'}
           </span>
         </div>
@@ -232,7 +232,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
 
         <div className="absolute top-3 left-3">
-          <span className="glass-card-ios bg-black/40 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 border border-white/10">
+          <span className="bg-zinc-900/85 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 border border-white/20">
             {emoji} {article.category}
           </span>
         </div>

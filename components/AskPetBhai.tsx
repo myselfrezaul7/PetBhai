@@ -212,7 +212,7 @@ const AskPetBhai: React.FC = () => {
                             className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                               isSelected
                                 ? 'bg-orange-600 text-white border-orange-600 shadow-sm'
-                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-amber-500/60'
+                                : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700 shadow-xs hover:border-orange-500 hover:bg-orange-50/50'
                             }`}
                           >
                             <span>{t.icon}</span>
@@ -329,11 +329,13 @@ const AskPetBhai: React.FC = () => {
                     className="p-4 rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/90 dark:border-zinc-800 shadow-sm hover:border-amber-500/40 transition-colors"
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100/90 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-900/60">
                         <span>{item.icon}</span>
                         <span>
                           {item.topicBn}{' '}
-                          <span className="opacity-60 text-[10px]">({item.topicEn})</span>
+                          <span className="text-amber-950/80 dark:text-amber-300/80 text-[10px] font-semibold">
+                            ({item.topicEn})
+                          </span>
                         </span>
                       </span>
                       <span className="text-[11px] font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">

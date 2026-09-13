@@ -189,7 +189,7 @@ const BlogPage: React.FC = () => {
               placeholder={t('search') || 'Search articles...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-full glass-card-ios bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-zinc-900 dark:text-zinc-100 transition-all shadow-sm placeholder:text-zinc-400"
+              className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-full glass-card-ios bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-zinc-900 dark:text-zinc-100 transition-all shadow-sm placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
             />
             {searchQuery && (
               <button
@@ -218,8 +218,8 @@ const BlogPage: React.FC = () => {
               onClick={() => handleCategoryChange(cat.name)}
               className={`snap-start flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm border ${
                 categoryFilter === cat.name
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-amber-500/20 shadow-lg scale-105 font-bold'
-                  : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-amber-500/50 hover:bg-amber-50 dark:hover:bg-zinc-700'
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white border-transparent shadow-amber-600/25 shadow-lg scale-105 font-bold'
+                  : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700 hover:border-orange-500/60 hover:bg-orange-50/50 dark:hover:bg-zinc-700'
               }`}
             >
               <span className="text-lg leading-none">{cat.icon}</span>
@@ -227,8 +227,8 @@ const BlogPage: React.FC = () => {
               <span
                 className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                   categoryFilter === cat.name
-                    ? 'bg-white/25 text-white'
-                    : 'bg-slate-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400'
+                    ? 'bg-white text-orange-700 font-bold shadow-xs'
+                    : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-600'
                 }`}
               >
                 {cat.count}

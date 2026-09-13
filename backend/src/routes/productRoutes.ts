@@ -113,6 +113,7 @@ router.get(
   requireAuth,
   requireAdmin,
   asyncHandler(async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, private');
     const inventory = db.products.map((product) => normalizeProductInventory(product));
     return res.json(inventory);
   })
