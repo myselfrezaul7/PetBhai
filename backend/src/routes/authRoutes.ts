@@ -632,9 +632,9 @@ const getFirebaseAdmin = async (): Promise<import('firebase-admin').app.App | nu
     if (admin.apps.length > 0) {
       firebaseAdminApp = admin.apps[0]!;
     } else {
-      // If GOOGLE_APPLICATION_CREDENTIALS is set, use it; otherwise use projectId-only init
-      const projectId = process.env.FIREBASE_PROJECT_ID;
-      firebaseAdminApp = admin.initializeApp(projectId ? { projectId } : undefined);
+      const projectId =
+        process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'petbhai-d087c';
+      firebaseAdminApp = admin.initializeApp({ projectId });
     }
     return firebaseAdminApp;
   } catch (err) {
@@ -653,12 +653,16 @@ const verifyFirebaseToken = async (
   if (!idToken) return null;
   try {
     const app = await getFirebaseAdmin();
-    if (!app) return null;
+    if (!app) {
+      console.error('Firebase Admin app not initialized');
+      return null;
+    }
     const admin = await import('firebase-admin');
+    // Cryptographically verify ID token against Google's public x509 certs & verify audience matches projectId
     const decoded = await admin.auth(app).verifyIdToken(idToken);
     return { uid: decoded.uid, email: decoded.email };
-  } catch (err) {
-    console.error('Firebase token verification failed:', err);
+  } catch (err: any) {
+    console.warn('Firebase Admin verifyIdToken rejected token:', err?.code || err?.message);
     return null;
   }
 };

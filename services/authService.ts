@@ -25,12 +25,16 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Get Firebase ID token for backend verification
+    // Get fresh Firebase ID token for backend verification (force refresh to avoid stale cached tokens)
     let firebaseToken: string | undefined;
     try {
-      firebaseToken = await user.getIdToken();
+      firebaseToken = await user.getIdToken(true);
     } catch {
-      // Token retrieval failed — proceed without it (local session only)
+      try {
+        firebaseToken = await user.getIdToken();
+      } catch {
+        // Token retrieval failed — proceed without it (local session only)
+      }
     }
 
     // Extract name parts
