@@ -1,6 +1,7 @@
 import express from 'express';
 import { db } from '../db';
 import type { Question } from '../types';
+import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -115,5 +116,86 @@ router.post('/', rateLimitQuestions, async (req, res) => {
     res.status(500).json({ error: 'Failed to submit question. Please try again later.' });
   }
 });
+
+// PATCH /api/questions/:id - Update question status or answered blog link (admin/moderator)
+router.patch(
+  '/:id',
+  requireAuth,
+  requireRole(['super_admin', 'store_manager', 'moderator']),
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid question ID' });
+      }
+
+      const questionIndex = db.questions.findIndex((q) => q.id === id);
+      if (questionIndex === -1) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+
+      const { status, answeredBlogSlug } = req.body;
+      if (status && !['pending', 'answered', 'rejected'].includes(status)) {
+        return res
+          .status(400)
+          .json({ error: 'Invalid status. Must be pending, answered, or rejected.' });
+      }
+
+      if (status) {
+        db.questions[questionIndex].status = status;
+      }
+      if (typeof answeredBlogSlug === 'string') {
+        db.questions[questionIndex].answeredBlogSlug = answeredBlogSlug.trim();
+      }
+
+      await db.write().catch((err) => {
+        console.warn('Persistence warning for question update:', err.message);
+      });
+
+      res.json({
+        success: true,
+        message: 'Question updated successfully',
+        question: db.questions[questionIndex],
+      });
+    } catch (err) {
+      console.error('Error updating question:', err);
+      res.status(500).json({ error: 'Failed to update question' });
+    }
+  }
+);
+
+// DELETE /api/questions/:id - Delete a question (admin/moderator)
+router.delete(
+  '/:id',
+  requireAuth,
+  requireRole(['super_admin', 'store_manager', 'moderator']),
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid question ID' });
+      }
+
+      const questionIndex = db.questions.findIndex((q) => q.id === id);
+      if (questionIndex === -1) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+
+      const [deleted] = db.questions.splice(questionIndex, 1);
+      await db.write().catch((err) => {
+        console.warn('Persistence warning for question deletion:', err.message);
+      });
+
+      res.json({
+        success: true,
+        message: 'Question removed successfully',
+        question: deleted,
+      });
+    } catch (err) {
+      console.error('Error deleting question:', err);
+      res.status(500).json({ error: 'Failed to delete question' });
+    }
+  }
+);
 
 export default router;

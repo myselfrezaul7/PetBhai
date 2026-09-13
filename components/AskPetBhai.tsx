@@ -19,25 +19,49 @@ const TOPICS = [
 
 const RECENT_SAMPLE_QUESTIONS = [
   {
-    topic: 'Cat Care',
-    question: 'How do I stop my indoor cat from scratching wooden furniture?',
-    author: 'Tanvir, Dhanmondi',
-    status: 'Researching for Blog',
+    topicEn: 'Cat Care',
+    topicBn: 'বিড়ালের যত্ন',
+    questionBn: 'ইনডোর বিড়ালকে কাঠের ফার্নিচার আঁচড়ানো থেকে কীভাবে বিরত রাখব?',
+    questionEn: 'How do I stop my indoor cat from scratching wooden furniture?',
+    authorBn: 'তানভীর, ধানমন্ডি',
+    authorEn: 'Tanvir, Dhanmondi',
+    statusBn: 'ব্লগের জন্য রিসার্চ চলছে',
+    statusEn: 'Researching for Blog',
     icon: '🐱',
   },
   {
-    topic: 'Dog Care',
-    question: 'What is the best feeding routine for a 4-month-old Deshi puppy during summer?',
-    author: 'Samira, Uttara',
-    status: 'Drafting Article',
+    topicEn: 'Dog Care',
+    topicBn: 'কুকুরের যত্ন',
+    questionBn: 'গরমের দিনে ৪ মাস বয়সী দেশি কুকুরছানার সেরা খাবার রুটিন কী হওয়া উচিত?',
+    questionEn: 'What is the best feeding routine for a 4-month-old Deshi puppy during summer?',
+    authorBn: 'সামিরা, উত্তরা',
+    authorEn: 'Samira, Uttara',
+    statusBn: 'আর্টিকেল লেখা হচ্ছে',
+    statusEn: 'Drafting Article',
     icon: '🐕',
   },
   {
-    topic: 'Health',
-    question: 'How to recognize early symptoms of ear infection in Persian cats?',
-    author: 'Nabila, Mirpur',
-    status: 'Answering Soon',
+    topicEn: 'Health',
+    topicBn: 'স্বাস্থ্য ও চিকিৎসা',
+    questionBn: 'পার্শিয়ান বিড়ালের কানের ইনফেকশনের প্রাথমিক লক্ষণগুলো কীভাবে বুঝব?',
+    questionEn: 'How to recognize early symptoms of ear infection in Persian cats?',
+    authorBn: 'নাবিলা, মিরপুর',
+    authorEn: 'Nabila, Mirpur',
+    statusBn: 'শীঘ্রই উত্তর আসছে',
+    statusEn: 'Answering Soon',
     icon: '💉',
+  },
+  {
+    topicEn: 'Nutrition',
+    topicBn: 'খাবার ও পুষ্টি',
+    questionBn:
+      'প্রতিদিন সেদ্ধ মুরগির মাংসের সাথে মিষ্টি কুমড়া দেওয়া কি কুকুরের জন্য স্বাস্থ্যকর?',
+    questionEn: 'Is boiled chicken with pumpkin healthy for dogs on a daily basis?',
+    authorBn: 'রহিম, বনানী',
+    authorEn: 'Rahim, Banani',
+    statusBn: 'পর্যালোচনাধীন',
+    statusEn: 'In Review',
+    icon: '🥩',
   },
 ];
 
@@ -305,20 +329,36 @@ const AskPetBhai: React.FC = () => {
                     className="p-4 rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/90 dark:border-zinc-800 shadow-sm hover:border-amber-500/40 transition-colors"
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
                         <span>{item.icon}</span>
-                        <span>{item.topic}</span>
+                        <span>
+                          {item.topicBn}{' '}
+                          <span className="opacity-60 text-[10px]">({item.topicEn})</span>
+                        </span>
                       </span>
                       <span className="text-[11px] font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                        {item.status}
+                        {isBn ? item.statusBn : item.statusEn}
                       </span>
                     </div>
-                    <p className="text-xs md:text-sm font-medium text-zinc-800 dark:text-zinc-200 leading-snug">
-                      "{item.question}"
-                    </p>
-                    <div className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-                      Asked by <span className="font-medium">{item.author}</span>
+                    {/* Bilingual Question: Bangla prominent, English translation right below */}
+                    <div className="space-y-1">
+                      <p className="text-xs md:text-sm font-semibold text-zinc-900 dark:text-zinc-100 leading-snug">
+                        "{item.questionBn || item.questionEn}"
+                      </p>
+                      {item.questionEn && item.questionEn !== item.questionBn && (
+                        <p className="text-[11px] md:text-xs text-zinc-600 dark:text-zinc-400 italic leading-snug">
+                          "{item.questionEn}"
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-2.5 text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                      <span>{isBn ? 'প্রশ্নকর্তা:' : 'Asked by:'}</span>
+                      <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                        {item.authorBn && item.authorEn
+                          ? `${item.authorBn} / ${item.authorEn}`
+                          : item.authorBn || item.authorEn}
+                      </span>
                     </div>
                   </div>
                 ))}

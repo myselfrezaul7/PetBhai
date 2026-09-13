@@ -5,6 +5,7 @@ import { CreateProductTab } from '../components/admin/CreateProductTab';
 import { ModerationTab } from '../components/admin/ModerationTab';
 import { UsersTab } from '../components/admin/UsersTab';
 import { AdoptionTab } from '../components/admin/AdoptionTab';
+import { QuestionsTab } from '../components/admin/QuestionsTab';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
@@ -66,6 +67,7 @@ const mobileTabs: Array<{ key: ActiveTab; label: string }> = [
   { key: 'moderation', label: 'Moderation' },
   { key: 'users', label: 'Users' },
   { key: 'adoption', label: 'Adoptions' },
+  { key: 'questions', label: 'Questions' },
 ];
 
 const getStatusMeta = (
@@ -809,6 +811,17 @@ const AdminDashboard = () => {
             >
               🐾 Adoptions
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('questions')}
+              className={`w-full rounded-xl px-3 py-2 text-left ${
+                activeTab === 'questions'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              💬 Questions
+            </button>
           </nav>
 
           <div className="mt-8 rounded-xl border border-white/35 dark:border-white/10 bg-white/50 dark:bg-slate-900/40 px-3 py-3 text-xs dark:text-slate-300">
@@ -979,6 +992,7 @@ const AdminDashboard = () => {
                 />
               )}
               {activeTab === 'adoption' && <AdoptionTab />}
+              {activeTab === 'questions' && <QuestionsTab />}
             </motion.div>
           </AnimatePresence>
         </main>
