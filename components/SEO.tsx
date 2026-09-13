@@ -87,10 +87,10 @@ const SEO: React.FC<SEOProps> = ({
         const cleanPath = path.endsWith('/') || path === '' ? path : `${path}/`;
         return `${productionUrl}${cleanPath}`;
       }
-      // For non-hash URLs, use pathname without query params
-      const pathname = window.location.pathname.replace(/\/index\.html$/, '/');
-      const cleanPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
-      return `${productionUrl.slice(0, -1)}${cleanPath}`;
+      // For non-hash URLs, use pathname without query params (matching vercel trailingSlash: false)
+      const pathname = window.location.pathname.replace(/\/index\.html$/, '');
+      const cleanPath = pathname === '/' || pathname === '' ? '' : pathname.replace(/\/$/, '');
+      return `${productionUrl.replace(/\/$/, '')}${cleanPath}`;
     }
     return productionUrl;
   };
@@ -152,7 +152,9 @@ const SEO: React.FC<SEOProps> = ({
           '@type': 'WebPage',
           '@id': currentUrl,
         },
-        author: author ? { '@type': author.includes('Team') ? 'Organization' : 'Person', name: author } : undefined,
+        author: author
+          ? { '@type': author.includes('Team') ? 'Organization' : 'Person', name: author }
+          : undefined,
         datePublished: publishedTime,
         dateModified: modifiedTime || publishedTime,
         articleSection: section,
@@ -254,11 +256,12 @@ const SEO: React.FC<SEOProps> = ({
           url: normalizedBaseUrl,
           logo: new URL(`icon-192x192.png?v=${assetVersion}`, normalizedBaseUrl).toString(),
           image: new URL(`icon-512x512.png?v=${assetVersion}`, normalizedBaseUrl).toString(),
-          description: 'Bangladesh\'s leading pet care platform. Shop premium pet food, supplies, find trusted vets, and adopt pets.',
+          description:
+            "Bangladesh's leading pet care platform. Shop premium pet food, supplies, find trusted vets, and adopt pets.",
           address: {
             '@type': 'PostalAddress',
             addressLocality: 'Dhaka',
-            addressCountry: 'BD'
+            addressCountry: 'BD',
           },
           sameAs: [
             'https://www.facebook.com/petbhaibd',

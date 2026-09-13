@@ -9,7 +9,7 @@ import {
   MOCK_BRANDS,
   MOCK_POSTS,
 } from './data/mockData';
-import type { User, Product, Article, Vet, Animal, Brand, Order, Post } from './types';
+import type { User, Product, Article, Vet, Animal, Brand, Order, Post, Question } from './types';
 
 // Detect if running in serverless environment (Vercel, AWS Lambda, etc.)
 const isServerless = !!(
@@ -60,6 +60,7 @@ interface DatabaseSchema {
   orders: Order[];
   posts: Post[];
   bannedUsers: number[];
+  questions: Question[];
 }
 
 const buildPostSignature = (post: Pick<Post, 'author' | 'content'>): string => {
@@ -86,6 +87,7 @@ const INITIAL_DATA: DatabaseSchema = {
   orders: [],
   posts: [],
   bannedUsers: [],
+  questions: [],
 };
 
 export class PersistenceError extends Error {
@@ -111,6 +113,9 @@ class Database {
       if (!Array.isArray(this.data.bannedUsers)) {
         this.data.bannedUsers = [];
       }
+      if (!Array.isArray(this.data.questions)) {
+        this.data.questions = [];
+      }
 
       const { cleanedPosts, removedCount } = stripLegacyMockPosts(this.data.posts);
       if (removedCount > 0) {
@@ -132,7 +137,13 @@ class Database {
     }
   }
 
-  public getStatus(): { loaded: boolean; error: string | null; path: string; writeCapable: boolean; mode: string } {
+  public getStatus(): {
+    loaded: boolean;
+    error: string | null;
+    path: string;
+    writeCapable: boolean;
+    mode: string;
+  } {
     return {
       loaded: this.isLoaded,
       error: this.loadError?.message || null,
@@ -238,14 +249,18 @@ class Database {
         }
       }
     }
-    
-    throw new PersistenceError(`Failed to persist database to disk after ${retries} attempts. Last error: ${lastError?.message}`);
+
+    throw new PersistenceError(
+      `Failed to persist database to disk after ${retries} attempts. Last error: ${lastError?.message}`
+    );
   }
 
   private async enqueueSave(data: DatabaseSchema): Promise<boolean> {
     const previousLock = this.writeLock;
     let releaseLock!: () => void;
-    this.writeLock = new Promise(resolve => { releaseLock = resolve; });
+    this.writeLock = new Promise((resolve) => {
+      releaseLock = resolve;
+    });
     try {
       await previousLock;
       return this.persistToDisk(data);
@@ -256,8 +271,12 @@ class Database {
 
   public async write(): Promise<boolean> {
     if (isServerless && process.env.NODE_ENV === 'production') {
-      console.error('Database writes are disabled in production serverless mode to prevent silent data loss.');
-      throw new PersistenceError('Database persistence unavailable in this environment (Serverless).');
+      console.error(
+        'Database writes are disabled in production serverless mode to prevent silent data loss.'
+      );
+      throw new PersistenceError(
+        'Database persistence unavailable in this environment (Serverless).'
+      );
     }
     const snapshot = JSON.parse(JSON.stringify(this.data)) as DatabaseSchema;
     return this.enqueueSave(snapshot);
@@ -290,6 +309,9 @@ class Database {
   }
   get bannedUsers() {
     return this.data.bannedUsers;
+  }
+  get questions() {
+    return this.data.questions;
   }
 }
 

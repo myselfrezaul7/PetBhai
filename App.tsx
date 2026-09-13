@@ -396,6 +396,7 @@ const AppContent: React.FC = () => {
                           <Routes>
                             <Route path="" element={<BlogPage />} />
                             <Route path=":slug" element={<ArticleDetailPage />} />
+                            <Route path="*" element={<NotFoundPage />} />
                           </Routes>
                         </BlogErrorBoundary>
                       }

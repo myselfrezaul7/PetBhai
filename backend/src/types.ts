@@ -324,3 +324,14 @@ export interface PetSitter extends BaseProfessional {
   servicesOffered: ('Boarding' | 'House Sitting' | 'Drop-in Visits')[];
   petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
 }
+
+export interface Question {
+  id: number;
+  name: string;
+  email?: string;
+  topic: string;
+  question: string;
+  createdAt: string;
+  status?: 'pending' | 'answered' | 'rejected';
+  answeredBlogSlug?: string;
+}

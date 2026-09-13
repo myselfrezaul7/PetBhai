@@ -331,6 +331,17 @@ export interface DeliveryArea {
   isSameDayAvailable?: boolean;
 }
 
+export interface Question {
+  id: number;
+  name: string;
+  email?: string;
+  topic: string;
+  question: string;
+  createdAt: string;
+  status?: 'pending' | 'answered' | 'rejected';
+  answeredBlogSlug?: string;
+}
+
 declare global {
   // Extend the Window interface to include properties added by the Facebook SDK.
   interface Window {

@@ -37,8 +37,8 @@ const MobileNavLink: React.FC<{
       `flex min-h-[56px] items-center gap-4 rounded-2xl border px-4 py-3 text-left text-[1.15rem] transition-all touch-manipulation ${
         isActive
           ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500 border-kw-primary/20 font-semibold shadow-[0_8px_24px_rgba(255,107,53,0.18)] dark:border-kw-primary/30 dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)]'
-          :'bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-zinc-50 border-amber-900/10 dark:border-white/10 hover:bg-amber-50/80 dark:hover:bg-zinc-800/80 backdrop-blur-xl'
-        } ${className || ''}`
+          : 'bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-zinc-50 border-amber-900/10 dark:border-white/10 hover:bg-amber-50/80 dark:hover:bg-zinc-800/80 backdrop-blur-xl'
+      } ${className || ''}`
     }
   >
     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fdfbf7] dark:bg-zinc-950 text-current">
@@ -118,7 +118,7 @@ const Header: React.FC = () => {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-  
+
   const computedResults = useGlobalSearch({
     query: debouncedSearchQuery,
     products,
@@ -183,17 +183,20 @@ const Header: React.FC = () => {
     }
   }, [hasOptionalConsent]);
 
-  const addToRecentSearches = useCallback((query: string) => {
-    if (!hasOptionalConsent) return;
-    if (!query.trim() || query.length < 1) return;
+  const addToRecentSearches = useCallback(
+    (query: string) => {
+      if (!hasOptionalConsent) return;
+      if (!query.trim() || query.length < 1) return;
 
-    setRecentSearches((prev) => {
-      const filtered = prev.filter((s) => s.toLowerCase() !== query.toLowerCase());
-      const updated = [query, ...filtered].slice(0, 5);
-      safeStorage.setItem('petbhai_recent_searches', JSON.stringify(updated));
-      return updated;
-    });
-  }, [hasOptionalConsent]);
+      setRecentSearches((prev) => {
+        const filtered = prev.filter((s) => s.toLowerCase() !== query.toLowerCase());
+        const updated = [query, ...filtered].slice(0, 5);
+        safeStorage.setItem('petbhai_recent_searches', JSON.stringify(updated));
+        return updated;
+      });
+    },
+    [hasOptionalConsent]
+  );
 
   useEffect(() => {
     setActiveIndex(-1);
@@ -247,7 +250,7 @@ const Header: React.FC = () => {
           ...searchResults.products.map((p) => ({ path: `/product/${p.id}` })),
           ...searchResults.vets.map((v) => ({ path: `/vet/${v.id}` })),
           ...searchResults.animals.map((a) => ({ path: `/adopt/${a.id}` })),
-          ...searchResults.articles.map((a) => ({ path: `/blog/${a.id}` })),
+          ...searchResults.articles.map((a) => ({ path: `/blog/${a.slug || a.id}` })),
         ];
         const selected = allResults[activeIndex];
         if (selected) {
@@ -318,7 +321,6 @@ const Header: React.FC = () => {
   }, [scrollDirection, isAtTop, isMenuOpen, isSearchOpen]);
 
   // Keep existing override for open overlays just in case
-
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // Sanitize search input to prevent XSS
@@ -413,7 +415,12 @@ const Header: React.FC = () => {
       to: '/',
       label: t('nav_home'),
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M12 3.2 3 10.4V21h6.75v-6h4.5v6H21V10.4l-9-7.2z" />
         </svg>
       ),
@@ -422,7 +429,12 @@ const Header: React.FC = () => {
       to: '/shop',
       label: t('nav_shop'),
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M6 2.75A1.75 1.75 0 0 0 4.25 4.5V7H3a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1h-1.25V4.5A1.75 1.75 0 0 0 18 2.75H6zm.25 4.25V4.75h11.5V7H6.25zm4.25 3h3a1 1 0 0 1 0 2h-3a1 1 0 1 1 0-2z" />
         </svg>
       ),
@@ -431,7 +443,12 @@ const Header: React.FC = () => {
       to: '/services',
       label: t('nav_services'),
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M19 8h-1V6a1 1 0 0 0-1-1h-2V4a1 1 0 1 0-2 0v1h-2V4a1 1 0 1 0-2 0v1H7a1 1 0 0 0-1 1v2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zM8 7h8v1H8V7zm4 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
         </svg>
       ),
@@ -440,7 +457,12 @@ const Header: React.FC = () => {
       to: '/community',
       label: t('nav_community'),
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M8 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm8 0a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 16 12zm-8 2c-3.31 0-6 1.79-6 4v1.25A1.75 1.75 0 0 0 3.75 21h8.5A1.75 1.75 0 0 0 14 19.25V18c0-2.21-2.69-4-6-4zm8 1c-1.05 0-2.03.21-2.88.58A5.96 5.96 0 0 1 15 18v1.25c0 .27-.04.52-.1.75h5.35A1.75 1.75 0 0 0 22 18.25V18c0-1.66-2.69-3-6-3z" />
         </svg>
       ),
@@ -449,7 +471,12 @@ const Header: React.FC = () => {
       to: '/adopt',
       label: t('nav_adopt'),
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 12 5.08 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />
         </svg>
       ),
@@ -458,7 +485,12 @@ const Header: React.FC = () => {
       to: '/blog',
       label: t('nav_blog'),
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 4v2h10V7H7zm0 4v2h10v-2H7zm0 4v2h6v-2H7z" />
         </svg>
       ),
@@ -467,7 +499,12 @@ const Header: React.FC = () => {
       to: '/report',
       label: 'Contact',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 3-8 5L4 7V6l8 5 8-5z" />
         </svg>
       ),
@@ -529,7 +566,6 @@ const Header: React.FC = () => {
         }`}
       >
         <nav className="w-full max-w-6xl flex items-center justify-between gap-2 p-1.5 pl-3 pr-2 sm:pl-4 sm:pr-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm rounded-full shadow-sm transition-all duration-300">
-          
           {/* Logo Section */}
           <NavLink
             to="/"
@@ -554,7 +590,7 @@ const Header: React.FC = () => {
                         isActive
                           ? 'text-slate-900 dark:text-white'
                           : 'text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                      } ${('className' in link ? (link as any).className : '')}`
+                      } ${'className' in link ? (link as any).className : ''}`
                     }
                   >
                     {link.label}
@@ -566,39 +602,40 @@ const Header: React.FC = () => {
 
           {/* Right Actions: Search, Theme, Language, Profile */}
           <div className="hidden lg:flex items-center space-x-2 sm:space-x-3">
-            
             {/* Search (Collapsible on Desktop for clean look) */}
             <div className="relative group flex items-center" ref={searchRef}>
-              <div className={`flex items-center transition-all duration-300 ${isSearchActive || searchQuery ? 'w-44 sm:w-56 lg:w-52 xl:w-60 bg-slate-100 dark:bg-slate-900 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700' : 'w-8 bg-transparent'}`}>
-                  <button 
-                    onClick={() => {
-                      if (!isSearchActive) {
-                        setIsSearchActive(true);
-                        setTimeout(() => desktopInputRef.current?.focus(), 100);
-                      }
-                    }}
-                    className={`focus:outline-none ${isSearchActive || searchQuery ? 'mr-2' : ''}`}
-                    aria-label="Search"
-                    type="button"
-                  >
-                    <SearchIcon className="w-4 h-4 text-slate-500 cursor-pointer" />
-                  </button>
-                  <input
-                    ref={desktopInputRef}
-                    type="text"
-                    placeholder={t('search_placeholder')}
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={handleSearchFocus}
-                    onKeyDown={handleKeyDown}
-                    className={`bg-transparent border-none outline-none text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 w-full ${isSearchActive || searchQuery ? 'block' : 'hidden'}`}
-                  />
-               </div>
+              <div
+                className={`flex items-center transition-all duration-300 ${isSearchActive || searchQuery ? 'w-44 sm:w-56 lg:w-52 xl:w-60 bg-slate-100 dark:bg-slate-900 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700' : 'w-8 bg-transparent'}`}
+              >
+                <button
+                  onClick={() => {
+                    if (!isSearchActive) {
+                      setIsSearchActive(true);
+                      setTimeout(() => desktopInputRef.current?.focus(), 100);
+                    }
+                  }}
+                  className={`focus:outline-none ${isSearchActive || searchQuery ? 'mr-2' : ''}`}
+                  aria-label="Search"
+                  type="button"
+                >
+                  <SearchIcon className="w-4 h-4 text-slate-500 cursor-pointer" />
+                </button>
+                <input
+                  ref={desktopInputRef}
+                  type="text"
+                  placeholder={t('search_placeholder')}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={handleSearchFocus}
+                  onKeyDown={handleKeyDown}
+                  className={`bg-transparent border-none outline-none text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 w-full ${isSearchActive || searchQuery ? 'block' : 'hidden'}`}
+                />
+              </div>
 
               {/* Search Results Dropdown */}
               {isSearchActive && (
                 <div className="absolute top-full right-0 mt-4 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-fade-in origin-top-right z-50">
-                   {searchQuery.length >= 1 ? (
+                  {searchQuery.length >= 1 ? (
                     <SearchResults
                       id="search-results-desktop"
                       query={searchQuery}
@@ -608,7 +645,8 @@ const Header: React.FC = () => {
                       activeIndex={activeIndex}
                     />
                   ) : (
-                    hasOptionalConsent && recentSearches.length > 0 && (
+                    hasOptionalConsent &&
+                    recentSearches.length > 0 && (
                       <div className="p-2">
                         <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 px-3 pt-2">
                           {t('search_recent')}
@@ -653,14 +691,14 @@ const Header: React.FC = () => {
                   className="flex items-center justify-center w-9 h-9 rounded-full ring-2 ring-transparent hover:ring-orange-500/50 transition-all p-0.5 overflow-hidden"
                   aria-label="Open user menu"
                 >
-                   <Avatar
-                      src={currentUser.profilePictureUrl}
-                      name={currentUser.name}
-                      size="sm"
-                      showPlusBadge={false} // Small size, hide badge
-                    />
+                  <Avatar
+                    src={currentUser.profilePictureUrl}
+                    name={currentUser.name}
+                    size="sm"
+                    showPlusBadge={false} // Small size, hide badge
+                  />
                 </button>
-                 {isProfileMenuOpen && (
+                {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-4 w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-2xl z-50 p-2 border border-white/20 dark:border-slate-800 animate-scale-in origin-top-right">
                     <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-2">
                       <p className="font-bold text-slate-800 dark:text-white truncate">
@@ -753,7 +791,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={openCart}
-                  className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
+                className="relative min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-amber-50/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors touch-manipulation active:scale-95 border border-amber-900/10 dark:border-zinc-700/50"
                 aria-label={`Open cart with ${cartCount} items`}
               >
                 <svg
@@ -827,7 +865,8 @@ const Header: React.FC = () => {
                 isFullScreen={true}
               />
             ) : (
-              hasOptionalConsent && recentSearches.length > 0 && (
+              hasOptionalConsent &&
+              recentSearches.length > 0 && (
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-slate-500 uppercase">Recent Searches</h3>
@@ -986,7 +1025,12 @@ const Header: React.FC = () => {
                     </p>
                     <div className="space-y-2.5">
                       {section.links.map((link) => (
-                        <MobileNavLink key={link.to} to={link.to} onClick={handleMenuClose} icon={link.icon}>
+                        <MobileNavLink
+                          key={link.to}
+                          to={link.to}
+                          onClick={handleMenuClose}
+                          icon={link.icon}
+                        >
                           {link.label}
                         </MobileNavLink>
                       ))}
@@ -1009,7 +1053,12 @@ const Header: React.FC = () => {
                     className="flex min-h-[56px] w-full items-center gap-4 rounded-2xl border border-red-200/80 bg-red-50/85 px-4 py-3 text-[1.05rem] font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700/60 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/40"
                   >
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-800/80">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
                         <path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2H5V5h5V3zm8.71 8.29-2-2-1.42 1.42L16.59 12H9v2h7.59l-1.3 1.29 1.42 1.42 2-2a1 1 0 0 0 0-1.42z" />
                       </svg>
                     </span>

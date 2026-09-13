@@ -327,7 +327,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
       </div>
 
       {/* Hover reveal glass panel */}
-      <div className="absolute top-0 left-0 w-full h-full glass-card-ios bg-zinc-900/80 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end z-20">
+      <div className="absolute top-0 left-0 w-full h-full rounded-2xl bg-zinc-900/90 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end z-20 border border-white/10">
         <h3 className="text-base md:text-lg font-bold text-amber-400 mb-2 leading-tight line-clamp-2">
           {article.title}
         </h3>
