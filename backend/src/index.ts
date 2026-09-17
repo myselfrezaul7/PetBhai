@@ -95,10 +95,17 @@ app.use(
           'https://identitytoolkit.googleapis.com',
           'https://securetoken.googleapis.com',
           'https://www.googleapis.com',
+          'https://*.googleapis.com',
           'https://accounts.google.com',
           'https://firebase.googleapis.com',
           'https://firebaseinstallations.googleapis.com',
           'https://firebaselogging-pa.googleapis.com',
+          'https://firestore.googleapis.com',
+          'https://*.firestore.googleapis.com',
+          'https://firebaseremoteconfig.googleapis.com',
+          'https://*.firebaseio.com',
+          'wss://*.firebaseio.com',
+          'https://*.firebaseapp.com',
         ],
         frameSrc: [
           'https://www.google.com/recaptcha/',
@@ -113,8 +120,8 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false,
-    // 'unsafe-none' allows Firebase signInWithPopup to communicate with the opener
-    crossOriginOpenerPolicy: { policy: 'unsafe-none' },
+    // 'same-origin-allow-popups' allows Firebase signInWithPopup to communicate with the opener
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     hsts: {

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { z } from 'zod';
-import { db } from '../db';
+import { db, PersistenceError } from '../db';
 import type { MedicineReminderRecord, PetProfileRecord, User } from '../types';
 import {
   AuthRequest,
@@ -165,8 +165,16 @@ const canAccessUser = (req: AuthRequest, userId: number | string): boolean => {
 };
 
 const persistChanges = async (res: any): Promise<boolean> => {
-  await db.write();
-  return true;
+  try {
+    await db.write();
+    return true;
+  } catch (err: any) {
+    if (err instanceof PersistenceError || err?.name === 'PersistenceError') {
+      console.warn('Persistence warning during auth operation (non-fatal):', err?.message || err);
+      return false;
+    }
+    throw err;
+  }
 };
 
 const sendAuthError = (
@@ -628,8 +636,9 @@ let firebaseAdminApp: import('firebase-admin').app.App | null = null;
 const getFirebaseAdmin = async (): Promise<import('firebase-admin').app.App | null> => {
   if (firebaseAdminApp) return firebaseAdminApp;
   try {
-    const admin = await import('firebase-admin');
-    if (admin.apps.length > 0) {
+    const adminModule = await import('firebase-admin');
+    const admin = (adminModule as any).default || adminModule;
+    if (admin.apps && admin.apps.length > 0) {
       firebaseAdminApp = admin.apps[0]!;
     } else {
       const projectId =
@@ -657,7 +666,8 @@ const verifyFirebaseToken = async (
       console.error('Firebase Admin app not initialized');
       return null;
     }
-    const admin = await import('firebase-admin');
+    const adminModule = await import('firebase-admin');
+    const admin = (adminModule as any).default || adminModule;
     // Cryptographically verify ID token against Google's public x509 certs & verify audience matches projectId
     const decoded = await admin.auth(app).verifyIdToken(idToken);
     return { uid: decoded.uid, email: decoded.email };

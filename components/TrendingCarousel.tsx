@@ -10,7 +10,8 @@ interface TrendingCardProps {
 }
 
 const TrendingCard: React.FC<TrendingCardProps> = ({ article }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isBn = language === 'bn';
   const [isLoaded, setIsLoaded] = useState(false);
   const { viewCount } = useArticleEngagement(article.id);
 
@@ -37,11 +38,11 @@ const TrendingCard: React.FC<TrendingCardProps> = ({ article }) => {
 
       {/* Top badges */}
       <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-        <span className="glass-card-ios bg-amber-500/90 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg backdrop-blur-md">
-          🔥 Trending
+        <span className="bg-amber-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border border-amber-500/80">
+          🔥 {isBn ? 'ট্রেন্ডিং' : 'Trending'}
         </span>
-        <span className="glass-card-ios bg-black/40 text-white text-xs px-2 py-1 rounded-full backdrop-blur-md">
-          {article.readTime} min read
+        <span className="bg-zinc-900/85 text-zinc-100 text-xs font-semibold px-2.5 py-1 rounded-full shadow-md backdrop-blur-md border border-white/20">
+          {article.readTime} {isBn ? 'মিনিট পড়া' : 'min read'}
         </span>
       </div>
 
@@ -79,7 +80,8 @@ interface TrendingCarouselProps {
 }
 
 const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const isBn = language === 'bn';
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Filter for featured/trending (just take the first 6 for now)
@@ -91,7 +93,7 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
     <div className="mb-12 relative">
       <div className="flex items-center justify-between mb-4 px-3 md:px-0">
         <h2 className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-          <span className="text-2xl">🔥</span> {t('trending_stories') || 'Trending Stories'}
+          <span className="text-2xl">🔥</span> {isBn ? 'জনপ্রিয় লেখাগুলো' : 'Trending Stories'}
         </h2>
         <div className="hidden sm:flex gap-2">
           <button

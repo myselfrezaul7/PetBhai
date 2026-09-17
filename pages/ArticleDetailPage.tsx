@@ -34,7 +34,7 @@ const ArticleDetailPage: React.FC = () => {
     toggleLike,
     addComment,
     deleteComment,
-  } = useArticleEngagement(article?.id || '');
+  } = useArticleEngagement(article?.id || '', { trackView: true });
 
   const handleShare = async () => {
     const url = window.location.href;

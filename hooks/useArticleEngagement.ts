@@ -12,7 +12,14 @@ import {
   type EngagementState,
 } from '../services/blogEngagement';
 
-export const useArticleEngagement = (articleId: string | number) => {
+export interface UseArticleEngagementOptions {
+  trackView?: boolean;
+}
+
+export const useArticleEngagement = (
+  articleId: string | number,
+  options?: UseArticleEngagementOptions
+) => {
   const { currentUser } = useAuth();
   const userId = currentUser?.id?.toString() || null;
 
@@ -29,8 +36,10 @@ export const useArticleEngagement = (articleId: string | number) => {
   useEffect(() => {
     if (!articleId) return;
 
-    // Increment view once on mount
-    incrementViews(articleId);
+    // Only increment view if trackView is explicitly requested (e.g. on full article detail view)
+    if (options?.trackView) {
+      incrementViews(articleId);
+    }
 
     const unsubscribe = subscribeEngagement(articleId, userId, (newState, likedByMe) => {
       setState(newState);
@@ -38,7 +47,7 @@ export const useArticleEngagement = (articleId: string | number) => {
     });
 
     return () => unsubscribe();
-  }, [articleId, userId]);
+  }, [articleId, userId, options?.trackView]);
 
   // Subscribe to comments
   useEffect(() => {

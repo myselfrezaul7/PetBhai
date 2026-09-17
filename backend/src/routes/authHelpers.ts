@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { z } from 'zod';
-import { db } from '../db';
+import { db, PersistenceError } from '../db';
 import type { MedicineReminderRecord, PetProfileRecord, User } from '../types';
 import {
   AuthRequest,
@@ -32,7 +32,9 @@ export type AuthErrorCode =
   | 'AUTH_ACCOUNT_LOCKED'
   | 'AUTH_EMAIL_NOT_VERIFIED'
   | 'AUTH_SOCIAL_PROVIDER_MISMATCH'
-  | 'AUTH_REFRESH_INVALID';
+  | 'AUTH_REFRESH_INVALID'
+  | 'AUTH_FIREBASE_TOKEN_REQUIRED'
+  | 'AUTH_FIREBASE_TOKEN_INVALID';
 
 export const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
 
@@ -163,8 +165,16 @@ export const canAccessUser = (req: AuthRequest, userId: number | string): boolea
 };
 
 export const persistChanges = async (res: any): Promise<boolean> => {
-  await db.write();
-  return true;
+  try {
+    await db.write();
+    return true;
+  } catch (err: any) {
+    if (err instanceof PersistenceError || err?.name === 'PersistenceError') {
+      console.warn('Persistence warning during auth operation (non-fatal):', err?.message || err);
+      return false;
+    }
+    throw err;
+  }
 };
 
 export const sendAuthError = (
@@ -449,4 +459,48 @@ export const calculateNextDueDate = (
   return nextDate.toISOString();
 };
 
-// Login
+// Firebase Admin — initialised lazily so we don't crash when credentials are absent
+let firebaseAdminApp: import('firebase-admin').app.App | null = null;
+export const getFirebaseAdmin = async (): Promise<import('firebase-admin').app.App | null> => {
+  if (firebaseAdminApp) return firebaseAdminApp;
+  try {
+    const adminModule = await import('firebase-admin');
+    const admin = (adminModule as any).default || adminModule;
+    if (admin.apps && admin.apps.length > 0) {
+      firebaseAdminApp = admin.apps[0]!;
+    } else {
+      const projectId =
+        process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'petbhai-d087c';
+      firebaseAdminApp = admin.initializeApp({ projectId });
+    }
+    return firebaseAdminApp;
+  } catch (err) {
+    console.warn('Firebase Admin init failed (social token verification disabled):', err);
+    return null;
+  }
+};
+
+/**
+ * Verify a Firebase ID token and return the decoded claims.
+ * Returns null when verification cannot be performed (missing SDK / credentials).
+ */
+export const verifyFirebaseToken = async (
+  idToken: string
+): Promise<{ uid: string; email?: string } | null> => {
+  if (!idToken) return null;
+  try {
+    const app = await getFirebaseAdmin();
+    if (!app) {
+      console.error('Firebase Admin app not initialized');
+      return null;
+    }
+    const adminModule = await import('firebase-admin');
+    const admin = (adminModule as any).default || adminModule;
+    // Cryptographically verify ID token against Google's public x509 certs & verify audience matches projectId
+    const decoded = await admin.auth(app).verifyIdToken(idToken);
+    return { uid: decoded.uid, email: decoded.email };
+  } catch (err: any) {
+    console.warn('Firebase Admin verifyIdToken rejected token:', err?.code || err?.message);
+    return null;
+  }
+};

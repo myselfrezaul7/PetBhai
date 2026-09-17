@@ -119,6 +119,9 @@ const translations: Translations = {
   btn_back_blog: { en: 'Back to Blog', bn: 'ব্লগ-এ ফিরে যান' },
   article_written_by: { en: 'Written by:', bn: 'লিখেছেন:' },
   recent_articles: { en: 'Recent Articles', bn: 'সাম্প্রতিক লেখা' },
+  trending_stories: { en: 'Trending Stories', bn: 'জনপ্রিয় লেখাগুলো' },
+  trending_badge: { en: 'Trending', bn: 'ট্রেন্ডিং' },
+  min_read: { en: 'min read', bn: 'মিনিট পড়া' },
 
   // Trust Page
   trust_title: { en: 'Your Trust, Our Priority', bn: 'আপনার বিশ্বাস, আমাদের অগ্রাধিকার' },

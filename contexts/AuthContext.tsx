@@ -1,5 +1,13 @@
 import { safeStorage, safeSessionStorage } from '../lib/storage';
-import React, { createContext, useState, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import type { User, Order } from '../types';
 import { sanitizeInput, validateId } from '../lib/security';
 import { apiRequest, ApiRequestError, getErrorMessage } from '../services/apiClient';
@@ -441,15 +449,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = getStoredToken();
       const refreshToken = getStoredRefreshToken();
       const isAuth = !!currentUser && !!token && (!isTokenExpired(token) || !!refreshToken);
-      
+
       if (isVisible && isAuth && !wishlistMutationRef.current) {
         void fetchProfile().catch(() => undefined);
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
@@ -515,13 +523,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Google account did not provide a valid email address.');
       }
 
-      const minimalPayload = {
+      const fullPayload = {
         name,
         email: normalizedEmail,
-      };
-
-      const fullPayload = {
-        ...minimalPayload,
         photoUrl: socialUser.photoUrl,
         firebaseToken: socialUser.firebaseToken,
         providerUserId: socialUser.providerUserId,
@@ -537,19 +541,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             body: JSON.stringify(fullPayload),
           });
         } catch (error) {
-          const shouldRetryMinimal =
+          const shouldRetry =
             error instanceof ApiRequestError &&
             typeof error.statusCode === 'number' &&
             error.statusCode >= 500;
 
-          if (!shouldRetryMinimal) {
+          if (!shouldRetry) {
             throw error;
           }
 
           data = await apiRequest<AuthResponse>('/auth/social', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(minimalPayload),
+            body: JSON.stringify(fullPayload),
           });
         }
 
@@ -646,10 +650,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
       // Optimistic update
-      setCurrentUser(prev => prev && !(prev.wishlist ?? []).includes(productId) 
-        ? { ...prev, wishlist: [...(prev.wishlist ?? []), productId] } 
-        : prev);
-        
+      setCurrentUser((prev) =>
+        prev && !(prev.wishlist ?? []).includes(productId)
+          ? { ...prev, wishlist: [...(prev.wishlist ?? []), productId] }
+          : prev
+      );
+
       inFlightWishlist.current.add(productId);
       wishlistMutationRef.current = true;
 
@@ -663,7 +669,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync wishlist', err);
-        setCurrentUser(prev => prev ? { ...prev, wishlist: (prev.wishlist ?? []).filter(id => id !== productId) } : prev);
+        setCurrentUser((prev) =>
+          prev
+            ? { ...prev, wishlist: (prev.wishlist ?? []).filter((id) => id !== productId) }
+            : prev
+        );
         toast.error('Failed to update wishlist. Please try again.');
       } finally {
         inFlightWishlist.current.delete(productId);
@@ -677,10 +687,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async (productId: number) => {
       if (!currentUser || inFlightWishlist.current.has(productId)) return;
 
-      setCurrentUser(prev => prev && (prev.wishlist ?? []).includes(productId) 
-        ? { ...prev, wishlist: (prev.wishlist ?? []).filter(id => id !== productId) } 
-        : prev);
-        
+      setCurrentUser((prev) =>
+        prev && (prev.wishlist ?? []).includes(productId)
+          ? { ...prev, wishlist: (prev.wishlist ?? []).filter((id) => id !== productId) }
+          : prev
+      );
+
       inFlightWishlist.current.add(productId);
       wishlistMutationRef.current = true;
 
@@ -690,7 +702,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync wishlist removal', err);
-        setCurrentUser(prev => prev ? { ...prev, wishlist: [...(prev.wishlist ?? []), productId] } : prev);
+        setCurrentUser((prev) =>
+          prev ? { ...prev, wishlist: [...(prev.wishlist ?? []), productId] } : prev
+        );
         toast.error('Failed to remove from wishlist. Please try again.');
       } finally {
         inFlightWishlist.current.delete(productId);
@@ -709,7 +723,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Limit favorites size to prevent abuse
       if ((currentUser.favorites ?? []).length >= 100) return;
 
-      setCurrentUser(prev => prev ? { ...prev, favorites: [...(prev.favorites ?? []), animalId] } : prev);
+      setCurrentUser((prev) =>
+        prev ? { ...prev, favorites: [...(prev.favorites ?? []), animalId] } : prev
+      );
       inFlightFavorites.current.add(animalId);
 
       try {
@@ -722,7 +738,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync favorite', err);
-        setCurrentUser(prev => prev ? { ...prev, favorites: (prev.favorites ?? []).filter(id => id !== animalId) } : prev);
+        setCurrentUser((prev) =>
+          prev
+            ? { ...prev, favorites: (prev.favorites ?? []).filter((id) => id !== animalId) }
+            : prev
+        );
         toast.error('Failed to favorite pet');
       } finally {
         inFlightFavorites.current.delete(animalId);
@@ -736,7 +756,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser || inFlightFavorites.current.has(animalId)) return;
       if (!validateId(animalId)) return;
 
-      setCurrentUser(prev => prev ? { ...prev, favorites: (prev.favorites ?? []).filter(id => id !== animalId) } : prev);
+      setCurrentUser((prev) =>
+        prev ? { ...prev, favorites: (prev.favorites ?? []).filter((id) => id !== animalId) } : prev
+      );
       inFlightFavorites.current.add(animalId);
 
       try {
@@ -745,7 +767,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } catch (err) {
         console.error('Failed to sync unfavorite', err);
-        setCurrentUser(prev => prev ? { ...prev, favorites: [...(prev.favorites ?? []), animalId] } : prev);
+        setCurrentUser((prev) =>
+          prev ? { ...prev, favorites: [...(prev.favorites ?? []), animalId] } : prev
+        );
         toast.error('Failed to remove pet from favorites');
       } finally {
         inFlightFavorites.current.delete(animalId);
@@ -757,7 +781,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const subscribeToPlus = useCallback(async () => {
     if (!currentUser || inFlightSubscription.current) return;
 
-    setCurrentUser(prev => prev ? { ...prev, isPlusMember: true } : prev);
+    setCurrentUser((prev) => (prev ? { ...prev, isPlusMember: true } : prev));
     inFlightSubscription.current = true;
 
     try {
@@ -767,7 +791,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success('Successfully subscribed to PetBhai Plus!');
     } catch (err) {
       console.error('Failed to sync subscription', err);
-      setCurrentUser(prev => prev ? { ...prev, isPlusMember: false } : prev);
+      setCurrentUser((prev) => (prev ? { ...prev, isPlusMember: false } : prev));
       toast.error('Failed to process subscription. Please try again.');
     } finally {
       inFlightSubscription.current = false;
@@ -779,7 +803,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!currentUser) return;
       if (!order || !order.orderId) return;
 
-      setCurrentUser(prev => {
+      setCurrentUser((prev) => {
         if (!prev) return prev;
         const limitedHistory = (prev.orderHistory ?? []).slice(0, 99);
         return { ...prev, orderHistory: [order, ...limitedHistory] };

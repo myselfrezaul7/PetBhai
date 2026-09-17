@@ -19,12 +19,10 @@ import { db } from './firebase';
 import { safeSessionStorage, safeStorage } from '../lib/storage';
 
 /**
- * Generates a realistic baseline reader count for an article based on its ID.
+ * Returns baseline reader count for an article (0 for authentic, accurate counting).
  */
-export const getBaselineReaders = (articleId: string | number): number => {
-  const cleanId = String(articleId).replace(/\D/g, '');
-  const num = cleanId ? Math.abs(parseInt(cleanId, 10)) : 1;
-  return 85 + ((num * 47) % 395);
+export const getBaselineReaders = (_articleId: string | number): number => {
+  return 0;
 };
 
 export interface Comment {
@@ -176,7 +174,6 @@ export const subscribeEngagement = (
   userId: string | null,
   callback: (state: EngagementState, isLikedByMe: boolean) => void
 ) => {
-  const baseline = getBaselineReaders(articleId);
   const localKey = `article_views_${articleId}`;
   const localViews = parseInt(safeStorage.getItem(localKey) || '0', 10);
 
@@ -185,7 +182,7 @@ export const subscribeEngagement = (
       {
         likeCount: 0,
         commentCount: 0,
-        viewCount: baseline + localViews,
+        viewCount: localViews,
       },
       false
     );
@@ -204,7 +201,7 @@ export const subscribeEngagement = (
           {
             likeCount: data.likeCount || 0,
             commentCount: data.commentCount || 0,
-            viewCount: baseline + (data.viewCount || 0),
+            viewCount: (data.viewCount || 0) + localViews,
           },
           userId ? likedBy.includes(userId) : false
         );
@@ -213,7 +210,7 @@ export const subscribeEngagement = (
           {
             likeCount: 0,
             commentCount: 0,
-            viewCount: baseline + localViews,
+            viewCount: localViews,
           },
           false
         );
@@ -225,7 +222,7 @@ export const subscribeEngagement = (
         {
           likeCount: 0,
           commentCount: 0,
-          viewCount: baseline + localViews,
+          viewCount: localViews,
         },
         false
       );
