@@ -390,14 +390,18 @@ const AppContent: React.FC = () => {
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route
-                      path="/blog/*"
+                      path="/blog"
                       element={
                         <BlogErrorBoundary>
-                          <Routes>
-                            <Route path="" element={<BlogPage />} />
-                            <Route path=":slug" element={<ArticleDetailPage />} />
-                            <Route path="*" element={<NotFoundPage />} />
-                          </Routes>
+                          <BlogPage />
+                        </BlogErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path="/blog/:slug"
+                      element={
+                        <BlogErrorBoundary>
+                          <ArticleDetailPage />
                         </BlogErrorBoundary>
                       }
                     />
