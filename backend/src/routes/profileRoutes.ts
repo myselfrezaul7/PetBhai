@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { db } from '../db';
-import type { User, PetProfileRecord, MedicineReminderRecord } from '../types';
+import type { User, PetProfileRecord, MedicineReminderRecord, UserNotification } from '../types';
 import { AuthRequest, requireAuth, verifyRefreshToken } from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/logger';
+import { syncNotificationToFirestore } from '../services/firestoreSync';
 import {
   loginAttemptTracker,
   SALT_ROUNDS,
@@ -111,6 +112,241 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Fetch profile error:', error);
     return res.status(500).json({ message: 'Failed to fetch profile' });
+  }
+});
+
+export const generateDefaultNotificationsForUser = (user: User): UserNotification[] => {
+  const generated: UserNotification[] = [];
+  const now = new Date();
+
+  // 1. Medicine reminders
+  if (Array.isArray(user.medicineReminders)) {
+    for (const reminder of user.medicineReminders) {
+      if (reminder.isActive && reminder.nextDueDate) {
+        const dueDate = new Date(reminder.nextDueDate);
+        const isOverdue = dueDate.getTime() < now.getTime();
+        const diffHours = (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+        const pet = (user.petProfiles || []).find((p) => p.id === reminder.petId);
+        const petName = pet?.name || 'your pet';
+
+        if (isOverdue) {
+          generated.push({
+            id: `reminder-overdue-${reminder.id}`,
+            userId: user.id,
+            title: `Medication Overdue: ${reminder.medicineName}`,
+            message: `${reminder.dosage} of ${reminder.medicineName} for ${petName} was due on ${dueDate.toLocaleDateString()}.`,
+            type: 'reminder',
+            isRead: false,
+            createdAt: reminder.nextDueDate,
+            metadata: { reminderId: reminder.id, petId: reminder.petId },
+          });
+        } else if (diffHours >= 0 && diffHours <= 48) {
+          generated.push({
+            id: `reminder-upcoming-${reminder.id}`,
+            userId: user.id,
+            title: `Medication Reminder: ${reminder.medicineName}`,
+            message: `Upcoming: ${reminder.dosage} of ${reminder.medicineName} for ${petName} is due soon.`,
+            type: 'reminder',
+            isRead: false,
+            createdAt: new Date().toISOString(),
+            metadata: { reminderId: reminder.id, petId: reminder.petId },
+          });
+        }
+      }
+    }
+  }
+
+  // 2. Recent orders
+  const orderMap = new Map<string, any>();
+  for (const o of user.orderHistory || []) {
+    if (o && o.orderId) orderMap.set(o.orderId, o);
+  }
+  for (const o of db.orders || []) {
+    if (
+      o &&
+      (Number((o as any).userId) === Number(user.id) ||
+        String((o as any).userId) === String(user.id))
+    ) {
+      orderMap.set(o.orderId, o);
+    }
+  }
+
+  const allOrders = Array.from(orderMap.values()).sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  for (const order of allOrders.slice(0, 10)) {
+    if (order && order.orderId) {
+      const status = order.status || 'pending';
+      const statusTitle =
+        status === 'delivered'
+          ? 'Order Delivered!'
+          : status === 'shipped'
+            ? 'Order on the Way!'
+            : status === 'confirmed' || status === 'processing'
+              ? `Order ${status.charAt(0).toUpperCase() + status.slice(1)}`
+              : status === 'cancelled'
+                ? 'Order Cancelled'
+                : status === 'refunded'
+                  ? 'Order Refunded'
+                  : 'Order Placed';
+
+      const statusMsg =
+        status === 'delivered'
+          ? `Your order #${order.orderId} has been successfully delivered.`
+          : status === 'shipped'
+            ? `Your order #${order.orderId} has been shipped.${order.trackingNumber ? ` Tracking: ${order.trackingNumber}` : ''}`
+            : status === 'cancelled'
+              ? `Your order #${order.orderId} has been cancelled.`
+              : `Your order #${order.orderId} is currently ${status}.`;
+
+      generated.push({
+        id: `order-status-${order.orderId}-${status}`,
+        userId: user.id,
+        title: statusTitle,
+        message: statusMsg,
+        type: 'order',
+        isRead: false,
+        createdAt: order.date || new Date().toISOString(),
+        metadata: { orderId: order.orderId, status },
+      });
+    }
+  }
+
+  return generated;
+};
+
+// Get current user's notifications
+router.get('/me/notifications', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const requesterId = String(req.user.id);
+    const user = db.users.find(
+      (record) => String(record.id) === requesterId || Number(record.id) === Number(requesterId)
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    ensureUserCollections(user);
+    if (!Array.isArray(user.notifications)) {
+      user.notifications = [];
+    }
+
+    const generatedNotifs = generateDefaultNotificationsForUser(user);
+    const existingMap = new Map<string, UserNotification>(user.notifications.map((n) => [n.id, n]));
+
+    let hasNew = false;
+    for (const gen of generatedNotifs) {
+      if (!existingMap.has(gen.id)) {
+        user.notifications.unshift(gen);
+        existingMap.set(gen.id, gen);
+        hasNew = true;
+        syncNotificationToFirestore(user.id, gen).catch((err) => {
+          console.warn('Failed to sync notification to Firestore:', err);
+        });
+      }
+    }
+
+    if (hasNew) {
+      await persistChanges(res);
+    }
+
+    const sorted = [...user.notifications].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return res.json({
+      notifications: sorted,
+      total: sorted.length,
+      unreadCount: sorted.filter((n) => !n.isRead).length,
+    });
+  } catch (error) {
+    console.error('Fetch notifications error:', error);
+    return res.status(500).json({ message: 'Failed to fetch notifications' });
+  }
+});
+
+// Mark single notification read
+router.patch('/me/notifications/:id/read', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const requesterId = String(req.user.id);
+    const user = db.users.find(
+      (record) => String(record.id) === requesterId || Number(record.id) === Number(requesterId)
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!Array.isArray(user.notifications)) {
+      user.notifications = [];
+    }
+
+    const notifId = String(req.params.id);
+    const notification = user.notifications.find((n) => String(n.id) === notifId);
+
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    notification.isRead = true;
+    await persistChanges(res);
+
+    syncNotificationToFirestore(user.id, notification).catch((err) => {
+      console.warn('Failed to sync notification read state to Firestore:', err);
+    });
+
+    return res.json({ message: 'Notification marked as read', notification });
+  } catch (error) {
+    console.error('Mark notification read error:', error);
+    return res.status(500).json({ message: 'Failed to mark notification as read' });
+  }
+});
+
+// Mark all notifications read
+router.post('/me/notifications/read-all', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const requesterId = String(req.user.id);
+    const user = db.users.find(
+      (record) => String(record.id) === requesterId || Number(record.id) === Number(requesterId)
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!Array.isArray(user.notifications)) {
+      user.notifications = [];
+    }
+
+    for (const n of user.notifications) {
+      n.isRead = true;
+    }
+
+    await persistChanges(res);
+
+    return res.json({
+      message: 'All notifications marked as read',
+      notifications: user.notifications,
+      unreadCount: 0,
+    });
+  } catch (error) {
+    console.error('Mark all notifications read error:', error);
+    return res.status(500).json({ message: 'Failed to mark notifications as read' });
   }
 });
 
@@ -240,20 +476,36 @@ router.delete('/:id', requireAuth, authLimiter, async (req: AuthRequest, res) =>
 
     const candidate = db.users[userIndex];
     const passwordConfirmation =
-      typeof req.body?.password === 'string' ? req.body.password : undefined;
+      typeof req.body?.passwordConfirmation === 'string' &&
+      req.body.passwordConfirmation.trim().length > 0
+        ? req.body.passwordConfirmation.trim()
+        : typeof req.body?.password === 'string' && req.body.password.trim().length > 0
+          ? req.body.password.trim()
+          : undefined;
 
-    if (candidate.password && !candidate.socialProvider) {
+    const hasPassword = typeof candidate.password === 'string' && candidate.password.length > 0;
+    const isSocialAccount = Boolean(candidate.socialProvider);
+
+    // If user has no password or has socialProvider, allow deletion directly.
+    // If user has password, require and verify passwordConfirmation, returning a clear error if missing or invalid.
+    if (hasPassword && !isSocialAccount) {
       if (!passwordConfirmation) {
-        return res.status(400).json({ message: 'Password confirmation is required' });
+        return res.status(400).json({
+          code: 'AUTH_PASSWORD_REQUIRED',
+          message: 'Password confirmation is required to delete this account',
+        });
       }
 
-      const isValidPassword = candidate.password.startsWith('$2')
-        ? await comparePassword(passwordConfirmation, candidate.password)
+      const isValidPassword = candidate.password!.startsWith('$2')
+        ? await comparePassword(passwordConfirmation, candidate.password!)
         : candidate.password === passwordConfirmation;
 
       if (!isValidPassword) {
         auditLog('FAILED_ACCOUNT_DELETE', userId, { reason: 'invalid_password' });
-        return res.status(401).json({ message: 'Password confirmation is incorrect' });
+        return res.status(401).json({
+          code: 'AUTH_INVALID_CREDENTIALS',
+          message: 'Password confirmation is incorrect',
+        });
       }
     }
 

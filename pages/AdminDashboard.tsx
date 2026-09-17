@@ -9,6 +9,7 @@ import { QuestionsTab } from '../components/admin/QuestionsTab';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
+import { realtimeService, useRealtimeConnection } from '../services/realtimeService';
 import { useAuth } from '../contexts/AuthContext';
 import { sanitizeInput, sanitizeUrl } from '../lib/security';
 import type { Order, Product, User } from '../types';
@@ -153,7 +154,17 @@ const AdminDashboard = () => {
   const [sortMode, setSortMode] = useState<SortMode>('risk-desc');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastSyncAt, setLastSyncAt] = useState('');
-  const [isLiveConnected, setIsLiveConnected] = useState(false);
+  const { isConnected: isLiveConnected } = useRealtimeConnection();
+  const [orderToasts, setOrderToasts] = useState<
+    Array<{
+      id: string;
+      orderId: string;
+      customer: string;
+      total: number;
+      rawOrder?: AdminOrder;
+    }>
+  >([]);
+  const [selectedOrderModal, setSelectedOrderModal] = useState<AdminOrder | null>(null);
   const [moderationStatusFilter, setModerationStatusFilter] =
     useState<ModerationStatusFilter>('open');
   const [userSearchTerm, setUserSearchTerm] = useState('');
@@ -189,6 +200,10 @@ const AdminDashboard = () => {
           sku: `PB-${String(product.id).padStart(4, '0')}`,
           productName: product.name,
           category: product.category,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          description: product.description,
+          weight: product.weight,
           stockLevel: Number(product.stockQuantity ?? 0),
           reorderPoint: Number(product.reorderPoint ?? 20),
           stockStatus: product.stockStatus,
@@ -249,61 +264,104 @@ const AdminDashboard = () => {
     };
   }, [autoRefresh, loadDashboardData]);
 
+  const playOrderChime = useCallback(() => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Friendly dual-tone chime: D5 (587.33Hz) -> A5 (880Hz)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(587.33, now);
+      gain1.gain.setValueAtTime(0.2, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.35);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(880, now + 0.12);
+      gain2.gain.setValueAtTime(0.22, now + 0.12);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.65);
+    } catch (err) {
+      console.warn('Audio chime warning:', err);
+    }
+  }, []);
+
   useEffect(() => {
-    const token = safeStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!token || !isAdminUser(currentUser)) {
-      setIsLiveConnected(false);
-      return undefined;
+    if (!isAdminUser(currentUser)) {
+      return;
     }
 
-    const streamUrl = `${API_BASE_URL}/admin/stream?token=${encodeURIComponent(token)}`;
-    const eventSource = new EventSource(streamUrl, { withCredentials: true });
+    realtimeService.init();
 
-    let refreshTimeout: number | null = null;
+    let refreshTimer: number | null = null;
     const queueRefresh = () => {
-      if (refreshTimeout) {
-        window.clearTimeout(refreshTimeout);
-      }
-      refreshTimeout = window.setTimeout(() => {
+      if (refreshTimer) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
         void loadDashboardData();
       }, 400);
     };
 
-    const onConnected = () => {
-      setIsLiveConnected(true);
-    };
+    const unsubscribeCreated = realtimeService.subscribe('ORDER_CREATED', (payload: any) => {
+      playOrderChime();
 
-    const onRealtimeChange = () => {
-      setIsLiveConnected(true);
+      const orderId = String(payload?.orderId || payload?.id || 'ORD-LIVE');
+      const customer = String(
+        payload?.shippingAddress?.name ||
+          payload?.shippingAddress?.fullName ||
+          payload?.customerName ||
+          'Customer'
+      );
+      const total = Number(payload?.total) || 0;
+
+      const newToast = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        orderId,
+        customer,
+        total,
+        rawOrder: payload as AdminOrder,
+      };
+
+      setOrderToasts((prev) => [newToast, ...prev].slice(0, 3));
       queueRefresh();
-    };
+    });
 
-    const onError = () => {
-      setIsLiveConnected(false);
-    };
+    const unsubscribeUpdated = realtimeService.subscribe('ORDER_UPDATED', () => {
+      queueRefresh();
+    });
 
-    eventSource.addEventListener('connected', onConnected);
-    eventSource.addEventListener('order-created', onRealtimeChange);
-    eventSource.addEventListener('order-updated', onRealtimeChange);
-    eventSource.addEventListener('order-cancelled', onRealtimeChange);
-    eventSource.addEventListener('inventory-updated', onRealtimeChange);
-    eventSource.addEventListener('product-created', onRealtimeChange);
-    eventSource.onerror = onError;
+    const unsubscribeInventory = realtimeService.subscribe('INVENTORY_CHANGED', () => {
+      queueRefresh();
+    });
 
     return () => {
-      setIsLiveConnected(false);
-      if (refreshTimeout) {
-        window.clearTimeout(refreshTimeout);
-      }
-      eventSource.removeEventListener('connected', onConnected);
-      eventSource.removeEventListener('order-created', onRealtimeChange);
-      eventSource.removeEventListener('order-updated', onRealtimeChange);
-      eventSource.removeEventListener('order-cancelled', onRealtimeChange);
-      eventSource.removeEventListener('inventory-updated', onRealtimeChange);
-      eventSource.removeEventListener('product-created', onRealtimeChange);
-      eventSource.close();
+      if (refreshTimer) window.clearTimeout(refreshTimer);
+      unsubscribeCreated();
+      unsubscribeUpdated();
+      unsubscribeInventory();
     };
-  }, [currentUser, loadDashboardData]);
+  }, [currentUser, loadDashboardData, playOrderChime]);
+
+  const pendingOrdersCount = useMemo(() => {
+    return recentOrders.filter((order) => (order.status || 'pending').toLowerCase() === 'pending')
+      .length;
+  }, [recentOrders]);
+
+  const openReportsCount = useMemo(() => {
+    return moderationReports.filter((report) => (report.status || 'open').toLowerCase() === 'open')
+      .length;
+  }, [moderationReports]);
 
   const handleInventoryFieldChange = (
     id: number,
@@ -360,16 +418,28 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleOrderStatusSave = async (orderId: string): Promise<void> => {
+  const handleOrderStatusSave = async (
+    orderId: string,
+    overrideStatus?: OrderStatus,
+    overrideNote?: string,
+    overrideTracking?: string
+  ): Promise<void> => {
     setSavingOrderId(orderId);
     setError('');
 
     try {
-      const status = selectedStatuses[orderId];
-      const safeNote = sanitizeInput(String(orderNotes[orderId] || ''), 500);
-      const safeTracking = sanitizeInput(String(trackingNumbers[orderId] || ''), 120, {
-        allowNewlines: false,
-      });
+      const status = overrideStatus || selectedStatuses[orderId] || 'pending';
+      const safeNote = sanitizeInput(
+        String(overrideNote !== undefined ? overrideNote : orderNotes[orderId] || ''),
+        500
+      );
+      const safeTracking = sanitizeInput(
+        String(overrideTracking !== undefined ? overrideTracking : trackingNumbers[orderId] || ''),
+        120,
+        {
+          allowNewlines: false,
+        }
+      );
 
       const headers = {
         ...getAuthHeaders(),
@@ -389,13 +459,21 @@ const AdminDashboard = () => {
         }
       );
 
+      const newStatus = response?.order?.status || status;
+      const newTracking = response?.order?.trackingNumber || safeTracking || undefined;
+
+      setSelectedStatuses((prev) => ({ ...prev, [orderId]: newStatus }));
+      if (newTracking) {
+        setTrackingNumbers((prev) => ({ ...prev, [orderId]: newTracking }));
+      }
+
       setRecentOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.orderId === orderId
             ? {
                 ...order,
-                status: response?.order?.status || status,
-                trackingNumber: response?.order?.trackingNumber || safeTracking || undefined,
+                status: newStatus,
+                trackingNumber: newTracking,
               }
             : order
         )
@@ -759,13 +837,18 @@ const AdminDashboard = () => {
             <button
               type="button"
               onClick={() => setActiveTab('orders')}
-              className={`w-full rounded-xl px-3 py-2 text-left ${
+              className={`w-full rounded-xl px-3 py-2 text-left flex items-center justify-between ${
                 activeTab === 'orders'
                   ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
-              🚚 Orders
+              <span>🚚 Orders</span>
+              {pendingOrdersCount > 0 && (
+                <span className="rounded-full bg-rose-500 text-white px-2 py-0.5 text-[10px] font-bold shadow-sm">
+                  {pendingOrdersCount}
+                </span>
+              )}
             </button>
             <button
               type="button"
@@ -781,13 +864,18 @@ const AdminDashboard = () => {
             <button
               type="button"
               onClick={() => setActiveTab('moderation')}
-              className={`w-full rounded-xl px-3 py-2 text-left ${
+              className={`w-full rounded-xl px-3 py-2 text-left flex items-center justify-between ${
                 activeTab === 'moderation'
                   ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-semibold'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/50'
               }`}
             >
-              🛡️ Moderation
+              <span>🛡️ Moderation</span>
+              {openReportsCount > 0 && (
+                <span className="rounded-full bg-amber-500 text-white px-2 py-0.5 text-[10px] font-bold shadow-sm">
+                  {openReportsCount}
+                </span>
+              )}
             </button>
             <button
               type="button"
@@ -877,7 +965,7 @@ const AdminDashboard = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`relative shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`relative shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 ${
                   activeTab === tab.key
                     ? 'text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
@@ -892,6 +980,16 @@ const AdminDashboard = () => {
                   />
                 )}
                 <span className="relative z-10">{tab.label}</span>
+                {tab.key === 'orders' && pendingOrdersCount > 0 && (
+                  <span className="relative z-10 rounded-full bg-rose-500 text-white px-1.5 py-0.2 text-[10px] font-bold">
+                    {pendingOrdersCount}
+                  </span>
+                )}
+                {tab.key === 'moderation' && openReportsCount > 0 && (
+                  <span className="relative z-10 rounded-full bg-amber-500 text-white px-1.5 py-0.2 text-[10px] font-bold">
+                    {openReportsCount}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -918,6 +1016,9 @@ const AdminDashboard = () => {
                   lastSyncAt={lastSyncAt}
                   secureLogout={secureLogout}
                   getStatusMeta={getStatusMeta}
+                  recentOrders={recentOrders}
+                  inventoryRows={inventoryRows}
+                  orderStats={orderStats}
                 />
               )}
               {activeTab === 'inventory' && (
@@ -954,6 +1055,8 @@ const AdminDashboard = () => {
                   getOrderStatusTone={getOrderStatusTone}
                   toNumeric={toNumeric}
                   sanitizeInput={sanitizeInput}
+                  selectedOrderModal={selectedOrderModal}
+                  setSelectedOrderModal={setSelectedOrderModal}
                 />
               )}
               {activeTab === 'create' && (
@@ -996,6 +1099,55 @@ const AdminDashboard = () => {
             </motion.div>
           </AnimatePresence>
         </main>
+      </div>
+
+      {/* Realtime Order Animated Toast Notification */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+        <AnimatePresence>
+          {orderToasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              className="pointer-events-auto rounded-2xl bg-slate-900 text-white p-4 shadow-2xl border border-orange-500/50 flex items-start gap-3 backdrop-blur-md"
+            >
+              <span className="text-2xl animate-bounce">🔔</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-xs text-orange-400">NEW ORDER RECEIVED</p>
+                <p className="text-xs text-slate-200 truncate mt-0.5">
+                  <strong>#{toast.orderId}</strong> from {toast.customer}
+                </p>
+                <p className="text-xs font-semibold text-white mt-0.5">
+                  ৳{toNumeric(toast.total).toLocaleString()}
+                </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('orders');
+                      if (toast.rawOrder) {
+                        setSelectedOrderModal(toast.rawOrder);
+                      }
+                      setOrderToasts((prev) => prev.filter((t) => t.id !== toast.id));
+                    }}
+                    className="rounded-lg bg-orange-500 hover:bg-orange-600 px-3 py-1 text-[11px] font-bold text-white transition shadow-sm"
+                  >
+                    View Order ➔
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrderToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+                    className="text-[11px] text-slate-400 hover:text-white px-1 py-1"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { db } from '../db';
 import type { Product } from '../types';
 import { AuthRequest, optionalAuth, requireAdmin, requireAuth } from '../middleware/auth';
 import { emitAdminEvent } from '../realtime/adminEvents';
+import { syncInventoryToFirestore } from '../services/firestoreSync';
 
 const router = express.Router();
 
@@ -39,6 +40,24 @@ const adminProductCreateSchema = z
     brandId: z.number().int().positive(),
     stockQuantity: z.number().int().min(0).max(100000),
     reorderPoint: z.number().int().min(0).max(100000),
+  })
+  .strict();
+
+const adminProductUpdateSchema = z
+  .object({
+    name: z.string().min(2).max(250).optional(),
+    category: z
+      .enum(['Cat Food', 'Dog Food', 'Cat Supplies', 'Dog Supplies', 'Grooming', 'Accessories'])
+      .optional(),
+    price: z.number().positive().finite().optional(),
+    discountPrice: z.number().positive().finite().nullable().optional(),
+    imageUrl: z.string().url().max(3000).optional(),
+    description: z.string().min(5).max(3000).optional(),
+    weight: z.string().min(1).max(50).optional(),
+    brandId: z.number().int().positive().optional(),
+    stockQuantity: z.number().int().min(0).max(100000).optional(),
+    stockLevel: z.number().int().min(0).max(100000).optional(),
+    reorderPoint: z.number().int().min(0).max(100000).optional(),
   })
   .strict();
 
@@ -119,55 +138,59 @@ router.get(
   })
 );
 
-router.post(
-  '/admin',
-  requireAuth,
-  requireAdmin,
-  asyncHandler(async (req, res) => {
-    const parseResult = adminProductCreateSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({
-        message: 'Invalid product payload',
-        details: parseResult.error.errors.map((error) => ({
-          field: error.path.join('.'),
-          message: error.message,
-        })),
-      });
-    }
-
-    const payload = parseResult.data;
-    const nextId =
-      db.products.reduce((maxId, product) => Math.max(maxId, Number(product.id) || 0), 0) + 1;
-
-    const stockStatus = deriveStockStatus(payload.stockQuantity, payload.reorderPoint);
-
-    const newProduct: Product = {
-      id: nextId,
-      name: payload.name.trim(),
-      category: payload.category,
-      price: payload.price,
-      imageUrl: payload.imageUrl,
-      description: payload.description.trim(),
-      weight: payload.weight.trim(),
-      brandId: payload.brandId,
-      rating: 0,
-      reviews: [],
-      stockQuantity: payload.stockQuantity,
-      reorderPoint: payload.reorderPoint,
-      stockStatus,
-    };
-
-    db.products.push(newProduct);
-    await db.write();
-    emitAdminEvent('product-created', {
-      productId: newProduct.id,
-      category: newProduct.category,
-      stockQuantity: newProduct.stockQuantity,
+const createProductHandler = asyncHandler(async (req, res) => {
+  const parseResult = adminProductCreateSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: 'Invalid product payload',
+      details: parseResult.error.errors.map((error) => ({
+        field: error.path.join('.'),
+        message: error.message,
+      })),
     });
+  }
 
-    return res.status(201).json(newProduct);
-  })
-);
+  const payload = parseResult.data;
+  const nextId =
+    db.products.reduce((maxId, product) => Math.max(maxId, Number(product.id) || 0), 0) + 1;
+
+  const stockStatus = deriveStockStatus(payload.stockQuantity, payload.reorderPoint);
+
+  const newProduct: Product = {
+    id: nextId,
+    name: payload.name.trim(),
+    category: payload.category,
+    price: payload.price,
+    imageUrl: payload.imageUrl,
+    description: payload.description.trim(),
+    weight: payload.weight.trim(),
+    brandId: payload.brandId,
+    rating: 0,
+    reviews: [],
+    stockQuantity: payload.stockQuantity,
+    reorderPoint: payload.reorderPoint,
+    stockStatus,
+  };
+
+  db.products.push(newProduct);
+  await db.write();
+  emitAdminEvent('product-created', {
+    productId: newProduct.id,
+    category: newProduct.category,
+    stockQuantity: newProduct.stockQuantity,
+  });
+
+  syncInventoryToFirestore(
+    newProduct.id,
+    newProduct.stockQuantity ?? 0,
+    newProduct.stockStatus ?? 'in-stock'
+  ).catch((err) => console.warn('Failed to sync inventory to Firestore:', err));
+
+  return res.status(201).json(newProduct);
+});
+
+router.post('/admin', requireAuth, requireAdmin, createProductHandler);
+router.post('/', requireAuth, requireAdmin, createProductHandler);
 
 router.patch(
   '/:id/inventory',
@@ -215,6 +238,110 @@ router.patch(
     });
 
     return res.json(updatedProduct);
+  })
+);
+
+router.put(
+  '/:id',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    const parseResult = adminProductUpdateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        message: 'Invalid product payload',
+        details: parseResult.error.errors.map((error) => ({
+          field: error.path.join('.'),
+          message: error.message,
+        })),
+      });
+    }
+
+    const productIndex = db.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const current = db.products[productIndex];
+    const data = parseResult.data;
+    const stockQuantity =
+      data.stockQuantity !== undefined
+        ? data.stockQuantity
+        : data.stockLevel !== undefined
+          ? data.stockLevel
+          : (current.stockQuantity ?? 0);
+    const reorderPoint =
+      data.reorderPoint !== undefined ? data.reorderPoint : (current.reorderPoint ?? 20);
+    const stockStatus = deriveStockStatus(stockQuantity, reorderPoint);
+
+    const updatedProduct: Product = {
+      ...current,
+      ...(data.name ? { name: data.name.trim() } : {}),
+      ...(data.category ? { category: data.category } : {}),
+      ...(data.price !== undefined ? { price: data.price } : {}),
+      ...(data.discountPrice !== undefined
+        ? { discountPrice: data.discountPrice ?? undefined }
+        : {}),
+      ...(data.imageUrl ? { imageUrl: data.imageUrl } : {}),
+      ...(data.description ? { description: data.description.trim() } : {}),
+      ...(data.weight ? { weight: data.weight.trim() } : {}),
+      ...(data.brandId !== undefined ? { brandId: data.brandId } : {}),
+      stockQuantity,
+      reorderPoint,
+      stockStatus,
+    };
+
+    db.products[productIndex] = updatedProduct;
+    await db.write();
+
+    emitAdminEvent('inventory-updated', {
+      productId: updatedProduct.id,
+      name: updatedProduct.name,
+      stockQuantity: updatedProduct.stockQuantity,
+      reorderPoint: updatedProduct.reorderPoint,
+      stockStatus: updatedProduct.stockStatus,
+    });
+
+    syncInventoryToFirestore(
+      updatedProduct.id,
+      updatedProduct.stockQuantity ?? 0,
+      updatedProduct.stockStatus ?? 'in-stock'
+    ).catch((err) => console.warn('Failed to sync inventory to Firestore:', err));
+
+    return res.json(updatedProduct);
+  })
+);
+
+router.delete(
+  '/:id',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    const productIndex = db.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    db.products.splice(productIndex, 1);
+    await db.write();
+
+    emitAdminEvent('inventory-updated', {
+      productId: id,
+      deleted: true,
+      action: 'deleted',
+    });
+
+    return res.json({ message: 'Product deleted successfully', id });
   })
 );
 

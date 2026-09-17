@@ -36,6 +36,12 @@ export interface ChatMessage {
   text: string;
 }
 
+export interface OrderStatusHistoryItem {
+  status: string;
+  timestamp: string;
+  note?: string;
+}
+
 export interface Order {
   orderId: string;
   date: string; // ISO string
@@ -50,6 +56,19 @@ export interface Order {
     | 'delivered'
     | 'cancelled'
     | 'refunded';
+  trackingNumber?: string;
+  carrier?: string;
+  estimatedDelivery?: string;
+  statusHistory?: OrderStatusHistoryItem[];
+  shippingAddress?: {
+    name?: string;
+    fullName?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    district?: string;
+    postalCode?: string;
+  };
 }
 
 export type AnimalStatus = 'Available' | 'Pending' | 'Adopted';

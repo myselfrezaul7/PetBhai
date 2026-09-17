@@ -39,18 +39,35 @@ export interface InventoryRow {
   reorderPoint: number;
   stockStatus?: Product['stockStatus'];
   riskScore?: number;
+  price?: number;
+  imageUrl?: string;
+  description?: string;
+  weight?: string;
+  brandId?: number;
 }
 
 export interface OrderStatusHistoryEntry {
-  status?: OrderStatus;
+  status: string;
   timestamp: string;
   note?: string;
 }
 
+export interface AdminOrderShippingAddress {
+  name?: string;
+  fullName?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  postalCode?: string;
+  email?: string;
+}
+
 export interface AdminOrder extends Order {
-  shippingAddress?: {
-    name?: string;
-  };
+  shippingAddress?: AdminOrderShippingAddress;
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
   trackingNumber?: string;
   statusHistory?: OrderStatusHistoryEntry[];
 }

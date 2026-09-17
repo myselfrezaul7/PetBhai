@@ -7,6 +7,7 @@ import { AuthRequest, optionalAuth, requireAuth, requireAdmin } from '../middlew
 import { orderLimiter } from '../middleware/rateLimiter';
 import { securityLog } from '../middleware/logger';
 import { emitAdminEvent } from '../realtime/adminEvents';
+import { syncOrderToFirestore, syncInventoryToFirestore } from '../services/firestoreSync';
 
 const router = Router();
 
@@ -115,6 +116,63 @@ const calculateEstimatedDelivery = (): string => {
   const deliveryDays = Math.floor(Math.random() * 5) + 3; // 3-7 days
   today.setDate(today.getDate() + deliveryDays);
   return today.toISOString();
+};
+
+const replenishProductStock = (order: ExtendedOrder) => {
+  const productList = db.products as Array<
+    Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }
+  >;
+
+  for (const item of order.items || []) {
+    const dbProduct = productList.find((p) => p.id === item.id);
+    if (dbProduct) {
+      const currentQty = typeof dbProduct.stockQuantity === 'number' ? dbProduct.stockQuantity : 0;
+      const newQty = currentQty + (item.quantity || 1);
+      dbProduct.stockQuantity = newQty;
+
+      if (newQty <= 0) {
+        dbProduct.stockStatus = 'out-of-stock';
+      } else if (dbProduct.reorderPoint !== undefined && newQty <= dbProduct.reorderPoint) {
+        dbProduct.stockStatus = 'low-stock';
+      } else {
+        dbProduct.stockStatus = 'in-stock';
+      }
+
+      emitAdminEvent('inventory-updated', {
+        productId: dbProduct.id,
+        stockQuantity: dbProduct.stockQuantity,
+        reorderPoint: dbProduct.reorderPoint,
+        stockStatus: dbProduct.stockStatus,
+      });
+
+      syncInventoryToFirestore(dbProduct.id, dbProduct.stockQuantity, dbProduct.stockStatus).catch(
+        (err) => {
+          console.warn('Failed to sync inventory to Firestore:', err);
+        }
+      );
+    }
+  }
+};
+
+const syncOrderWithUserHistory = (order: ExtendedOrder) => {
+  const targetUserId = order.userId;
+  if (!targetUserId) return;
+
+  const user = db.users.find(
+    (u) => Number(u.id) === Number(targetUserId) || String(u.id) === String(targetUserId)
+  );
+  if (!user) return;
+
+  if (!user.orderHistory) {
+    user.orderHistory = [];
+  }
+
+  const existingIdx = user.orderHistory.findIndex((o) => o.orderId === order.orderId);
+  if (existingIdx !== -1) {
+    user.orderHistory[existingIdx] = { ...order };
+  } else {
+    user.orderHistory.unshift({ ...order });
+  }
 };
 
 // Helper function to send email
@@ -360,12 +418,7 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
 
     // If userId is provided, add to user's history
     if (resolvedUserId) {
-      const user = db.users.find((u) => Number(u.id) === Number(resolvedUserId));
-      if (user) {
-        // Initialize orderHistory if not exists
-        if (!user.orderHistory) user.orderHistory = [];
-        user.orderHistory.unshift(newOrder);
-      }
+      syncOrderWithUserHistory(newOrder);
     }
 
     await db.write();
@@ -373,6 +426,10 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
       orderId: newOrder.orderId,
       status: newOrder.status,
       total: newOrder.total,
+    });
+
+    syncOrderToFirestore(newOrder).catch((err) => {
+      console.warn('Failed to sync new order to Firestore:', err);
     });
 
     // Send email notification asynchronously
@@ -528,6 +585,37 @@ router.get('/reorder-suggestions', requireAuth, async (req: AuthRequest, res) =>
   return res.json(suggestions);
 });
 
+// Get logged-in user's orders (/api/orders/my-orders)
+router.get('/my-orders', requireAuth, async (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const userId = Number(req.user.id);
+  const user = db.users.find(
+    (u) => Number(u.id) === userId || String(u.id) === String(req.user?.id)
+  );
+
+  const userOrders = db.orders.filter(
+    (o: any) => Number(o.userId) === userId || String(o.userId) === String(req.user?.id)
+  ) as ExtendedOrder[];
+  const historyOrders = (user?.orderHistory || []) as ExtendedOrder[];
+
+  const orderMap = new Map<string, ExtendedOrder>();
+  for (const o of historyOrders) {
+    if (o && o.orderId) orderMap.set(o.orderId, o);
+  }
+  for (const o of userOrders) {
+    if (o && o.orderId) orderMap.set(o.orderId, o);
+  }
+
+  const orders = Array.from(orderMap.values()).sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  return res.json({ orders, total: orders.length });
+});
+
 // Get order by ID
 router.get('/:orderId', requireAuth, async (req: AuthRequest, res) => {
   const { orderId } = req.params;
@@ -616,6 +704,7 @@ router.patch(
     }
 
     const order = db.orders[orderIndex] as ExtendedOrder;
+    const previousStatus = order.status;
     const now = new Date().toISOString();
 
     // Update order status
@@ -632,6 +721,15 @@ router.patch(
       order.trackingNumber = trackingNumber;
     }
 
+    // Replenish stock on cancellation or refund
+    if (
+      (status === 'cancelled' || status === 'refunded') &&
+      previousStatus !== 'cancelled' &&
+      previousStatus !== 'refunded'
+    ) {
+      replenishProductStock(order);
+    }
+
     securityLog('ORDER_STATUS_UPDATED', req, {
       orderId,
       status,
@@ -640,24 +738,18 @@ router.patch(
 
     db.orders[orderIndex] = order;
 
-    // Update user's order history if user exists
-    if ((order as any).userId) {
-      const user = db.users.find((u) => String(u.id) === String((order as any).userId));
-      if (user) {
-        // Initialize orderHistory if not exists
-        if (!user.orderHistory) user.orderHistory = [];
-        const userOrderIndex = user.orderHistory.findIndex((o) => o.orderId === orderId);
-        if (userOrderIndex !== -1) {
-          user.orderHistory[userOrderIndex] = order;
-        }
-      }
-    }
+    // Dual-store sync: update target user's orderHistory in db.users
+    syncOrderWithUserHistory(order);
 
     await db.write();
     emitAdminEvent('order-updated', {
       orderId,
       status: order.status,
       trackingNumber: order.trackingNumber,
+    });
+
+    syncOrderToFirestore(order).catch((err) => {
+      console.warn('Failed to sync updated order to Firestore:', err);
     });
 
     res.json({
@@ -700,6 +792,8 @@ router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
     return res.status(403).json({ message: 'Forbidden' });
   }
 
+  const previousStatus = order.status;
+
   // Only allow cancellation of pending or confirmed orders
   if (order.status && !['pending', 'confirmed'].includes(order.status)) {
     return res.status(400).json({
@@ -716,12 +810,23 @@ router.post('/:orderId/cancel', requireAuth, async (req: AuthRequest, res) => {
     note: reason || 'Cancelled by customer',
   });
 
+  if (previousStatus !== 'cancelled' && previousStatus !== 'refunded') {
+    replenishProductStock(order);
+  }
+
   db.orders[orderIndex] = order;
+
+  // Dual-store sync: update target user's orderHistory in db.users
+  syncOrderWithUserHistory(order);
 
   await db.write();
   emitAdminEvent('order-cancelled', {
     orderId,
     status: order.status,
+  });
+
+  syncOrderToFirestore(order).catch((err) => {
+    console.warn('Failed to sync cancelled order to Firestore:', err);
   });
 
   res.json({

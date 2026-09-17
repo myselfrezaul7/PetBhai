@@ -1,4 +1,5 @@
 import type { Response } from 'express';
+import { syncAdminFeedToFirestore, syncOrderToFirestore } from '../services/firestoreSync';
 
 type AdminEventType =
   | 'connected'
@@ -37,6 +38,17 @@ export const emitAdminEvent = (
       adminClients.delete(client);
       client.end();
     }
+  }
+
+  // After notifying in-memory adminClients, asynchronously call syncOrderToFirestore or write to system/admin_live_feed doc in Firestore
+  if (payload.order) {
+    syncOrderToFirestore(payload.order).catch((err) => {
+      console.warn('Firestore order sync from adminEvents failed (non-fatal):', err);
+    });
+  } else {
+    syncAdminFeedToFirestore(eventType, payload).catch((err) => {
+      console.warn('Firestore admin feed sync failed (non-fatal):', err);
+    });
   }
 };
 

@@ -127,6 +127,17 @@ export interface Animal {
   postedAt?: string;
 }
 
+export interface UserNotification {
+  id: string;
+  userId: number | string;
+  title: string;
+  message: string;
+  type: 'order' | 'reminder' | 'system' | 'promotion';
+  isRead: boolean;
+  createdAt: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface User {
   id: number | string;
   name: string;
@@ -139,6 +150,7 @@ export interface User {
   wishlist?: number[]; // Array of product IDs
   orderHistory?: Order[];
   favorites?: number[]; // Array of animal IDs
+  notifications?: UserNotification[];
   isPlusMember?: boolean;
   role?: 'customer' | 'moderator' | 'store_manager' | 'super_admin';
   emailVerified?: boolean;
@@ -290,6 +302,7 @@ export interface Product {
   reorderPoint?: number;
   originalPrice?: number;
   discount?: number;
+  discountPrice?: number;
 }
 
 export interface CartItem extends Product {
