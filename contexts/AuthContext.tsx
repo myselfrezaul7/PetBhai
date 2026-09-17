@@ -17,7 +17,8 @@ const CURRENT_USER_STORAGE_KEY = 'petbhai_currentUser';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
 const REFRESH_TOKEN_STORAGE_KEY = 'petbhai_refresh_token';
 const TOKEN_EXPIRY_SKEW_MS = 30_000;
-const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+const PROFILE_FETCH_COOLDOWN_MS = 60_000;
+const ADMIN_EMAILS = ['petbhaibd@gmail.com', 'rsrezaul55@gmail.com'];
 
 interface AuthResponse {
   user: User;
@@ -41,7 +42,7 @@ const validateName = (name: string): boolean => {
 };
 
 const isAdminEmail = (email?: string): boolean => {
-  return typeof email === 'string' && email.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
+  return typeof email === 'string' && ADMIN_EMAILS.includes(email.trim().toLowerCase());
 };
 
 const clearAuthStorage = () => {
@@ -162,7 +163,7 @@ interface AuthContextType {
     firebaseToken?: string;
     providerUserId?: string;
   }) => Promise<User>;
-  fetchProfile: () => Promise<User>;
+  fetchProfile: (options?: { silent?: boolean }) => Promise<User>;
   updateProfile: (updatedData: {
     name?: string;
     profilePictureUrl?: string;
@@ -195,6 +196,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const inFlightWishlist = useRef<Set<number>>(new Set());
   const inFlightFavorites = useRef<Set<number>>(new Set());
   const inFlightSubscription = useRef(false);
+  const isFetchingProfileRef = useRef(false);
+  const lastProfileFetchTimeRef = useRef(0);
 
   const clearSession = useCallback(() => {
     setCurrentUser(null);
@@ -204,6 +207,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const persistSession = useCallback((data: AuthResponse): User => {
     if (!data?.token || !data?.user) {
       throw new Error('Invalid auth response');
+    }
+
+    if (isAdminEmail(data.user.email)) {
+      data.user.role = 'super_admin';
     }
 
     safeStorage.setItem(TOKEN_STORAGE_KEY, data.token);
@@ -411,54 +418,85 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [clearSession, refreshSession]
   );
 
-  const fetchProfile = useCallback(async (): Promise<User> => {
-    try {
-      const endpoint = currentUser?.id ? `/auth/${currentUser.id}` : '/auth/me';
-      const profile = await protectedApiRequest<User>(endpoint, {
-        method: 'GET',
-      });
+  const fetchProfile = useCallback(
+    async (options?: { silent?: boolean }): Promise<User> => {
+      try {
+        const endpoint = '/auth/me';
+        const profile = await protectedApiRequest<User>(endpoint, {
+          method: 'GET',
+        });
 
-      if (isAdminEmail(profile.email)) {
-        profile.role = 'super_admin';
-      }
+        if (isAdminEmail(profile.email)) {
+          profile.role = 'super_admin';
+        }
 
-      setCurrentUser(profile);
-      return profile;
-    } catch (err) {
-      console.error('fetchProfile error: ', err);
-      const isApiError = err instanceof ApiRequestError;
-      const retryable = isApiError ? err.retryable : true;
+        setCurrentUser(profile);
+        return profile;
+      } catch (err) {
+        console.error('fetchProfile error: ', err);
+        const isApiError = err instanceof ApiRequestError;
+        const retryable = isApiError ? err.retryable : true;
 
-      if (isApiError && err.statusCode === 404) {
-        // Do not clear session instantly on 404, as the mock DB might have reset while the JWT is still valid.
-        toast.error('User record not found in database. Please log in again.');
+        if (isApiError && err.statusCode === 404) {
+          if (!options?.silent) {
+            toast.error('User record not found. Please log in again.');
+          }
+          clearSession();
+          throw err;
+        }
+
+        // Surface non-retryable API errors to the user instead of failing silently in background
+        if (isApiError && !retryable) {
+          if (!options?.silent) {
+            toast.error(getErrorMessage(err, 'Failed to sync profile data.'));
+          }
+        }
         throw err;
       }
-
-      // Surface non-retryable API errors to the user instead of failing silently in background
-      if (isApiError && !retryable) {
-        toast.error(getErrorMessage(err, 'Failed to sync profile data.'));
-      }
-      throw err;
-    }
-  }, [protectedApiRequest, toast, currentUser?.id]);
+    },
+    [protectedApiRequest, toast, clearSession]
+  );
 
   useEffect(() => {
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
     const handleVisibilityChange = () => {
-      const isVisible = document.visibilityState === 'visible';
+      if (document.visibilityState !== 'visible') return;
+
       const token = getStoredToken();
       const refreshToken = getStoredRefreshToken();
       const isAuth = !!currentUser && !!token && (!isTokenExpired(token) || !!refreshToken);
+      if (!isAuth || wishlistMutationRef.current) return;
 
-      if (isVisible && isAuth && !wishlistMutationRef.current) {
-        void fetchProfile().catch(() => undefined);
+      const now = Date.now();
+      if (now - lastProfileFetchTimeRef.current < PROFILE_FETCH_COOLDOWN_MS) return;
+      if (isFetchingProfileRef.current) return;
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
       }
+
+      debounceTimer = setTimeout(async () => {
+        if (isFetchingProfileRef.current) return;
+        isFetchingProfileRef.current = true;
+        try {
+          await fetchProfile({ silent: true });
+        } catch {
+          // Silent background refresh
+        } finally {
+          isFetchingProfileRef.current = false;
+          lastProfileFetchTimeRef.current = Date.now();
+        }
+      }, 300);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleVisibilityChange);
 
     return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
     };

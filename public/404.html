@@ -12,6 +12,7 @@
     <link rel="canonical" href="https://www.petbhai.com/" />
 
     <!-- Open Graph -->
+    <meta property="fb:app_id" content="106952955493913" />
     <meta property="og:title" content="Page Not Found — PetBhai" />
     <meta
       property="og:description"
@@ -20,6 +21,15 @@
     <meta property="og:url" content="https://www.petbhai.com/" />
     <meta property="og:site_name" content="PetBhai" />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://www.petbhai.com/landing-hero.png?v=20260215" />
+    <meta
+      property="og:image:secure_url"
+      content="https://www.petbhai.com/landing-hero.png?v=20260215"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="PetBhai - Pet Care and Supplies" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -48,29 +58,6 @@
         animation: pulse-slow 2s ease-in-out infinite;
       }
     </style>
-    <script>
-      // Single Page Apps redirect for GitHub Pages / static hosting
-      (function () {
-        try {
-          var path = window.location.pathname;
-          var repoName = '/PetBhai';
-          var isRepo = path.startsWith(repoName);
-          if (isRepo) {
-            path = path.substring(repoName.length);
-          }
-          if (path && path !== '/' && path !== '') {
-            var base = isRepo ? repoName : '';
-            var target =
-              base +
-              '/?p=' +
-              encodeURIComponent(path) +
-              (window.location.search ? '&' + window.location.search.slice(1) : '') +
-              window.location.hash;
-            window.location.replace(target);
-          }
-        } catch (e) {}
-      })();
-    </script>
   </head>
   <body
     class="bg-gradient-to-br from-orange-50 via-white to-amber-50 text-slate-800 min-h-screen flex flex-col"
@@ -106,31 +93,31 @@
             <span>🏠</span> Home
           </a>
           <a
-            href="/shop/"
+            href="/shop"
             class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2"
           >
             <span>🛒</span> Shop
           </a>
           <a
-            href="/adopt/"
+            href="/adopt"
             class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2"
           >
             <span>❤️</span> Adopt
           </a>
           <a
-            href="/find-vet/"
+            href="/services"
             class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2"
           >
             <span>🏥</span> Find Vet
           </a>
           <a
-            href="/blog/"
+            href="/blog"
             class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2"
           >
             <span>📚</span> Blog
           </a>
           <a
-            href="/ai-assistant/"
+            href="/ai-assistant"
             class="bg-white border border-orange-200 text-orange-600 px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium flex items-center justify-center gap-2"
           >
             <span>🤖</span> AI Help
@@ -142,22 +129,22 @@
           <h3 class="font-semibold text-slate-700 mb-3">Popular on PetBhai</h3>
           <div class="flex flex-wrap justify-center gap-2 text-sm">
             <a
-              href="/#/shop"
+              href="/shop"
               class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors"
               >Dog Food</a
             >
             <a
-              href="/#/shop"
+              href="/shop"
               class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors"
               >Cat Food</a
             >
             <a
-              href="/#/adopt"
+              href="/adopt"
               class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors"
               >Pet Adoption</a
             >
             <a
-              href="/find-vet"
+              href="/services"
               class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors"
               >Emergency Vet</a
             >

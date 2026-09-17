@@ -4030,4 +4030,13 @@ export const MOCK_USERS: User[] = [
     orderHistory: [],
     favorites: [],
   },
+  {
+    id: '4',
+    name: 'Rezaul Karim',
+    email: 'rsrezaul55@gmail.com',
+    role: 'super_admin',
+    wishlist: [],
+    orderHistory: [],
+    favorites: [],
+  },
 ];

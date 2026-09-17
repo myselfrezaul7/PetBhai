@@ -61,7 +61,7 @@ const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'));
 const MessengerPlugin = lazy(() => import('./components/MessengerPlugin'));
 const AIAssistantPage = lazy(() => import('./pages/AIAssistantPage'));
 
-const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+const ADMIN_EMAILS = ['petbhaibd@gmail.com', 'rsrezaul55@gmail.com'];
 
 const AdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { isAuthenticated, currentUser } = useAuth();
@@ -73,7 +73,7 @@ const AdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) =>
   const isAdminUser =
     currentUser?.role === 'super_admin' ||
     (currentUser?.role as string) === 'admin' ||
-    currentUser?.email?.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL;
+    ADMIN_EMAILS.includes(currentUser?.email?.trim().toLowerCase() || '');
 
   if (!isAdminUser) {
     return <Navigate to="/" replace />;

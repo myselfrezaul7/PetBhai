@@ -38,7 +38,7 @@ import type {
 } from '../types/admin';
 
 const TOKEN_STORAGE_KEY = 'petbhai_token';
-const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+const ADMIN_EMAILS = ['petbhaibd@gmail.com', 'rsrezaul55@gmail.com'];
 
 const categoryOptions: Product['category'][] = [
   'Cat Food',
@@ -123,7 +123,7 @@ const isAdminUser = (user: User | null): boolean => {
   if (!user) return false;
   const normalizedEmail = typeof user.email === 'string' ? user.email.trim().toLowerCase() : '';
   const validRoles = ['super_admin', 'store_manager', 'moderator'];
-  return validRoles.includes(user.role || '') || normalizedEmail === DEFAULT_ADMIN_EMAIL;
+  return validRoles.includes(user.role || '') || ADMIN_EMAILS.includes(normalizedEmail);
 };
 
 const AdminDashboard = () => {

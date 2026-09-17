@@ -40,7 +40,9 @@ type AuthErrorCode =
   | 'AUTH_FIREBASE_TOKEN_INVALID';
 
 const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+const DEFAULT_ADMIN_EMAILS = ['petbhaibd@gmail.com', 'rsrezaul55@gmail.com'];
 
+const normalizedDefaultAdminEmails = DEFAULT_ADMIN_EMAILS.map((email) => email.toLowerCase());
 const normalizedDefaultAdminEmail = DEFAULT_ADMIN_EMAIL.toLowerCase();
 
 const ADMIN_EMAIL_ALLOWLIST = new Set([
@@ -48,7 +50,7 @@ const ADMIN_EMAIL_ALLOWLIST = new Set([
     .split(',')
     .map((value) => value.trim().toLowerCase())
     .filter((value) => value.length > 0),
-  normalizedDefaultAdminEmail,
+  ...normalizedDefaultAdminEmails,
 ]);
 
 // Email validation regex

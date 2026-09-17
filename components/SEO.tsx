@@ -6,6 +6,8 @@ interface SEOProps {
   description?: string;
   keywords?: string[];
   image?: string;
+  imageAlt?: string;
+  facebookAppId?: string;
   url?: string;
   type?: 'website' | 'article' | 'product';
   noindex?: boolean;
@@ -41,6 +43,8 @@ const SEO: React.FC<SEOProps> = ({
     'পোষা প্রাণী',
   ],
   image,
+  imageAlt = 'PetBhai - Pet Care and Supplies',
+  facebookAppId,
   url,
   type = 'website',
   noindex = false,
@@ -60,6 +64,7 @@ const SEO: React.FC<SEOProps> = ({
   twitterCreator = '@petbhai_bd',
   structuredData,
 }) => {
+  const fbAppId = facebookAppId || import.meta.env.VITE_FACEBOOK_APP_ID || '106952955493913';
   const siteTitle = 'PetBhai';
   // Always use production URL for canonical tags to avoid duplicate indexing issues
   const productionUrl = 'https://www.petbhai.com/';
@@ -195,6 +200,8 @@ const SEO: React.FC<SEOProps> = ({
       <link rel="alternate" hrefLang="x-default" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
+      <meta property="fb:app_id" content={fbAppId} />
+      <meta property="fb:pages" content="106952955493913" />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={currentUrl} />
       <meta property="og:title" content={fullTitle} />
@@ -204,6 +211,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:image:type" content="image/png" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={imageAlt} />
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:locale:alternate" content="bn_BD" />
@@ -214,6 +222,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={resolvedImage} />
+      <meta name="twitter:image:alt" content={imageAlt} />
       <meta name="twitter:site" content="@petbhai_bd" />
       {twitterCreator && <meta name="twitter:creator" content={twitterCreator} />}
 

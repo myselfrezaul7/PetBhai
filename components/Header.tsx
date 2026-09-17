@@ -78,13 +78,13 @@ const ALL_PAGES: PageResult[] = [
   },
 ];
 
-const DEFAULT_ADMIN_EMAIL = 'petbhaibd@gmail.com';
+const ADMIN_EMAILS = ['petbhaibd@gmail.com', 'rsrezaul55@gmail.com'];
 
 const isAdminUser = (user?: { role?: string; email?: string }): boolean => {
   if (!user) return false;
   const normalizedEmail = typeof user.email === 'string' ? user.email.trim().toLowerCase() : '';
   const validRoles = ['super_admin', 'store_manager', 'moderator'];
-  return validRoles.includes(user.role || '') || normalizedEmail === 'petbhaibd@gmail.com';
+  return validRoles.includes(user.role || '') || ADMIN_EMAILS.includes(normalizedEmail);
 };
 
 const Header: React.FC = () => {

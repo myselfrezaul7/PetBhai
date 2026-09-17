@@ -65,11 +65,38 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
     }
 
     const requesterId = String(req.user.id);
-    if (!Number.isFinite(Number(requesterId))) {
-      return res.status(401).json({ message: 'Invalid auth context' });
+    let user = db.users.find(
+      (record) => String(record.id) === requesterId || Number(record.id) === Number(requesterId)
+    );
+
+    if (!user && req.user.email) {
+      const normalizedReqEmail = normalizeEmail(req.user.email);
+      user = db.users.find((record) => normalizeEmail(record.email) === normalizedReqEmail);
     }
 
-    const user = db.users.find((record) => Number(record.id) === Number(requesterId));
+    if (!user && req.user.email && isValidEmail(req.user.email)) {
+      const normalizedEmailStr = normalizeEmail(req.user.email);
+      const isVerified = true;
+      const role = req.user.role || getRoleByEmail(normalizedEmailStr, isVerified);
+      const newUser: User = {
+        id: req.user.id,
+        name: req.user.name || 'User',
+        email: normalizedEmailStr,
+        role: role as any,
+        isPlusMember: Boolean(req.user.isPlusMember),
+        emailVerified: true,
+        tokenVersion: 0,
+        wishlist: [],
+        orderHistory: [],
+        favorites: [],
+        petProfiles: [],
+        medicineReminders: [],
+      };
+      db.users.push(newUser);
+      await persistChanges(res);
+      user = newUser;
+    }
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -84,6 +111,34 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Fetch profile error:', error);
     return res.status(500).json({ message: 'Failed to fetch profile' });
+  }
+});
+
+// Get Profile by ID
+router.get('/:id', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    if (!canAccessUser(req, userId)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const user = db.users.find(
+      (u) => String(u.id) === String(userId) || Number(u.id) === Number(userId)
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    ensureUserCollections(user);
+    return res.json(sanitizeUser(user));
+  } catch (error) {
+    console.error('Fetch user by ID error:', error);
+    return res.status(500).json({ message: 'Failed to fetch user' });
   }
 });
 
