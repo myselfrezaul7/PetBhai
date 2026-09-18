@@ -24,19 +24,6 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  if (!product) return null;
-
-  // Check if item is in cart
-  const cartItem = cartItems.find((item) => item.id === product.id);
-  const quantityInCart = cartItem ? cartItem.quantity : 0;
-
-  const handleAddToCart = () => {
-    triggerCustom(20);
-    setIsAdding(true);
-    addToCart(product);
-    setTimeout(() => setIsAdding(false), 800);
-  };
-
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
@@ -54,6 +41,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
   }, []);
 
   useEffect(() => {
+    if (!product) return;
     closeButtonRef.current?.focus();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -89,7 +77,20 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [product, onClose]);
+
+  if (!product) return null;
+
+  // Check if item is in cart
+  const cartItem = cartItems.find((item) => item.id === product.id);
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+  const handleAddToCart = () => {
+    triggerCustom(20);
+    setIsAdding(true);
+    addToCart(product);
+    setTimeout(() => setIsAdding(false), 800);
+  };
 
   const StarRatingDisplay: React.FC<{ rating: number }> = ({ rating }) => (
     <div className="flex items-center">

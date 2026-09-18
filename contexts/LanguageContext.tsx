@@ -119,6 +119,7 @@ const translations: Translations = {
   btn_back_blog: { en: 'Back to Blog', bn: 'ব্লগ-এ ফিরে যান' },
   article_written_by: { en: 'Written by:', bn: 'লিখেছেন:' },
   recent_articles: { en: 'Recent Articles', bn: 'সাম্প্রতিক লেখা' },
+  related_articles: { en: 'Related Articles', bn: 'সম্পর্কিত লেখা' },
   trending_stories: { en: 'Trending Stories', bn: 'জনপ্রিয় লেখাগুলো' },
   trending_badge: { en: 'Trending', bn: 'ট্রেন্ডিং' },
   min_read: { en: 'min read', bn: 'মিনিট পড়া' },
@@ -182,6 +183,10 @@ const translations: Translations = {
     bn: 'আপনার অনুসন্ধানের সাথে কোনো পণ্য মেলেনি।',
   },
   shop_clear_filters: { en: 'Clear Filters', bn: 'ফিল্টার মুছুন' },
+  badge_out_of_stock: { en: 'Out of Stock', bn: 'স্টক শেষ' },
+  search: { en: 'Search', bn: 'সার্চ' },
+  prev: { en: 'Previous', bn: 'পূর্ববর্তী' },
+  next: { en: 'Next', bn: 'পরবর্তী' },
 
   // Product Card
   btn_out_of_stock: { en: 'Out of Stock', bn: 'স্টক শেষ' },

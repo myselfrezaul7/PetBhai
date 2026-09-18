@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { db } from '../db';
 import type { User, PetProfileRecord, MedicineReminderRecord, UserNotification } from '../types';
 import { AuthRequest, requireAuth, verifyRefreshToken } from '../middleware/auth';
@@ -314,7 +314,7 @@ router.patch('/me/notifications/:id/read', requireAuth, async (req: AuthRequest,
 });
 
 // Mark all notifications read
-router.post('/me/notifications/read-all', requireAuth, async (req: AuthRequest, res) => {
+const markAllNotificationsReadHandler = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -348,7 +348,10 @@ router.post('/me/notifications/read-all', requireAuth, async (req: AuthRequest, 
     console.error('Mark all notifications read error:', error);
     return res.status(500).json({ message: 'Failed to mark notifications as read' });
   }
-});
+};
+
+router.post('/me/notifications/read-all', requireAuth, markAllNotificationsReadHandler);
+router.patch('/me/notifications/read-all', requireAuth, markAllNotificationsReadHandler);
 
 // Get Profile by ID
 router.get('/:id', requireAuth, async (req: AuthRequest, res) => {

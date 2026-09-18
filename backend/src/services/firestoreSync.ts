@@ -1,5 +1,17 @@
 import { getFirebaseAdmin } from '../routes/authHelpers';
 
+const cleanUndefined = (obj: any): any => {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(cleanUndefined);
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      result[key] = cleanUndefined(value);
+    }
+  }
+  return result;
+};
+
 /**
  * Synchronizes an order to Cloud Firestore 'orders' collection
  * and triggers an update event in 'system/admin_live_feed'.
@@ -17,17 +29,20 @@ export const syncOrderToFirestore = async (order: any): Promise<void> => {
     const firestore = admin.firestore(adminApp);
 
     const docId = String(order.orderId);
-    await firestore.collection('orders').doc(docId).set(order, { merge: true });
+    await firestore.collection('orders').doc(docId).set(cleanUndefined(order), { merge: true });
 
-    await firestore.collection('system').doc('admin_live_feed').set(
-      {
-        lastEvent: 'order-updated',
-        orderId: order.orderId,
-        status: order.status,
-        timestamp: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await firestore
+      .collection('system')
+      .doc('admin_live_feed')
+      .set(
+        cleanUndefined({
+          lastEvent: 'order-updated',
+          orderId: order.orderId,
+          status: order.status,
+          timestamp: new Date().toISOString(),
+        }),
+        { merge: true }
+      );
   } catch (error) {
     console.warn('Firestore syncOrder failed (non-fatal):', error);
   }
@@ -50,26 +65,32 @@ export const syncInventoryToFirestore = async (
     const admin = (adminModule as any).default || adminModule;
     const firestore = admin.firestore(adminApp);
 
-    await firestore.collection('inventory').doc(String(productId)).set(
-      {
-        productId,
-        stockQuantity,
-        stockStatus,
-        updatedAt: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await firestore
+      .collection('inventory')
+      .doc(String(productId))
+      .set(
+        cleanUndefined({
+          productId,
+          stockQuantity,
+          stockStatus,
+          updatedAt: new Date().toISOString(),
+        }),
+        { merge: true }
+      );
 
-    await firestore.collection('system').doc('admin_live_feed').set(
-      {
-        lastEvent: 'inventory-updated',
-        productId,
-        stockQuantity,
-        stockStatus,
-        timestamp: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await firestore
+      .collection('system')
+      .doc('admin_live_feed')
+      .set(
+        cleanUndefined({
+          lastEvent: 'inventory-updated',
+          productId,
+          stockQuantity,
+          stockStatus,
+          timestamp: new Date().toISOString(),
+        }),
+        { merge: true }
+      );
   } catch (error) {
     console.warn('Firestore syncInventory failed (non-fatal):', error);
   }
@@ -102,11 +123,11 @@ export const syncNotificationToFirestore = async (
       .collection('notifications')
       .doc(notifId)
       .set(
-        {
+        cleanUndefined({
           ...notification,
           id: notifId,
           timestamp: new Date().toISOString(),
-        },
+        }),
         { merge: true }
       );
   } catch (error) {
@@ -133,11 +154,11 @@ export const syncAdminFeedToFirestore = async (
       .collection('system')
       .doc('admin_live_feed')
       .set(
-        {
+        cleanUndefined({
           lastEvent: eventType,
           ...payload,
           timestamp: new Date().toISOString(),
-        },
+        }),
         { merge: true }
       );
   } catch (error) {

@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useArticles } from '../contexts/ArticleContext';
 import { ImageIcon, PawIcon } from '../components/icons';
-import MarkdownRenderer from '../components/MarkdownRenderer';
+import MarkdownRenderer, { generateHeadingId } from '../components/MarkdownRenderer';
 import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 import BlogCommunityCTA from '../components/BlogCommunityCTA';
@@ -16,8 +16,13 @@ const ArticleDetailPage: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [toastMsg, setToastMsg] = React.useState<string | null>(null);
-  const [commentText, setCommentText] = React.useState('');
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
+  const [activeHeadingId, setActiveHeadingId] = useState<string>('');
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [slug]);
 
   const article = useMemo(
     () => articles.find((a) => a.slug === slug || a.id.toString() === slug),
@@ -88,14 +93,114 @@ const ArticleDetailPage: React.FC = () => {
     }
   };
 
-  const recentArticles = useMemo(
-    () =>
-      articles
-        .filter((a) => (article ? a.id !== article.id : true))
+  const relatedArticles = useMemo(() => {
+    if (!article) {
+      return articles.slice(0, 3);
+    }
+
+    const otherArticles = articles.filter(
+      (a) => a.id !== article.id && (!article.slug || a.slug !== article.slug)
+    );
+
+    const sameCategory = article.category
+      ? otherArticles
+          .filter(
+            (a) =>
+              a.category &&
+              a.category.trim().toLowerCase() === article.category?.trim().toLowerCase()
+          )
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      : [];
+
+    const selected = sameCategory.slice(0, 3);
+
+    if (selected.length < 3) {
+      const selectedIds = new Set(selected.map((a) => a.id));
+      const remainingRecent = otherArticles
+        .filter((a) => !selectedIds.has(a.id))
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 3),
-    [articles, article]
-  );
+        .slice(0, 3 - selected.length);
+
+      return [...selected, ...remainingRecent];
+    }
+
+    return selected;
+  }, [articles, article]);
+
+  const metaDescription = useMemo(() => {
+    if (!article) return '';
+    if (!article.content || typeof article.content !== 'string') return article.excerpt || '';
+    // Strip markdown formatting using regex for basic clean up
+    let cleanText = article.content.replace(/[#*`_\[\]()]/g, '');
+    cleanText = cleanText.replace(/\s+/g, ' ').trim();
+    // Get up to ~160 characters, ideally cutting at the last full word
+    const truncated = cleanText.length > 155 ? cleanText.substring(0, 155) + '...' : cleanText;
+    return truncated;
+  }, [article]);
+
+  const headings = useMemo(() => {
+    if (!article?.content || typeof article.content !== 'string') return [];
+
+    const lines = article.content.split('\n');
+    const extracted: { text: string; id: string }[] = [];
+
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('### ')) {
+        const text = trimmedLine.replace(/^###\s+/, '').trim();
+        const id = generateHeadingId(text);
+        if (text) extracted.push({ text, id });
+      } else if (trimmedLine.startsWith('## ')) {
+        const text = trimmedLine.replace(/^##\s+/, '').trim();
+        const id = generateHeadingId(text);
+        if (text) extracted.push({ text, id });
+      } else if (
+        trimmedLine.startsWith('**') &&
+        trimmedLine.endsWith('**') &&
+        trimmedLine.length > 4
+      ) {
+        const text = trimmedLine.substring(2, trimmedLine.length - 2).trim();
+        const id = generateHeadingId(text);
+        if (text) extracted.push({ text, id });
+      }
+    });
+    return extracted;
+  }, [article?.content]);
+
+  useEffect(() => {
+    if (headings.length === 0) {
+      setActiveHeadingId('');
+      return;
+    }
+
+    setActiveHeadingId(headings[0].id);
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 140;
+      let currentActiveId = headings[0].id;
+
+      for (const heading of headings) {
+        const el = document.getElementById(heading.id);
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY;
+          if (top <= scrollPosition) {
+            currentActiveId = heading.id;
+          } else {
+            break;
+          }
+        }
+      }
+
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50) {
+        currentActiveId = headings[headings.length - 1].id;
+      }
+
+      setActiveHeadingId((prev) => (prev !== currentActiveId ? currentActiveId : prev));
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [headings]);
 
   if (loading) {
     return (
@@ -119,37 +224,6 @@ const ArticleDetailPage: React.FC = () => {
       </main>
     );
   }
-
-  const metaDescription = useMemo(() => {
-    if (!article) return '';
-    if (!article.content || typeof article.content !== 'string') return article.excerpt || '';
-    // Strip markdown formatting using regex for basic clean up
-    let cleanText = article.content.replace(/[#*`_\[\]()]/g, '');
-    cleanText = cleanText.replace(/\s+/g, ' ').trim();
-    // Get up to ~160 characters, ideally cutting at the last full word
-    const truncated = cleanText.length > 155 ? cleanText.substring(0, 155) + '...' : cleanText;
-    return truncated;
-  }, [article]);
-
-  const headings = useMemo(() => {
-    if (!article?.content || typeof article.content !== 'string') return [];
-
-    const lines = article.content.split('\n');
-    const extracted: { text: string; id: string }[] = [];
-
-    lines.forEach((line) => {
-      const trimmedLine = line.trim();
-      if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
-        const text = trimmedLine.substring(2, trimmedLine.length - 2);
-        const id = text
-          .toLowerCase()
-          .replace(/[^\w]+/g, '-')
-          .replace(/(^-|-$)/g, '');
-        extracted.push({ text, id });
-      }
-    });
-    return extracted;
-  }, [article?.content]);
 
   if (!article) {
     return (
@@ -343,7 +417,6 @@ const ArticleDetailPage: React.FC = () => {
                 height={500}
                 className="w-full h-full object-cover"
                 loading="eager"
-                fetchPriority="high"
                 sizes="(max-width: 768px) 100vw, 800px"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
@@ -388,17 +461,28 @@ const ArticleDetailPage: React.FC = () => {
               </summary>
               <div className="p-4 md:p-5 pt-0 mt-[-8px] border-t border-amber-900/5 dark:border-amber-100/5">
                 <nav aria-label="Mobile table of contents">
-                  <ul className="space-y-3">
-                    {headings.map((heading, i) => (
-                      <li key={i}>
-                        <a
-                          href={`#${heading.id}`}
-                          className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-2 block py-1"
-                        >
-                          {heading.text}
-                        </a>
-                      </li>
-                    ))}
+                  <ul className="space-y-2">
+                    {headings.map((heading, i) => {
+                      const isActive = activeHeadingId === heading.id;
+                      return (
+                        <li key={i}>
+                          <a
+                            href={`#${heading.id}`}
+                            onClick={() => setActiveHeadingId(heading.id)}
+                            className={`text-sm transition-all line-clamp-2 py-1.5 px-3 rounded-lg flex items-center gap-2 ${
+                              isActive
+                                ? 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border-l-4 border-amber-500 shadow-sm'
+                                : 'text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 font-medium'
+                            }`}
+                          >
+                            {isActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 flex-shrink-0" />
+                            )}
+                            <span className="truncate">{heading.text}</span>
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </nav>
               </div>
@@ -526,7 +610,7 @@ const ArticleDetailPage: React.FC = () => {
         {/* Sidebar */}
         <aside
           className="lg:col-span-1 mt-8 lg:mt-0 space-y-8"
-          aria-labelledby="recent-articles-heading"
+          aria-labelledby="related-articles-heading"
         >
           {headings.length > 0 && (
             <div className="lg:sticky lg:top-24 hidden lg:block glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5 mb-8">
@@ -537,33 +621,46 @@ const ArticleDetailPage: React.FC = () => {
                 Table of Contents
               </h2>
               <nav aria-label="Table of contents">
-                <ul className="space-y-3">
-                  {headings.map((heading, i) => (
-                    <li key={i}>
-                      <a
-                        href={`#${heading.id}`}
-                        className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-2"
-                      >
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
+                <ul className="space-y-2">
+                  {headings.map((heading, i) => {
+                    const isActive = activeHeadingId === heading.id;
+                    return (
+                      <li key={i}>
+                        <a
+                          href={`#${heading.id}`}
+                          onClick={() => setActiveHeadingId(heading.id)}
+                          className={`text-sm transition-all line-clamp-2 py-1.5 px-3 rounded-lg flex items-center gap-2 ${
+                            isActive
+                              ? 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border-l-4 border-amber-500 shadow-sm'
+                              : 'text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 font-medium'
+                          }`}
+                        >
+                          {isActive && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 flex-shrink-0" />
+                          )}
+                          <span className="truncate">{heading.text}</span>
+                        </a>
+                      </li>
+                    );
+                  })}
                 </ul>
               </nav>
             </div>
           )}
 
           <div
-            className={`${headings.length > 0 ? '' : 'lg:sticky lg:top-24'} glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5`}
+            className={`${headings.length > 0 ? '' : 'lg:sticky lg:top-24'} glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl p-4 md:p-5`}
           >
             <h2
-              id="recent-articles-heading"
+              id="related-articles-heading"
               className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 md:mb-6 pb-3 border-b-2 border-orange-500/50"
             >
-              {t('recent_articles')}
+              {t('related_articles') && t('related_articles') !== 'related_articles'
+                ? t('related_articles')
+                : 'Related Articles'}
             </h2>
-            <nav className="space-y-4 md:space-y-6" aria-label="Recent articles">
-              {recentArticles.map((a) => (
+            <nav className="space-y-4 md:space-y-6" aria-label="Related articles">
+              {relatedArticles.map((a) => (
                 <Link
                   to={`/blog/${a.slug || a.id}`}
                   key={a.id}

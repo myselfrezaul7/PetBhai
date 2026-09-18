@@ -26,8 +26,6 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  if (!isOpen) return null;
-
   const handleTimeSelect = (time: string) => {
     triggerCustom(10);
     hapticLight();
@@ -124,6 +122,8 @@ const VetBookingModal: React.FC<VetBookingModalProps> = ({ vet, isOpen, onClose 
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, handleClose]);
+
+  if (!isOpen) return null;
 
   return (
     <motion.div

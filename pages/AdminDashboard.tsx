@@ -8,6 +8,7 @@ import { AdoptionTab } from '../components/admin/AdoptionTab';
 import { QuestionsTab } from '../components/admin/QuestionsTab';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL, apiRequest, getErrorMessage } from '../services/apiClient';
 import { realtimeService, useRealtimeConnection } from '../services/realtimeService';
 import { useAuth } from '../contexts/AuthContext';
@@ -128,6 +129,7 @@ const isAdminUser = (user: User | null): boolean => {
 };
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const [inventoryRows, setInventoryRows] = useState<InventoryRow[]>([]);
   const [orderStats, setOrderStats] = useState<DashboardStats>({
@@ -800,7 +802,7 @@ const AdminDashboard = () => {
 
   const secureLogout = () => {
     logout();
-    window.location.hash = '#/login';
+    navigate('/login');
   };
 
   return (

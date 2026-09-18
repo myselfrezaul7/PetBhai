@@ -46,3 +46,4 @@ tmp_*.html
 # Old backup and experimental files
 old_articles.js
 old_mockData.ts
+coverage/

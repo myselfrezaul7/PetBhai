@@ -561,8 +561,8 @@ router.post('/login', authLimiter, async (req, res) => {
   }
 });
 
-// Signup
-router.post('/signup', authLimiter, async (req, res) => {
+// Signup / Register
+router.post(['/signup', '/register'], authLimiter, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 

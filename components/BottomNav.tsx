@@ -56,22 +56,24 @@ const BottomNav: React.FC = () => {
   const { scrollDirection, isAtTop } = useScrollDirection();
 
   // Hide on pages that have their own sticky bottom bar
-  const hideOnRoutes = ['/product/'];
-  const shouldHide = hideOnRoutes.some(route => location.pathname.startsWith(route));
+  const hideOnRoutes = ['/product/', '/checkout', '/admin'];
+  const shouldHide = hideOnRoutes.some((route) => location.pathname.startsWith(route));
   if (shouldHide) return null;
 
   const items = [
     { to: '/', label: t('nav_home'), icon: HomeGlyph },
     { to: '/shop', label: t('nav_shop'), icon: ShopGlyph },
-    { to: '/blog', label: t('nav_blog'), icon: BlogGlyph },      
+    { to: '/blog', label: t('nav_blog'), icon: BlogGlyph },
     { to: isAuthenticated ? '/profile' : '/login', label: t('nav_profile'), icon: ProfileGlyph },
   ];
 
   return (
     <nav
       className={`fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-[24rem] rounded-full border border-white/30 dark:border-white/10 bg-white/70 dark:bg-zinc-900/70 px-2 py-2 shadow-xl backdrop-blur-xl md:hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          scrollDirection === 'down' && !isAtTop ? 'translate-y-[200%] opacity-0 -translate-x-1/2 scale-95' : 'translate-y-0 opacity-100 -translate-x-1/2 scale-100'
-        }`}
+        scrollDirection === 'down' && !isAtTop
+          ? 'translate-y-[200%] opacity-0 -translate-x-1/2 scale-95'
+          : 'translate-y-0 opacity-100 -translate-x-1/2 scale-100'
+      }`}
       aria-label="Mobile bottom navigation"
     >
       <ul className="grid grid-cols-4 gap-1">
@@ -106,7 +108,9 @@ const BottomNav: React.FC = () => {
                     aria-hidden="true"
                   />
                 )}
-                <Icon className={`mb-0.5 h-5 w-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:-translate-y-0.5'}`} />
+                <Icon
+                  className={`mb-0.5 h-5 w-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:-translate-y-0.5'}`}
+                />
                 <span className="truncate px-1 tracking-tight">{item.label}</span>
               </NavLink>
             </li>

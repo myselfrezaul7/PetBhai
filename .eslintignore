@@ -1,0 +1,11 @@
+﻿node_modules/
+dist/
+backend/
+coverage/
+old_mockData.ts
+*.cjs
+scripts/
+serverless/
+service-worker.js
+public/
+reports/

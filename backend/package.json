@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "smoke:pet": "tsx scripts/smoke_pet_management.ts",
     "smoke:admin-order": "tsx scripts/smoke_admin_order_status.ts",

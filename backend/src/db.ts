@@ -124,6 +124,25 @@ class Database {
         console.log(`Removed ${removedCount} legacy mock community posts from database`);
       }
 
+      if (Array.isArray(this.data.products)) {
+        for (const p of this.data.products) {
+          if (typeof p.stockQuantity !== 'number') {
+            p.stockQuantity = p.stockStatus === 'out-of-stock' ? 0 : 100;
+          }
+          if (typeof p.reorderPoint !== 'number') {
+            p.reorderPoint = 20;
+          }
+          if (!p.stockStatus) {
+            p.stockStatus =
+              p.stockQuantity <= 0
+                ? 'out-of-stock'
+                : p.stockQuantity <= p.reorderPoint
+                  ? 'low-stock'
+                  : 'in-stock';
+          }
+        }
+      }
+
       this.isLoaded = true;
       console.log(
         `Database initialized with ${this.data.products.length} products, ${this.data.users.length} users`
@@ -133,6 +152,16 @@ class Database {
       this.loadError = error as Error;
       // Fall back to in-memory initial data
       this.data = JSON.parse(JSON.stringify(INITIAL_DATA));
+      if (Array.isArray(this.data.products)) {
+        for (const p of this.data.products) {
+          if (typeof p.stockQuantity !== 'number') {
+            p.stockQuantity = p.stockStatus === 'out-of-stock' ? 0 : 100;
+          }
+          if (typeof p.reorderPoint !== 'number') {
+            p.reorderPoint = 20;
+          }
+        }
+      }
       this.isLoaded = true;
     }
   }

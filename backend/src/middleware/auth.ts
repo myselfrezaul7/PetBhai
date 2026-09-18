@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { securityLog } from './logger';
 import { db } from '../db';
 
@@ -76,6 +77,7 @@ export const generateRefreshToken = (
   return jwt.sign(
     {
       ...user,
+      jti: crypto.randomUUID(),
       tokenType: 'refresh',
       tokenVersion,
     },
@@ -194,13 +196,11 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
       method: req.method,
       userId: decoded.id,
     });
-    res
-      .status(401)
-      .json({
-        error: 'Authentication Error',
-        message: 'Account suspended or session invalidated',
-        reqId,
-      });
+    res.status(401).json({
+      error: 'Authentication Error',
+      message: 'Account suspended or session invalidated',
+      reqId,
+    });
     return;
   }
 

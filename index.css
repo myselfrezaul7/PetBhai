@@ -399,3 +399,37 @@ button:active,
 [role='button']:active {
   transform: scale(0.98);
 }
+
+/* Print Isolation for Receipts & Packing Slips */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-receipt,
+  #printable-receipt *,
+  .printable-slip,
+  .printable-slip * {
+    visibility: visible;
+  }
+  #printable-receipt,
+  .printable-slip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 24px;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  nav,
+  footer,
+  header,
+  aside,
+  .bottom-nav,
+  button {
+    display: none !important;
+  }
+}

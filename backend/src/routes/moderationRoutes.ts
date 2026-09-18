@@ -52,6 +52,16 @@ router.post(
     }
 
     const reports = ensureModerationCollection();
+    const alreadyReported = reports.some(
+      (r) =>
+        r.targetType === 'post' &&
+        r.targetPostId === postId &&
+        String(r.reporterId) === String(reporterId)
+    );
+    if (alreadyReported) {
+      return res.status(409).json({ message: 'You have already reported this post' });
+    }
+
     const report = createReport('post', Number(reporterId), sanitizeText(reason, 500), postId);
     reports.push(report);
     applyAutoHideByThreshold(post, 'post');
@@ -98,6 +108,17 @@ router.post(
     }
 
     const reports = ensureModerationCollection();
+    const alreadyReported = reports.some(
+      (r) =>
+        r.targetType === 'comment' &&
+        r.targetPostId === postId &&
+        r.targetCommentId === commentId &&
+        String(r.reporterId) === String(reporterId)
+    );
+    if (alreadyReported) {
+      return res.status(409).json({ message: 'You have already reported this comment' });
+    }
+
     const report = createReport(
       'comment',
       Number(reporterId),
@@ -156,6 +177,18 @@ router.post(
     }
 
     const reports = ensureModerationCollection();
+    const alreadyReported = reports.some(
+      (r) =>
+        r.targetType === 'reply' &&
+        r.targetPostId === postId &&
+        r.targetCommentId === commentId &&
+        r.targetReplyId === replyId &&
+        String(r.reporterId) === String(reporterId)
+    );
+    if (alreadyReported) {
+      return res.status(409).json({ message: 'You have already reported this reply' });
+    }
+
     const report = createReport(
       'reply',
       Number(reporterId),

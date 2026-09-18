@@ -363,15 +363,17 @@ router.post('/', orderLimiter, optionalAuth, async (req: AuthRequest, res) => {
         Product & { stockQuantity?: number; reorderPoint?: number; stockStatus: string }
       >;
       const dbProduct = productList.find((p) => p.id === item.id);
-      if (dbProduct && typeof dbProduct.stockQuantity === 'number') {
+      if (dbProduct) {
+        const currentStock =
+          typeof dbProduct.stockQuantity === 'number' ? dbProduct.stockQuantity : 100;
         // Snapshot before mutation for rollback
         stockSnapshot.push({
           id: dbProduct.id,
-          originalQuantity: dbProduct.stockQuantity,
+          originalQuantity: currentStock,
           originalStatus: dbProduct.stockStatus,
         });
 
-        dbProduct.stockQuantity = Math.max(0, dbProduct.stockQuantity - item.quantity);
+        dbProduct.stockQuantity = Math.max(0, currentStock - item.quantity);
 
         if (dbProduct.stockQuantity <= 0) {
           dbProduct.stockStatus = 'out-of-stock' as const;

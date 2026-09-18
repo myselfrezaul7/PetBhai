@@ -59,6 +59,127 @@ const ProductDetailPage: React.FC = () => {
   const quantityInCart = cartItem ? cartItem.quantity : 0;
   const isOutOfStock = product?.stockStatus === 'out-of-stock';
 
+  const handleAddToCart = useCallback(() => {
+    if (!product) return;
+    setIsAdding(true);
+    let finalProduct = product;
+    if (isAutoShip) {
+      finalProduct = {
+        ...product,
+        name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
+        price: product.price * 0.95, // 5% discount
+        isAutoShip: true,
+        autoShipFrequency: autoShipFrequency,
+      };
+    }
+    addToCart(finalProduct);
+    setTimeout(() => setIsAdding(false), 1000);
+  }, [addToCart, product, isAutoShip, autoShipFrequency]);
+
+  const handleWishlistClick = useCallback(() => {
+    if (!product) return;
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product.id);
+    }
+  }, [isAuthenticated, isWishlisted, navigate, removeFromWishlist, addToWishlist, product]);
+
+  const handleReviewSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!product) return;
+      if (newRating === 0) {
+        setReviewError('Please select a star rating.');
+        return;
+      }
+      const sanitizedComment = sanitizeInput(newComment.trim());
+      if (!sanitizedComment) {
+        setReviewError('Please write a comment for your review.');
+        return;
+      }
+      if (!currentUser) {
+        setReviewError('You must be logged in to post a review.');
+        return;
+      }
+
+      const newReview: Review = {
+        id: Date.now(),
+        author: currentUser.name,
+        rating: newRating,
+        comment: sanitizedComment,
+        date: new Date().toISOString(),
+      };
+
+      try {
+        await addProductReview(product.id, newReview);
+      } catch {
+        setReviewError('Failed to submit review. Please try again.');
+        return;
+      }
+
+      // Reset form
+      setNewRating(0);
+      setNewComment('');
+      setReviewError('');
+    },
+    [newRating, newComment, currentUser, addProductReview, product]
+  );
+
+  useEffect(() => {
+    if (!product) {
+      setBundleOffer(null);
+      return;
+    }
+
+    let mounted = true;
+    setBundleLoading(true);
+    fetchBundleOffer(product.id)
+      .then((offer) => {
+        if (mounted) {
+          setBundleOffer(offer);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch bundle offer', error);
+        if (mounted) {
+          setBundleOffer(null);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setBundleLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [product]);
+
+  const handleAddBundleToCart = useCallback(() => {
+    if (!product || !bundleOffer?.items?.length) {
+      return;
+    }
+
+    let finalProduct = product;
+    if (isAutoShip) {
+      finalProduct = {
+        ...product,
+        name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
+        price: product.price * 0.95, // 5% discount
+        isAutoShip: true,
+        autoShipFrequency: autoShipFrequency,
+      };
+    }
+    addToCart(finalProduct);
+    bundleOffer.items.forEach((bundleItem) => addToCart(bundleItem));
+  }, [addToCart, bundleOffer, product, isAutoShip, autoShipFrequency]);
+
   if (loading) {
     return (
       <div
@@ -105,126 +226,6 @@ const ProductDetailPage: React.FC = () => {
       </main>
     );
   }
-
-  const handleAddToCart = useCallback(() => {
-    setIsAdding(true);
-    let finalProduct = product;
-    if (isAutoShip) {
-      finalProduct = {
-        ...product,
-        id: parseInt(`${product.id}9999`), // Pseudo ID to separate autoship items from normal items in cart
-        name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
-        price: product.price * 0.95, // 5% discount
-        isAutoShip: true,
-        autoShipFrequency: autoShipFrequency,
-      };
-    }
-    addToCart(finalProduct);
-    setTimeout(() => setIsAdding(false), 1000);
-  }, [addToCart, product, isAutoShip, autoShipFrequency]);
-
-  const handleWishlistClick = useCallback(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    if (isWishlisted) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product.id);
-    }
-  }, [isAuthenticated, isWishlisted, navigate, removeFromWishlist, addToWishlist, product?.id]);
-
-  const handleReviewSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (newRating === 0) {
-        setReviewError('Please select a star rating.');
-        return;
-      }
-      const sanitizedComment = sanitizeInput(newComment.trim());
-      if (!sanitizedComment) {
-        setReviewError('Please write a comment for your review.');
-        return;
-      }
-      if (!currentUser) {
-        setReviewError('You must be logged in to post a review.');
-        return;
-      }
-
-      const newReview: Review = {
-        id: Date.now(),
-        author: currentUser.name,
-        rating: newRating,
-        comment: sanitizedComment,
-        date: new Date().toISOString(),
-      };
-
-      try {
-        await addProductReview(product.id, newReview);
-      } catch {
-        setReviewError('Failed to submit review. Please try again.');
-        return;
-      }
-
-      // Reset form
-      setNewRating(0);
-      setNewComment('');
-      setReviewError('');
-    },
-    [newRating, newComment, currentUser, addProductReview, product?.id]
-  );
-
-  useEffect(() => {
-    if (!product) {
-      setBundleOffer(null);
-      return;
-    }
-
-    let mounted = true;
-    setBundleLoading(true);
-    fetchBundleOffer(product.id)
-      .then((offer) => {
-        if (mounted) {
-          setBundleOffer(offer);
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to fetch bundle offer', error);
-        if (mounted) {
-          setBundleOffer(null);
-        }
-      })
-      .finally(() => {
-        if (mounted) {
-          setBundleLoading(false);
-        }
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, [product]);
-
-  const handleAddBundleToCart = useCallback(() => {
-    if (!product || !bundleOffer?.items?.length) {
-      return;
-    }
-
-    let finalProduct = product;
-    if (isAutoShip) {
-      finalProduct = {
-        ...product,
-        id: parseInt(`${product.id}9999`), // Pseudo ID to separate autoship items from normal items in cart
-        name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
-        price: product.price * 0.95, // 5% discount
-        isAutoShip: true,
-        autoShipFrequency: autoShipFrequency,
-      };
-    }
-    addToCart(finalProduct);
-    bundleOffer.items.forEach((bundleItem) => addToCart(bundleItem));
-  }, [addToCart, bundleOffer, product, isAutoShip, autoShipFrequency]);
 
   const StarRatingDisplay = memo(
     ({ rating, className = 'w-5 h-5' }: { rating: number; className?: string }) => (

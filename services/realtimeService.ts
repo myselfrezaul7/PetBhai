@@ -59,8 +59,11 @@ class RealtimeService {
     }
   }
 
-  public init(): void {
-    if (this.isInitialized || typeof window === 'undefined') {
+  public init(force = false): void {
+    if ((this.isInitialized && !force) || typeof window === 'undefined') {
+      if (force && typeof window !== 'undefined') {
+        this.initSSE();
+      }
       return;
     }
     this.isInitialized = true;
@@ -280,9 +283,17 @@ class RealtimeService {
 
     const allListeners = this.listeners.get('*');
     if (allListeners) {
+      const normalizedEvent = String(eventType).toLowerCase().replace(/_/g, '-');
+      const envelope = {
+        eventType,
+        event: normalizedEvent,
+        rawEvent: eventType,
+        payload,
+        timestamp: Date.now(),
+      };
       allListeners.forEach((callback) => {
         try {
-          callback({ eventType, payload });
+          callback(envelope);
         } catch (err) {
           console.error('RealtimeService: wildcard listener error', err);
         }

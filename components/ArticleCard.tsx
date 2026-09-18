@@ -11,19 +11,38 @@ interface ArticleCardProps {
   index?: number;
 }
 
-const EngagementBar = ({ article }: { article: Article }) => {
+interface EngagementBarProps {
+  article: Article;
+  likeCount: number;
+  commentCount: number;
+  viewCount: number;
+  isLiked: boolean;
+  toggleLike: () => Promise<void>;
+  shareArticle: (title: string, text: string) => Promise<unknown>;
+}
+
+const EngagementBar: React.FC<EngagementBarProps> = ({
+  article,
+  likeCount,
+  commentCount,
+  viewCount,
+  isLiked,
+  toggleLike,
+  shareArticle,
+}) => {
   const { t } = useLanguage();
-  const { likeCount, commentCount, viewCount, isLiked, toggleLike, shareArticle } =
-    useArticleEngagement(article.id);
 
   return (
     <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/20 text-white/90">
       <button
+        type="button"
         onClick={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           toggleLike().catch(() => {});
         }}
         className="flex items-center gap-1.5 hover:text-amber-400 transition-colors group/btn"
+        aria-label="Like article"
       >
         <svg
           className={`w-5 h-5 transition-transform ${isLiked ? 'text-red-500 fill-current scale-110' : 'text-white/80 group-hover/btn:scale-110'}`}
@@ -74,11 +93,14 @@ const EngagementBar = ({ article }: { article: Article }) => {
       </div>
 
       <button
+        type="button"
         onClick={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           shareArticle(article.title || '', article.excerpt || '').catch(() => {});
         }}
         className="flex items-center gap-1.5 text-white/80 hover:text-white ml-2"
+        aria-label="Share article"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -105,16 +127,23 @@ const ReadingProgress = ({ minutes }: { minutes: number }) => {
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/40 dark:bg-black/60 backdrop-blur-xs z-20">
+    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/40 dark:bg-black/60 backdrop-blur-xs z-20 pointer-events-none">
       <div className={`h-full ${colorClass} rounded-r-full shadow-xs`} style={{ width }} />
     </div>
   );
 };
 
+const ImageShimmerSkeleton: React.FC = () => (
+  <div className="absolute inset-0 z-0 bg-slate-200 dark:bg-zinc-800 overflow-hidden">
+    <div className="w-full h-full bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent bg-[length:200%_100%] animate-shimmer" />
+  </div>
+);
+
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default', index = 0 }) => {
   const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
-  const { viewCount } = useArticleEngagement(article.id);
+  const { likeCount, commentCount, viewCount, isLiked, toggleLike, shareArticle } =
+    useArticleEngagement(article.id);
 
   const getEmoji = (title: string) => {
     const tLower = title.toLowerCase();
@@ -133,8 +162,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
     return (
       <Link
         to={`/blog/${article.slug || article.id}`}
-        className="block relative w-full h-[320px] md:h-[420px] rounded-3xl overflow-hidden group shadow-xl mb-8 animate-fade-in-up"
+        className="block relative w-full h-[320px] md:h-[420px] rounded-3xl overflow-hidden group shadow-xl hover:shadow-2xl transition-all duration-300 mb-8 animate-fade-in-up border border-zinc-200/20 dark:border-white/10"
       >
+        {!isLoaded && <ImageShimmerSkeleton />}
         <img
           src={article.imageUrl || '/blog-images/blog-placeholder.png'}
           alt={article.title}
@@ -143,15 +173,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
           loading="eager"
           fetchPriority="high"
           sizes="(max-width: 768px) 100vw, 66vw"
-          className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
+          className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-500 ease-spring group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0 scale-95 blur-xs'}`}
           onLoad={() => setIsLoaded(true)}
           onError={handleBlogImageError}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
 
-        <div className="absolute top-4 left-4 flex gap-2">
-          <span className="bg-amber-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md border border-amber-500 flex items-center gap-1.5">
+        {/* Top Badges */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+          <span className="bg-amber-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md border border-amber-500/80 flex items-center gap-1.5 backdrop-blur-md">
             <span className="text-lg leading-none">{emoji}</span> {article.category || 'General'}
+          </span>
+          <span className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-2.5 py-1 rounded-full border border-white/20 shadow-md">
+            {article.readTime} {t('blog_min_read') || 'min read'}
           </span>
         </div>
 
@@ -168,7 +202,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
                   .join(' ')
                   .replace(/[#*`_[\]()]/g, '')
                   .trim()
-              : ''}
+              : article.excerpt || ''}
           </p>
           <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs md:text-sm text-white/90 font-medium">
             <span className="flex items-center gap-2">
@@ -176,10 +210,6 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
                 👤
               </div>
               {article.author}
-            </span>
-            <span className="w-1 h-1 rounded-full bg-white/50" />
-            <span>
-              {article.readTime} {t('blog_min_read')}
             </span>
             <span className="w-1 h-1 rounded-full bg-white/50" />
             <span className="flex items-center gap-1.5 text-amber-300">
@@ -200,8 +230,22 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
               {viewCount} {t('blog_readers') || 'readers'}
             </span>
           </div>
-          <div className="mt-2" onClick={(e) => e.preventDefault()}>
-            <EngagementBar article={article} />
+          <div
+            className="mt-2"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <EngagementBar
+              article={article}
+              likeCount={likeCount}
+              commentCount={commentCount}
+              viewCount={viewCount}
+              isLiked={isLiked}
+              toggleLike={toggleLike}
+              shareArticle={shareArticle}
+            />
           </div>
         </div>
         <ReadingProgress minutes={article.readTime || 5} />
@@ -214,9 +258,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
     return (
       <Link
         to={`/blog/${article.slug || article.id}`}
-        className="block relative w-full h-[280px] rounded-2xl overflow-hidden group shadow-lg animate-fade-in-up"
+        className="block relative w-full h-[280px] rounded-2xl overflow-hidden group shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in-up border border-zinc-200/20 dark:border-white/10"
         style={{ animationDelay: `${index * 100}ms` }}
       >
+        {!isLoaded && <ImageShimmerSkeleton />}
         <img
           src={article.imageUrl || '/blog-images/blog-placeholder.png'}
           alt={article.title}
@@ -225,15 +270,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
           loading="lazy"
           decoding="async"
           sizes={getResponsiveImageSizes('card')}
-          className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
+          className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-500 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 scale-95 blur-xs'}`}
           onLoad={() => setIsLoaded(true)}
           onError={handleBlogImageError}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
 
-        <div className="absolute top-3 left-3">
-          <span className="bg-zinc-900/85 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 border border-white/20">
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+          <span className="bg-zinc-900/85 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 border border-white/20 shadow-md">
             {emoji} {article.category}
+          </span>
+          <span className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-2.5 py-1 rounded-full border border-white/20 shadow-md">
+            {article.readTime} {t('blog_min_read') || 'min read'}
           </span>
         </div>
 
@@ -243,8 +292,6 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
           </h3>
           <div className="flex items-center gap-2 sm:gap-3 text-xs text-white/80 font-medium">
             <span>{article.author}</span>
-            <span className="w-1 h-1 rounded-full bg-white/50" />
-            <span>{article.readTime} min read</span>
             <span className="w-1 h-1 rounded-full bg-white/50" />
             <span className="flex items-center gap-1 text-amber-300">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,8 +311,22 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
               {viewCount}
             </span>
           </div>
-          <div className="mt-2" onClick={(e) => e.preventDefault()}>
-            <EngagementBar article={article} />
+          <div
+            className="mt-2"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <EngagementBar
+              article={article}
+              likeCount={likeCount}
+              commentCount={commentCount}
+              viewCount={viewCount}
+              isLiked={isLiked}
+              toggleLike={toggleLike}
+              shareArticle={shareArticle}
+            />
           </div>
         </div>
         <ReadingProgress minutes={article.readTime || 5} />
@@ -277,9 +338,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
   return (
     <Link
       to={`/blog/${article.slug || article.id}`}
-      className="block relative w-full h-[220px] md:h-[260px] rounded-2xl overflow-hidden group shadow-md animate-fade-in-up"
+      className="block relative w-full h-[220px] md:h-[260px] rounded-2xl overflow-hidden group shadow-md hover:shadow-xl transition-all duration-300 animate-fade-in-up border border-zinc-200/20 dark:border-white/10"
       style={{ animationDelay: `${index * 50}ms` }}
     >
+      {!isLoaded && <ImageShimmerSkeleton />}
       <img
         src={article.imageUrl || '/blog-images/blog-placeholder.png'}
         alt={article.title}
@@ -288,23 +350,29 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         loading="lazy"
         decoding="async"
         sizes={getResponsiveImageSizes('card')}
-        className={`absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 blur-sm'}`}
+        className={`absolute inset-0 w-full h-full object-cover transform transition-all duration-500 ease-spring group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0 scale-95 blur-xs'}`}
         onLoad={() => setIsLoaded(true)}
         onError={handleBlogImageError}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-95 group-hover:opacity-100 transition-opacity"></div>
+
+      {/* Top Badges */}
+      <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+        <span className="bg-zinc-900/85 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 border border-white/20 shadow-md">
+          {emoji} {article.category}
+        </span>
+        <span className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-2.5 py-1 rounded-full border border-white/20 shadow-md">
+          {article.readTime} min
+        </span>
+      </div>
 
       {/* Default visible bottom section */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 z-10 transition-transform duration-300 group-hover:-translate-y-full">
-        <h3 className="text-base md:text-lg font-bold text-white mb-1 leading-tight drop-shadow-md line-clamp-2">
+      <div className="absolute bottom-0 left-0 right-0 p-3.5 md:p-4 z-10 transition-transform duration-300 md:group-hover:-translate-y-full">
+        <h3 className="text-base md:text-lg font-bold text-white mb-1.5 leading-tight drop-shadow-md line-clamp-2">
           {article.title}
         </h3>
         <div className="text-xs text-white/80 flex items-center gap-2">
-          <span>
-            {emoji} {article.category}
-          </span>
-          <span>•</span>
-          <span>{article.readTime} min</span>
+          <span className="truncate">{article.author}</span>
           <span>•</span>
           <span className="flex items-center gap-1 text-amber-300">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,8 +394,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
         </div>
       </div>
 
-      {/* Hover reveal glass panel */}
-      <div className="absolute top-0 left-0 w-full h-full rounded-2xl bg-zinc-900/90 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end z-20 border border-white/10">
+      {/* Hover reveal glass panel - smooth on desktop */}
+      <div className="hidden md:flex absolute inset-0 rounded-2xl bg-zinc-950/85 dark:bg-zinc-900/90 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex-col justify-end z-20 border border-white/10">
         <h3 className="text-base md:text-lg font-bold text-amber-400 mb-2 leading-tight line-clamp-2">
           {article.title}
         </h3>
@@ -340,10 +408,24 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'default',
                 .join(' ')
                 .replace(/[#*`_[\]()]/g, '')
                 .trim()
-            : ''}
+            : article.excerpt || ''}
         </p>
-        <div className="mt-auto" onClick={(e) => e.preventDefault()}>
-          <EngagementBar article={article} />
+        <div
+          className="mt-auto"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <EngagementBar
+            article={article}
+            likeCount={likeCount}
+            commentCount={commentCount}
+            viewCount={viewCount}
+            isLiked={isLiked}
+            toggleLike={toggleLike}
+            shareArticle={shareArticle}
+          />
         </div>
       </div>
 

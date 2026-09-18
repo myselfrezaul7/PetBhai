@@ -219,6 +219,11 @@ const calculatePetAge = (birthDate?: string): string => {
   return `${years} yr${years > 1 ? 's' : ''}, ${months} mo${months > 1 ? 's' : ''}`;
 };
 
+const formatPrice = (val: any): string => {
+  const num = typeof val === 'number' && Number.isFinite(val) ? val : Number(val) || 0;
+  return num.toFixed(2);
+};
+
 const ProfilePage: React.FC = () => {
   const { currentUser, updateProfile, isAuthenticated, fetchProfile, logout, deleteAccount } =
     useAuth();
@@ -337,10 +342,11 @@ const ProfilePage: React.FC = () => {
     async (silent = false) => {
       if (!silent) setIsLoadingOrders(true);
       try {
-        const fetched = await apiRequest<Order[]>('/orders/my-orders');
-        if (Array.isArray(fetched)) {
-          setOrders(fetched);
-          return fetched;
+        const fetched = await apiRequest<any>('/orders/my-orders');
+        const ordersList = Array.isArray(fetched) ? fetched : fetched?.orders;
+        if (Array.isArray(ordersList)) {
+          setOrders(ordersList);
+          return ordersList;
         }
         throw new Error('Non-array orders returned');
       } catch {
@@ -366,12 +372,10 @@ const ProfilePage: React.FC = () => {
   // Real-time subscriptions & cross-tab synchronization
   useEffect(() => {
     // 1. Subscribe to realtimeService events (BroadcastChannel + local)
-    const unsubscribe = realtimeService.subscribe('*', (envelope) => {
-      if (
-        envelope.event === 'order-updated' ||
-        envelope.event === 'order-cancelled' ||
-        envelope.event === 'order-created'
-      ) {
+    const unsubscribe = realtimeService.subscribe('*', (envelope: any) => {
+      const rawType = envelope?.event || envelope?.eventType || '';
+      const evt = String(rawType).toLowerCase().replace(/_/g, '-');
+      if (evt === 'order-updated' || evt === 'order-cancelled' || evt === 'order-created') {
         const payload = envelope.payload;
         if (payload?.orderId) {
           setRecentlyUpdatedOrderId(payload.orderId);
@@ -393,7 +397,7 @@ const ProfilePage: React.FC = () => {
                     ...(updated[index].statusHistory || []),
                     {
                       status: payload.status,
-                      timestamp: envelope.timestamp,
+                      timestamp: envelope.timestamp || new Date().toISOString(),
                       note: payload.note,
                     },
                   ],
@@ -406,7 +410,7 @@ const ProfilePage: React.FC = () => {
           });
         }
         void fetchOrders(true);
-      } else if (envelope.event === 'profile-updated') {
+      } else if (evt === 'profile-updated' || evt === 'user-updated') {
         void fetchProfile({ silent: true }).catch(() => undefined);
       }
     });
@@ -782,6 +786,17 @@ const ProfilePage: React.FC = () => {
     { id: 'posts', icon: <ChatBubbleIcon />, label: 'Community' },
     { id: 'settings', icon: <SettingsIcon />, label: 'Settings' },
   ] as const;
+
+  if (!isAuthenticated || !currentUser) {
+    return (
+      <main className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3 text-slate-500 dark:text-zinc-400">
+          <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium">Redirecting to login...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-8 sm:py-12">
@@ -1169,7 +1184,7 @@ const ProfilePage: React.FC = () => {
 
                               <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3">
                                 <span className="font-black text-xl text-slate-800 dark:text-emerald-400">
-                                  ৳{order.total.toFixed(2)}
+                                  ৳{formatPrice(order.total)}
                                 </span>
                                 <div className="flex items-center gap-2">
                                   <button
@@ -1300,12 +1315,12 @@ const ProfilePage: React.FC = () => {
                                             {item.name}
                                           </p>
                                           <p className="text-[10px] text-slate-500 dark:text-zinc-500">
-                                            Qty: {item.quantity} × ৳{item.price.toFixed(2)}
+                                            Qty: {item.quantity} × ৳{formatPrice(item.price)}
                                           </p>
                                         </div>
                                       </div>
                                       <p className="text-xs font-bold text-slate-800 dark:text-emerald-400">
-                                        ৳{(item.price * item.quantity).toFixed(2)}
+                                        ৳{formatPrice(item.price * item.quantity)}
                                       </p>
                                     </div>
                                   ))}
@@ -1923,10 +1938,10 @@ const ProfilePage: React.FC = () => {
                           {item.quantity}
                         </td>
                         <td className="py-2.5 text-right text-slate-600 dark:text-zinc-400">
-                          ৳{item.price.toFixed(2)}
+                          ৳{formatPrice(item.price)}
                         </td>
                         <td className="py-2.5 text-right font-bold text-slate-800 dark:text-zinc-100">
-                          ৳{(item.price * item.quantity).toFixed(2)}
+                          ৳{formatPrice(item.price * item.quantity)}
                         </td>
                       </tr>
                     ))}
@@ -1939,7 +1954,7 @@ const ProfilePage: React.FC = () => {
                 <div className="text-right">
                   <span className="text-xs text-slate-500 uppercase font-bold">Total Amount: </span>
                   <span className="text-xl font-black text-amber-600 dark:text-amber-400">
-                    ৳{receiptOrder.total.toFixed(2)}
+                    ৳{formatPrice(receiptOrder.total)}
                   </span>
                 </div>
               </div>

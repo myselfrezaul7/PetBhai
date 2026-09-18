@@ -103,8 +103,6 @@ const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose, onAdd }) => 
     onClose();
   };
 
-  if (!isOpen) return null;
-
   useEffect(() => {
     if (!isOpen) return;
 
@@ -147,6 +145,8 @@ const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose, onAdd }) => 
       onClose();
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div
@@ -330,8 +330,6 @@ const AddVaccinationModal: React.FC<AddVaccinationModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   useEffect(() => {
     if (!isOpen) return;
 
@@ -374,6 +372,8 @@ const AddVaccinationModal: React.FC<AddVaccinationModalProps> = ({
       onClose();
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div
