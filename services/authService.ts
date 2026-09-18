@@ -53,9 +53,24 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
     };
   } catch (error: unknown) {
     console.error('Google Sign-In Error (full):', error);
-    const firebaseError = error as { code?: string; message?: string };
+    const firebaseError = error as {
+      code?: string;
+      message?: string;
+      customData?: {
+        _tokenResponse?: { error?: { message?: string } };
+        originalError?: { message?: string };
+        [key: string]: any;
+      };
+    };
     console.error('Error code:', firebaseError.code);
     console.error('Error message:', firebaseError.message);
+    if (firebaseError.customData) {
+      console.error('Error customData:', firebaseError.customData);
+    }
+
+    const rawDetail =
+      firebaseError.customData?._tokenResponse?.error?.message ||
+      firebaseError.customData?.originalError?.message;
 
     // Provide user-friendly error messages
     switch (firebaseError.code) {
@@ -75,7 +90,7 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
         throw new Error('Network error. Please check your internet connection.');
       case 'auth/internal-error':
         throw new Error(
-          'Firebase internal error. Check that API key and Auth Domain are correct in Vercel.'
+          `Firebase internal error${rawDetail ? ` (${rawDetail})` : ''}. Check Google Sign-In setup in Firebase Console, Authorized Domains, and Google Cloud API restrictions.`
         );
       case 'auth/operation-not-allowed':
         throw new Error(
@@ -85,7 +100,7 @@ export const signInWithGoogle = async (): Promise<SocialUser> => {
         throw new Error('Invalid Firebase API key. Please verify VITE_FIREBASE_API_KEY in Vercel.');
       default:
         throw new Error(
-          `Sign-in failed: ${firebaseError.message || firebaseError.code || 'Unknown error'}`
+          `Sign-in failed: ${rawDetail || firebaseError.message || firebaseError.code || 'Unknown error'}`
         );
     }
   }
