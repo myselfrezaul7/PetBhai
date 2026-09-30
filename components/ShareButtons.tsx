@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import {
+  getPlatformShareLinks,
+  copyToClipboard,
+  executeNativeShare,
+  getCleanShareUrl,
+} from '../lib/shareUtils';
 
 interface ShareButtonsProps {
   url?: string;
@@ -8,22 +14,25 @@ interface ShareButtonsProps {
   className?: string;
   showLabel?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  category?: string;
+  price?: number;
+  type?: 'product' | 'article' | 'pet' | 'vet' | 'general';
 }
 
 const ShareButtons: React.FC<ShareButtonsProps> = ({
-  url = window.location.href,
+  url,
   title,
   description = '',
   imageUrl,
   className = '',
   showLabel = true,
   size = 'md',
+  category,
+  price,
+  type = 'general',
 }) => {
   const [copied, setCopied] = useState(false);
-
-  const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
-  const encodedDescription = encodeURIComponent(description);
+  const cleanUrl = getCleanShareUrl(url);
 
   const sizeClasses = {
     sm: 'w-8 h-8',
@@ -37,45 +46,34 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
     lg: 'w-6 h-6',
   };
 
-  const shareLinks = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-    telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
-    email: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`,
-  };
+  const shareLinks = getPlatformShareLinks({
+    title,
+    description,
+    url: cleanUrl,
+    imageUrl,
+    category,
+    price,
+    type,
+  });
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = url;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
+    const success = await copyToClipboard(cleanUrl);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title,
-          text: description,
-          url,
-        });
-      } catch (err) {
-        // User cancelled or error
-      }
-    }
+    await executeNativeShare({
+      title,
+      description,
+      url: cleanUrl,
+      imageUrl,
+      category,
+      price,
+      type,
+    });
   };
 
   const ShareButton: React.FC<{

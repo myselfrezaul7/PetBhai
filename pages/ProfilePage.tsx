@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+
+const HolographicCard3D = React.lazy(() => import('../components/3d/HolographicCard3D'));
 import { useProducts } from '../contexts/ProductContext';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
@@ -906,6 +908,51 @@ const ProfilePage: React.FC = () => {
                       </div>
                     </div>
                   </header>
+
+                  {/* 3D Digital VIP Pass */}
+                  <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent p-5 sm:p-6 border border-amber-500/20 backdrop-blur-xl">
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                      <div className="max-w-md text-left">
+                        <span className="inline-flex py-0.5 px-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[11px] font-black uppercase tracking-wider mb-2 shadow-xs">
+                          {currentUser.isPlusMember ? '★ Active Plus VIP' : 'Digital Member Pass'}
+                        </span>
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-50">
+                          Your PetBhai Digital VIP Card
+                        </h2>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                          Present this interactive card at partner vet clinics and stores across
+                          Bangladesh for priority service and exclusive perks.
+                        </p>
+                        {!currentUser.isPlusMember && (
+                          <Link
+                            to="/plus"
+                            className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 group"
+                          >
+                            <span>Upgrade to PetBhai+ for unlimited perks</span>
+                            <span className="group-hover:translate-x-1 transition-transform">
+                              →
+                            </span>
+                          </Link>
+                        )}
+                      </div>
+                      <div className="w-full max-w-[360px] flex justify-center">
+                        <Suspense
+                          fallback={
+                            <div className="h-[230px] w-full rounded-2xl bg-zinc-800/10 dark:bg-zinc-800/40 animate-pulse border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-xs text-zinc-400">
+                              Loading 3D VIP Card...
+                            </div>
+                          }
+                        >
+                          <HolographicCard3D
+                            memberName={currentUser.name}
+                            memberId={`PB-${currentUser.id}-VIP`}
+                            tier={currentUser.isPlusMember ? 'PLUS VIP' : 'MEMBER'}
+                            expiry="12/27"
+                          />
+                        </Suspense>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                     <div className="space-y-6">

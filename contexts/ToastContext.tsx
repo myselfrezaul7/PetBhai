@@ -65,23 +65,24 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
 export const useToast = () => {
   const context = useContext(ToastContext);
-  if (context === undefined) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
 
   // Memoize convenience methods to avoid recreating them every render
-  const { addToast } = context;
+  const addToast = context?.addToast || (() => {});
+  const removeToast = context?.removeToast || (() => {});
+  const toasts = context?.toasts || [];
   const success = useCallback((message: string) => addToast(message, 'success'), [addToast]);
   const error = useCallback((message: string) => addToast(message, 'error'), [addToast]);
   const info = useCallback((message: string) => addToast(message, 'info'), [addToast]);
 
   return useMemo(
     () => ({
-      ...context,
+      toasts,
+      addToast,
+      removeToast,
       success,
       error,
       info,
     }),
-    [context, success, error, info]
+    [toasts, addToast, removeToast, success, error, info]
   );
 };

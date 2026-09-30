@@ -12,6 +12,7 @@ import SEO from '../components/SEO';
 import { fetchBundleOffer } from '../services/ecommerceService';
 import ApiStateCard from '../components/ApiStateCard';
 import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
+import ShareModal from '../components/ShareModal';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ const ProductDetailPage: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [isAutoShip, setIsAutoShip] = useState(false);
   const [autoShipFrequency, setAutoShipFrequency] = useState('1 Month');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // State for the new review form
   const [newRating, setNewRating] = useState(0);
@@ -394,6 +396,26 @@ const ProductDetailPage: React.FC = () => {
             >
               <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </button>
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="p-3 sm:p-4 rounded-xl transition-colors border-2 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-orange-500/10 hover:border-orange-500/30 hover:text-orange-600 dark:hover:text-orange-400 touch-manipulation active:scale-95"
+              aria-label="Share product"
+              title="Share product"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </article>
@@ -607,8 +629,40 @@ const ProductDetailPage: React.FC = () => {
           >
             <HeartIcon className="mx-auto h-5 w-5" aria-hidden="true" />
           </button>
+
+          <button
+            onClick={() => setIsShareModalOpen(true)}
+            className="min-h-[48px] min-w-[48px] rounded-xl border-2 border-slate-300 bg-white/80 text-slate-600 hover:text-orange-600 dark:border-slate-600 dark:bg-slate-800/75 dark:text-slate-300 transition-colors active:scale-[0.98]"
+            aria-label="Share product"
+            title="Share product"
+          >
+            <svg className="mx-auto h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+              />
+            </svg>
+          </button>
         </div>
       </div>
+
+      {product && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          metadata={{
+            title: product.name,
+            description: product.description,
+            price: product.price,
+            path: `/shop/${product.id}`,
+            imageUrl: product.imageUrl,
+            category: product.category,
+            type: 'product',
+          }}
+        />
+      )}
     </main>
   );
 };

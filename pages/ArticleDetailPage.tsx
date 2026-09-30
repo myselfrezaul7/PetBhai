@@ -9,6 +9,7 @@ import BlogCommunityCTA from '../components/BlogCommunityCTA';
 import ReadingProgressBar from '../components/ReadingProgressBar';
 import { useArticleEngagement } from '../hooks/useArticleEngagement';
 import { useAuth } from '../contexts/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -19,6 +20,7 @@ const ArticleDetailPage: React.FC = () => {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const [activeHeadingId, setActiveHeadingId] = useState<string>('');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -41,29 +43,8 @@ const ArticleDetailPage: React.FC = () => {
     deleteComment,
   } = useArticleEngagement(article?.id || '', { trackView: true });
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    const shareData = {
-      title: article?.title || 'PetBhai Blog',
-      text: article?.excerpt || 'Check out this article on PetBhai!',
-      url: url,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error('Error sharing:', err);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        setToastMsg('Link copied to clipboard!');
-        setTimeout(() => setToastMsg(null), 3000);
-      } catch (err) {
-        console.error('Failed to copy!', err);
-      }
-    }
+  const handleShare = () => {
+    setIsShareModalOpen(true);
   };
 
   const handleToggleLike = async () => {
@@ -721,6 +702,21 @@ const ArticleDetailPage: React.FC = () => {
           </svg>
         </button>
       </div>
+
+      {article && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          metadata={{
+            title: article.title,
+            description: article.excerpt || article.content.slice(0, 160),
+            path: `/blog/${article.slug || article.id}`,
+            imageUrl: article.imageUrl,
+            category: article.category,
+            type: 'article',
+          }}
+        />
+      )}
     </main>
   );
 };

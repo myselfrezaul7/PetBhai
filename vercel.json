@@ -88,6 +88,28 @@
       "destination": "/api/index"
     },
     {
+      "source": "/:section(blog|shop|product|products|adopt|vets|animals|plus)/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|TelegramBot|Discordbot|SkypeUriPreview|Slackbot|LinkedInBot|Applebot).*"
+        }
+      ],
+      "destination": "/api/og/:section/:path*"
+    },
+    {
+      "source": "/:section(blog|shop|product|products|adopt|vets|animals|plus)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|TelegramBot|Discordbot|SkypeUriPreview|Slackbot|LinkedInBot|Applebot).*"
+        }
+      ],
+      "destination": "/api/og/:section"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

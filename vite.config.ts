@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => {
             'vendor-helmet': ['react-helmet-async'],
             'vendor-form': ['react-hook-form', 'zod'],
             'vendor-utils': ['fuse.js'],
+            'vendor-three': ['three'],
           },
           // Optimize chunk file names for caching
           chunkFileNames: isProduction ? 'assets/js/[name]-[hash].js' : 'assets/js/[name].js',

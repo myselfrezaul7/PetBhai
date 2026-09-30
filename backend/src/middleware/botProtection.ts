@@ -42,8 +42,15 @@ const GOOD_BOTS = [
   /duckduckbot/i,
   /baiduspider/i,
   /facebookexternalhit/i,
+  /facebot/i,
   /twitterbot/i,
   /linkedinbot/i,
+  /whatsapp/i,
+  /telegrambot/i,
+  /discordbot/i,
+  /slackbot/i,
+  /skypeuripreview/i,
+  /applebot/i,
 ];
 
 // Generate CSRF token

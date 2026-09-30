@@ -1,8 +1,11 @@
-import React, { useState, useCallback, useMemo, memo } from 'react';
+import React, { useState, useCallback, useMemo, memo, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { CloseIcon } from '../components/icons';
+import SEO from '../components/SEO';
+
+const HolographicCard3D = React.lazy(() => import('../components/3d/HolographicCard3D'));
 
 interface Benefit {
   icon: string;
@@ -120,22 +123,45 @@ const PlusMembershipPage: React.FC = () => {
 
   return (
     <main>
+      <SEO
+        title="PetBhai+ VIP Membership | Free Delivery & Perks"
+        description="Become a PetBhai+ VIP Member for unlimited free delivery, exclusive discounts, monthly free vet consultations, and surprise pet perks."
+        url="https://www.petbhai.com/plus"
+      />
       {/* Hero Section */}
-      <header className="relative py-16 sm:py-24 text-white text-center overflow-hidden">
+      <header className="relative py-12 sm:py-20 text-white text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-yellow-500 via-orange-500 to-rose-500" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" />
         <div className="container mx-auto px-4 sm:px-6">
           <div className="relative z-10 max-w-3xl mx-auto glass-card-ios bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl border border-white/35 dark:border-white/10 p-6 md:p-10">
-            <span className="inline-flex items-center rounded-full bg-white/30 px-3 py-1 text-xs md:text-sm font-semibold border border-white/40 mb-4">
+            <span className="inline-flex items-center rounded-full bg-white/30 px-3 py-1 text-xs md:text-sm font-semibold border border-white/40 mb-3">
               Premium Membership
             </span>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold drop-shadow-2xl">
               Become a PetBhai+ Member
             </h1>
-            <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg">
+            <p className="mt-3 text-base sm:text-lg md:text-xl max-w-2xl mx-auto drop-shadow-lg">
               The ultimate care package for your pet. Unlock exclusive benefits and save more with
               our premium membership plan.
             </p>
+
+            {/* Interactive 3D Holographic VIP Pass */}
+            <div className="mt-8 mb-2">
+              <Suspense
+                fallback={
+                  <div className="h-[250px] w-full max-w-[380px] mx-auto rounded-3xl bg-white/10 animate-pulse border border-white/20 flex items-center justify-center text-xs font-semibold text-white/60">
+                    Loading 3D VIP Pass...
+                  </div>
+                }
+              >
+                <HolographicCard3D
+                  memberName={currentUser?.name || 'Pet Parent'}
+                  memberId={currentUser ? `PB-${currentUser.id}-VIP` : 'PB-PLUS-2026'}
+                  tier={isPlusMember ? 'ACTIVE VIP' : 'PLUS VIP'}
+                  expiry="12/27"
+                />
+              </Suspense>
+            </div>
           </div>
         </div>
       </header>

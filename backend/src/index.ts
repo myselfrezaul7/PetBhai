@@ -20,6 +20,7 @@ import commentRoutes from './routes/commentRoutes';
 import moderationRoutes from './routes/moderationRoutes';
 import adminRoutes from './routes/adminRoutes';
 import questionRoutes from './routes/questionRoutes';
+import ogRoutes from './routes/ogRoutes';
 import { requestLogger, errorLogger } from './middleware/logger';
 import { securityMiddleware } from './middleware/security';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -267,6 +268,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/posts', commentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/og', ogRoutes);
 
 // Enhanced health check endpoint
 app.get('/api/health', (req, res) => {
