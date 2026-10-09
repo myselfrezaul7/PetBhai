@@ -8,7 +8,16 @@
         try {
           var params = new URLSearchParams(window.location.search);
           var p = params.get('p');
-          if (p) {
+          // Strict open-redirect & protocol-relative URL validation
+          if (
+            p &&
+            typeof p === 'string' &&
+            p.startsWith('/') &&
+            !p.startsWith('//') &&
+            !p.startsWith('/\\') &&
+            !p.includes('\\') &&
+            !p.includes(':')
+          ) {
             params.delete('p');
             var remaining = params.toString();
             var newUrl = p + (remaining ? '?' + remaining : '') + window.location.hash;
