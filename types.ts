@@ -29,6 +29,10 @@ export interface Article {
   updatedAt?: string; // ISO string
   readTime: number; // in minutes
   featured?: boolean;
+  views?: number;
+  likeCount?: number;
+  likedBy?: string[];
+  commentCount?: number;
 }
 
 export interface ChatMessage {

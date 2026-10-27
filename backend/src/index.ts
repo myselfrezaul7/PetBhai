@@ -244,7 +244,7 @@ app.post('/api/orders', recaptchaMiddleware);
 
 // Public GET data cache middleware
 const publicCache = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (req.method === 'GET') {
+  if (req.method === 'GET' && !req.path.startsWith('/engagement')) {
     // Cache for 5 minutes (300 seconds), allow stale-while-revalidate for 1 hour
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
   }

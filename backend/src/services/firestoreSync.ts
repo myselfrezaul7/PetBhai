@@ -165,3 +165,39 @@ export const syncAdminFeedToFirestore = async (
     console.warn('Firestore syncAdminFeed failed (non-fatal):', error);
   }
 };
+
+/**
+ * Synchronizes article engagement metrics (viewCount, likeCount, likedBy, commentCount)
+ * to Cloud Firestore 'articles/{articleId}' so backend and Firestore stay in sync.
+ */
+export const syncArticleEngagementToFirestore = async (
+  articleId: number | string,
+  engagement: {
+    viewCount?: number;
+    likeCount?: number;
+    likedBy?: string[];
+    commentCount?: number;
+  }
+): Promise<void> => {
+  try {
+    const adminApp = await getFirebaseAdmin();
+    if (!adminApp) return;
+
+    const adminModule = await import('firebase-admin');
+    const admin = (adminModule as any).default || adminModule;
+    const firestore = admin.firestore(adminApp);
+
+    await firestore
+      .collection('articles')
+      .doc(String(articleId))
+      .set(
+        cleanUndefined({
+          ...engagement,
+          updatedAt: new Date().toISOString(),
+        }),
+        { merge: true }
+      );
+  } catch (error) {
+    console.warn('Firestore syncArticleEngagement failed (non-fatal):', error);
+  }
+};

@@ -36,15 +36,16 @@ export const useArticleEngagement = (
   useEffect(() => {
     if (!articleId) return;
 
-    // Only increment view if trackView is explicitly requested (e.g. on full article detail view)
-    if (options?.trackView) {
-      incrementViews(articleId);
-    }
-
     const unsubscribe = subscribeEngagement(articleId, userId, (newState, likedByMe) => {
       setState(newState);
       setIsLiked(likedByMe);
     });
+
+    // Only increment view if trackView is explicitly requested (e.g. on full article detail view)
+    // Called after subscribeEngagement so this hook immediately receives the optimistic increment
+    if (options?.trackView) {
+      void incrementViews(articleId);
+    }
 
     return () => unsubscribe();
   }, [articleId, userId, options?.trackView]);

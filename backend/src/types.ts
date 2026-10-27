@@ -28,6 +28,10 @@ export interface Article {
   readTime: number; // in minutes
   featured?: boolean;
   image?: string;
+  views?: number;
+  likeCount?: number;
+  likedBy?: string[];
+  commentCount?: number;
 }
 
 export interface ChatMessage {
