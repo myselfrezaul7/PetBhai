@@ -117,10 +117,8 @@ const Header: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
   const computedResults = useGlobalSearch({
-    query: debouncedSearchQuery,
+    query: searchQuery,
     products,
     pages: ALL_PAGES,
     articles,
@@ -139,7 +137,7 @@ const Header: React.FC = () => {
     [computedResults]
   );
 
-  const isSearching = searchQuery.trim().length >= 1;
+  const isSearching = false;
 
   const handleLogout = useCallback(async () => {
     await logout();

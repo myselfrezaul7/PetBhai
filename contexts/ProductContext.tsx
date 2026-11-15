@@ -3,19 +3,43 @@ import React, { createContext, useState, useContext, useEffect, useMemo, useCall
 import type { Product, Review } from '../types';
 import { apiRequest, getErrorMessage, ApiRequestError } from '../services/apiClient';
 
+const PRODUCTS_CACHE_KEY = 'petbhai_products_cache';
+
+const readCachedProducts = (): Product[] => {
+  try {
+    const raw =
+      safeStorage.getItem(PRODUCTS_CACHE_KEY) || safeSessionStorage.getItem(PRODUCTS_CACHE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const persistProductsCache = (data: Product[]) => {
+  try {
+    const serialized = JSON.stringify(data);
+    safeStorage.setItem(PRODUCTS_CACHE_KEY, serialized);
+    safeSessionStorage.setItem(PRODUCTS_CACHE_KEY, serialized);
+  } catch {
+    /* ignore storage quota errors */
+  }
+};
+
 interface ProductContextType {
   products: Product[];
   loading: boolean;
   error: string | null;
   addProductReview: (productId: number, review: Review) => Promise<void>;
-  refetch: () => void;
+  refetch: (silent?: boolean) => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [products, setProducts] = useState<Product[]>(() => readCachedProducts());
+  const [loading, setLoading] = useState<boolean>(() => readCachedProducts().length === 0);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async (silent = false) => {
@@ -26,13 +50,18 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw new Error('Invalid products data received');
       }
       setProducts(data);
+      persistProductsCache(data);
       if (!silent) setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
       const isApiError = err instanceof ApiRequestError;
       const retryable = isApiError ? (err as ApiRequestError).retryable : true;
-      
-      if (!silent || (!retryable && isApiError)) {
+      const cached = readCachedProducts();
+
+      if (cached.length > 0) {
+        setProducts(cached);
+        if (!silent) setError(null);
+      } else if (!silent || (!retryable && isApiError)) {
         setError(getErrorMessage(err, 'Failed to load products. Please try again.'));
         setProducts([]);
       }
@@ -42,7 +71,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    void fetchProducts(readCachedProducts().length > 0);
   }, [fetchProducts]);
 
   useEffect(() => {

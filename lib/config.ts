@@ -49,16 +49,28 @@ const getOptionalEnv = (key: string): string | null => {
   return isPlaceholder(value) ? null : value;
 };
 
+import { Capacitor } from '@capacitor/core';
+
 // Create configuration object
 const createConfig = (): EnvConfig => {
   const nodeEnv = getEnv('MODE', 'development');
   const isProduction = nodeEnv === 'production';
   const isDevelopment = nodeEnv === 'development';
+  const isNative = (() => {
+    try {
+      return Capacitor.isNativePlatform();
+    } catch {
+      return false;
+    }
+  })();
+
+  const defaultApiUrl = isNative ? 'https://www.petbhai.com/api' : '/api';
+  const defaultAiProxyUrl = isNative ? 'https://www.petbhai.com/api/ai' : '/api/ai';
 
   return {
     // API Configuration
-    apiUrl: getEnv('VITE_API_URL', '/api'),
-    aiProxyUrl: getEnv('VITE_AI_PROXY_URL', '/api/ai'),
+    apiUrl: getEnv('VITE_API_URL', defaultApiUrl),
+    aiProxyUrl: getEnv('VITE_AI_PROXY_URL', defaultAiProxyUrl),
 
     // Feature Flags
     isProduction,

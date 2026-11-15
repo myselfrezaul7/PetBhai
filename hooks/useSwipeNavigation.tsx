@@ -65,6 +65,21 @@ export const useSwipeNavigation = (config: SwipeConfig = {}) => {
   useEffect(() => {
     if (!enabled) return;
 
+    // Disable global document swipe-hijacking on mobile/native so horizontal carousels
+    // and Android system predictive edge-back gestures remain conflict-free.
+    const isMobileOrNative = (() => {
+      try {
+        const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+          .Capacitor;
+        if (cap?.isNativePlatform?.()) return true;
+        return typeof window !== 'undefined' && window.innerWidth <= 1024;
+      } catch {
+        return false;
+      }
+    })();
+
+    if (isMobileOrNative) return;
+
     const handleTouchStart = (e: TouchEvent) => {
       // Don't trigger if focused on input elements
       if (disableOnInputFocus) {

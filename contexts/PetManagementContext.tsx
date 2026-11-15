@@ -140,6 +140,39 @@ const PRICE_ALERTS_KEY = 'petbhai_price_alerts';
 const GROUP_BUYS_KEY = 'petbhai_group_buys';
 const IMPACT_KEY = 'petbhai_impact_stats';
 const TOKEN_STORAGE_KEY = 'petbhai_token';
+const PETS_CACHE_PREFIX = 'petbhai_cached_pets_';
+const REMINDERS_CACHE_PREFIX = 'petbhai_cached_reminders_';
+
+const readCachedPetSnapshot = (
+  userId: string | number
+): { pets: PetProfile[]; medicineReminders: MedicineReminder[] } | null => {
+  try {
+    const rawPets = safeStorage.getItem(`${PETS_CACHE_PREFIX}${userId}`);
+    const rawReminders = safeStorage.getItem(`${REMINDERS_CACHE_PREFIX}${userId}`);
+    if (!rawPets && !rawReminders) return null;
+    const parsedPets = rawPets ? JSON.parse(rawPets) : [];
+    const parsedReminders = rawReminders ? JSON.parse(rawReminders) : [];
+    return {
+      pets: Array.isArray(parsedPets) ? parsedPets : [],
+      medicineReminders: Array.isArray(parsedReminders) ? parsedReminders : [],
+    };
+  } catch {
+    return null;
+  }
+};
+
+const persistPetSnapshot = (
+  userId: string | number,
+  nextPets: PetProfile[],
+  nextReminders: MedicineReminder[]
+) => {
+  try {
+    safeStorage.setItem(`${PETS_CACHE_PREFIX}${userId}`, JSON.stringify(nextPets));
+    safeStorage.setItem(`${REMINDERS_CACHE_PREFIX}${userId}`, JSON.stringify(nextReminders));
+  } catch {
+    /* ignore storage quota errors */
+  }
+};
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -166,10 +199,10 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
   const [groupBuys, setGroupBuys] = useState<GroupBuyItem[]>([]);
   const [impactStats, setImpactStats] = useState<ImpactStats>(() => {
     try {
-        const stored = safeStorage.getItem(IMPACT_KEY);
-        return stored ? JSON.parse(stored) : DEFAULT_IMPACT_STATS;
+      const stored = safeStorage.getItem(IMPACT_KEY);
+      return stored ? JSON.parse(stored) : DEFAULT_IMPACT_STATS;
     } catch {
-        return DEFAULT_IMPACT_STATS;
+      return DEFAULT_IMPACT_STATS;
     }
   });
 
@@ -185,6 +218,17 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
+  const applyPetSnapshot = useCallback(
+    (userId: string | number, nextPets?: PetProfile[], nextReminders?: MedicineReminder[]) => {
+      const normalizedPets = Array.isArray(nextPets) ? nextPets : [];
+      const normalizedReminders = Array.isArray(nextReminders) ? nextReminders : [];
+      setPets(normalizedPets);
+      setMedicineReminders(normalizedReminders);
+      persistPetSnapshot(userId, normalizedPets, normalizedReminders);
+    },
+    []
+  );
+
   const syncPetManagementFromServer = useCallback(async () => {
     if (!currentUser?.id) {
       setPets([]);
@@ -199,11 +243,8 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
       headers: getAuthHeaders(),
     });
 
-    setPets(Array.isArray(payload?.pets) ? payload.pets : []);
-    setMedicineReminders(
-      Array.isArray(payload?.medicineReminders) ? payload.medicineReminders : []
-    );
-  }, [currentUser?.id, getAuthHeaders]);
+    applyPetSnapshot(currentUser.id, payload?.pets, payload?.medicineReminders);
+  }, [currentUser?.id, getAuthHeaders, applyPetSnapshot]);
 
   // Load data on user change
   useEffect(() => {
@@ -211,10 +252,16 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const loadPetData = async () => {
       if (currentUser?.id) {
+        const cachedSnapshot = readCachedPetSnapshot(currentUser.id);
+        if (cachedSnapshot && isMounted) {
+          setPets(cachedSnapshot.pets);
+          setMedicineReminders(cachedSnapshot.medicineReminders);
+        }
+
         try {
           await syncPetManagementFromServer();
         } catch (error) {
-          if (isMounted) {
+          if (isMounted && !cachedSnapshot) {
             setPets([]);
             setMedicineReminders([]);
           }
@@ -257,6 +304,22 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       isMounted = false;
     };
+  }, [currentUser?.id, syncPetManagementFromServer]);
+
+  useEffect(() => {
+    const handleAppRefresh = () => {
+      if (currentUser?.id) {
+        void syncPetManagementFromServer().catch((error) => {
+          console.warn(
+            'Pet management refresh skipped:',
+            getErrorMessage(error, 'Failed to refresh pet data.')
+          );
+        });
+      }
+    };
+
+    window.addEventListener('petbhai-refresh', handleAppRefresh);
+    return () => window.removeEventListener('petbhai-refresh', handleAppRefresh);
   }, [currentUser?.id, syncPetManagementFromServer]);
 
   // Save price alerts
@@ -308,10 +371,7 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
           body: JSON.stringify(petData),
         });
 
-        setPets(Array.isArray(response?.pets) ? response.pets : []);
-        setMedicineReminders(
-          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-        );
+        applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
 
         return response.pet;
       } catch (error) {
@@ -320,7 +380,7 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         throw error;
       }
     },
-    [currentUser?.id, getAuthHeaders, toast]
+    [currentUser?.id, getAuthHeaders, toast, applyPetSnapshot]
   );
 
   const updatePet = useCallback(
@@ -339,17 +399,14 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
           body: JSON.stringify(updates),
         });
 
-        setPets(Array.isArray(response?.pets) ? response.pets : []);
-        setMedicineReminders(
-          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-        );
+        applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
       } catch (error) {
         console.error('Failed to update pet:', error);
         toast.error(getErrorMessage(error) || 'Failed to update pet');
         throw error;
       }
     },
-    [currentUser?.id, getAuthHeaders, toast]
+    [currentUser?.id, getAuthHeaders, toast, applyPetSnapshot]
   );
 
   const deletePet = useCallback(
@@ -367,17 +424,14 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
           headers: getAuthHeaders(),
         });
 
-        setPets(Array.isArray(response?.pets) ? response.pets : []);
-        setMedicineReminders(
-          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-        );
+        applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
       } catch (error) {
         console.error('Failed to delete pet:', error);
         toast.error(getErrorMessage(error) || 'Failed to delete pet');
         throw error;
       }
     },
-    [currentUser?.id, getAuthHeaders, toast]
+    [currentUser?.id, getAuthHeaders, toast, applyPetSnapshot]
   );
 
   const getPetById = useCallback((id: string) => pets.find((p) => p.id === id), [pets]);
@@ -398,17 +452,14 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
           body: JSON.stringify({ weight }),
         });
 
-        setPets(Array.isArray(response?.pets) ? response.pets : []);
-        setMedicineReminders(
-          Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-        );
+        applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
       } catch (error) {
         console.error('Failed to add weight entry:', error);
         toast.error(getErrorMessage(error) || 'Failed to add weight entry');
         throw error;
       }
     },
-    [currentUser?.id, getAuthHeaders, toast]
+    [currentUser?.id, getAuthHeaders, toast, applyPetSnapshot]
   );
 
   // Medicine Reminder Methods
@@ -428,14 +479,11 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         body: JSON.stringify(reminderData),
       });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+      applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
 
       return response.reminder;
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, applyPetSnapshot]
   );
 
   const updateMedicineReminder = useCallback(
@@ -453,12 +501,9 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         body: JSON.stringify(updates),
       });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+      applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, applyPetSnapshot]
   );
 
   const deleteMedicineReminder = useCallback(
@@ -475,12 +520,9 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         headers: getAuthHeaders(),
       });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+      applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, applyPetSnapshot]
   );
 
   const markMedicineGiven = useCallback(
@@ -497,12 +539,9 @@ export const PetManagementProvider: React.FC<{ children: React.ReactNode }> = ({
         headers: getAuthHeaders(),
       });
 
-      setPets(Array.isArray(response?.pets) ? response.pets : []);
-      setMedicineReminders(
-        Array.isArray(response?.medicineReminders) ? response.medicineReminders : []
-      );
+      applyPetSnapshot(currentUser.id, response?.pets, response?.medicineReminders);
     },
-    [currentUser?.id, getAuthHeaders]
+    [currentUser?.id, getAuthHeaders, applyPetSnapshot]
   );
 
   const getUpcomingReminders = useCallback(

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { API_BASE_URL } from '../services/apiClient';
 
 interface QuestionFormState {
   name: string;
@@ -96,7 +97,7 @@ const AskPetBhai: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/questions', {
+      const response = await fetch(`${API_BASE_URL}/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -100,6 +100,15 @@ const ShopPage: React.FC = () => {
     }
   }, [location.state?.brand]);
 
+  // Sync search query from URL parameter (e.g., /shop?search=cat)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search');
+    if (searchParam !== null) {
+      setSearchQuery(searchParam);
+    }
+  }, [location.search]);
+
   useEffect(() => {
     if (!isAuthenticated) {
       setReorderSuggestions([]);

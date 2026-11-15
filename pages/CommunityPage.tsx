@@ -176,7 +176,7 @@ const CommunityPage: React.FC = () => {
         profilePictureUrl: currentUser.profilePictureUrl,
       },
       content: newPost.content,
-      
+
       timestamp: new Date().toISOString(),
       likes: [],
       comments: [],
@@ -208,7 +208,6 @@ const CommunityPage: React.FC = () => {
             profilePictureUrl: currentUser.profilePictureUrl,
           },
           content: newPost.content,
-          
         },
       });
       const message = error instanceof Error ? error.message : 'Failed to share post.';
@@ -714,6 +713,27 @@ const CommunityPage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const handleBlockUser = useCallback(
+    (blockedUserId: number, blockedUserName: string) => {
+      postService.blockUser(blockedUserId);
+      setPosts((prevPosts) =>
+        prevPosts
+          .filter((post) => post.author.id !== blockedUserId)
+          .map((post) => ({
+            ...post,
+            comments: post.comments
+              .filter((comment) => comment.author.id !== blockedUserId)
+              .map((comment) => ({
+                ...comment,
+                replies: comment.replies.filter((reply) => reply.author.id !== blockedUserId),
+              })),
+          }))
+      );
+      toast.success(`${blockedUserName} has been blocked and their content hidden.`);
+    },
+    [toast]
+  );
 
   // Handle tab change
   const handleTabChange = useCallback((tab: 'feed' | 'popular' | 'trending') => {
@@ -1232,6 +1252,7 @@ const CommunityPage: React.FC = () => {
                   onUpdateReply={handleUpdateReply}
                   onDeleteComment={handleDeleteComment}
                   onDeleteReply={handleDeleteReply}
+                  onBlockUser={handleBlockUser}
                 />
               ))}
               {hasMore && activeTab === 'feed' && (

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   ShieldCheckIcon,
   TruckIcon,
@@ -10,6 +10,28 @@ import {
 } from '../components/icons';
 
 const TermsPage: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    let targetId: string | null = null;
+    if (location.pathname === '/delete-account' || location.hash === '#delete-account') {
+      targetId = 'delete-account';
+    } else if (location.pathname === '/privacy' || location.hash === '#privacy') {
+      targetId = 'privacy';
+    }
+
+    if (targetId) {
+      const resolvedId = targetId;
+      const timer = window.setTimeout(() => {
+        const el = document.getElementById(resolvedId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 60);
+      return () => window.clearTimeout(timer);
+    }
+  }, [location.pathname, location.hash]);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section */}
@@ -79,25 +101,38 @@ const TermsPage: React.FC = () => {
                   Payment Options
                 </h3>
                 <p className="mb-3">We currently accept the following payment methods:</p>
-                <div className="flex flex-wrap items-center gap-4 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src="https://i.ibb.co/0jZFpHT/cod.png"
-                      alt="Cash on Delivery"
-                      className="h-8"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                    <span className="text-sm font-medium">Cash on Delivery (COD)</span>
+                <div className="flex flex-wrap items-center gap-3 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700">
+                  <div className="inline-flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3.5 py-2 text-emerald-900 shadow-xs dark:border-emerald-500/30 dark:bg-emerald-950/30 dark:text-emerald-200">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs">
+                      COD
+                    </div>
+                    <span className="text-sm font-semibold">Cash on Delivery</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <img src="https://i.ibb.co/27wH07C/bkash.png" alt="bKash" className="h-8" />
-                    <span className="text-sm font-medium">bKash</span>
+                  <div className="inline-flex items-center gap-2.5 rounded-xl border border-pink-200 bg-pink-50/80 px-3.5 py-2 text-pink-950 shadow-xs dark:border-pink-500/30 dark:bg-pink-950/30 dark:text-pink-200">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#D12053] text-white shadow-xs">
+                      <svg
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M12.8 2.5L20 8.2l-4.5 4.9 5.7 3.4-9.8 5L14 14.8l-7.2-2.1L12.8 2.5z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-semibold tracking-tight">bKash</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <img src="https://i.ibb.co/qjqBcf5/nagad.png" alt="Nagad" className="h-8" />
-                    <span className="text-sm font-medium">Nagad</span>
+                  <div className="inline-flex items-center gap-2.5 rounded-xl border border-orange-200 bg-orange-50/80 px-3.5 py-2 text-orange-950 shadow-xs dark:border-orange-500/30 dark:bg-orange-950/30 dark:text-orange-200">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-[#ED1C24] to-[#F7941D] text-white shadow-xs">
+                      <svg
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5a4.5 4.5 0 1 1 4.5-4.5 4.5 4.5 0 0 1-4.5 4.5z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-semibold tracking-tight">Nagad</span>
                   </div>
                 </div>
               </div>
@@ -246,30 +281,97 @@ const TermsPage: React.FC = () => {
           </section>
 
           {/* Section 5 */}
-          <section className="mb-10 bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 md:p-8">
+          <section
+            id="privacy"
+            className="mb-10 bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 md:p-8"
+          >
             <div className="flex items-center mb-4">
               <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mr-4">
                 <ShieldCheckIcon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-                5. Privacy and Data Protection
+                5. Privacy Policy, Data Safety & Account Deletion
               </h2>
             </div>
             <div className="pl-16 space-y-4 text-slate-600 dark:text-slate-300">
               <div>
                 <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                  Data Collection
+                  Data Collection & Purpose
                 </h3>
-                <p>
-                  We collect essential information (Name, Email, Phone, and Address) solely to
-                  process your orders.
-                </p>
+                <p>We collect only the information necessary to provide PetBhai services:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
+                  <li>
+                    <strong>Account & Order Information:</strong> Name, email address, phone number,
+                    and delivery address used to authenticate your account, fulfill pet supply
+                    orders, and book veterinary or grooming services.
+                  </li>
+                  <li>
+                    <strong>Pet Profiles & Reminders:</strong> Pet names, breeds, and vaccination
+                    schedules you optionally save in the Pet Dashboard.
+                  </li>
+                  <li>
+                    <strong>Community & AI Assistant Inputs:</strong> Posts, comments, uploaded pet
+                    photos, and questions submitted to the Community Hub or PetBhai AI Assistant.
+                  </li>
+                </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">Security</h3>
+                <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                  Data Sharing & Encryption
+                </h3>
                 <p>
-                  Your data is stored securely. We do not sell your information to third parties or
-                  use tracking plugins that compromise your privacy.
+                  All data transmitted between the PetBhai mobile app/website and our servers is
+                  encrypted in transit via HTTPS/TLS. We do not sell your personal data to third
+                  parties or display third-party advertising.
+                </p>
+              </div>
+              <div id="delete-account">
+                <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                  Account & Data Deletion Policy
+                </h3>
+                <p>
+                  You can permanently delete your PetBhai account and associated personal data at
+                  any time:
+                </p>
+                <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
+                  <li>
+                    <strong>In-App / Web Self-Service:</strong> Sign in, go to{' '}
+                    <Link
+                      to="/profile"
+                      className="text-orange-600 dark:text-orange-400 hover:underline font-medium"
+                    >
+                      My Profile
+                    </Link>
+                    , scroll to the <em>Danger Zone</em> section, and select{' '}
+                    <strong>Delete Account</strong>.
+                  </li>
+                  <li>
+                    <strong>Via Email Request:</strong> If you cannot access the app, email{' '}
+                    <a
+                      href="mailto:petbhaibd@gmail.com?subject=Account%20Deletion%20Request"
+                      className="text-orange-600 dark:text-orange-400 hover:underline font-medium"
+                    >
+                      petbhaibd@gmail.com
+                    </a>{' '}
+                    from your registered email address with the subject{' '}
+                    <em>&quot;Account Deletion Request&quot;</em>. Requests are processed within 7
+                    business days, removing your profile, saved pets, reminders, and community
+                    identifiers.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                  Community Safety (UGC) & AI Veterinary Disclaimer
+                </h3>
+                <p>
+                  Users can report objectionable community posts/comments or block abusive users
+                  directly from any post in the Community Hub. The PetBhai AI Assistant provides
+                  general educational and first-aid pet care guidance only and is{' '}
+                  <strong>
+                    not a substitute for professional veterinary diagnosis or treatment
+                  </strong>
+                  . Users can flag any AI response using the in-chat <em>Report</em> button.
                 </p>
               </div>
             </div>

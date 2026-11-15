@@ -1,4 +1,28 @@
+import { Capacitor } from '@capacitor/core';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
+
+const PRODUCTION_API_URL = 'https://www.petbhai.com/api';
+
+const isCapacitorNativeOrigin = (): boolean => {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      return true;
+    }
+    if (typeof window !== 'undefined' && window.location) {
+      const { protocol, hostname, port } = window.location;
+      if (
+        protocol === 'capacitor:' ||
+        (protocol === 'https:' && hostname === 'localhost' && !port)
+      ) {
+        return true;
+      }
+    }
+  } catch {
+    // ignore runtime detection errors in test environments
+  }
+  return false;
+};
+
 const getApiBaseUrl = (): string => {
   try {
     const metaEnv = Function(
@@ -10,6 +34,10 @@ const getApiBaseUrl = (): string => {
     }
   } catch {
     // ignored: test/runtime environments may not support import.meta
+  }
+
+  if (isCapacitorNativeOrigin()) {
+    return PRODUCTION_API_URL;
   }
 
   return '/api';

@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { safeStorage, safeSessionStorage } from '../lib/storage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useCookieConsent } from './CookieConsentBanner';
@@ -11,6 +12,13 @@ const PWAInstallBanner: React.FC = () => {
   const { hapticLight, hapticSuccess, triggerCustom } = useHaptics();
   const { canPromptInstall, promptInstall, isStandalone } = usePWAInstall();
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
+  const isNativePlatform = useMemo(() => {
+    try {
+      return Capacitor.isNativePlatform();
+    } catch {
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -36,7 +44,12 @@ const PWAInstallBanner: React.FC = () => {
     return daysElapsed < HIDE_FOR_DAYS;
   }, [dismissedAt]);
 
-  const shouldShow = consent === 'all' && canPromptInstall && !isStandalone && !isDismissedRecently;
+  const shouldShow =
+    !isNativePlatform &&
+    consent === 'all' &&
+    canPromptInstall &&
+    !isStandalone &&
+    !isDismissedRecently;
 
   const handleDismiss = () => {
     const now = Date.now();

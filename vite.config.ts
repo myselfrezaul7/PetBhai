@@ -78,6 +78,13 @@ export default defineConfig(({ mode }) => {
     preview: {
       port: 3001,
       host: '0.0.0.0',
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
       headers: {
         'Cache-Control': 'public, max-age=31536000',
         'X-Content-Type-Options': 'nosniff',

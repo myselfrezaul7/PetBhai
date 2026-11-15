@@ -24,7 +24,6 @@ type QueuedMutation =
       payload: {
         author: { id: number; name: string; profilePictureUrl?: string };
         content: string;
-        
       };
       createdAt: string;
     }
@@ -177,6 +176,62 @@ const toApiError = (error: unknown, fallbackMessage: string): ApiError => {
   return new ApiError(fallbackMessage);
 };
 
+const BLOCKED_USERS_KEY = 'petbhai_blocked_users';
+
+export const getBlockedUserIds = (): number[] => {
+  try {
+    const raw = safeStorage.getItem(BLOCKED_USERS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.map((id) => Number(id)).filter((id) => Number.isFinite(id))
+      : [];
+  } catch {
+    return [];
+  }
+};
+
+export const blockUser = (userId: number): number[] => {
+  const current = new Set(getBlockedUserIds());
+  current.add(Number(userId));
+  const updated = Array.from(current);
+  try {
+    safeStorage.setItem(BLOCKED_USERS_KEY, JSON.stringify(updated));
+  } catch {
+    // ignore storage errors
+  }
+  return updated;
+};
+
+export const unblockUser = (userId: number): number[] => {
+  const updated = getBlockedUserIds().filter((id) => id !== Number(userId));
+  try {
+    safeStorage.setItem(BLOCKED_USERS_KEY, JSON.stringify(updated));
+  } catch {
+    // ignore storage errors
+  }
+  return updated;
+};
+
+const filterBlockedContent = (posts: Post[]): Post[] => {
+  const blockedIds = new Set(getBlockedUserIds());
+  if (blockedIds.size === 0) return posts;
+
+  return posts
+    .filter((post) => !blockedIds.has(Number(post.author.id)))
+    .map((post) => ({
+      ...post,
+      comments: (post.comments || [])
+        .filter((comment) => !blockedIds.has(Number(comment.author.id)))
+        .map((comment) => ({
+          ...comment,
+          replies: (comment.replies || []).filter(
+            (reply) => !blockedIds.has(Number(reply.author.id))
+          ),
+        })),
+    }));
+};
+
 // Get all posts
 export const fetchPosts = async (): Promise<Post[]> => {
   try {
@@ -187,7 +242,7 @@ export const fetchPosts = async (): Promise<Post[]> => {
     if (!Array.isArray(posts)) {
       throw new ApiError('Invalid response from server');
     }
-    return posts;
+    return filterBlockedContent(posts);
   } catch (error) {
     console.error('Error fetching posts:', error);
     throw toApiError(error, 'Failed to load posts. Please try again.');
@@ -207,9 +262,13 @@ export const fetchPostsPage = async (
   }
 
   try {
-    return await apiRequest<PaginatedPostsResponse>(`/posts/feed?${query.toString()}`, {
+    const response = await apiRequest<PaginatedPostsResponse>(`/posts/feed?${query.toString()}`, {
       method: 'GET',
     });
+    return {
+      ...response,
+      items: filterBlockedContent(response.items || []),
+    };
   } catch (error) {
     console.error('Error fetching paginated posts:', error);
     throw toApiError(error, 'Failed to load posts. Please try again.');
@@ -219,8 +278,7 @@ export const fetchPostsPage = async (
 // Create a new post with rate limiting and validation
 export const createPost = async (
   author: { id: number; name: string; profilePictureUrl?: string },
-  content: string,
-  
+  content: string
 ): Promise<Post> => {
   // Rate limiting
   if (!checkRateLimit('post')) {
@@ -247,7 +305,7 @@ export const createPost = async (
           profilePictureUrl: author.profilePictureUrl,
         },
         content: sanitizedContent,
-        }),
+      }),
     });
   } catch (error) {
     console.error('Error creating post:', error);

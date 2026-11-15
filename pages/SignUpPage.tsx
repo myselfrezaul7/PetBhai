@@ -4,7 +4,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleIcon, EyeIcon, EyeOffIcon } from '../components/icons';
 import { signInWithGoogle } from '../services/authService';
 import { sanitizeInput } from '../lib/security';
-import { ReCaptcha, useReCaptcha } from '../components/ReCaptcha';
 import HoneypotFields from '../components/HoneypotFields';
 
 interface FormErrors {
@@ -47,16 +46,11 @@ const SignUpPage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState(false);
-  const hasValidRecaptchaKey = Boolean(
-    import.meta.env.VITE_RECAPTCHA_SITE_KEY && import.meta.env.VITE_RECAPTCHA_SITE_KEY !== 'dummy-key'
-  );
-  const [showMathFallback, setShowMathFallback] = useState(!hasValidRecaptchaKey);
   const [mathChallenge, setMathChallenge] = useState<MathChallenge>(createMathChallenge);
   const [mathAnswer, setMathAnswer] = useState('');
   const { signup, socialLogin } = useAuth();
   const navigate = useNavigate();
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const { token: recaptchaToken, isVerified, handleVerify, handleExpire } = useReCaptcha();
 
   // Focus name input on mount
   useEffect(() => {
@@ -94,14 +88,13 @@ const SignUpPage: React.FC = () => {
 
   const validateMathAnswer = useCallback(
     (value: string): string | undefined => {
-      // Caller already checks shouldUseMathFallback before calling this
       if (!value.trim()) return 'Math answer is required';
       const parsed = Number(value);
       if (!Number.isFinite(parsed)) return 'Math answer must be a valid number';
       if (parsed !== mathChallenge.expected) return 'Incorrect math answer. Please try again.';
       return undefined;
     },
-    [mathChallenge.expected, showMathFallback]
+    [mathChallenge.expected]
   );
 
   // Handle input blur for real-time validation
@@ -143,9 +136,7 @@ const SignUpPage: React.FC = () => {
       const nameError = validateName(sanitizedName);
       const emailError = validateEmail(sanitizedEmail);
       const passwordError = validatePassword(password);
-      const hasRecaptcha = isVerified && !!recaptchaToken;
-      const shouldUseMathFallback = showMathFallback || !hasRecaptcha;
-      const mathError = shouldUseMathFallback ? validateMathAnswer(mathAnswer) : undefined;
+      const mathError = validateMathAnswer(mathAnswer);
 
       if (nameError || emailError || passwordError || mathError) {
         setFieldErrors({
@@ -154,10 +145,6 @@ const SignUpPage: React.FC = () => {
           password: passwordError,
           mathAnswer: mathError,
         });
-        if (!hasRecaptcha) {
-          setShowMathFallback(true);
-          setError('reCAPTCHA is unavailable. Please solve the math challenge to continue.');
-        }
         return;
       }
 
@@ -165,21 +152,13 @@ const SignUpPage: React.FC = () => {
       setIsLoading(true);
 
       try {
-        await signup(
-          sanitizedName,
-          sanitizedEmail,
-          password,
-          hasRecaptcha ? recaptchaToken : undefined,
-          hasRecaptcha
-            ? undefined
-            : {
-                type: 'math-v1',
-                left: mathChallenge.left,
-                right: mathChallenge.right,
-                operator: mathChallenge.operator,
-                answer: Number(mathAnswer),
-              }
-        );
+        await signup(sanitizedName, sanitizedEmail, password, undefined, {
+          type: 'math-v1',
+          left: mathChallenge.left,
+          right: mathChallenge.right,
+          operator: mathChallenge.operator,
+          answer: Number(mathAnswer),
+        });
         navigate('/community');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -197,9 +176,6 @@ const SignUpPage: React.FC = () => {
       validateEmail,
       validatePassword,
       validateMathAnswer,
-      isVerified,
-      recaptchaToken,
-      showMathFallback,
       mathAnswer,
       mathChallenge,
     ]
@@ -387,71 +363,55 @@ const SignUpPage: React.FC = () => {
             </p>
           </div>
 
-          {/* reCAPTCHA */}
-          {hasValidRecaptchaKey && (
-            <div className="flex justify-center mb-4">
-              <ReCaptcha
-                onVerify={handleVerify}
-                onExpire={() => {
-                  handleExpire();
-                  setShowMathFallback(true);
-                }}
-                onError={() => {
-                  setShowMathFallback(true);
-                }}
-                theme="light"
-                size="normal"
-              />
-            </div>
-          )}
-
-          {showMathFallback && (
-            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-500/40 dark:bg-amber-500/10">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-                  Math verification fallback
+          {/* Human Verification (Math Challenge) */}
+          <div className="rounded-xl border border-orange-200 bg-orange-50/70 p-3.5 dark:border-orange-500/30 dark:bg-orange-950/20">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Human Verification
                 </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMathChallenge(createMathChallenge());
-                    setMathAnswer('');
-                    setFieldErrors((prev) => ({ ...prev, mathAnswer: undefined }));
-                  }}
-                  className="text-xs font-semibold text-amber-700 underline dark:text-amber-300"
-                >
-                  New challenge
-                </button>
               </div>
-              <label
-                htmlFor="mathAnswer"
-                className="mt-2 block text-sm text-amber-900 dark:text-amber-100"
+              <button
+                type="button"
+                onClick={() => {
+                  setMathChallenge(createMathChallenge());
+                  setMathAnswer('');
+                  setFieldErrors((prev) => ({ ...prev, mathAnswer: undefined }));
+                }}
+                className="text-xs font-semibold text-orange-600 hover:text-orange-700 underline dark:text-orange-400"
               >
-                Solve: {mathChallenge.left} {mathChallenge.operator} {mathChallenge.right} = ?
-              </label>
+                Change question
+              </button>
+            </div>
+            <div className="mt-2.5 flex items-center gap-3">
+              <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-orange-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 text-base shadow-sm">
+                {mathChallenge.left} {mathChallenge.operator} {mathChallenge.right} = ?
+              </span>
               <input
                 id="mathAnswer"
                 name="mathAnswer"
                 type="number"
                 inputMode="numeric"
+                placeholder="Answer"
                 value={mathAnswer}
                 onChange={(event) => setMathAnswer(event.target.value)}
                 onBlur={handleMathBlur}
-                className={`mt-2 w-full rounded-lg border bg-white px-3 py-2 text-base dark:bg-slate-700/50 ${
+                className={`flex-1 rounded-lg border bg-white px-3 py-1.5 text-base text-slate-900 dark:text-white dark:bg-slate-800 ${
                   fieldErrors.mathAnswer
                     ? 'border-red-500 dark:border-red-400'
-                    : 'border-amber-300 dark:border-amber-500/40'
+                    : 'border-orange-300 dark:border-orange-500/40'
                 }`}
                 aria-invalid={fieldErrors.mathAnswer ? 'true' : 'false'}
                 aria-describedby={fieldErrors.mathAnswer ? 'math-error' : undefined}
               />
-              {fieldErrors.mathAnswer && (
-                <p id="math-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {fieldErrors.mathAnswer}
-                </p>
-              )}
             </div>
-          )}
+            {fieldErrors.mathAnswer && (
+              <p id="math-error" className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                {fieldErrors.mathAnswer}
+              </p>
+            )}
+          </div>
 
           <div>
             <button

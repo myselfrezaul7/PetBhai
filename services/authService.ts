@@ -1,10 +1,36 @@
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import {
   auth,
   googleProvider,
   isFirebaseConfigured,
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
 } from './firebase';
+
+interface NativeGoogleAuthPluginInterface {
+  signIn(): Promise<{
+    idToken: string;
+    email: string;
+    displayName: string;
+    givenName: string;
+    familyName: string;
+    photoUrl: string;
+    userId: string;
+  }>;
+  signOut(): Promise<{ success: boolean }>;
+}
+
+const NativeGoogleAuth = registerPlugin<NativeGoogleAuthPluginInterface>('NativeGoogleAuth');
+
+export const signOutNativeGoogle = async (): Promise<void> => {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await NativeGoogleAuth.signOut();
+    } catch (e) {
+      console.warn('Native Google sign out error:', e);
+    }
+  }
+};
 
 interface SocialUser {
   firstName: string;
@@ -16,13 +42,77 @@ interface SocialUser {
 }
 
 export const signInWithGoogle = async (): Promise<SocialUser> => {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const nativeAccount = await NativeGoogleAuth.signIn();
+      if (!nativeAccount || !nativeAccount.idToken) {
+        throw new Error('Google Sign-In failed: No ID token returned from Google Play Services.');
+      }
+
+      let firebaseToken: string | undefined = nativeAccount.idToken;
+      let firebaseUid: string | undefined = nativeAccount.userId;
+
+      // Exchange native Google ID token for Firebase credentials if Firebase is available
+      if (auth) {
+        try {
+          const credential = GoogleAuthProvider.credential(nativeAccount.idToken);
+          const userCredential = await signInWithCredential(auth, credential);
+          const user = userCredential.user;
+          firebaseUid = user.uid;
+          try {
+            firebaseToken = await user.getIdToken(true);
+          } catch {
+            firebaseToken = await user.getIdToken();
+          }
+        } catch (firebaseErr) {
+          console.warn(
+            'Firebase signInWithCredential warning (proceeding with native token):',
+            firebaseErr
+          );
+        }
+      }
+
+      const displayName = nativeAccount.displayName || '';
+      const nameParts = displayName.split(' ');
+      const firstName = nativeAccount.givenName || nameParts[0] || 'User';
+      const lastName = nativeAccount.familyName || nameParts.slice(1).join(' ') || '';
+
+      return {
+        firstName,
+        lastName,
+        email: nativeAccount.email || '',
+        photoUrl: nativeAccount.photoUrl || undefined,
+        firebaseToken,
+        providerUserId: firebaseUid || nativeAccount.userId || undefined,
+      };
+    } catch (error: any) {
+      console.error('Native Google Sign-In Error:', error);
+      const msg = error?.message || String(error);
+      if (msg.includes('cancelled') || msg.includes('12501')) {
+        throw new Error('Sign-in was cancelled.');
+      }
+      if (msg.includes('code 10') || msg.includes('Configuration error')) {
+        throw new Error(
+          'Google Play Services configuration error (Code 10). Please ensure SHA-1 fingerprint is registered in Firebase.'
+        );
+      }
+      throw new Error(msg);
+    }
+  }
+
   // Require Firebase to be properly configured
   if (!isFirebaseConfigured() || !auth || !googleProvider) {
     throw new Error('Google Sign-In is not available. Firebase is not configured.');
   }
 
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Google Sign-In request timed out. Please try again.'));
+      }, 15000);
+    });
+
+    const result = await Promise.race([signInWithPopup(auth, googleProvider), timeoutPromise]);
     const user = result.user;
 
     // Get fresh Firebase ID token for backend verification (force refresh to avoid stale cached tokens)

@@ -16,13 +16,6 @@ const Footer: React.FC = () => {
               Smart pet care for Bangladesh: shop essentials, book trusted services, and adopt
               responsibly in one experience.
             </p>
-            <a
-              href="mailto:petbhaibd@gmail.com"
-              className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-zinc-300 dark:hover:text-white"
-            >
-              <MailIcon className="h-4 w-4" />
-              petbhaibd@gmail.com
-            </a>
           </div>
 
           <div className="grid grid-cols-2 gap-6 md:col-span-2 md:gap-10">
@@ -59,6 +52,12 @@ const Footer: React.FC = () => {
                 >
                   FAQ
                 </Link>
+                <a
+                  href="mailto:petbhaibd@gmail.com"
+                  className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
+                >
+                  Contact Us
+                </a>
                 <Link
                   to="/safety"
                   className="text-sm text-slate-700 hover:text-orange-600 dark:text-zinc-300"
@@ -110,7 +109,7 @@ const Footer: React.FC = () => {
               </p>
               <Link
                 to="/terms"
-                className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-300"
+                className="mt-2 block text-xs text-slate-500 hover:text-orange-600 dark:text-zinc-400"
               >
                 Terms & Conditions
               </Link>

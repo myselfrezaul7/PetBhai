@@ -1,6 +1,5 @@
-import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { Suspense, lazy, useEffect, useRef } from 'react';
+import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import BlogErrorBoundary from './components/BlogErrorBoundary';
 import Header from './components/Header';
@@ -27,6 +26,14 @@ import SEO, {
 } from './components/SEO';
 import AppProviders from './components/AppProviders';
 import { useAuth } from './contexts/AuthContext';
+import { useProducts } from './contexts/ProductContext';
+import { useArticles } from './contexts/ArticleContext';
+import { useVets } from './contexts/VetContext';
+import { usePetManagement } from './contexts/PetManagementContext';
+import { useDynamicIsland } from './contexts/DynamicIslandContext';
+import { useHaptics } from './hooks/useHaptics';
+import { realtimeService } from './services/realtimeService';
+import { safeSessionStorage } from './lib/storage';
 
 // Lazy load all page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -289,15 +296,299 @@ const RouteSEO: React.FC = () => {
       />
     );
   }
+  if (path === '/privacy' || path === '/delete-account') {
+    return (
+      <SEO
+        title="Privacy Policy & Data Safety"
+        description="Review PetBhai's privacy policy, data safety practices, and account deletion instructions."
+      />
+    );
+  }
 
   return <SEO title="PetBhai" />;
 };
 
+const TOP_LEVEL_TABS = ['/shop', '/blog', '/community', '/services', '/profile', '/adopt'];
+
+const isNativeApp = (): boolean => {
+  try {
+    return Boolean(
+      (
+        window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }
+      ).Capacitor?.isNativePlatform?.()
+    );
+  } catch {
+    return false;
+  }
+};
+
+const MEDICINE_ALERT_SESSION_KEY = 'petbhai_due_reminder_alerted';
+
 const AppContent: React.FC = () => {
   const { consent } = useCookieConsent();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { isCartOpen, closeCart } = useCart();
+  const { refetch: refetchProducts } = useProducts();
+  const { refetch: refetchArticles } = useArticles();
+  const { refetch: refetchVets } = useVets();
+  const { pets, medicineReminders } = usePetManagement();
+  const { showNotification, showLoading, showSuccess } = useDynamicIsland();
+  const { hapticLight, hapticSuccess } = useHaptics();
+  const isRefreshingRef = useRef(false);
+  const lastRefreshAtRef = useRef(0);
 
   useEffect(() => {
+    const win = window as unknown as { __petbhaiHandleBack?: () => string };
+    win.__petbhaiHandleBack = () => {
+      if (isCartOpen) {
+        closeCart();
+        return 'handled';
+      }
+      if (location.pathname !== '/') {
+        if (TOP_LEVEL_TABS.includes(location.pathname)) {
+          navigate('/', { replace: true });
+        } else {
+          navigate(-1);
+        }
+        return 'handled';
+      }
+      return 'exit';
+    };
+    return () => {
+      delete win.__petbhaiHandleBack;
+    };
+  }, [isCartOpen, closeCart, location.pathname, navigate]);
+
+  // Verified Android App Links & Deep Link receiver
+  useEffect(() => {
+    const win = window as unknown as {
+      __petbhaiNavigate?: (path: string) => void;
+      __petbhaiDeepLink?: string | null;
+      PetBhaiNative?: { consumeDeepLink?: () => string };
+    };
+
+    const handleDeepLinkPath = (rawPath: string) => {
+      if (!rawPath || typeof rawPath !== 'string') return;
+      const normalized = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+      navigate(normalized);
+    };
+
+    win.__petbhaiNavigate = handleDeepLinkPath;
+
+    if (win.__petbhaiDeepLink) {
+      const pending = win.__petbhaiDeepLink;
+      win.__petbhaiDeepLink = null;
+      handleDeepLinkPath(pending);
+    } else if (win.PetBhaiNative?.consumeDeepLink) {
+      try {
+        const nativePending = win.PetBhaiNative.consumeDeepLink();
+        if (nativePending) {
+          handleDeepLinkPath(nativePending);
+        }
+      } catch {
+        // Ignore native deep link read errors
+      }
+    }
+
+    return () => {
+      delete win.__petbhaiNavigate;
+    };
+  }, [navigate]);
+
+  // Mobile / Native pull-to-refresh gesture with haptics and Dynamic Island status
+  useEffect(() => {
+    const shouldEnablePull =
+      isNativeApp() || (typeof window !== 'undefined' && window.innerWidth <= 1024);
+    if (!shouldEnablePull) return;
+
+    let active = false;
+    let startY = 0;
+    let startX = 0;
+    let lastY = 0;
+    let lastX = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1 || window.scrollY > 2 || isRefreshingRef.current) {
+        active = false;
+        return;
+      }
+
+      const target = e.target as HTMLElement | null;
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'].includes(target.tagName)) {
+        active = false;
+        return;
+      }
+
+      let node: HTMLElement | null = target;
+      while (node && node !== document.body) {
+        if (node.scrollTop > 0) {
+          active = false;
+          return;
+        }
+        node = node.parentElement;
+      }
+
+      const touch = e.touches[0];
+      active = true;
+      startY = touch.clientY;
+      startX = touch.clientX;
+      lastY = touch.clientY;
+      lastX = touch.clientX;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!active) return;
+      if (e.touches.length !== 1 || window.scrollY > 4) {
+        active = false;
+        return;
+      }
+      const touch = e.touches[0];
+      lastY = touch.clientY;
+      lastX = touch.clientX;
+    };
+
+    const resetTouch = () => {
+      active = false;
+    };
+
+    const handleTouchEnd = () => {
+      if (!active) return;
+      active = false;
+
+      const dy = lastY - startY;
+      const dx = Math.abs(lastX - startX);
+      if (dy < 110 || dx > 55 || window.scrollY > 2) {
+        return;
+      }
+
+      const now = Date.now();
+      if (isRefreshingRef.current || now - lastRefreshAtRef.current < 4000) {
+        return;
+      }
+
+      isRefreshingRef.current = true;
+      lastRefreshAtRef.current = now;
+      hapticLight();
+      showLoading('Refreshing PetBhai...');
+      window.dispatchEvent(new CustomEvent('petbhai-refresh'));
+
+      void Promise.allSettled([refetchProducts(true), refetchArticles(true), refetchVets(true)])
+        .then(() => {
+          hapticSuccess();
+          showSuccess('Updated');
+        })
+        .finally(() => {
+          isRefreshingRef.current = false;
+        });
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', resetTouch, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', resetTouch);
+    };
+  }, [
+    hapticLight,
+    hapticSuccess,
+    refetchArticles,
+    refetchProducts,
+    refetchVets,
+    showLoading,
+    showSuccess,
+  ]);
+
+  // Real-time order status updates
+  useEffect(() => {
+    const unsubscribe = realtimeService.subscribe('ORDER_UPDATED', (payload) => {
+      if (!payload || !currentUser?.id) return;
+
+      const ownerId = payload.userId ?? payload.customerId ?? payload.user?.id;
+      if (ownerId && String(ownerId) !== String(currentUser.id)) {
+        return;
+      }
+
+      const payloadEmail = payload.customerEmail ?? payload.email;
+      if (
+        !ownerId &&
+        payloadEmail &&
+        currentUser.email &&
+        String(payloadEmail).toLowerCase() !== currentUser.email.toLowerCase()
+      ) {
+        return;
+      }
+
+      const rawId = payload.id ?? payload.orderId;
+      const shortId = rawId ? `#${String(rawId).slice(-6)}` : 'Update';
+      const statusText = payload.status
+        ? `Status: ${String(payload.status)}`
+        : 'Your order status was updated';
+
+      hapticSuccess();
+      showNotification(`Order ${shortId}`, statusText, 5000);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [currentUser?.id, currentUser?.email, hapticSuccess, showNotification]);
+
+  // Smart reminder alert when a pet medicine dose is due today or overdue (once per session)
+  useEffect(() => {
+    if (!currentUser?.id || medicineReminders.length === 0) return;
+    if (safeSessionStorage.getItem(MEDICINE_ALERT_SESSION_KEY) === '1') return;
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const dueReminders = medicineReminders.filter((reminder) => {
+      if (!reminder.isActive || !reminder.notificationEnabled || !reminder.nextDueDate) {
+        return false;
+      }
+      const dueTime = new Date(reminder.nextDueDate).getTime();
+      return !Number.isNaN(dueTime) && dueTime <= endOfToday.getTime();
+    });
+
+    if (dueReminders.length === 0) return;
+
+    const timerId = window.setTimeout(() => {
+      if (safeSessionStorage.getItem(MEDICINE_ALERT_SESSION_KEY) === '1') return;
+      safeSessionStorage.setItem(MEDICINE_ALERT_SESSION_KEY, '1');
+      const primaryReminder = dueReminders[0];
+      const matchingPet = pets.find((pet) => pet.id === primaryReminder.petId);
+      const title =
+        dueReminders.length > 1
+          ? `${dueReminders.length} Medicine Reminders Due`
+          : 'Medicine Reminder Due';
+      const subtitle = `${matchingPet ? `${matchingPet.name}: ` : ''}${primaryReminder.medicineName}`;
+      hapticLight();
+      showNotification(title, subtitle, 5500);
+    }, 1600);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [currentUser?.id, medicineReminders, pets, hapticLight, showNotification]);
+
+  useEffect(() => {
+    // Skip Service Worker registration inside Capacitor native apps (Android/iOS)
+    try {
+      const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+        .Capacitor;
+      if (cap?.isNativePlatform?.()) {
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
     // Robust Service Worker Registration
     const registerServiceWorker = async () => {
       if ('serviceWorker' in navigator) {
@@ -358,70 +649,64 @@ const AppContent: React.FC = () => {
         <SwipeNavigationProvider>
           <ErrorBoundary>
             <Suspense fallback={<PawHeartLoader />}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={location.pathname}
-                  initial={{ opacity: 0, scale: 0.99, filter: 'blur(4px)' }}
-                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, scale: 0.99, filter: 'blur(2px)' }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
-                >
-                  <Routes location={location}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route
-                      path="/admin"
-                      element={
-                        <AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>
-                      }
-                    />
-                    <Route path="/community" element={<CommunityPage />} />
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/find-vet" element={<Navigate to="/services" replace />} />
-                    <Route path="/consult-vet" element={<Navigate to="/services" replace />} />
-                    <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
-                    <Route path="/vet/:id" element={<VetDetailPage />} />
-                    <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignUpPage />} />
-                    <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/product/:id" element={<ProductDetailPage />} />
-                    <Route path="/checkout" element={<CheckoutPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route
-                      path="/blog"
-                      element={
-                        <BlogErrorBoundary>
-                          <BlogPage />
-                        </BlogErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path="/blog/:slug"
-                      element={
-                        <BlogErrorBoundary>
-                          <ArticleDetailPage />
-                        </BlogErrorBoundary>
-                      }
-                    />
-                    <Route path="/plus-membership" element={<PlusMembershipPage />} />
-                    <Route path="/adopt" element={<AdoptPage />} />
-                    <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
-                    <Route path="/adopt/:id" element={<AnimalDetailPage />} />
-                    <Route path="/report" element={<ReportPage />} />
-                    <Route path="/volunteer" element={<VolunteerPage />} />
-                    <Route path="/faq" element={<FAQPage />} />
-                    <Route path="/safety" element={<TrustPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/dashboard" element={<PetDashboardPage />} />
-                    <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
-                    <Route path="/services/booking" element={<ServicesBookingPage />} />
-                    <Route path="/ai-assistant" element={<AIAssistantPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </motion.div>
-              </AnimatePresence>
+              <div key={location.pathname} className="route-transition-container">
+                <Routes location={location}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/find-vet" element={<Navigate to="/services" replace />} />
+                  <Route path="/consult-vet" element={<Navigate to="/services" replace />} />
+                  <Route path="/services/professional/:id" element={<ProfessionalDetailPage />} />
+                  <Route path="/vet/:id" element={<VetDetailPage />} />
+                  <Route path="/thumbnail-generator" element={<ThumbnailGeneratorPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/product/:id" element={<ProductDetailPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route
+                    path="/blog"
+                    element={
+                      <BlogErrorBoundary>
+                        <BlogPage />
+                      </BlogErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/blog/:slug"
+                    element={
+                      <BlogErrorBoundary>
+                        <ArticleDetailPage />
+                      </BlogErrorBoundary>
+                    }
+                  />
+                  <Route path="/plus-membership" element={<PlusMembershipPage />} />
+                  <Route path="/adopt" element={<AdoptPage />} />
+                  <Route path="/adopt/quiz" element={<AdoptionQuizPage />} />
+                  <Route path="/adopt/:id" element={<AnimalDetailPage />} />
+                  <Route path="/report" element={<ReportPage />} />
+                  <Route path="/volunteer" element={<VolunteerPage />} />
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/safety" element={<TrustPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/privacy" element={<TermsPage />} />
+                  <Route path="/delete-account" element={<TermsPage />} />
+                  <Route path="/dashboard" element={<PetDashboardPage />} />
+                  <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
+                  <Route path="/services/booking" element={<ServicesBookingPage />} />
+                  <Route path="/ai-assistant" element={<AIAssistantPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </div>
             </Suspense>
           </ErrorBoundary>
         </SwipeNavigationProvider>
@@ -436,10 +721,10 @@ const AppContent: React.FC = () => {
       <ScrollToTop />
       <ScrollToTopOnNavigate />
       <Footer />
-      <SpeedInsights />
+      {!isNativeApp() && <SpeedInsights />}
       <ToastContainer />
       <ConfirmationModal />
-      <CookieConsentBanner />
+      {!isNativeApp() && <CookieConsentBanner />}
     </div>
   );
 };

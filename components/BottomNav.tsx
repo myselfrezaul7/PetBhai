@@ -4,6 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useScrollDirection } from '../hooks/useScrollDirection';
+import { useHaptics } from '../hooks/useHaptics';
 
 const HomeGlyph: React.FC<{ className?: string }> = ({ className }) => (
   <svg
@@ -54,6 +55,7 @@ const BottomNav: React.FC = () => {
   const { t } = useLanguage();
   const location = useLocation();
   const { scrollDirection, isAtTop } = useScrollDirection();
+  const { hapticLight } = useHaptics();
 
   // Hide on pages that have their own sticky bottom bar
   const hideOnRoutes = ['/product/', '/checkout', '/admin'];
@@ -88,6 +90,7 @@ const BottomNav: React.FC = () => {
             <li key={item.label}>
               <NavLink
                 to={item.to}
+                onClick={() => hapticLight()}
                 className={`group relative isolate flex min-h-[52px] flex-col items-center justify-between rounded-full px-1 py-1.5 text-[11px] font-semibold transition-all duration-300 active:scale-90 ${
                   isActive
                     ? 'text-amber-700 dark:text-amber-400'

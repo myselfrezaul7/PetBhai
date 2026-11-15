@@ -166,6 +166,9 @@ app.use((req, res, next) => {
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost',
+  'https://localhost',
+  'capacitor://localhost',
   'https://myselfrezaul7.github.io',
   'https://www.petbhai.com',
   'https://petbhai.com',

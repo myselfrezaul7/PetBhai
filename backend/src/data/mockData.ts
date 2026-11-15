@@ -1058,12 +1058,13 @@ export const MOCK_POSTS: Post[] = [
     author: {
       id: '1',
       name: 'Aisha Rahman',
-      profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
+      profilePictureUrl:
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
     },
     content:
-      'Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand?',
-    imageUrl: 'https://picsum.photos/seed/post1/600/400',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      'Just switched my cat to Royal Canin and her coat has never been shinier! Anyone else have good experiences with this brand? What dry food do you recommend for indoor desi cats?',
+    imageUrl: '/images/desi-breeds/desi_cat_1_1781109714663.png',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     likes: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     comments: MOCK_COMMENTS,
   },
@@ -1072,13 +1073,14 @@ export const MOCK_POSTS: Post[] = [
     author: {
       id: '2',
       name: 'Jamal Khan',
-      profilePictureUrl: 'https://picsum.photos/seed/jamal/200',
+      profilePictureUrl:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     },
     content:
-      '뿯½뿯ƽ뿯½뿯½ Pro tip for new dog owners: Consistency is key in training! Start with basic commands like "sit" and "stay" and practice daily. My German Shepherd learned these in just 2 weeks. What training tips do you have?',
-    imageUrl: 'https://picsum.photos/seed/post2/600/400',
+      '🐾 Pro tip for new dog owners in Dhaka: Consistency is key in training! Start with basic commands like "sit" and "stay" and practice daily. My pup learned these in just 10 days with healthy treats. What training tips do you have?',
+    imageUrl: '/images/desi-breeds/desi_dog_1_1781109694683.png',
     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    likes: [1, 3, 5, 7],
+    likes: [1, 3, 5, 7, 9],
     comments: [],
   },
   {
@@ -1086,19 +1088,21 @@ export const MOCK_POSTS: Post[] = [
     author: {
       id: '3',
       name: 'Fatima Akter',
-      profilePictureUrl: 'https://picsum.photos/seed/fatima/200',
+      profilePictureUrl:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80',
     },
     content:
-      'Looking for recommendations for a good vet in Dhanmondi area. My kitten needs her first vaccination. Any suggestions would be greatly appreciated! 뿯½뿯ƽ뿯½뿯▽뿯½뿯ƽ뿯½뿯½',
+      'Looking for recommendations for a good vet in Dhanmondi area. My kitten needs her first vaccination. Any suggestions would be greatly appreciated! 🐱❤️',
     timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    likes: [1, 2],
+    likes: [1, 2, 6],
     comments: [
       {
         id: 2,
         author: {
           id: '1',
           name: 'Aisha Rahman',
-          profilePictureUrl: 'https://picsum.photos/seed/aisha/200',
+          profilePictureUrl:
+            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
         },
         text: 'I highly recommend Dr. Kabir at Dhaka Pet Hospital! Very gentle with kittens.',
         likes: [3],
@@ -1106,6 +1110,36 @@ export const MOCK_POSTS: Post[] = [
         replies: [],
       },
     ],
+  },
+  {
+    id: 4,
+    author: {
+      id: '4',
+      name: 'Tanvir Hasan',
+      profilePictureUrl:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+    },
+    content:
+      'Summer hydration tip: Keep fresh water bowls outside your gate or on your balcony. Street animals and birds really struggle during hot afternoons in the city. Small steps save lives! 🚰🐕',
+    imageUrl: '/images/desi-breeds/desi_dog_4_1781109745761.png',
+    timestamp: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
+    likes: [1, 2, 3, 4, 7, 8, 11],
+    comments: [],
+  },
+  {
+    id: 5,
+    author: {
+      id: '5',
+      name: 'Sarah Ahmed',
+      profilePictureUrl:
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    },
+    content:
+      'Adopted this beautiful rescue kitty through PetBhai! She was shy at first, but now she sleeps right on my laptop while I work. Adopt, don’t shop! 💕🐾',
+    imageUrl: '/images/desi-breeds/desi_cat_4_1781109766371.png',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    likes: [1, 2, 4, 5, 8, 9, 12, 14],
+    comments: [],
   },
 ];
 
@@ -1895,7 +1929,7 @@ export const MOCK_ARTICLES: any[] = [
     id: 115,
     image: '/blog-images/mother_dog_pups_1781879098911.png',
     title: 'পশুর ডাক্তারের কাছে কুকুরকে নেওয়ার আগে প্রস্তুতি',
-    content: `পশুর ডাক্তার বা ভেটের কাছে যাওয়া অনেক কুকুরের জন্যই ভীতিকর অভিজ্ঞতা। অচেনা জায়গা, অন্য প্রাণীদের গন্ধ এবং ইনজেকশনের ভয়ে তারা প্রায়ই প্যানিক করে। 
+    content: `পশুর ডাক্তার বা ভেটের কাছে যাওয়া অনেক কুকুরের জন্যই ভীতিকর অভিজ্ঞতা। অচেনা জায়গা, অন্য প্রাণীদের গন্ধ এবং ইনজেকশনের ভয়ে তারা প্রায়ই প্যানিক করে।
 
 ## ভেট ভিজিটের আগের প্রস্তুতি
 
@@ -2206,7 +2240,7 @@ export const MOCK_ARTICLES: any[] = [
 
 ## লিটার বক্স পরিষ্কার করার সঠিক নিয়ম
 
-১. **প্রতিদিন স্কুপিং (Scooping):** দিনে অন্তত দুইবার (সকালে এবং রাতে) স্কুপার দিয়ে মল এবং জমাট বাঁধা প্রস্রাবের দলাগুলো তুলে ফেলে দিন। 
+১. **প্রতিদিন স্কুপিং (Scooping):** দিনে অন্তত দুইবার (সকালে এবং রাতে) স্কুপার দিয়ে মল এবং জমাট বাঁধা প্রস্রাবের দলাগুলো তুলে ফেলে দিন।
 ২. **সাপ্তাহিক পরিষ্কার:** সপ্তাহে অন্তত একবার পুরো লিটার বক্সের বালি ফেলে দিয়ে হালকা গরম পানি ও সাবান দিয়ে বক্সটি ধুয়ে শুকিয়ে নিন। কড়া গন্ধযুক্ত ক্লিনার ব্যবহার করবেন না, বিড়াল গন্ধ অপছন্দ করতে পারে।
 ৩. **পর্যাপ্ত বালি:** বক্সে সবসময় ২-৩ ইঞ্চি গভীর বালি রাখবেন, যাতে বিড়াল সহজেই তার মল ঢেকে রাখতে পারে।
 
@@ -2227,7 +2261,7 @@ export const MOCK_ARTICLES: any[] = [
     id: 127,
     image: '/blog-images/mother_cat_carrying_1781879196299.png',
     title: 'বিড়াল কেন পানি ভয় পায়?',
-    content: `অধিকাংশ বিড়ালই পানি দেখলে ভয় পায় বা গোসল করতে চায় না। ইন্টারনেটে অনেক মজার ভিডিও থাকলেও বাস্তবে গোসল করানো মালিকদের জন্য একটি যুদ্ধের মতো! 
+    content: `অধিকাংশ বিড়ালই পানি দেখলে ভয় পায় বা গোসল করতে চায় না। ইন্টারনেটে অনেক মজার ভিডিও থাকলেও বাস্তবে গোসল করানো মালিকদের জন্য একটি যুদ্ধের মতো!
 
 ## বিড়ালের পানি ভয়ের কারণ
 
@@ -2301,7 +2335,7 @@ export const MOCK_ARTICLES: any[] = [
 
 ## ক্যাট গ্রাস কী?
 
-রাস্তার ঘাসে কীটনাশক বা ময়লা থাকতে পারে যা বিড়ালের জন্য ক্ষতিকর। তাই বাড়িতে টবে 'ক্যাট গ্রাস' (Cat grass) লাগানো সবচেয়ে নিরাপদ। সাধারণত গম, ওটস বা বার্লির বীজ বুনে খুব সহজেই ক্যাট গ্রাস তৈরি করা যায়। 
+রাস্তার ঘাসে কীটনাশক বা ময়লা থাকতে পারে যা বিড়ালের জন্য ক্ষতিকর। তাই বাড়িতে টবে 'ক্যাট গ্রাস' (Cat grass) লাগানো সবচেয়ে নিরাপদ। সাধারণত গম, ওটস বা বার্লির বীজ বুনে খুব সহজেই ক্যাট গ্রাস তৈরি করা যায়।
 
 আপনার বিড়ালকে নিরাপদ ক্যাট গ্রাস দিন, এটি তাদের শারীরিক ও মানসিক স্বাস্থ্যের জন্য বেশ উপকারী।`,
     imageUrl: '/blog-images/cat_blog_8_1781890044363.png',
@@ -2361,7 +2395,7 @@ export const MOCK_ARTICLES: any[] = [
 গর্ভকালীন সময়ে বিড়ালের প্রচুর শক্তির প্রয়োজন হয়।
 ১. **কিটেন ফুড দিন:** গর্ভধারণের চতুর্থ সপ্তাহ থেকে সাধারণ অ্যাডাল্ট খাবারের পরিবর্তে ভালো মানের 'কিটেন ফুড' (Kitten food) দেওয়া শুরু করুন। এতে ক্যালরি এবং প্রোটিনের পরিমাণ বেশি থাকে যা মা ও বাচ্চা উভয়ের জন্য দরকারি।
 ২. **অল্প অল্প করে বারবার খাবার:** পেট বড় হয়ে যাওয়ায় তারা একবারে বেশি খেতে পারে না। তাই দিনে ৩-৪ বার অল্প অল্প করে খাবার দিন।
-৩. **সাপ্লিমেন্ট:** ভেটের পরামর্শ ছাড়া কোনো ক্যালসিয়াম বা ভিটামিন সাপ্লিমেন্ট দেবেন না। 
+৩. **সাপ্লিমেন্ট:** ভেটের পরামর্শ ছাড়া কোনো ক্যালসিয়াম বা ভিটামিন সাপ্লিমেন্ট দেবেন না।
 
 ## নিরাপদ পরিবেশ তৈরি
 
@@ -2512,7 +2546,7 @@ export const MOCK_ARTICLES: any[] = [
 
 ## স্ট্রেসের কারণ ও সমাধান
 
-নতুন মানুষ বা প্রাণী আসা, বাসা বদল করা, বা এমনকি রুটিন পরিবর্তন বিড়ালের স্ট্রেসের কারণ হতে পারে। 
+নতুন মানুষ বা প্রাণী আসা, বাসা বদল করা, বা এমনকি রুটিন পরিবর্তন বিড়ালের স্ট্রেসের কারণ হতে পারে।
 **কী করবেন?**
 * বিড়ালকে একটি নিরাপদ জায়গা বা 'সেইফ স্পেস' দিন যেখানে সে শান্তিতে থাকতে পারে।
 * রুটিন বজায় রাখুন (খাওয়ানো এবং খেলার নির্দিষ্ট সময়)।
@@ -2563,7 +2597,7 @@ export const MOCK_ARTICLES: any[] = [
     id: 138,
     image: '/blog-images/cat_blog_10_1781890066210.png',
     title: 'বিড়াল পালনে মাসিক খরচ কেমন হতে পারে?',
-    content: `বিড়াল পালনে মাসিক খরচ নিয়ে অনেকেই চিন্তায় থাকেন। আসলে খরচটি নির্ভর করে আপনি বিড়ালকে কী খাওয়াচ্ছেন এবং কীভাবে রাখছেন তার ওপর। 
+    content: `বিড়াল পালনে মাসিক খরচ নিয়ে অনেকেই চিন্তায় থাকেন। আসলে খরচটি নির্ভর করে আপনি বিড়ালকে কী খাওয়াচ্ছেন এবং কীভাবে রাখছেন তার ওপর।
 
 ## মাসিক খরচের প্রধান খাতসমূহ
 
@@ -2856,7 +2890,7 @@ export const MOCK_ARTICLES: any[] = [
     content: `একটি পোষা প্রাণী দত্তক নেওয়া মানে একটি দীর্ঘমেয়াদী দায়িত্ব নেওয়া। আবেগের বশবর্তী হয়ে প্রাণী নিয়ে পরে রাস্তায় ছেড়ে দেওয়া অত্যন্ত অমানবিক। তাই দত্তক নেওয়ার আগে এই ৫টি বিষয় অবশ্যই ভাবুন:
 
 ## ১. দীর্ঘমেয়াদী প্রতিশ্রুতি
-একটি কুকুর বা বিড়াল ১২ থেকে ১৫ বছর বা তার বেশি বাঁচতে পারে। আগামী ১৫ বছর আপনি তার দায়িত্ব নিতে প্রস্তুত তো? 
+একটি কুকুর বা বিড়াল ১২ থেকে ১৫ বছর বা তার বেশি বাঁচতে পারে। আগামী ১৫ বছর আপনি তার দায়িত্ব নিতে প্রস্তুত তো?
 
 ## ২. আর্থিক সামর্থ্য
 খাবার, লিটার, ভ্যাকসিন, কৃমির ওষুধ এবং হঠাৎ অসুস্থতায় চিকিৎসার খরচ বহন করার মতো আর্থিক স্বচ্ছলতা আপনার আছে কি না তা বিবেচনা করুন।
@@ -2992,7 +3026,7 @@ export const MOCK_ARTICLES: any[] = [
     id: 152,
     image: '/blog-images/blog-senior-diet.png',
     title: 'রেসকিউ এনিম্যাল: একটি প্রাণীকে নতুন জীবন দিন',
-    content: `দোকান থেকে চড়া দামে বিদেশি জাতের কুকুর বা বিড়াল কেনার চেয়ে রাস্তা বা শেল্টার থেকে একটি প্রাণী দত্তক বা 'রেসকিউ' করা অনেক বেশি মানবিক একটি কাজ। 
+    content: `দোকান থেকে চড়া দামে বিদেশি জাতের কুকুর বা বিড়াল কেনার চেয়ে রাস্তা বা শেল্টার থেকে একটি প্রাণী দত্তক বা 'রেসকিউ' করা অনেক বেশি মানবিক একটি কাজ।
 
 ## কেন রেসকিউ করবেন?
 
@@ -3195,7 +3229,7 @@ export const MOCK_ARTICLES: any[] = [
 ## কুকুরের জন্য চিকেন ও সবজি রেসিপি
 
 **উপকরণ:** ১ কাপ বোনলেস চিকেন, ১/২ কাপ মিষ্টি কুমড়া, ১/২ কাপ গাজর, এবং ১/২ কাপ ভাত।
-**প্রণালী:** 
+**প্রণালী:**
 ১. মাংস এবং সবজিগুলো ছোট ছোট টুকরো করে কেটে নিন।
 ২. একটি হাঁড়িতে সব উপকরণ একসাথে দিয়ে পরিমাণমতো পানি দিন।
 ৩. কোনো লবণ, পেঁয়াজ বা মসলা ছাড়া শুধু পানিতে সেদ্ধ করুন।
@@ -3204,9 +3238,9 @@ export const MOCK_ARTICLES: any[] = [
 ## বিড়ালের জন্য চিকেন ব্রথ (Chicken Broth)
 
 **উপকরণ:** মুরগির হাড় এবং একটু গাজর।
-**প্রণালী:** 
-১. মুরগির হাড়গুলো পানিতে দিয়ে অল্প আঁচে ২-৩ ঘণ্টা জ্বাল দিন। 
-২. পানি ঘন হয়ে এলে নামিয়ে হাড়গুলো ফেলে দিন (বিড়ালকে কখনোই রান্না করা হাড় দেবেন না)। 
+**প্রণালী:**
+১. মুরগির হাড়গুলো পানিতে দিয়ে অল্প আঁচে ২-৩ ঘণ্টা জ্বাল দিন।
+২. পানি ঘন হয়ে এলে নামিয়ে হাড়গুলো ফেলে দিন (বিড়ালকে কখনোই রান্না করা হাড় দেবেন না)।
 ৩. এই ব্রথ বিড়ালের খাবারে মিশিয়ে দিলে তারা খুব আগ্রহ নিয়ে খায় এবং এটি তাদের আর্দ্র রাখে।
 
 > [!WARNING]
@@ -3298,7 +3332,7 @@ export const MOCK_ARTICLES: any[] = [
 ১. **বেডরুম ফ্রি জোন:** আপনার শোবার ঘরে, বিশেষ করে বিছানায় পোষা প্রাণীকে উঠতে দেবেন না। বেডরুমকে 'পেট-ফ্রি জোন' হিসেবে ঘোষণা করুন।
 ২. **নিয়মিত ব্রাশ করা:** প্রতিদিন বাড়ির বাইরে বা ব্যালকনিতে প্রাণীর লোম ব্রাশ করুন। এতে ঝরে পড়া লোম ঘরে ছড়াবে না।
 ৩. **এয়ার পিউরিফায়ার:** ঘরে একটি ভালো মানের HEPA ফিল্টারযুক্ত এয়ার পিউরিফায়ার ব্যবহার করুন, যা বাতাসের অ্যালার্জেন শুষে নেবে।
-৪. **নিয়মিত ভ্যাকুয়াম:** কার্পেট, সোফা এবং মেঝে নিয়মিত ভ্যাকুয়াম ক্লিনার দিয়ে পরিষ্কার করুন। 
+৪. **নিয়মিত ভ্যাকুয়াম:** কার্পেট, সোফা এবং মেঝে নিয়মিত ভ্যাকুয়াম ক্লিনার দিয়ে পরিষ্কার করুন।
 
 > [!TIP]
 > প্রাণী ছোঁয়ার পর সাবান দিয়ে ভালোভাবে হাত ধুয়ে ফেলুন এবং হাত না ধুয়ে চোখ বা মুখ স্পর্শ করবেন না। প্রয়োজনে চিকিৎসকের পরামর্শ নিয়ে অ্যান্টি-অ্যালার্জি ওষুধ সাথে রাখতে পারেন।`,
@@ -3874,7 +3908,7 @@ export const MOCK_ARTICLES: any[] = [
 
 ### খিঁচুনি থামার পর করণীয় (Post-ictal Phase)
 
-খিঁচুনি শেষ হওয়ার পর প্রাণীটি সাময়িকভাবে অন্ধত্ব, বিভ্রান্তি, অতিরিক্ত ক্লান্তি বা উদ্দেশ্যহীনভাবে হাঁটাহাঁটি করতে পারে। 
+খিঁচুনি শেষ হওয়ার পর প্রাণীটি সাময়িকভাবে অন্ধত্ব, বিভ্রান্তি, অতিরিক্ত ক্লান্তি বা উদ্দেশ্যহীনভাবে হাঁটাহাঁটি করতে পারে।
 - নরম কম্বল দিয়ে তাকে ঢেকে উষ্ণ রাখুন।
 - তার সাথে শান্ত ও আশ্বস্তকর গলায় কথা বলুন।
 - সামান্য পানি দিতে পারেন, তবে জোর করবেন না।
@@ -3982,26 +4016,75 @@ export const MOCK_ARTICLES: any[] = [
 export const MOCK_ANIMALS: Animal[] = [
   {
     id: 1,
-    name: 'Mittens',
-    breed: 'Persian',
+    name: 'Mimi',
+    breed: 'Desi Shorthair',
+    age: 'Young Adult',
+    gender: 'Female',
+    size: 'Small',
+    status: 'Available',
+    description:
+      'Rescued from Dhanmondi. Super affectionate, litter-trained, vaccinated, and loves lap cuddles.',
+    imageUrl: '/images/desi-breeds/desi_cat_1_1781109714663.png',
+  },
+  {
+    id: 2,
+    name: 'Tiger',
+    breed: 'Desi Hound Mix',
+    age: 'Puppy',
+    gender: 'Male',
+    size: 'Medium',
+    status: 'Available',
+    description:
+      'Playful and loyal 4-month-old pup looking for a loving home in Dhaka. Great with children and active families.',
+    imageUrl: '/images/desi-breeds/desi_dog_1_1781109694683.png',
+  },
+  {
+    id: 3,
+    name: 'Nala',
+    breed: 'Calico Cat',
     age: 'Adult',
     gender: 'Female',
     size: 'Medium',
     status: 'Available',
     description:
-      'A lovely fluffy Persian cat looking for a forever home. Very friendly and great with kids.',
-    imageUrl: 'https://placehold.co/600x400?text=Persian+Cat+Mittens',
+      'Calm and graceful companion cat. Spayed, dewormed, and loves sunbathing on balcony perches.',
+    imageUrl: '/images/desi-breeds/desi_cat_2_1781109723319.png',
   },
   {
-    id: 2,
-    name: 'Rocky',
-    breed: 'German Shepherd',
-    age: 'Puppy/Kitten',
+    id: 4,
+    name: 'Sheru',
+    breed: 'Desi Shepherd Mix',
+    age: 'Young Adult',
     gender: 'Male',
     size: 'Large',
     status: 'Available',
-    description: 'Energetic and playful German Shepherd puppy. Needs a loving family with space.',
-    imageUrl: 'https://placehold.co/600x400?text=German+Shepherd+Rocky',
+    description:
+      'Very smart, protective, and friendly rescue dog from Uttara. Vaccinated and leash trained.',
+    imageUrl: '/images/desi-breeds/desi_dog_2_1781109705659.png',
+  },
+  {
+    id: 5,
+    name: 'Simba',
+    breed: 'Golden Desi Cat',
+    age: 'Kitten',
+    gender: 'Male',
+    size: 'Small',
+    status: 'Available',
+    description:
+      'Cute, vocal little kitten found near Banani. Loves toy mice and warm blankets. Ready for adoption.',
+    imageUrl: '/images/desi-breeds/desi_cat_3_1781109756178.png',
+  },
+  {
+    id: 6,
+    name: 'Bruno',
+    breed: 'Desi Labrador Mix',
+    age: 'Adult',
+    gender: 'Male',
+    size: 'Large',
+    status: 'Available',
+    description:
+      'Gentle giant who loves outdoor walks and belly rubs. Perfect companion for a family with a yard.',
+    imageUrl: '/images/desi-breeds/desi_dog_3_1781109737206.png',
   },
 ];
 

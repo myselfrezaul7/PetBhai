@@ -30,6 +30,7 @@ interface PostCardProps {
   ) => Promise<void> | void;
   onDeleteComment?: (postId: number, commentId: number) => Promise<void> | void;
   onDeleteReply?: (postId: number, commentId: number, replyId: number) => Promise<void> | void;
+  onBlockUser?: (userId: number, userName: string) => Promise<void> | void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -45,6 +46,7 @@ const PostCard: React.FC<PostCardProps> = ({
   onUpdateReply,
   onDeleteComment,
   onDeleteReply,
+  onBlockUser,
 }) => {
   const { currentUser } = useAuth();
   const toast = useToast();
@@ -398,35 +400,22 @@ const PostCard: React.FC<PostCardProps> = ({
     }
   }, [post.content, post.id, toast]);
 
-  const getReportReason = useCallback(() => {
-    const reason = window.prompt('Why are you reporting this content? (minimum 3 characters)');
-    if (!reason) return null;
-
-    const trimmed = reason.trim();
-    if (trimmed.length < 3) {
-      toast.error('Please provide a clearer reason (minimum 3 characters).');
-      return null;
-    }
-
-    return trimmed;
-  }, [toast]);
+  const [reportModalTarget, setReportModalTarget] = useState<
+    | { type: 'post' }
+    | { type: 'comment'; commentId: number }
+    | { type: 'reply'; commentId: number; replyId: number }
+    | null
+  >(null);
+  const [reportReasonInput, setReportReasonInput] = useState('Inappropriate or offensive content');
 
   const handleReportPost = useCallback(async () => {
     if (!currentUser) {
       toast.error('Please sign in to report content.');
       return;
     }
-
-    const reason = getReportReason();
-    if (!reason) return;
-
-    try {
-      await postService.reportPost(post.id, currentUser.id, reason);
-      toast.success('Report submitted. Thank you for helping keep the community safe.');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to report post.');
-    }
-  }, [currentUser, getReportReason, post.id, toast]);
+    setReportReasonInput('Inappropriate or offensive content');
+    setReportModalTarget({ type: 'post' });
+  }, [currentUser, toast]);
 
   const handleReportComment = useCallback(
     async (commentId: number) => {
@@ -434,18 +423,10 @@ const PostCard: React.FC<PostCardProps> = ({
         toast.error('Please sign in to report content.');
         return;
       }
-
-      const reason = getReportReason();
-      if (!reason) return;
-
-      try {
-        await postService.reportComment(post.id, commentId, currentUser.id, reason);
-        toast.success('Comment report submitted.');
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to report comment.');
-      }
+      setReportReasonInput('Inappropriate or offensive content');
+      setReportModalTarget({ type: 'comment', commentId });
     },
-    [currentUser, getReportReason, post.id, toast]
+    [currentUser, toast]
   );
 
   const handleReportReply = useCallback(
@@ -454,19 +435,75 @@ const PostCard: React.FC<PostCardProps> = ({
         toast.error('Please sign in to report content.');
         return;
       }
+      setReportReasonInput('Inappropriate or offensive content');
+      setReportModalTarget({ type: 'reply', commentId, replyId });
+    },
+    [currentUser, toast]
+  );
 
-      const reason = getReportReason();
-      if (!reason) return;
+  const handleSubmitReportModal = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!currentUser || !reportModalTarget) return;
+
+      const trimmed = reportReasonInput.trim();
+      if (trimmed.length < 3) {
+        toast.error('Please provide a clearer reason (minimum 3 characters).');
+        return;
+      }
 
       try {
-        await postService.reportReply(post.id, commentId, replyId, currentUser.id, reason);
-        toast.success('Reply report submitted.');
+        if (reportModalTarget.type === 'post') {
+          await postService.reportPost(post.id, currentUser.id, trimmed);
+          toast.success('Report submitted. Thank you for helping keep the community safe.');
+        } else if (reportModalTarget.type === 'comment') {
+          await postService.reportComment(
+            post.id,
+            reportModalTarget.commentId,
+            currentUser.id,
+            trimmed
+          );
+          toast.success('Comment report submitted.');
+        } else if (reportModalTarget.type === 'reply') {
+          await postService.reportReply(
+            post.id,
+            reportModalTarget.commentId,
+            reportModalTarget.replyId,
+            currentUser.id,
+            trimmed
+          );
+          toast.success('Reply report submitted.');
+        }
+        setReportModalTarget(null);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to report reply.');
+        toast.error(error instanceof Error ? error.message : 'Failed to submit report.');
       }
     },
-    [currentUser, getReportReason, post.id, toast]
+    [currentUser, post.id, reportModalTarget, reportReasonInput, toast]
   );
+
+  const handleBlockAuthor = useCallback(async () => {
+    if (!currentUser) {
+      toast.error('Please sign in to block users.');
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: `Block ${post.author.name}?`,
+      message: `Posts and comments from ${post.author.name} will be immediately hidden from your feed.`,
+      confirmText: 'Block User',
+      cancelText: 'Cancel',
+    });
+
+    if (!confirmed) return;
+
+    if (onBlockUser) {
+      await onBlockUser(post.author.id, post.author.name);
+    } else {
+      postService.blockUser(post.author.id);
+      toast.success(`${post.author.name} has been blocked.`);
+    }
+  }, [confirm, currentUser, onBlockUser, post.author.id, post.author.name, toast]);
 
   // Keyboard handlers for accessibility
   const handleKeyDown = useCallback((e: React.KeyboardEvent, action: () => void) => {
@@ -534,12 +571,21 @@ const PostCard: React.FC<PostCardProps> = ({
               </div>
             )}
             {!isAuthor && currentUser && !isEditing && (
-              <button
-                onClick={() => void handleReportPost()}
-                className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
-              >
-                Report
-              </button>
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => void handleReportPost()}
+                  className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
+                >
+                  Report
+                </button>
+                <button
+                  onClick={() => void handleBlockAuthor()}
+                  className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
+                  title={`Block ${post.author.name}`}
+                >
+                  Block
+                </button>
+              </div>
             )}
           </div>
           {isEditing ? (
@@ -1100,6 +1146,83 @@ const PostCard: React.FC<PostCardProps> = ({
           </div>
         )}
       </div>
+      {reportModalTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setReportModalTarget(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-2xl border border-slate-200 dark:border-slate-700"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                Report Community Content
+              </h3>
+              <button
+                type="button"
+                onClick={() => setReportModalTarget(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                aria-label="Close report dialog"
+              >
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmitReportModal} className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {[
+                  'Inappropriate or offensive content',
+                  'Spam or scam',
+                  'Animal abuse or welfare concern',
+                  'Harassment or bullying',
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setReportReasonInput(preset)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                      reportReasonInput === preset
+                        ? 'bg-red-500 text-white border-red-500 font-semibold'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600'
+                    }`}
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Reason for reporting
+                </label>
+                <textarea
+                  rows={3}
+                  value={reportReasonInput}
+                  onChange={(e) => setReportReasonInput(e.target.value)}
+                  maxLength={500}
+                  required
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 p-3 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500"
+                  placeholder="Describe why you are reporting this content..."
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setReportModalTarget(null)}
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl"
+                >
+                  Submit Report
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };

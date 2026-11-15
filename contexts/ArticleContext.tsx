@@ -9,7 +9,7 @@ interface ArticleContextType {
   loading: boolean;
   error: string | null;
   updateArticleImage: (articleId: number, imageUrl: string) => void;
-  refetch: () => void;
+  refetch: (silent?: boolean) => Promise<void>;
 }
 
 const ArticleContext = createContext<ArticleContextType | undefined>(undefined);

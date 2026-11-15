@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "249260469484",
+    "project_id": "petbhai-d087c",
+    "storage_bucket": "petbhai-d087c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:249260469484:android:0c18a7da09efee483649c9",
+        "android_client_info": {
+          "package_name": "com.petbhai.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "249260469484-598c9i6jkojguqaa90omakv5ul2du1p0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqdOS9JbRlx3KEndzZLaPk1NAhWh1_Rjw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "249260469484-598c9i6jkojguqaa90omakv5ul2du1p0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
