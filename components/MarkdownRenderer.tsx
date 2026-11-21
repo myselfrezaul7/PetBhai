@@ -2,6 +2,7 @@ import React from 'react';
 
 interface MarkdownRendererProps {
   content: string;
+  fontSize?: 'sm' | 'md' | 'lg';
 }
 
 export const generateHeadingId = (text: string): string => {
@@ -13,7 +14,13 @@ export const generateHeadingId = (text: string): string => {
   );
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, fontSize = 'md' }) => {
+  const bodySizeClass =
+    fontSize === 'sm'
+      ? 'text-[16px] leading-[1.75]'
+      : fontSize === 'lg'
+        ? 'text-[20px] leading-[1.75]'
+        : 'text-[18px] leading-[1.75]';
   if (!content || typeof content !== 'string') {
     return (
       <div className="p-4 md:p-6 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 text-center">
@@ -128,7 +135,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         elements.push(
           <ol
             key={`ol-${elements.length}`}
-            className="list-decimal pl-5 my-4 space-y-2 text-slate-800 dark:text-slate-200"
+            className={`list-decimal pl-5 my-4 space-y-2 ${bodySizeClass} text-slate-800 dark:text-slate-200`}
           >
             {listItems}
           </ol>
@@ -137,7 +144,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         elements.push(
           <ul
             key={`ul-${elements.length}`}
-            className="list-disc pl-5 my-4 space-y-2 text-slate-800 dark:text-slate-200"
+            className={`list-disc pl-5 my-4 space-y-2 ${bodySizeClass} text-slate-800 dark:text-slate-200`}
           >
             {listItems}
           </ul>
@@ -182,7 +189,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
       inBlockquote = true;
       const quoteText = trimmedLine.replace(/^>\s?/, '');
       blockquoteItems.push(
-        <p key={`quote-line-${index}`} className="leading-relaxed">
+        <p key={`quote-line-${index}`} className={bodySizeClass}>
           {formatLine(quoteText)}
         </p>
       );
@@ -249,7 +256,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         );
       } else {
         elements.push(
-          <p key={`p-${index}`} className="mb-4 text-base md:text-lg leading-relaxed break-words">
+          <p key={`p-${index}`} className={`mb-4 ${bodySizeClass} break-words`}>
             {formatLine(trimmedLine)}
           </p>
         );

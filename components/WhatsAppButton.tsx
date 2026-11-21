@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 // WhatsApp Icon Component
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -18,12 +19,38 @@ interface WhatsAppButtonProps {
   defaultMessage?: string;
 }
 
+const HIDE_WHATSAPP_ROUTES = ['/checkout', '/ai-assistant', '/admin', '/login', '/signup'];
+
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   phoneNumber = '8801712345678',
   defaultMessage = 'Hi PetBhai! I have a question about...',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(defaultMessage);
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('[role="dialog"], dialog[open]')) {
+        return;
+      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      setIsOpen(false);
+    };
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [isOpen]);
+
+  const shouldHide = HIDE_WHATSAPP_ROUTES.some((route) => location.pathname.startsWith(route));
+  if (shouldHide) return null;
 
   const handleSendMessage = () => {
     const encodedMessage = encodeURIComponent(message);
@@ -101,7 +128,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 bg-slate-100 dark:bg-slate-700 border-none rounded-full px-4 py-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="flex-1 bg-slate-100 dark:bg-slate-700 border-none rounded-full px-4 py-2 text-base sm:text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500"
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
               />
               <button
@@ -121,7 +148,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       {/* Floating WhatsApp Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed right-5 z-30 flex h-10 w-10 items-center justify-center rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 hover:scale-110 active:scale-95 bottom-[calc(6.5rem+var(--safe-bottom))] md:bottom-24 md:h-14 md:w-14 ${
+        className={`fixed right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 hover:scale-110 active:scale-95 bottom-[calc(9.25rem+var(--safe-bottom))] md:bottom-24 md:h-14 md:w-14 ${
           isOpen ? 'bg-slate-600 hover:bg-slate-700' : 'bg-[#25D366] hover:bg-[#128C7E]'
         }`}
         aria-label={isOpen ? 'Close WhatsApp chat' : 'Open WhatsApp chat'}
@@ -129,13 +156,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
         {isOpen ? (
           <CloseIcon className="w-6 h-6 md:w-8 md:h-8 text-white" />
         ) : (
-          <>
-            <WhatsAppIcon className="w-6 h-6 md:w-8 md:h-8 text-white" />
-            {/* Notification dot */}
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white font-bold border-2 border-white animate-pulse">
-              1
-            </span>
-          </>
+          <WhatsAppIcon className="w-6 h-6 md:w-8 md:h-8 text-white" />
         )}
       </button>
 

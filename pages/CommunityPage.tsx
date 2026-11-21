@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import CreatePostForm from '../components/CreatePostForm';
 import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,9 +22,41 @@ const CommunityPage: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'feed' | 'popular' | 'trending'>('feed');
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [searchParams] = useSearchParams();
+  const sharedPostId = searchParams.get('post');
   const toast = useToast();
   const { confirm } = useConfirmation();
+
+  useEffect(() => {
+    if (!showLeaderboard) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowLeaderboard(false);
+      }
+    };
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      setShowLeaderboard(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [showLeaderboard]);
+
+  useEffect(() => {
+    if (!sharedPostId || isLoading || posts.length === 0) return;
+    const el = document.getElementById(`community-post-${sharedPostId}`);
+    if (el) {
+      el.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }
+  }, [sharedPostId, isLoading, posts]);
 
   // Fetch posts from API
   const fetchPosts = useCallback(
@@ -740,15 +772,21 @@ const CommunityPage: React.FC = () => {
     setActiveTab(tab);
   }, []);
 
-  // Sort posts based on active tab - memoized
+  // Sort & filter posts based on active tab and selected topic - memoized
   const displayedPosts = useMemo(() => {
+    let basePosts = posts;
+    if (selectedTopic) {
+      const topicLower = selectedTopic.toLowerCase();
+      basePosts = posts.filter((p) => (p.content || '').toLowerCase().includes(topicLower));
+    }
+
     if (activeTab === 'popular') {
-      return [...posts].sort((a, b) => b.likes.length - a.likes.length);
+      return [...basePosts].sort((a, b) => b.likes.length - a.likes.length);
     }
     if (activeTab === 'trending') {
       // Trending: Recent posts with most engagement in last 7 days
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      return [...posts]
+      return [...basePosts]
         .filter((p) => new Date(p.timestamp) >= sevenDaysAgo)
         .sort((a, b) => {
           const engagementA = a.likes.length + a.comments.length;
@@ -756,8 +794,8 @@ const CommunityPage: React.FC = () => {
           return engagementB - engagementA;
         });
     }
-    return posts;
-  }, [activeTab, posts]);
+    return basePosts;
+  }, [activeTab, posts, selectedTopic]);
 
   // Trending topics based on post content
   const trendingTopics = useMemo(() => {
@@ -892,9 +930,9 @@ const CommunityPage: React.FC = () => {
           )}
         </header>
 
-        {/* Stats Bar */}
+        {/* Stats Bar (Compact 3-column row on mobile) */}
         <section
-          className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 md:mb-8"
+          className="grid grid-cols-3 gap-2 sm:gap-4 mb-5 md:mb-8"
           aria-label="Community statistics"
         >
           <div className="glass-card-ios p-2.5 sm:p-4 text-center">
@@ -923,80 +961,139 @@ const CommunityPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Trending Topics & Leaderboard Toggle */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:mb-8">
-          {/* Trending Topics */}
-          {trendingTopics.length > 0 && (
-            <div className="glass-card-ios p-4">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
-                <span className="text-lg">🔥</span>
-                Trending Topics
-              </h3>
-              <div className="space-y-2">
-                {trendingTopics.map(({ topic, count }) => (
-                  <div key={topic} className="flex items-center justify-between">
-                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
-                      #{topic}
+        {/* Horizontal Scrollable Trending Topic Filter Chips */}
+        {trendingTopics.length > 0 && (
+          <div className="mb-5">
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap flex items-center gap-1 pr-1">
+                <span>🔥</span> Trending:
+              </span>
+              {selectedTopic && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedTopic(null)}
+                  className="min-h-[36px] shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-200"
+                >
+                  All Topics ×
+                </button>
+              )}
+              {trendingTopics.map(({ topic, count }) => {
+                const isSelected = selectedTopic === topic;
+                return (
+                  <button
+                    key={topic}
+                    type="button"
+                    onClick={() => setSelectedTopic((prev) => (prev === topic ? null : topic))}
+                    aria-pressed={isSelected}
+                    className={`min-h-[36px] shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95 ${
+                      isSelected
+                        ? 'border-orange-500 bg-orange-500 text-white shadow-sm'
+                        : 'border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:border-orange-400'
+                    }`}
+                  >
+                    <span>#{topic}</span>
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                        isSelected
+                          ? 'bg-white/20 text-white'
+                          : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300'
+                      }`}
+                    >
+                      {count}
                     </span>
-                    <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full">
-                      {count} posts
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  </button>
+                );
+              })}
             </div>
-          )}
-
-          {/* Leaderboard Toggle */}
-          <div className="glass-card-ios p-4">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
-              <span className="text-lg">👑</span>
-              Top Contributors
-            </h3>
-            {leaderboard.slice(0, 3).map((user, idx) => {
-              const badge = getUserBadge(parseInt(user.id));
-              return (
-                <div key={user.id} className="flex items-center gap-2 mb-2 last:mb-0">
-                  <span className="text-sm font-bold text-slate-400 w-4">{idx + 1}.</span>
-                  {user.profilePictureUrl ? (
-                    <img
-                      src={user.profilePictureUrl}
-                      alt={user.name}
-                      className="w-6 h-6 rounded-full"
-                    />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-[10px] font-bold">
-                      {user.name.charAt(0)}
-                    </div>
-                  )}
-                  <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium flex-1 truncate">
-                    {user.name}
-                  </span>
-                  {badge && (
-                    <span className="text-sm" title={badge.name}>
-                      {badge.emoji}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-            <button
-              onClick={() => setShowLeaderboard(!showLeaderboard)}
-              className="mt-3 w-full text-xs text-center text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold"
-            >
-              {showLeaderboard ? 'Hide Full Leaderboard' : 'View Full Leaderboard'}
-            </button>
           </div>
-        </div>
+        )}
+
+        {/* Top Contributors & Guidelines (Collapsible on Mobile, Expanded on Desktop) */}
+        <details className="group glass-card-ios mb-6 md:mb-8 overflow-hidden border border-amber-100 dark:border-slate-700/60">
+          <summary className="flex min-h-[48px] cursor-pointer items-center justify-between px-4 py-3 text-xs sm:text-sm font-bold text-slate-800 dark:text-white list-none [&::-webkit-details-marker]:hidden">
+            <span className="flex items-center gap-2">
+              <span>👑</span> Top Contributors & Community Guidelines
+            </span>
+            <span className="text-orange-600 dark:text-orange-400 text-xs font-semibold group-open:rotate-180 transition-transform">
+              ▾
+            </span>
+          </summary>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 pt-2 border-t border-slate-200/60 dark:border-slate-700/50">
+            {/* Leaderboard Preview */}
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-2.5 flex items-center gap-1.5">
+                <span>👑</span> Top Contributors
+              </h3>
+              {leaderboard.slice(0, 3).map((user, idx) => {
+                const badge = getUserBadge(parseInt(user.id));
+                return (
+                  <div key={user.id} className="flex items-center gap-2 mb-2 last:mb-0">
+                    <span className="text-sm font-bold text-slate-400 w-4">{idx + 1}.</span>
+                    {user.profilePictureUrl ? (
+                      <img
+                        src={user.profilePictureUrl}
+                        alt={user.name}
+                        className="w-6 h-6 rounded-full"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-[10px] font-bold">
+                        {user.name.charAt(0)}
+                      </div>
+                    )}
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium flex-1 truncate">
+                      {user.name}
+                    </span>
+                    {badge && (
+                      <span className="text-sm" title={badge.name}>
+                        {badge.emoji}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => setShowLeaderboard(!showLeaderboard)}
+                className="mt-2.5 w-full text-xs text-left text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold"
+              >
+                {showLeaderboard ? 'Hide Full Leaderboard' : 'View Full Leaderboard →'}
+              </button>
+            </div>
+
+            {/* Community Guidelines */}
+            <aside
+              className="rounded-2xl p-3 bg-gradient-to-r from-amber-50 to-indigo-50 dark:from-slate-800/60 dark:to-slate-800/40 border border-amber-100 dark:border-amber-900/30"
+              aria-label="Community guidelines"
+            >
+              <div className="flex items-start gap-2.5">
+                <div className="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                  <HeartIcon className="w-4 h-4 text-amber-500" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">
+                    Community Guidelines
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5 leading-relaxed">
+                    Be kind, share helpful tips, and respect fellow pet lovers. Let's make this a
+                    safe space for everyone! 🐾
+                  </p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </details>
 
         {/* Full Leaderboard Modal */}
         {showLeaderboard && (
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Community Leaderboard"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
             onClick={() => setShowLeaderboard(false)}
           >
             <div
-              className="glass-card-ios p-6 max-w-md w-full max-h-[80vh] overflow-y-auto border border-white/35 dark:border-white/10 bg-white/65 dark:bg-slate-900/70 backdrop-blur-2xl"
+              className="glass-card-ios rounded-t-3xl sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 max-w-md w-full max-h-[80dvh] overflow-y-auto border border-white/35 dark:border-white/10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -1055,27 +1152,6 @@ const CommunityPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Community Guidelines */}
-        <aside
-          className="glass-card-ios p-3 sm:p-4 mb-6 md:mb-8 bg-gradient-to-r from-amber-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-amber-100 dark:border-amber-900/30"
-          aria-label="Community guidelines"
-        >
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
-              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" aria-hidden="true" />
-            </div>
-            <div className="min-w-0">
-              <h2 className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm">
-                Community Guidelines
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-0.5 leading-relaxed">
-                Be kind, share helpful tips, and respect fellow pet lovers. Let's make this a safe
-                space for everyone! 🐾
-              </p>
-            </div>
-          </div>
-        </aside>
 
         {/* Post Creation / Login Section */}
         {isAuthenticated ? (
@@ -1169,8 +1245,9 @@ const CommunityPage: React.FC = () => {
             </button>
           </div>
           <button
+            type="button"
             onClick={() => fetchPosts()}
-            className="text-[10px] sm:text-xs text-slate-400 hover:text-orange-500 transition-colors hidden sm:block px-2 py-1 rounded active:scale-95 touch-manipulation"
+            className="min-h-[40px] inline-flex items-center text-xs font-semibold text-slate-500 dark:text-slate-300 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 active:scale-95 touch-manipulation"
             title="Refresh posts"
             aria-label="Refresh posts"
           >

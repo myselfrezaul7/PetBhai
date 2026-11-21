@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { ShoppingCartIcon, EyeIcon } from './icons';
 import StockBadge from './StockBadge';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -18,6 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
   const { t } = useLanguage();
   const { addToCart, cartItems } = useCart();
   const { currentUser, addToWishlist, removeFromWishlist } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
   const addingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -28,9 +30,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
     e.preventDefault();
     e.stopPropagation();
     if (!currentUser) {
-      if (window.confirm('Please login to add to wishlist. Go to login?')) {
-        navigate('/login');
-      }
+      toast.info('Please log in to save items to your wishlist.');
+      navigate('/login');
       return;
     }
     if (isWishlisted) {
@@ -119,19 +120,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
           />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
+        <div className="min-w-0 flex-1 pr-14">
+          <h3 className="line-clamp-2 text-base font-bold leading-snug text-zinc-900 dark:text-zinc-50">
             {product.name}
           </h3>
-          <p className="mt-1 line-clamp-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 line-clamp-1 text-xs text-zinc-500 dark:text-zinc-400">
             {product.description}
           </p>
-          <div className="mt-2 flex items-end gap-2">
-            <p className="text-3xl font-bold leading-none text-amber-600 dark:text-amber-500">
+          <div className="mt-2 flex items-baseline gap-2">
+            <p className="text-xl font-extrabold leading-none text-amber-600 dark:text-amber-500 tabular-nums">
               ৳{product.price.toLocaleString('en-BD')}
             </p>
             {product.originalPrice && product.originalPrice > product.price && (
-              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 line-through">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 line-through tabular-nums">
                 ৳{product.originalPrice.toLocaleString('en-BD')}
               </p>
             )}
@@ -225,16 +226,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
         <div className="px-2 pb-2 pt-3">
           <Link to={`/product/${product.id}`}>
-            <h3 className="line-clamp-1 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+            <h3 className="line-clamp-2 min-h-[2.5rem] text-sm sm:text-base font-bold leading-snug text-zinc-900 dark:text-zinc-50">
               {product.name}
             </h3>
           </Link>
-          <div className="mt-1 flex items-end gap-2">
-            <p className="text-3xl font-bold leading-none text-amber-600 dark:text-amber-500">
+          <div className="mt-1.5 flex items-baseline gap-1.5">
+            <p className="text-lg sm:text-xl font-extrabold leading-none text-amber-600 dark:text-amber-500 tabular-nums">
               ৳{product.price.toLocaleString('en-BD')}
             </p>
             {product.originalPrice && product.originalPrice > product.price && (
-              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 line-through">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 line-through tabular-nums">
                 ৳{product.originalPrice.toLocaleString('en-BD')}
               </p>
             )}
@@ -311,7 +312,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView, variant
 
         {/* Discount Badge */}
         {product.discount && product.discount > 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-md z-10">
+          <div
+            className={`absolute left-2 sm:left-3 ${
+              quantityInCart > 0 ? 'bottom-10' : 'bottom-2 sm:bottom-3'
+            } bg-red-600 text-white text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-md z-10`}
+          >
             -{product.discount}%
           </div>
         )}

@@ -66,6 +66,7 @@ const PostCard: React.FC<PostCardProps> = ({
   } | null>(null);
   const [editedCommentText, setEditedCommentText] = useState('');
   const [editedReplyText, setEditedReplyText] = useState('');
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
 
   // Loading states for async operations
   const [isLiking, setIsLiking] = useState(false);
@@ -77,6 +78,23 @@ const PostCard: React.FC<PostCardProps> = ({
   // Refs
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
   const commentInputRef = useRef<HTMLInputElement>(null);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close mobile action menu on outside click/touch
+  useEffect(() => {
+    if (!isActionMenuOpen) return;
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
+        setIsActionMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [isActionMenuOpen]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -376,7 +394,7 @@ const PostCard: React.FC<PostCardProps> = ({
   );
 
   const handleShare = useCallback(async () => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}#/community?post=${post.id}`;
+    const shareUrl = `${window.location.origin}/community?post=${post.id}`;
     const shareText = `Check out this post on PetBhai: "${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}"`;
 
     if (navigator.share) {
@@ -407,6 +425,34 @@ const PostCard: React.FC<PostCardProps> = ({
     | null
   >(null);
   const [reportReasonInput, setReportReasonInput] = useState('Inappropriate or offensive content');
+
+  useEffect(() => {
+    if (!isActionMenuOpen && !reportModalTarget) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (reportModalTarget) setReportModalTarget(null);
+        else if (isActionMenuOpen) setIsActionMenuOpen(false);
+      }
+    };
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      if (reportModalTarget) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setReportModalTarget(null);
+      } else if (isActionMenuOpen) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setIsActionMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [isActionMenuOpen, reportModalTarget]);
 
   const handleReportPost = useCallback(async () => {
     if (!currentUser) {
@@ -520,7 +566,8 @@ const PostCard: React.FC<PostCardProps> = ({
   return (
     <>
       <div
-        className={`glass-card-ios overflow-hidden transition-all duration-300 hover:shadow-xl ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+        id={`community-post-${post.id}`}
+        className={`glass-card-ios overflow-hidden transition-all duration-300 hover:shadow-xl scroll-mt-24 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <div className="p-4 sm:p-6">
           <div className="flex items-start justify-between mb-3 sm:mb-4">
@@ -549,42 +596,78 @@ const PostCard: React.FC<PostCardProps> = ({
                 </p>
               </div>
             </div>
-            {isAuthor && !isEditing && (
-              <div className="flex space-x-1 sm:space-x-2 text-xs sm:text-sm">
+            {!isEditing && (isAuthor || currentUser) && (
+              <div className="relative" ref={actionMenuRef}>
                 <button
-                  onClick={() => {
-                    setEditedContent(post.content);
-                    setIsEditing(true);
-                  }}
-                  disabled={isDisabled}
-                  className="font-semibold text-slate-500 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 touch-manipulation disabled:opacity-50"
+                  type="button"
+                  onClick={() => setIsActionMenuOpen((prev) => !prev)}
+                  className="sm:hidden flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 touch-manipulation"
+                  aria-label="Post actions"
+                  aria-expanded={isActionMenuOpen}
                 >
-                  Edit
+                  <span className="text-xl font-bold leading-none">⋯</span>
                 </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={isDisabled}
-                  className="font-semibold text-red-500 hover:text-red-600 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation disabled:opacity-50"
+                <div
+                  className={`${
+                    isActionMenuOpen
+                      ? 'flex absolute right-0 top-11 z-20 flex-col rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1.5 shadow-xl min-w-[130px]'
+                      : 'hidden'
+                  } sm:static sm:flex sm:flex-row sm:items-center sm:space-x-1 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:min-w-0 text-xs sm:text-sm`}
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
-                </button>
-              </div>
-            )}
-            {!isAuthor && currentUser && !isEditing && (
-              <div className="flex items-center space-x-1">
-                <button
-                  onClick={() => void handleReportPost()}
-                  className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
-                >
-                  Report
-                </button>
-                <button
-                  onClick={() => void handleBlockAuthor()}
-                  className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
-                  title={`Block ${post.author.name}`}
-                >
-                  Block
-                </button>
+                  {isAuthor ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsActionMenuOpen(false);
+                          setEditedContent(post.content);
+                          setIsEditing(true);
+                        }}
+                        disabled={isDisabled}
+                        className="min-h-[40px] sm:min-h-0 text-left font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors px-3 py-2 sm:py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 touch-manipulation disabled:opacity-50"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsActionMenuOpen(false);
+                          void handleDelete();
+                        }}
+                        disabled={isDisabled}
+                        className="min-h-[40px] sm:min-h-0 text-left font-semibold text-red-500 hover:text-red-600 transition-colors px-3 py-2 sm:py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation disabled:opacity-50"
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </>
+                  ) : (
+                    currentUser && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsActionMenuOpen(false);
+                            void handleReportPost();
+                          }}
+                          className="min-h-[40px] sm:min-h-0 text-left font-semibold text-slate-600 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors px-3 py-2 sm:py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
+                        >
+                          Report
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsActionMenuOpen(false);
+                            void handleBlockAuthor();
+                          }}
+                          className="min-h-[40px] sm:min-h-0 text-left font-semibold text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 transition-colors px-3 py-2 sm:py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 touch-manipulation"
+                          title={`Block ${post.author.name}`}
+                        >
+                          Block
+                        </button>
+                      </>
+                    )
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -738,7 +821,7 @@ const PostCard: React.FC<PostCardProps> = ({
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1 flex flex-row items-center gap-2">
                     <input
                       ref={commentInputRef}
                       type="text"
@@ -747,12 +830,13 @@ const PostCard: React.FC<PostCardProps> = ({
                       placeholder="Write a comment..."
                       maxLength={MAX_COMMENT_LENGTH}
                       disabled={isSubmitting}
-                      className="w-full p-2.5 sm:p-3 text-sm sm:text-base border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent touch-manipulation disabled:opacity-50"
+                      className="w-full min-h-[44px] px-4 py-2.5 text-base sm:text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent touch-manipulation disabled:opacity-50"
                     />
                     <button
                       type="submit"
                       disabled={!commentText.trim() || isSubmitting}
-                      className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-4 py-2 sm:p-3 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-0 active:scale-95 touch-manipulation min-h-[40px] sm:min-h-0"
+                      className="shrink-0 bg-orange-500 text-white rounded-full min-h-[44px] min-w-[44px] px-3.5 py-2.5 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center active:scale-95 touch-manipulation"
+                      aria-label="Send comment"
                     >
                       {isSubmitting ? (
                         <svg
@@ -777,9 +861,6 @@ const PostCard: React.FC<PostCardProps> = ({
                       ) : (
                         <SendIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                       )}
-                      <span className="sm:hidden text-sm font-medium">
-                        {isSubmitting ? 'Sending...' : 'Send'}
-                      </span>
                     </button>
                   </div>
                 </div>
@@ -866,12 +947,12 @@ const PostCard: React.FC<PostCardProps> = ({
                               </p>
                             )}
                           </div>
-                          <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-1.5 ml-2">
+                          <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1 mt-1.5 ml-2">
                             <button
                               onClick={() => handleLikeComment(comment.id)}
                               disabled={loadingCommentId === comment.id || !currentUser}
                               aria-label={hasLikedComment ? 'Unlike comment' : 'Like comment'}
-                              className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
+                              className={`min-h-[36px] inline-flex items-center text-xs font-semibold transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation disabled:opacity-50 ${
                                 hasLikedComment
                                   ? 'text-orange-500'
                                   : 'text-slate-500 dark:text-slate-300 hover:text-orange-500'
@@ -885,7 +966,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 setReplyingTo(replyingTo === comment.id ? null : comment.id)
                               }
                               disabled={!currentUser}
-                              className="text-xs font-semibold text-slate-500 dark:text-slate-300 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                              className="min-h-[36px] inline-flex items-center text-xs font-semibold text-slate-500 dark:text-slate-300 hover:text-amber-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation"
                             >
                               Reply
                             </button>
@@ -897,14 +978,14 @@ const PostCard: React.FC<PostCardProps> = ({
                                 <button
                                   onClick={() => handleEditComment(comment.id, comment.text)}
                                   disabled={loadingCommentId === comment.id}
-                                  className="text-xs font-semibold text-amber-400 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
+                                  className="min-h-[36px] inline-flex items-center text-xs font-semibold text-amber-400 hover:text-amber-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation disabled:opacity-50"
                                 >
                                   Edit
                                 </button>
                                 <button
                                   onClick={() => handleDeleteComment(comment.id)}
                                   disabled={loadingCommentId === comment.id}
-                                  className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
+                                  className="min-h-[36px] inline-flex items-center text-xs font-semibold text-red-400 hover:text-red-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation disabled:opacity-50"
                                 >
                                   {loadingCommentId === comment.id ? '...' : 'Delete'}
                                 </button>
@@ -913,7 +994,7 @@ const PostCard: React.FC<PostCardProps> = ({
                             {!isCommentAuthor && currentUser && (
                               <button
                                 onClick={() => void handleReportComment(comment.id)}
-                                className="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                                className="min-h-[36px] inline-flex items-center text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation"
                               >
                                 Report
                               </button>
@@ -990,7 +1071,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                       </p>
                                     )}
                                   </div>
-                                  <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-1 ml-2">
+                                  <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1 mt-1 ml-2">
                                     <button
                                       onClick={() => handleLikeReply(comment.id, reply.id)}
                                       disabled={
@@ -998,7 +1079,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                         !currentUser
                                       }
                                       aria-label={hasLikedReply ? 'Unlike reply' : 'Like reply'}
-                                      className={`text-xs font-semibold transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50 ${
+                                      className={`min-h-[36px] inline-flex items-center text-xs font-semibold transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation disabled:opacity-50 ${
                                         hasLikedReply
                                           ? 'text-orange-500'
                                           : 'text-slate-400 hover:text-orange-500'
@@ -1023,7 +1104,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                             disabled={
                                               loadingReplyId === `${comment.id}-${reply.id}`
                                             }
-                                            className="text-xs font-semibold text-amber-400 hover:text-amber-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
+                                            className="min-h-[36px] inline-flex items-center text-xs font-semibold text-amber-400 hover:text-amber-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation disabled:opacity-50"
                                           >
                                             Edit
                                           </button>
@@ -1032,7 +1113,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                             disabled={
                                               loadingReplyId === `${comment.id}-${reply.id}`
                                             }
-                                            className="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation disabled:opacity-50"
+                                            className="min-h-[36px] inline-flex items-center text-xs font-semibold text-red-400 hover:text-red-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation disabled:opacity-50"
                                           >
                                             {loadingReplyId === `${comment.id}-${reply.id}`
                                               ? '...'
@@ -1043,7 +1124,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                     {!isReplyAuthor && currentUser && (
                                       <button
                                         onClick={() => void handleReportReply(comment.id, reply.id)}
-                                        className="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors py-1 px-1.5 rounded active:scale-95 touch-manipulation"
+                                        className="min-h-[36px] inline-flex items-center text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors py-1 px-2 rounded-lg active:scale-95 touch-manipulation"
                                       >
                                         Report
                                       </button>
@@ -1080,7 +1161,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 </div>
                               )}
                             </div>
-                            <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                            <div className="flex-1 flex flex-row items-center gap-2">
                               <input
                                 type="text"
                                 value={replyText}
@@ -1088,7 +1169,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 placeholder={`Reply to ${comment.author.name}...`}
                                 maxLength={MAX_REPLY_LENGTH}
                                 disabled={loadingReplyId === `submit-${comment.id}`}
-                                className="w-full p-2 text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 touch-manipulation disabled:opacity-50"
+                                className="w-full min-h-[40px] px-3.5 py-2 text-base sm:text-sm border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-full focus:ring-2 focus:ring-orange-500 touch-manipulation disabled:opacity-50"
                                 autoFocus
                               />
                               <button
@@ -1096,7 +1177,8 @@ const PostCard: React.FC<PostCardProps> = ({
                                 disabled={
                                   !replyText.trim() || loadingReplyId === `submit-${comment.id}`
                                 }
-                                className="self-end sm:self-auto bg-orange-500 text-white rounded-full px-3 py-1.5 sm:p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-1.5 sm:gap-0 active:scale-95 touch-manipulation min-h-[36px] sm:min-h-0"
+                                className="shrink-0 bg-orange-500 text-white rounded-full min-h-[40px] min-w-[40px] px-3 py-2 hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center justify-center active:scale-95 touch-manipulation"
+                                aria-label="Send reply"
                               >
                                 {loadingReplyId === `submit-${comment.id}` ? (
                                   <svg
@@ -1121,11 +1203,6 @@ const PostCard: React.FC<PostCardProps> = ({
                                 ) : (
                                   <SendIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 )}
-                                <span className="sm:hidden text-xs font-medium">
-                                  {loadingReplyId === `submit-${comment.id}`
-                                    ? 'Sending...'
-                                    : 'Reply'}
-                                </span>
                               </button>
                             </div>
                           </div>
@@ -1148,11 +1225,14 @@ const PostCard: React.FC<PostCardProps> = ({
       </div>
       {reportModalTarget && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Report community content"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
           onClick={() => setReportModalTarget(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-2xl border border-slate-200 dark:border-slate-700"
+            className="w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-white dark:bg-slate-800 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 shadow-2xl border border-slate-200 dark:border-slate-700"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

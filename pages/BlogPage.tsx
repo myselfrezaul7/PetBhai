@@ -293,11 +293,13 @@ const BlogPage: React.FC = () => {
               </svg>
             </div>
             <input
-              type="text"
+              type="search"
+              inputMode="search"
+              enterKeyHint="search"
               placeholder={t('search') || 'Search articles...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-28 sm:pr-36 py-3 sm:py-4 rounded-full glass-card-ios bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-zinc-900 dark:text-zinc-100 transition-all shadow-sm placeholder:text-zinc-500 dark:placeholder:text-zinc-400 text-sm sm:text-base"
+              className="w-full pl-12 pr-28 sm:pr-36 py-3 sm:py-4 rounded-full glass-card-ios bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-zinc-900 dark:text-zinc-100 transition-all shadow-sm placeholder:text-zinc-500 dark:placeholder:text-zinc-400 text-base"
             />
 
             {/* Right-side Count Badge & Modern Animated Clear Button */}
@@ -318,7 +320,7 @@ const BlogPage: React.FC = () => {
                     transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={() => setSearchQuery('')}
                     aria-label="Clear search"
-                    className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/30 cursor-pointer"
+                    className="w-8 h-8 min-h-[32px] min-w-[32px] flex items-center justify-center rounded-full bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/30 cursor-pointer"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -343,10 +345,17 @@ const BlogPage: React.FC = () => {
               <motion.button
                 key={cat.name}
                 type="button"
-                onClick={() => handleCategoryChange(cat.name)}
+                onClick={(e) => {
+                  handleCategoryChange(cat.name);
+                  e.currentTarget.scrollIntoView?.({
+                    behavior: 'smooth',
+                    inline: 'center',
+                    block: 'nearest',
+                  });
+                }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
-                className={`relative snap-start shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-200 shadow-sm border select-none cursor-pointer ${
+                className={`relative snap-start shrink-0 min-h-[44px] flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-200 shadow-sm border select-none cursor-pointer ${
                   isSelected
                     ? 'text-white border-transparent shadow-amber-600/30 shadow-lg font-bold'
                     : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700 hover:border-amber-500/60 hover:bg-amber-50/50 dark:hover:bg-zinc-700'

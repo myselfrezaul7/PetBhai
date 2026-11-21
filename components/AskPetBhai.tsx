@@ -210,7 +210,7 @@ const AskPetBhai: React.FC = () => {
                             key={t.id}
                             type="button"
                             onClick={() => setForm((prev) => ({ ...prev, topic: t.id }))}
-                            className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border ${
+                            className={`min-h-[40px] px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border active:scale-95 ${
                               isSelected
                                 ? 'bg-orange-600 text-white border-orange-600 shadow-sm'
                                 : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700 shadow-xs hover:border-orange-500 hover:bg-orange-50/50'
@@ -250,7 +250,7 @@ const AskPetBhai: React.FC = () => {
                           ? 'যেমন: গরমের দিনে দেশি বিড়ালের ডিহাইড্রেশন কীভাবে প্রতিরোধ করব? অথবা ২ মাসের কুকুরছানাকে কী কী টিকা দিতে হবে?'
                           : 'e.g., How can I keep my indoor cat cool in hot Dhaka weather? Or when should I start rabies vaccination for my puppy?'
                       }
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm transition-all"
                     />
                   </div>
 
@@ -270,7 +270,7 @@ const AskPetBhai: React.FC = () => {
                         value={form.name}
                         onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                         placeholder={isBn ? 'যেমন: সাকিব / টমির আব্বু' : 'e.g., Alex / Bruno’s mom'}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
                       />
                     </div>
                     <div>
@@ -287,7 +287,7 @@ const AskPetBhai: React.FC = () => {
                         value={form.email}
                         onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
                         placeholder={isBn ? 'you@example.com' : 'you@example.com'}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
                       />
                     </div>
                   </div>
@@ -323,11 +323,11 @@ const AskPetBhai: React.FC = () => {
                 </h3>
               </div>
 
-              <div className="space-y-3">
+              <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory hide-scrollbar pb-2 lg:pb-0">
                 {RECENT_SAMPLE_QUESTIONS.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/90 dark:border-zinc-800 shadow-sm hover:border-amber-500/40 transition-colors"
+                    className="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-start shrink-0 p-4 rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/90 dark:border-zinc-800 shadow-sm hover:border-amber-500/40 transition-colors"
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100/90 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-900/60">

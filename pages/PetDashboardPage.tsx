@@ -6,6 +6,7 @@ import {
   type MedicineReminder,
 } from '../contexts/PetManagementContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 import { HeartIcon, PawIcon } from '../components/icons';
 import { generateText } from '../services/geminiService';
 import { RateLimiter, sanitizeInput } from '../lib/security';
@@ -66,10 +67,12 @@ const PetDashboardPage: React.FC = () => {
     getOverdueReminders,
   } = usePetManagement();
   const { isAuthenticated, currentUser } = useAuth();
+  const { confirm } = useConfirmation();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
+  const [selectedWeightIdx, setSelectedWeightIdx] = useState<number | null>(null);
   const [dashboardError, setDashboardError] = useState('');
 
   const [aiInsight, setAiInsight] = useState('');
@@ -283,9 +286,12 @@ const PetDashboardPage: React.FC = () => {
   const handleDeletePet = async () => {
     if (!selectedPet) return;
 
-    const shouldDelete = window.confirm(
-      `Delete ${selectedPet.name}? This removes reminders and cannot be undone.`
-    );
+    const shouldDelete = await confirm({
+      title: `Delete ${selectedPet.name}?`,
+      message: `Delete ${selectedPet.name}? This removes reminders and cannot be undone.`,
+      confirmText: 'Delete Pet',
+      cancelText: 'Cancel',
+    });
     if (!shouldDelete) return;
 
     try {
@@ -462,10 +468,11 @@ const PetDashboardPage: React.FC = () => {
         type="number"
         min="0.1"
         step="0.1"
+        inputMode="decimal"
         value={petForm.weight}
         onChange={(event) => setPetForm((prev) => ({ ...prev, weight: event.target.value }))}
         placeholder="Weight (kg)"
-        className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+        className="rounded-xl border border-slate-300 px-3 py-2 text-base sm:text-sm dark:border-slate-600 dark:bg-slate-900"
       />
 
       <select
@@ -502,11 +509,11 @@ const PetDashboardPage: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <header className="mb-6 rounded-[2rem] border border-white/70 bg-white/75 p-6 text-slate-900 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:text-white dark:shadow-black/30">
+    <div className="container mx-auto px-4 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:py-8">
+      <header className="mb-6 rounded-[2rem] border border-white/70 bg-white/75 p-5 sm:p-6 text-slate-900 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:text-white dark:shadow-black/30">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-black tracking-tight">Pet Command Center</h1>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Pet Command Center</h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               Welcome back{currentUser?.name ? `, ${currentUser.name.split(' ')[0]}` : ''}. Manage
               care, reminders, and health progress in one place.
@@ -515,13 +522,13 @@ const PetDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('add-pet')}
-            className="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
+            className="min-h-[44px] rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
           >
             + Add Pet
           </button>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65">
             <p className="text-xs uppercase tracking-wide">Pets</p>
             <p className="mt-1 text-2xl font-bold">{healthMetrics.totalPets}</p>
@@ -593,8 +600,8 @@ const PetDashboardPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-          <aside className="flex flex-row lg:flex-col gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 hide-scrollbar">
-            <div className="min-w-[260px] lg:min-w-0 flex-1 rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
+          <aside className="flex flex-col gap-4 lg:gap-5">
+            <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Pets</h3>
               <div className="mt-3 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible hide-scrollbar pb-1 lg:pb-0">
                 {pets.map((pet) => (
@@ -603,16 +610,17 @@ const PetDashboardPage: React.FC = () => {
                     type="button"
                     onClick={() => {
                       setSelectedPetId(pet.id);
+                      setSelectedWeightIdx(null);
                       setActiveTab('overview');
                     }}
-                    className={`w-full rounded-xl border px-3 py-2 text-left transition ${
+                    className={`min-w-[140px] lg:w-full shrink-0 rounded-xl border px-3 py-2 text-left transition ${
                       selectedPetId === pet.id
-                        ? 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
+                        ? 'border-amber-500 bg-amber-50/80 dark:border-amber-400 dark:bg-slate-800'
                         : 'border-slate-200 bg-white/70 hover:bg-white dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <p className="font-bold text-slate-800 dark:text-white">{pet.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">
+                    <p className="font-bold text-slate-800 dark:text-white truncate">{pet.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300 truncate">
                       {(pet.breed || pet.type).toString()} • {pet.activityLevel}
                     </p>
                   </button>
@@ -620,50 +628,52 @@ const PetDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="min-w-[260px] lg:min-w-0 flex-1 rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Care Queue
-              </h3>
-              <div className="mt-3 flex flex-row lg:flex-col gap-2 text-sm">
-                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-                  <p className="text-slate-500">Upcoming (7d)</p>
-                  <p className="font-bold text-slate-800 dark:text-white">
-                    {upcomingReminders.length}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-                  <p className="text-slate-500">Overdue</p>
-                  <p className="font-bold text-rose-600">{overdueReminders.length}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+              <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Care Queue
+                </h3>
+                <div className="mt-3 grid grid-cols-2 lg:grid-cols-1 gap-2 text-sm">
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                    <p className="text-slate-500 text-xs">Upcoming (7d)</p>
+                    <p className="font-bold text-slate-800 dark:text-white">
+                      {upcomingReminders.length}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                    <p className="text-slate-500 text-xs">Overdue</p>
+                    <p className="font-bold text-rose-600">{overdueReminders.length}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="min-w-[260px] lg:min-w-0 flex-1 rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Dashboard Shortcuts
-              </h3>
-              <div className="mt-3 flex flex-row lg:flex-col gap-2 text-sm">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('overview')}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
-                >
-                  Health Overview
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('reminders')}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
-                >
-                  Medication Planner
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('profile')}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
-                >
-                  Edit Pet Details
-                </button>
+              <div className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Dashboard Shortcuts
+                </h3>
+                <div className="mt-3 flex flex-wrap lg:flex-col gap-2 text-sm">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('overview')}
+                    className="flex-1 lg:w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                  >
+                    Health Overview
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('reminders')}
+                    className="flex-1 lg:w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                  >
+                    Medication Planner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('profile')}
+                    className="flex-1 lg:w-full rounded-lg border border-slate-200 px-3 py-2 text-left font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                  >
+                    Edit Pet Details
+                  </button>
+                </div>
               </div>
             </div>
           </aside>
@@ -676,167 +686,184 @@ const PetDashboardPage: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="space-y-5 rounded-[2rem] border border-white/70 bg-white/70 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30 sm:p-5"
             >
-            <div
-              className="flex flex-wrap gap-2 border-b border-slate-200/70 pb-2 dark:border-slate-700"
-              role="tablist"
-              aria-label="Pet dashboard sections"
-            >
-              {[
-                { key: 'overview', label: 'Overview' },
-                { key: 'reminders', label: 'Reminders' },
-                { key: 'profile', label: 'Profile Controls' },
-                { key: 'add-pet', label: 'Add Pet' },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setActiveTab(tab.key as DashboardTab)}
-                  role="tab"
-                  className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    activeTab === tab.key
-                      ? 'text-white'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200'
-                  }`}
-                >
-                  {activeTab === tab.key && (
-                    <motion.div
-                      layoutId="activeDashTab"
-                      className="absolute inset-0 rounded-full bg-slate-950 dark:bg-white"
-                      style={{ zIndex: -1 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10">{tab.label}</span>
-                </button>
-              ))}
-            </div>
+              <div
+                className="flex flex-wrap gap-2 border-b border-slate-200/70 pb-2 dark:border-slate-700"
+                role="tablist"
+                aria-label="Pet dashboard sections"
+              >
+                {[
+                  { key: 'overview', label: 'Overview' },
+                  { key: 'reminders', label: 'Reminders' },
+                  { key: 'profile', label: 'Profile Controls' },
+                  { key: 'add-pet', label: 'Add Pet' },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveTab(tab.key as DashboardTab)}
+                    role="tab"
+                    className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                      activeTab === tab.key
+                        ? 'text-white'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200'
+                    }`}
+                  >
+                    {activeTab === tab.key && (
+                      <motion.div
+                        layoutId="activeDashTab"
+                        className="absolute inset-0 rounded-full bg-slate-950 dark:bg-white"
+                        style={{ zIndex: -1 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
 
-            {activeTab === 'add-pet' && renderAddPet()}
+              {activeTab === 'add-pet' && renderAddPet()}
 
-            {activeTab === 'overview' && selectedPet && (
-              <>
-                <section className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-                        {selectedPet.name}
-                      </h2>
-                      <p className="text-sm text-slate-500 dark:text-slate-300">
-                        {(selectedPet.breed || selectedPet.type).toString()} • {selectedPet.gender}{' '}
-                        • Activity: {selectedPet.activityLevel}
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-900/30 dark:text-emerald-300">
-                      {selectedPet.weight ? `${selectedPet.weight} kg` : 'Weight pending'}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
-                        Profile Completion
-                      </p>
-                      <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
-                        {profileCompletion}%
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
-                        Weight Entries
-                      </p>
-                      <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
-                        {weightHistory.length}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-                      <p className="text-[11px] uppercase tracking-wide text-slate-500">
-                        Open Reminders
-                      </p>
-                      <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
-                        {petReminders.filter((item) => item.isActive).length}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-xl text-white relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-4 opacity-10">
-                         <PawIcon className="w-32 h-32" />
+              {activeTab === 'overview' && selectedPet && (
+                <>
+                  <section className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                          {selectedPet.name}
+                        </h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-300">
+                          {(selectedPet.breed || selectedPet.type).toString()} •{' '}
+                          {selectedPet.gender} • Activity: {selectedPet.activityLevel}
+                        </p>
                       </div>
-                      <div className="relative z-10">
-                        <p className="text-xs uppercase tracking-widest text-slate-400 font-bold">Predictive Nutrition</p>
-                        <div className="mt-4 flex items-end gap-2">
-                          <p className="text-4xl font-black">{calculateFoodPortion(selectedPet) || '?'}</p>
-                          <p className="text-sm text-slate-400 mb-1">kcal / day</p>
-                        </div>
-                        
-                        <div className="mt-6 bg-white/10 rounded-xl p-3 border border-white/5">
-                           <p className="text-xs font-semibold text-orange-400 mb-1">Smart Predict</p>
-                           <p className="text-sm">Based on daily consumption, you will run out of current food stock in <strong className="text-white">12 days</strong>.</p>
-                           <button className="mt-3 w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-lg transition-colors">
-                              Auto-Reorder Food
-                           </button>
-                        </div>
+                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-900/30 dark:text-emerald-300">
+                        {selectedPet.weight ? `${selectedPet.weight} kg` : 'Weight pending'}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                          Profile Completion
+                        </p>
+                        <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
+                          {profileCompletion}%
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                          Weight Entries
+                        </p>
+                        <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
+                          {weightHistory.length}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500">
+                          Open Reminders
+                        </p>
+                        <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
+                          {petReminders.filter((item) => item.isActive).length}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/70 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
-                      <h3 className="flex items-center gap-2 font-bold text-slate-800 dark:text-white">
-                        <HeartIcon className="h-5 w-5 text-red-500" />
-                        AI Health Insight
-                      </h3>
-                      <div className="mt-3 flex-grow text-sm text-slate-700 dark:text-slate-200">
-                        {loadingAi ? (
-                          <div className="space-y-2 animate-pulse">
-                            <div className="h-2 w-4/5 rounded bg-slate-200" />
-                            <div className="h-2 w-2/3 rounded bg-slate-200" />
-                          </div>
-                        ) : aiInsight ? (
-                          <p className="leading-relaxed">{aiInsight}</p>
-                        ) : (
-                          <p className="text-slate-500 dark:text-slate-300">
-                            Generate a personalized health insight for this pet based on real-time biometric data.
+                    <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                      <div className="rounded-2xl border border-white/70 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-xl text-white relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                          <PawIcon className="w-32 h-32" />
+                        </div>
+                        <div className="relative z-10">
+                          <p className="text-xs uppercase tracking-widest text-slate-400 font-bold">
+                            Predictive Nutrition
                           </p>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={getAiHealthTip}
-                        disabled={loadingAi}
-                        className="mt-4 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-black disabled:opacity-60 transition-transform active:scale-95 w-full"
-                      >
-                        {loadingAi ? 'Analyzing Data...' : 'Generate AI Insight'}
-                      </button>
-                    </div>
-                  </div>
-                </section>
+                          <div className="mt-4 flex items-end gap-2">
+                            <p className="text-4xl font-black">
+                              {calculateFoodPortion(selectedPet) || '?'}
+                            </p>
+                            <p className="text-sm text-slate-400 mb-1">kcal / day</p>
+                          </div>
 
-                {/* Digital Twin & Interactive Timeline */}
-                <section className="grid gap-4 lg:grid-cols-2">
-                   {/* Digital Twin */}
-                   <div className="rounded-3xl border border-slate-700 bg-slate-950 p-5 shadow-lg overflow-hidden relative">
-                      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
-                      <h3 className="relative z-10 text-lg font-bold text-white mb-2">Digital Twin</h3>
-                      <p className="relative z-10 text-xs text-slate-400">Real-time status monitoring</p>
-                      
-                      <div className="relative z-10 h-48 mt-4 flex items-center justify-center">
-                         {/* Abstract Wireframe Representation */}
-                         <div className="relative">
-                            <div className="w-24 h-24 border-2 border-orange-500/50 rounded-full animate-pulse flex items-center justify-center">
-                               <PawIcon className="w-12 h-12 text-orange-400" />
+                          <div className="mt-6 bg-white/10 rounded-xl p-3 border border-white/5">
+                            <p className="text-xs font-semibold text-orange-400 mb-1">
+                              Smart Predict
+                            </p>
+                            <p className="text-sm">
+                              Based on daily consumption, you will run out of current food stock in{' '}
+                              <strong className="text-white">12 days</strong>.
+                            </p>
+                            <button className="mt-3 w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-lg transition-colors">
+                              Auto-Reorder Food
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/70 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
+                        <h3 className="flex items-center gap-2 font-bold text-slate-800 dark:text-white">
+                          <HeartIcon className="h-5 w-5 text-red-500" />
+                          AI Health Insight
+                        </h3>
+                        <div className="mt-3 flex-grow text-sm text-slate-700 dark:text-slate-200">
+                          {loadingAi ? (
+                            <div className="space-y-2 animate-pulse">
+                              <div className="h-2 w-4/5 rounded bg-slate-200" />
+                              <div className="h-2 w-2/3 rounded bg-slate-200" />
                             </div>
-                            <div className="absolute inset-0 rounded-full border border-orange-500 animate-ping opacity-20"></div>
-                         </div>
-                         
-                         {/* HUD Pointers */}
-                         <div className="absolute right-4 top-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-2 text-[10px] text-white">
-                            <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div> Vitals Normal</span>
-                         </div>
+                          ) : aiInsight ? (
+                            <p className="leading-relaxed">{aiInsight}</p>
+                          ) : (
+                            <p className="text-slate-500 dark:text-slate-300">
+                              Generate a personalized health insight for this pet based on real-time
+                              biometric data.
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={getAiHealthTip}
+                          disabled={loadingAi}
+                          className="mt-4 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-black disabled:opacity-60 transition-transform active:scale-95 w-full"
+                        >
+                          {loadingAi ? 'Analyzing Data...' : 'Generate AI Insight'}
+                        </button>
                       </div>
-                   </div>
+                    </div>
+                  </section>
 
-                   {/* Weight Timeline */}
-                   <div className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
+                  {/* Digital Twin & Interactive Timeline */}
+                  <section className="grid gap-4 lg:grid-cols-2">
+                    {/* Digital Twin */}
+                    <div className="rounded-3xl border border-slate-700 bg-slate-950 p-5 shadow-lg overflow-hidden relative">
+                      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                      <h3 className="relative z-10 text-lg font-bold text-white mb-2">
+                        Digital Twin
+                      </h3>
+                      <p className="relative z-10 text-xs text-slate-400">
+                        Real-time status monitoring
+                      </p>
+
+                      <div className="relative z-10 h-48 mt-4 flex items-center justify-center">
+                        {/* Abstract Wireframe Representation */}
+                        <div className="relative">
+                          <div className="w-24 h-24 border-2 border-orange-500/50 rounded-full animate-pulse flex items-center justify-center">
+                            <PawIcon className="w-12 h-12 text-orange-400" />
+                          </div>
+                          <div className="absolute inset-0 rounded-full border border-orange-500 animate-ping opacity-20"></div>
+                        </div>
+
+                        {/* HUD Pointers */}
+                        <div className="absolute right-4 top-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-2 text-[10px] text-white">
+                          <span className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>{' '}
+                            Vitals Normal
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Weight Timeline */}
+                    <div className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
                       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                           Biometric History
@@ -846,319 +873,347 @@ const PetDashboardPage: React.FC = () => {
                             type="number"
                             min="0.1"
                             step="0.1"
+                            inputMode="decimal"
                             placeholder="Add weight"
                             value={newWeightValue}
                             onChange={(event) => setNewWeightValue(event.target.value)}
-                            className="w-24 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900"
+                            className="w-28 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-base sm:text-xs dark:border-slate-600 dark:bg-slate-900"
                           />
                           <button
                             type="button"
                             onClick={handleAddWeightEntry}
-                            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-orange-600 transition-transform active:scale-95"
+                            className="min-h-[38px] rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-orange-600 transition-transform active:scale-95"
                           >
                             + Log
                           </button>
                         </div>
                       </div>
-                      
-                      <div className="flex-grow flex items-end space-x-1 pb-2 h-32">
-                         {weightHistory.length > 0 ? (
-                           weightHistory.slice(-12).map((entry, idx) => {
-                             const heightPercent = maxWeight > 0 ? (entry.weight / maxWeight) * 100 : 0;
-                             return (
-                               <div key={idx} className="flex-1 flex flex-col justify-end items-center group relative h-full">
-                                  <div className="absolute -top-8 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                                     {entry.weight}kg • {new Date(entry.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
-                                  </div>
-                                  <div 
-                                    className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-sm transition-all duration-500 group-hover:from-orange-500 group-hover:to-orange-300"
-                                    style={{ height: `${Math.max(10, heightPercent)}%` }}
-                                  ></div>
-                               </div>
-                             );
-                           })
-                         ) : (
-                           <div className="w-full text-center text-sm text-slate-500 pb-10">No biometrics logged yet.</div>
-                         )}
-                      </div>
-                   </div>
-                </section>
-              </>
-            )}
 
-            {activeTab === 'reminders' && selectedPet && (
-              <section className="grid gap-5 lg:grid-cols-[360px_1fr]">
-                <form
-                  onSubmit={handleAddReminder}
-                  className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30"
-                >
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">Add Reminder</h3>
-                  <div className="mt-3 space-y-3">
-                    <input
-                      type="text"
-                      value={reminderForm.medicineName}
-                      onChange={(event) =>
-                        setReminderForm((prev) => ({
-                          ...prev,
-                          medicineName: sanitizeInput(event.target.value, 100),
-                        }))
-                      }
-                      placeholder="Medicine name"
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                      required
-                    />
-                    <input
-                      type="text"
-                      value={reminderForm.dosage}
-                      onChange={(event) =>
-                        setReminderForm((prev) => ({
-                          ...prev,
-                          dosage: sanitizeInput(event.target.value, 100),
-                        }))
-                      }
-                      placeholder="Dosage"
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                      required
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <select
-                        value={reminderForm.frequency}
+                      <div className="flex-grow flex items-end space-x-1.5 pb-2 pt-8 h-36">
+                        {weightHistory.length > 0 ? (
+                          weightHistory.slice(-12).map((entry, idx) => {
+                            const heightPercent =
+                              maxWeight > 0 ? (entry.weight / maxWeight) * 100 : 0;
+                            const isSelected = selectedWeightIdx === idx;
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() =>
+                                  setSelectedWeightIdx((prev) => (prev === idx ? null : idx))
+                                }
+                                aria-label={`${entry.weight} kg on ${new Date(entry.date).toLocaleDateString()}`}
+                                className="flex-1 flex flex-col justify-end items-center group relative h-full focus:outline-none"
+                              >
+                                <div
+                                  className={`absolute -top-8 bg-slate-900 text-white text-[10px] px-2 py-1 rounded transition-opacity whitespace-nowrap z-10 pointer-events-none ${
+                                    isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                                  }`}
+                                >
+                                  {entry.weight}kg •{' '}
+                                  {new Date(entry.date).toLocaleDateString(undefined, {
+                                    month: 'short',
+                                    day: 'numeric',
+                                  })}
+                                </div>
+                                <div
+                                  className={`w-full rounded-t-sm transition-all duration-500 ${
+                                    isSelected
+                                      ? 'bg-amber-500 ring-2 ring-amber-400'
+                                      : 'bg-gradient-to-t from-orange-600 to-orange-400 group-hover:from-orange-500 group-hover:to-orange-300'
+                                  }`}
+                                  style={{ height: `${Math.max(12, heightPercent)}%` }}
+                                ></div>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="w-full text-center text-sm text-slate-500 pb-10">
+                            No biometrics logged yet.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {activeTab === 'reminders' && selectedPet && (
+                <section className="grid gap-5 lg:grid-cols-[360px_1fr]">
+                  <form
+                    onSubmit={handleAddReminder}
+                    className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30"
+                  >
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                      Add Reminder
+                    </h3>
+                    <div className="mt-3 space-y-3">
+                      <input
+                        type="text"
+                        value={reminderForm.medicineName}
                         onChange={(event) =>
                           setReminderForm((prev) => ({
                             ...prev,
-                            frequency: event.target.value as MedicineReminder['frequency'],
+                            medicineName: sanitizeInput(event.target.value, 100),
                           }))
                         }
-                        aria-label="Reminder frequency"
-                        className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                      >
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                      <input
-                        type="date"
-                        value={reminderForm.startDate}
-                        onChange={(event) =>
-                          setReminderForm((prev) => ({ ...prev, startDate: event.target.value }))
-                        }
-                        aria-label="Reminder start date"
-                        className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                        placeholder="Medicine name"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                        required
                       />
-                    </div>
-
-                    {reminderForm.frequency === 'custom' && (
                       <input
-                        type="number"
-                        min="1"
-                        max="90"
-                        value={reminderForm.customDays}
+                        type="text"
+                        value={reminderForm.dosage}
                         onChange={(event) =>
-                          setReminderForm((prev) => ({ ...prev, customDays: event.target.value }))
+                          setReminderForm((prev) => ({
+                            ...prev,
+                            dosage: sanitizeInput(event.target.value, 100),
+                          }))
                         }
-                        placeholder="Repeat every X days"
+                        placeholder="Dosage"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                        required
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <select
+                          value={reminderForm.frequency}
+                          onChange={(event) =>
+                            setReminderForm((prev) => ({
+                              ...prev,
+                              frequency: event.target.value as MedicineReminder['frequency'],
+                            }))
+                          }
+                          aria-label="Reminder frequency"
+                          className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                        >
+                          <option value="daily">Daily</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="monthly">Monthly</option>
+                          <option value="custom">Custom</option>
+                        </select>
+                        <input
+                          type="date"
+                          value={reminderForm.startDate}
+                          onChange={(event) =>
+                            setReminderForm((prev) => ({ ...prev, startDate: event.target.value }))
+                          }
+                          aria-label="Reminder start date"
+                          className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                        />
+                      </div>
+
+                      {reminderForm.frequency === 'custom' && (
+                        <input
+                          type="number"
+                          min="1"
+                          max="90"
+                          value={reminderForm.customDays}
+                          onChange={(event) =>
+                            setReminderForm((prev) => ({ ...prev, customDays: event.target.value }))
+                          }
+                          placeholder="Repeat every X days"
+                          className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                        />
+                      )}
+
+                      <textarea
+                        value={reminderForm.notes}
+                        onChange={(event) =>
+                          setReminderForm((prev) => ({
+                            ...prev,
+                            notes: sanitizeInput(event.target.value, 300),
+                          }))
+                        }
+                        placeholder="Notes"
+                        rows={3}
                         className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
                       />
-                    )}
 
-                    <textarea
-                      value={reminderForm.notes}
-                      onChange={(event) =>
-                        setReminderForm((prev) => ({
-                          ...prev,
-                          notes: sanitizeInput(event.target.value, 300),
-                        }))
-                      }
-                      placeholder="Notes"
-                      rows={3}
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                    />
+                      <button
+                        type="submit"
+                        className="w-full rounded-xl bg-slate-950 px-4 py-2 font-bold text-white hover:bg-black"
+                      >
+                        Save Reminder
+                      </button>
+                    </div>
+                  </form>
 
+                  <div className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                      Reminder Queue
+                    </h3>
+                    <div className="mt-3 space-y-3">
+                      {petReminders.length === 0 && (
+                        <p className="text-sm text-slate-500">No reminders for this pet yet.</p>
+                      )}
+                      {petReminders.map((reminder) => (
+                        <div
+                          key={reminder.id}
+                          className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="font-bold text-slate-800 dark:text-white">
+                              {reminder.medicineName}
+                            </p>
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                              {reminder.frequency}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+                            {reminder.dosage} • Next:{' '}
+                            {new Date(reminder.nextDueDate).toLocaleString()}
+                          </p>
+                          {reminder.notes && (
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+                              {reminder.notes}
+                            </p>
+                          )}
+                          <div className="mt-3 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                void markMedicineGiven(reminder.id).catch((error) => {
+                                  setDashboardError(
+                                    error instanceof Error
+                                      ? error.message
+                                      : 'Failed to update reminder status.'
+                                  );
+                                });
+                              }}
+                              className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600"
+                            >
+                              Mark Given
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                void deleteMedicineReminder(reminder.id).catch((error) => {
+                                  setDashboardError(
+                                    error instanceof Error
+                                      ? error.message
+                                      : 'Failed to remove reminder.'
+                                  );
+                                });
+                              }}
+                              className="rounded-lg bg-rose-100 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-200"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {activeTab === 'profile' && selectedPet && (
+                <form
+                  onSubmit={handleUpdatePet}
+                  className="grid gap-4 rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30 md:grid-cols-2"
+                >
+                  <h3 className="md:col-span-2 text-lg font-bold text-slate-800 dark:text-white">
+                    Profile Controls
+                  </h3>
+
+                  <input
+                    type="text"
+                    value={profileForm.name}
+                    onChange={(event) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        name: sanitizeInput(event.target.value, 80),
+                      }))
+                    }
+                    placeholder="Pet name"
+                    className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                  />
+
+                  <input
+                    type="text"
+                    value={profileForm.breed}
+                    onChange={(event) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        breed: sanitizeInput(event.target.value, 80),
+                      }))
+                    }
+                    placeholder="Breed"
+                    className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                  />
+
+                  <select
+                    value={profileForm.gender}
+                    onChange={(event) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        gender: event.target.value as PetProfile['gender'],
+                      }))
+                    }
+                    aria-label="Profile gender"
+                    className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="unknown">Unknown</option>
+                  </select>
+
+                  <select
+                    value={profileForm.activityLevel}
+                    onChange={(event) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        activityLevel: event.target.value as PetProfile['activityLevel'],
+                      }))
+                    }
+                    aria-label="Profile activity level"
+                    className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                  >
+                    <option value="low">Low Activity</option>
+                    <option value="medium">Medium Activity</option>
+                    <option value="high">High Activity</option>
+                  </select>
+
+                  <input
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    inputMode="decimal"
+                    value={profileForm.weight}
+                    onChange={(event) =>
+                      setProfileForm((prev) => ({ ...prev, weight: event.target.value }))
+                    }
+                    placeholder="Weight (kg)"
+                    className="rounded-xl border border-slate-300 px-3 py-2 text-base sm:text-sm dark:border-slate-600 dark:bg-slate-900"
+                  />
+
+                  <input
+                    type="date"
+                    value={profileForm.birthDate}
+                    onChange={(event) =>
+                      setProfileForm((prev) => ({ ...prev, birthDate: event.target.value }))
+                    }
+                    aria-label="Profile birth date"
+                    className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
+                  />
+
+                  <div className="md:col-span-2 flex flex-wrap gap-2">
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-slate-950 px-4 py-2 font-bold text-white hover:bg-black"
+                      className="rounded-xl bg-slate-950 px-4 py-2 font-semibold text-white hover:bg-black"
                     >
-                      Save Reminder
+                      Save Profile Changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeletePet}
+                      className="rounded-xl bg-rose-100 px-4 py-2 font-semibold text-rose-700 hover:bg-rose-200"
+                    >
+                      Delete Pet
                     </button>
                   </div>
                 </form>
-
-                <div className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                    Reminder Queue
-                  </h3>
-                  <div className="mt-3 space-y-3">
-                    {petReminders.length === 0 && (
-                      <p className="text-sm text-slate-500">No reminders for this pet yet.</p>
-                    )}
-                    {petReminders.map((reminder) => (
-                      <div
-                        key={reminder.id}
-                        className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="font-bold text-slate-800 dark:text-white">
-                            {reminder.medicineName}
-                          </p>
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                            {reminder.frequency}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
-                          {reminder.dosage} • Next:{' '}
-                          {new Date(reminder.nextDueDate).toLocaleString()}
-                        </p>
-                        {reminder.notes && (
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-                            {reminder.notes}
-                          </p>
-                        )}
-                        <div className="mt-3 flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              void markMedicineGiven(reminder.id).catch((error) => {
-                                setDashboardError(
-                                  error instanceof Error
-                                    ? error.message
-                                    : 'Failed to update reminder status.'
-                                );
-                              });
-                            }}
-                            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600"
-                          >
-                            Mark Given
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              void deleteMedicineReminder(reminder.id).catch((error) => {
-                                setDashboardError(
-                                  error instanceof Error
-                                    ? error.message
-                                    : 'Failed to remove reminder.'
-                                );
-                              });
-                            }}
-                            className="rounded-lg bg-rose-100 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-200"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'profile' && selectedPet && (
-              <form
-                onSubmit={handleUpdatePet}
-                className="grid gap-4 rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 dark:shadow-black/30 md:grid-cols-2"
-              >
-                <h3 className="md:col-span-2 text-lg font-bold text-slate-800 dark:text-white">
-                  Profile Controls
-                </h3>
-
-                <input
-                  type="text"
-                  value={profileForm.name}
-                  onChange={(event) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      name: sanitizeInput(event.target.value, 80),
-                    }))
-                  }
-                  placeholder="Pet name"
-                  className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                />
-
-                <input
-                  type="text"
-                  value={profileForm.breed}
-                  onChange={(event) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      breed: sanitizeInput(event.target.value, 80),
-                    }))
-                  }
-                  placeholder="Breed"
-                  className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                />
-
-                <select
-                  value={profileForm.gender}
-                  onChange={(event) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      gender: event.target.value as PetProfile['gender'],
-                    }))
-                  }
-                  aria-label="Profile gender"
-                  className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="unknown">Unknown</option>
-                </select>
-
-                <select
-                  value={profileForm.activityLevel}
-                  onChange={(event) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      activityLevel: event.target.value as PetProfile['activityLevel'],
-                    }))
-                  }
-                  aria-label="Profile activity level"
-                  className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                >
-                  <option value="low">Low Activity</option>
-                  <option value="medium">Medium Activity</option>
-                  <option value="high">High Activity</option>
-                </select>
-
-                <input
-                  type="number"
-                  min="0.1"
-                  step="0.1"
-                  value={profileForm.weight}
-                  onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, weight: event.target.value }))
-                  }
-                  placeholder="Weight (kg)"
-                  className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                />
-
-                <input
-                  type="date"
-                  value={profileForm.birthDate}
-                  onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, birthDate: event.target.value }))
-                  }
-                  aria-label="Profile birth date"
-                  className="rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600 dark:bg-slate-900"
-                />
-
-                <div className="md:col-span-2 flex flex-wrap gap-2">
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-slate-950 px-4 py-2 font-semibold text-white hover:bg-black"
-                  >
-                    Save Profile Changes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeletePet}
-                    className="rounded-xl bg-rose-100 px-4 py-2 font-semibold text-rose-700 hover:bg-rose-200"
-                  >
-                    Delete Pet
-                  </button>
-                </div>
-              </form>
-            )}
+              )}
             </motion.main>
           </AnimatePresence>
         </div>

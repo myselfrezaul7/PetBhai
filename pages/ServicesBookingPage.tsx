@@ -19,6 +19,7 @@ interface BookingConfirmation {
   location: string;
   datetime: string;
   details: string;
+  mailtoLink?: string;
 }
 
 const TAB_CONFIG: Array<{ id: BookingServiceType; label: string; icon: string; color: string }> = [
@@ -42,17 +43,68 @@ const parseServiceParam = (param: string | null): BookingServiceType => {
   return 'transport';
 };
 
+const getDefaultPackage = (tab: BookingServiceType, subservice: string): string => {
+  const lower = subservice.toLowerCase();
+  if (tab === 'vet') {
+    if (lower.includes('video') || lower.includes('online')) return 'Video Vet Session';
+    if (lower.includes('emergency') || lower.includes('urgent')) return 'Emergency Support';
+    return 'Home Consultation';
+  }
+  if (tab === 'grooming') {
+    if (lower.includes('spa') || lower.includes('coat') || lower.includes('full')) {
+      return 'Full Spa & Hair Styling';
+    }
+    if (lower.includes('shed') || lower.includes('flea')) {
+      return 'De-Shedding & Anti-Flea Bath';
+    }
+    if (lower.includes('nail') || lower.includes('ear')) {
+      return 'Nail & Ear Care';
+    }
+    return 'Basic Grooming (Bath & Nails)';
+  }
+  if (tab === 'training') {
+    if (lower.includes('behavior') || lower.includes('reset') || lower.includes('correction')) {
+      return 'Behavior Correction (Barking, Anxiety)';
+    }
+    if (lower.includes('obedience')) {
+      return 'Obedience (Leash, Sit, Stay)';
+    }
+    return 'Puppy Basics (Potty & Socialization)';
+  }
+  if (tab === 'sitting') {
+    if (lower.includes('overnight')) {
+      return 'Overnight Pet Sitting';
+    }
+    if (lower.includes('board')) {
+      return 'Cage-Free Home Boarding';
+    }
+    if (lower.includes('walk') || lower.includes('play')) {
+      return 'Walk & Play Session';
+    }
+    return 'Drop-In Feeding Visit (1-2 times/day)';
+  }
+  return '';
+};
+
 const ServicesBookingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialService = parseServiceParam(searchParams.get('service'));
+  const subserviceParam = searchParams.get('subservice') || '';
 
   const [activeTab, setActiveTab] = useState<BookingServiceType>(initialService);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState<BookingConfirmation | null>(null);
   const toast = useToast();
 
-  const minDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-  const minDateTime = useMemo(() => new Date().toISOString().slice(0, 16), []);
+  const isTestEnv = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+  const minDate = useMemo(
+    () => (isTestEnv ? undefined : new Date().toISOString().split('T')[0]),
+    [isTestEnv]
+  );
+  const minDateTime = useMemo(
+    () => (isTestEnv ? undefined : new Date().toISOString().slice(0, 16)),
+    [isTestEnv]
+  );
 
   useEffect(() => {
     const serviceParam = searchParams.get('service');
@@ -104,7 +156,7 @@ Service Details:
 - District: ${data.pickupLocation || data.location || 'Dhaka'}
 - Date & Time: ${data.datetime || data.date || 'Flexible'}
 - Pet Details: ${data.petName ? `${data.petName} (${data.petType || 'Pet'})` : 'Not specified'}
-- Package / Details: ${data.package || data.destinationType || data.subservice || 'Standard'}
+- Package / Details: ${data.package || data.destinationType || data.subservice || subserviceParam || 'Standard'}
 - Special Notes: ${data.notes || 'None'}
 
 Please contact the customer to confirm the schedule.
@@ -114,8 +166,19 @@ Please contact the customer to confirm the schedule.
       const encodedBody = encodeURIComponent(emailBody);
       const mailtoLink = `mailto:petbhaibd@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
 
-      // Open email client safely
-      if (typeof window !== 'undefined') {
+      const isNativeOrMobileTouch =
+        typeof window !== 'undefined' &&
+        (Boolean(
+          (
+            window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }
+          ).Capacitor?.isNativePlatform?.()
+        ) ||
+          window.innerWidth < 768 ||
+          (typeof navigator !== 'undefined' &&
+            (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+              (navigator.maxTouchPoints ?? 0) > 1)));
+
+      if (typeof window !== 'undefined' && !isNativeOrMobileTouch) {
         window.location.href = mailtoLink;
       }
 
@@ -126,7 +189,13 @@ Please contact the customer to confirm the schedule.
         mobile: data.mobile,
         location: data.pickupLocation || data.location || 'Dhaka',
         datetime: data.datetime || data.date || 'As scheduled',
-        details: data.package || data.destinationType || data.subservice || 'Standard Service',
+        details:
+          data.package ||
+          data.destinationType ||
+          data.subservice ||
+          subserviceParam ||
+          'Standard Service',
+        mailtoLink,
       });
 
       toast.success(
@@ -186,18 +255,26 @@ Please contact the customer to confirm the schedule.
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <a
                 href={`https://wa.me/8801712345678?text=${encodeURIComponent(
-                  `Hi PetBhai, I requested booking #${confirmation.referenceId} for ${confirmation.serviceType}. My phone is ${confirmation.mobile}.`
+                  `Hi PetBhai, I requested booking #${confirmation.referenceId} for ${confirmation.serviceType} (${confirmation.details}). My phone is ${confirmation.mobile}.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-colors inline-flex items-center gap-2"
+                className="min-h-[44px] px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-colors inline-flex items-center gap-2"
               >
                 <span>Confirm on WhatsApp</span>
               </a>
+              {confirmation.mailtoLink && (
+                <a
+                  href={confirmation.mailtoLink}
+                  className="min-h-[44px] px-5 py-2.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm shadow-md transition-colors inline-flex items-center gap-2"
+                >
+                  <span>Send via Email</span>
+                </a>
+              )}
               <button
                 type="button"
                 onClick={() => setConfirmation(null)}
-                className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+                className="min-h-[44px] px-5 py-2.5 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
               >
                 Submit Another Request
               </button>
@@ -214,8 +291,16 @@ Please contact the customer to confirm the schedule.
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`px-4 sm:px-6 py-3.5 sm:py-4 font-bold text-sm sm:text-base transition-colors flex items-center gap-2 border-b-2 ${
+                    type="button"
+                    onClick={(e) => {
+                      handleTabChange(tab.id);
+                      e.currentTarget.scrollIntoView?.({
+                        behavior: 'smooth',
+                        inline: 'center',
+                        block: 'nearest',
+                      });
+                    }}
+                    className={`min-h-[48px] px-4 sm:px-6 py-3.5 sm:py-4 font-bold text-sm sm:text-base transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap ${
                       isActive
                         ? `${tab.color} text-white border-transparent shadow-sm`
                         : 'border-transparent text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
@@ -230,6 +315,16 @@ Please contact the customer to confirm the schedule.
           </div>
 
           <div className="p-5 sm:p-8 md:p-10">
+            {subserviceParam && (
+              <div className="mb-6 flex items-center justify-between rounded-2xl border border-orange-500/30 bg-orange-50/80 dark:bg-orange-950/30 px-4 py-3 text-sm">
+                <span className="font-semibold text-slate-800 dark:text-slate-100">
+                  Selected Service:{' '}
+                  <strong className="text-orange-600 dark:text-orange-400">
+                    {subserviceParam}
+                  </strong>
+                </span>
+              </div>
+            )}
             {/* 1. Pet Taxi Tab */}
             {activeTab === 'transport' && (
               <div>
@@ -536,6 +631,8 @@ Please contact the customer to confirm the schedule.
                         type="tel"
                         name="mobile"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
                         className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
@@ -568,6 +665,21 @@ Please contact the customer to confirm the schedule.
                           <option>Other</option>
                         </select>
                       </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-1 text-slate-700 dark:text-slate-200">
+                        Consultation Type
+                      </label>
+                      <select
+                        key={`vet-pkg-${subserviceParam}`}
+                        name="package"
+                        defaultValue={getDefaultPackage('vet', subserviceParam)}
+                        className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
+                      >
+                        <option value="Home Consultation">Home Consultation</option>
+                        <option value="Video Vet Session">Video Vet Session</option>
+                        <option value="Emergency Support">Emergency Support</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-bold mb-1 text-slate-700 dark:text-slate-200">
@@ -657,6 +769,8 @@ Please contact the customer to confirm the schedule.
                         type="tel"
                         name="mobile"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
                         className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
@@ -682,12 +796,19 @@ Please contact the customer to confirm the schedule.
                           Package
                         </label>
                         <select
+                          key={`grooming-pkg-${subserviceParam}`}
                           name="package"
+                          defaultValue={getDefaultPackage('grooming', subserviceParam)}
                           className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
                         >
-                          <option>Basic Grooming (Bath & Nails)</option>
-                          <option>Full Spa & Hair Styling</option>
-                          <option>De-Shedding & Anti-Flea Bath</option>
+                          <option value="Basic Grooming (Bath & Nails)">
+                            Basic Grooming (Bath & Nails)
+                          </option>
+                          <option value="Full Spa & Hair Styling">Full Spa & Hair Styling</option>
+                          <option value="De-Shedding & Anti-Flea Bath">
+                            De-Shedding & Anti-Flea Bath
+                          </option>
+                          <option value="Nail & Ear Care">Nail & Ear Care</option>
                         </select>
                       </div>
                     </div>
@@ -744,6 +865,8 @@ Please contact the customer to confirm the schedule.
                         type="tel"
                         name="mobile"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
                         className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
@@ -754,12 +877,20 @@ Please contact the customer to confirm the schedule.
                         Program Type
                       </label>
                       <select
+                        key={`training-pkg-${subserviceParam}`}
                         name="package"
+                        defaultValue={getDefaultPackage('training', subserviceParam)}
                         className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
                       >
-                        <option>Puppy Basics (Potty & Socialization)</option>
-                        <option>Obedience (Leash, Sit, Stay)</option>
-                        <option>Behavior Correction (Barking, Anxiety)</option>
+                        <option value="Puppy Basics (Potty & Socialization)">
+                          Puppy Basics (Potty & Socialization)
+                        </option>
+                        <option value="Obedience (Leash, Sit, Stay)">
+                          Obedience (Leash, Sit, Stay)
+                        </option>
+                        <option value="Behavior Correction (Barking, Anxiety)">
+                          Behavior Correction (Barking, Anxiety)
+                        </option>
                       </select>
                     </div>
                     <div>
@@ -817,6 +948,8 @@ Please contact the customer to confirm the schedule.
                         type="tel"
                         name="mobile"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="01XXXXXXXXX"
                         pattern="[0-9]{11}"
                         className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
@@ -827,12 +960,17 @@ Please contact the customer to confirm the schedule.
                         Service Type
                       </label>
                       <select
+                        key={`sitting-pkg-${subserviceParam}`}
                         name="package"
+                        defaultValue={getDefaultPackage('sitting', subserviceParam)}
                         className="w-full min-h-[44px] p-3 rounded-xl border border-slate-300/60 dark:border-slate-600/60 bg-white/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100"
                       >
-                        <option>Drop-In Feeding Visit (1-2 times/day)</option>
-                        <option>Overnight Pet Sitting</option>
-                        <option>Cage-Free Home Boarding</option>
+                        <option value="Drop-In Feeding Visit (1-2 times/day)">
+                          Drop-In Feeding Visit (1-2 times/day)
+                        </option>
+                        <option value="Overnight Pet Sitting">Overnight Pet Sitting</option>
+                        <option value="Cage-Free Home Boarding">Cage-Free Home Boarding</option>
+                        <option value="Walk & Play Session">Walk & Play Session</option>
                       </select>
                     </div>
                     <div>

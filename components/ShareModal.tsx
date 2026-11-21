@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShareMetadata,
@@ -19,6 +19,27 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, metadata }) => {
   const toast = useToast();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -43,7 +64,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, metadat
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         {/* Backdrop */}
         <motion.div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm"
@@ -56,7 +77,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, metadat
 
         {/* Modal Window */}
         <motion.div
-          className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white/95 dark:bg-zinc-900/95 p-6 shadow-2xl backdrop-blur-2xl border border-zinc-200/80 dark:border-zinc-800/80 z-10"
+          className="relative w-full max-w-md overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white/95 dark:bg-zinc-900/95 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 shadow-2xl backdrop-blur-2xl border border-zinc-200/80 dark:border-zinc-800/80 z-10"
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 15 }}
@@ -92,8 +113,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, metadat
             </div>
 
             <button
+              type="button"
               onClick={onClose}
-              className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 transition-colors"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 transition-colors"
               aria-label="Close share dialog"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

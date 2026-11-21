@@ -58,23 +58,27 @@ export const DynamicIslandProvider: React.FC<{ children: ReactNode }> = ({ child
   };
 
   return (
-    <DynamicIslandContext.Provider value={{ state, data, showNotification, showLoading, showSuccess, hide }}>
+    <DynamicIslandContext.Provider
+      value={{ state, data, showNotification, showLoading, showSuccess, hide }}
+    >
       {children}
       <div className="fixed top-2 md:top-4 left-0 right-0 z-[100] pointer-events-none flex justify-center w-full px-4 safe-top">
         <AnimatePresence mode="wait">
           {state !== 'idle' && (
             <motion.div
               initial={{ y: -20, scale: 0.9, opacity: 0, borderRadius: '24px' }}
-              animate={{ 
-                y: 0, 
-                scale: 1, 
-                opacity: 1, 
+              animate={{
+                y: 0,
+                scale: 1,
+                opacity: 1,
                 borderRadius: '32px',
                 width: state === 'loading' ? 'auto' : 'min(90vw, 380px)',
               }}
               exit={{ y: -20, scale: 0.9, opacity: 0, borderRadius: '24px' }}
               transition={{ type: 'spring', bounce: 0.4, duration: 0.6 }}
-              className="bg-black/90 dark:bg-black border border-white/10 shadow-2xl backdrop-blur-2xl pointer-events-auto overflow-hidden text-white flex items-center p-3"
+              onClick={hide}
+              role="status"
+              className="bg-black/90 dark:bg-black border border-white/10 shadow-2xl backdrop-blur-2xl pointer-events-auto cursor-pointer overflow-hidden text-white flex items-center p-3"
               style={{ originY: 0 }}
             >
               <div className="flex-shrink-0 flex items-center justify-center mr-3">
@@ -84,15 +88,17 @@ export const DynamicIslandProvider: React.FC<{ children: ReactNode }> = ({ child
                   data.icon
                 )}
               </div>
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
                 className="flex flex-col justify-center flex-grow"
               >
                 <span className="text-[14px] font-bold leading-tight">{data.title}</span>
                 {data.subtitle && (
-                  <span className="text-[12px] text-zinc-400 font-medium leading-tight mt-0.5">{data.subtitle}</span>
+                  <span className="text-[12px] text-zinc-400 font-medium leading-tight mt-0.5">
+                    {data.subtitle}
+                  </span>
                 )}
               </motion.div>
             </motion.div>

@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+const HIDE_ON_ROUTES = ['/product/', '/checkout', '/ai-assistant', '/services/booking'];
 
 const ScrollToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
+  const shouldHide = HIDE_ON_ROUTES.some((route) => location.pathname.startsWith(route));
+  const isServicesLanding = location.pathname === '/services';
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -40,11 +46,15 @@ const ScrollToTop: React.FC = () => {
     };
   }, []);
 
+  if (shouldHide) return null;
+
   return (
     <button
       type="button"
       onClick={scrollToTop}
-      className={`safe-bottom-offset fixed right-5 w-12 h-12 bg-orange-500 text-white rounded-full shadow-lg z-30 flex items-center justify-center transition-all duration-300 transform
+      className={`fixed right-5 bottom-[calc(5.75rem+var(--safe-bottom))] md:bottom-6 w-11 h-11 md:w-12 md:h-12 bg-orange-500 text-white rounded-full shadow-lg z-30 ${
+        isServicesLanding ? 'hidden md:flex' : 'flex'
+      } items-center justify-center transition-all duration-300 transform
         ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}`}
       aria-label="Go to top"
     >

@@ -7,7 +7,13 @@ const ConfirmationModal: React.FC = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { isOpen, message, title, confirmText = 'Confirm', cancelText = 'Cancel' } = confirmationState;
+  const {
+    isOpen,
+    message,
+    title,
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
+  } = confirmationState;
 
   const handleConfirm = useCallback(() => {
     resolveConfirmation(true);
@@ -33,6 +39,20 @@ const ConfirmationModal: React.FC = () => {
       dialog.close();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      handleCancel();
+    };
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [isOpen, handleCancel]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     if (e.target === dialogRef.current) {

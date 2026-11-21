@@ -61,7 +61,7 @@ const OfflineIndicator: React.FC = () => {
     <>
       {/* Offline Banner */}
       {showBanner && (
-        <div className="fixed top-16 left-0 right-0 z-50 animate-slide-down">
+        <div className="fixed top-[calc(4.75rem+var(--safe-top))] left-0 right-0 z-50 animate-slide-down">
           <div className="bg-red-500 text-white px-4 py-2 text-center text-sm font-medium flex items-center justify-center gap-2">
             <WifiOffIcon className="w-4 h-4" />
             <span>You're offline. Some features may be limited.</span>
@@ -71,7 +71,7 @@ const OfflineIndicator: React.FC = () => {
 
       {/* Reconnected Toast */}
       {showReconnected && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slide-down">
+        <div className="fixed top-[calc(5.25rem+var(--safe-top))] left-1/2 -translate-x-1/2 z-50 animate-slide-down">
           <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2">
             <WifiIcon className="w-4 h-4" />
             <span>Back online!</span>

@@ -83,71 +83,105 @@ const FormattedMessage: React.FC<{ text: string }> = React.memo(({ text }) => {
 });
 
 // The Futuristic Reactive Avatar
-const DynamicAvatar: React.FC<{ state: 'idle' | 'listening' | 'thinking' | 'speaking' }> = ({
-  state,
-}) => {
+const DynamicAvatar: React.FC<{
+  state: 'idle' | 'listening' | 'thinking' | 'speaking';
+  compactOnMobile?: boolean;
+}> = ({ state, compactOnMobile = false }) => {
   return (
-    <div className="relative w-32 h-32 mx-auto mb-8 flex items-center justify-center">
-      {/* Outer Glow Ring */}
-      <motion.div
-        animate={{
-          scale: state === 'listening' ? [1, 1.2, 1] : state === 'speaking' ? [1, 1.05, 1] : 1,
-          opacity: state === 'listening' ? [0.5, 0.8, 0.5] : 0.3,
-          borderColor: state === 'thinking' ? ['#ff6b35', '#004e64', '#ff6b35'] : '#ff6b35',
-        }}
-        transition={{
-          duration: state === 'speaking' ? 0.4 : 1.5,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="absolute inset-0 rounded-full border-4 border-orange-500 blur-sm"
-      />
-      {/* Core Orb */}
-      <motion.div
-        animate={{
-          scale: state === 'listening' ? 1.1 : state === 'thinking' ? [0.9, 1, 0.9] : 1,
-          boxShadow:
-            state === 'speaking'
-              ? '0 0 40px rgba(255, 107, 53, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5)'
-              : '0 0 20px rgba(255, 107, 53, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2)',
-          rotate: state === 'thinking' ? 360 : 0,
-        }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-        className="relative w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center z-10"
-      >
-        <PawIcon className="w-10 h-10 text-white opacity-90" />
-      </motion.div>
-
-      {/* Waveforms when speaking/listening */}
-      <AnimatePresence>
-        {(state === 'speaking' || state === 'listening') && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute -bottom-6 flex space-x-1 items-end h-6"
-          >
-            {[1, 2, 3, 4, 5].map((i) => (
-              <motion.div
-                key={i}
-                animate={{
-                  height:
-                    state === 'listening'
-                      ? ['4px', `${Math.random() * 20 + 4}px`, '4px']
-                      : ['10px', `${Math.random() * 24 + 4}px`, '10px'],
-                }}
-                transition={{
-                  duration: Math.random() * 0.5 + 0.2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                className="w-1.5 bg-orange-500 rounded-full"
+    <>
+      {compactOnMobile && (
+        <div className="flex md:hidden items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/90 px-4 py-2.5 mb-2">
+          <div className="flex items-center gap-2.5">
+            <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-md">
+              <PawIcon className="h-5 w-5 text-white" />
+              <span
+                className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-slate-900 ${
+                  state === 'thinking'
+                    ? 'bg-amber-400 animate-ping'
+                    : state === 'listening'
+                      ? 'bg-red-500 animate-pulse'
+                      : state === 'speaking'
+                        ? 'bg-emerald-400 animate-pulse'
+                        : 'bg-emerald-500'
+                }`}
               />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white leading-tight">PetBhai AI Vet</p>
+              <p className="text-[11px] text-slate-400 capitalize">{state}</p>
+            </div>
+          </div>
+          <span className="rounded-full bg-orange-500/15 px-2.5 py-1 text-[10px] font-bold text-orange-400">
+            24/7 First-Aid Guide
+          </span>
+        </div>
+      )}
+      <div
+        className={`${
+          compactOnMobile ? 'hidden md:flex' : 'flex'
+        } relative w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 sm:mb-8 items-center justify-center`}
+      >
+        {/* Outer Glow Ring */}
+        <motion.div
+          animate={{
+            scale: state === 'listening' ? [1, 1.2, 1] : state === 'speaking' ? [1, 1.05, 1] : 1,
+            opacity: state === 'listening' ? [0.5, 0.8, 0.5] : 0.3,
+            borderColor: state === 'thinking' ? ['#ff6b35', '#004e64', '#ff6b35'] : '#ff6b35',
+          }}
+          transition={{
+            duration: state === 'speaking' ? 0.4 : 1.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="absolute inset-0 rounded-full border-4 border-orange-500 blur-sm"
+        />
+        {/* Core Orb */}
+        <motion.div
+          animate={{
+            scale: state === 'listening' ? 1.1 : state === 'thinking' ? [0.9, 1, 0.9] : 1,
+            boxShadow:
+              state === 'speaking'
+                ? '0 0 40px rgba(255, 107, 53, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5)'
+                : '0 0 20px rgba(255, 107, 53, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2)',
+            rotate: state === 'thinking' ? 360 : 0,
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          className="relative w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center z-10"
+        >
+          <PawIcon className="w-10 h-10 text-white opacity-90" />
+        </motion.div>
+
+        {/* Waveforms when speaking/listening */}
+        <AnimatePresence>
+          {(state === 'speaking' || state === 'listening') && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute -bottom-6 flex space-x-1 items-end h-6"
+            >
+              {[1, 2, 3, 4, 5].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    height:
+                      state === 'listening'
+                        ? ['4px', `${Math.random() * 20 + 4}px`, '4px']
+                        : ['10px', `${Math.random() * 24 + 4}px`, '10px'],
+                  }}
+                  transition={{
+                    duration: Math.random() * 0.5 + 0.2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="w-1.5 bg-orange-500 rounded-full"
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 };
 
@@ -166,7 +200,9 @@ const AIAssistantPage: React.FC = () => {
     'idle'
   );
   const [isVoiceSupported, setIsVoiceSupported] = useState(false);
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -212,10 +248,40 @@ const AIAssistantPage: React.FC = () => {
       };
 
       recognitionRef.current.onend = () => {
-        if (avatarState === 'listening') setAvatarState('idle');
+        setAvatarState((prev) => (prev === 'listening' ? 'idle' : prev));
+      };
+
+      recognitionRef.current.onerror = () => {
+        setAvatarState('idle');
+        toast.error('Microphone access denied or unavailable.');
       };
     }
-  }, []);
+
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [toast]);
+
+  useEffect(() => {
+    if (!uploadedImage) {
+      setImagePreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(uploadedImage);
+    setImagePreviewUrl(objectUrl);
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [uploadedImage]);
 
   useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), [chatHistory]);
   useEffect(() => {
@@ -225,23 +291,56 @@ const AIAssistantPage: React.FC = () => {
   const toggleListening = () => {
     if (!recognitionRef.current) return;
     if (avatarState === 'listening') {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // ignore
+      }
       setAvatarState('idle');
     } else {
       setUserInput('');
-      recognitionRef.current.start();
-      setAvatarState('listening');
+      try {
+        recognitionRef.current.start();
+        setAvatarState('listening');
+      } catch {
+        setAvatarState('idle');
+        toast.error('Microphone access denied or unavailable.');
+      }
     }
   };
 
   const speakResponse = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text.replace(/[\*\#_]/g, ''));
-      utterance.onstart = () => setAvatarState('speaking');
-      utterance.onend = () => setAvatarState('idle');
-      window.speechSynthesis.speak(utterance);
+    setAvatarState('idle');
+    if (isVoiceMuted) {
+      return;
     }
+    if (
+      typeof window !== 'undefined' &&
+      'speechSynthesis' in window &&
+      typeof SpeechSynthesisUtterance !== 'undefined'
+    ) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text.replace(/[\*\#_]/g, ''));
+        utterance.onstart = () => setAvatarState('speaking');
+        utterance.onend = () => setAvatarState('idle');
+        utterance.onerror = () => setAvatarState('idle');
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        setAvatarState('idle');
+      }
+    }
+  };
+
+  const toggleVoiceMute = () => {
+    setIsVoiceMuted((prev) => {
+      const next = !prev;
+      if (next && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        setAvatarState((s) => (s === 'speaking' ? 'idle' : s));
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -283,35 +382,39 @@ const AIAssistantPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-72px)] min-h-[calc(100dvh-72px)] bg-slate-950 text-slate-200">
-      <div className="container mx-auto p-4 max-w-4xl flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100dvh-4.75rem-var(--safe-top)-var(--safe-bottom))] md:h-[calc(100dvh-7rem)] bg-slate-950 text-slate-200">
+      <div className="container mx-auto p-3 sm:p-4 max-w-4xl flex flex-col h-full">
         {isWarningVisible && (
           <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="glass-card-ios p-4 mb-6 flex items-start space-x-4 bg-orange-900/30 border-orange-500/30"
+            className="glass-card-ios p-3.5 sm:p-4 mb-3 sm:mb-4 flex items-start space-x-3 bg-orange-900/30 border-orange-500/30"
           >
             <div className="flex-grow">
-              <h3 className="font-bold text-orange-400">Emergency & First-Aid Info Only</h3>
-              <p className="text-sm text-orange-200 mt-1">
+              <h3 className="font-bold text-sm sm:text-base text-orange-400">
+                Emergency & First-Aid Info Only
+              </h3>
+              <p className="text-xs sm:text-sm text-orange-200 mt-0.5">
                 This AI is not a real vet. Always consult an in-person professional for emergencies.
               </p>
             </div>
             <button
+              type="button"
               onClick={() => {
                 safeSessionStorage.setItem(WARNING_DISMISSED_KEY, 'true');
                 setIsWarningVisible(false);
               }}
-              className="text-orange-300"
+              className="min-h-[40px] min-w-[40px] flex items-center justify-center text-orange-300"
+              aria-label="Dismiss warning"
             >
-              <CloseIcon className="w-6 h-6" />
+              <CloseIcon className="w-5 h-5" />
             </button>
           </motion.div>
         )}
 
         {/* HUD Area */}
-        <div className="flex-shrink-0 pt-4 pb-2">
-          <DynamicAvatar state={avatarState} />
+        <div className="flex-shrink-0 pt-1 pb-1">
+          <DynamicAvatar state={avatarState} compactOnMobile={chatHistory.length > 0} />
         </div>
 
         {/* Chat Stream */}
@@ -392,23 +495,52 @@ const AIAssistantPage: React.FC = () => {
         </div>
 
         {/* Spatial Input Area */}
-        <div className="pt-4 mt-auto border-t border-slate-800">
+        <div className="pt-3 mt-auto border-t border-slate-800">
+          {uploadedImage && (
+            <div className="mb-2.5 inline-flex items-center gap-2.5 rounded-2xl border border-slate-700 bg-slate-900 px-3 py-1.5">
+              {imagePreviewUrl && (
+                <img
+                  src={imagePreviewUrl}
+                  alt="Attached pet preview"
+                  className="h-9 w-9 rounded-lg object-cover"
+                />
+              )}
+              <span className="max-w-[180px] truncate text-xs font-medium text-slate-200">
+                {uploadedImage.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setUploadedImage(null)}
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white"
+                aria-label="Remove attached photo"
+              >
+                <CloseIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
           <form
             onSubmit={handleSubmit}
-            className="relative flex items-center glass-card-ios bg-slate-900/90 rounded-full p-2 pl-4 border border-slate-700 shadow-2xl"
+            className="relative flex items-center glass-card-ios bg-slate-900/90 rounded-full p-1.5 pl-4 border border-slate-700 shadow-2xl"
           >
             <input
               type="text"
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              placeholder={avatarState === 'listening' ? 'Listening...' : 'Ask your AI Vet...'}
-              className="flex-grow bg-transparent border-none focus:ring-0 text-white placeholder-slate-500 outline-none"
+              placeholder={
+                avatarState === 'listening'
+                  ? 'Listening...'
+                  : uploadedImage
+                    ? 'Add optional note about this photo...'
+                    : 'Ask your AI Vet...'
+              }
+              className="flex-grow bg-transparent border-none focus:ring-0 text-base sm:text-sm text-white placeholder-slate-500 outline-none"
               disabled={avatarState === 'thinking' || !aiAvailable}
             />
 
             {/* Image Upload Button */}
             <label
-              className="p-2 cursor-pointer text-slate-400 hover:text-orange-400 transition-colors"
+              className="min-h-[42px] min-w-[42px] flex items-center justify-center cursor-pointer text-slate-400 hover:text-orange-400 transition-colors"
               title="Upload pet photo for analysis"
             >
               <input
@@ -418,7 +550,6 @@ const AIAssistantPage: React.FC = () => {
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setUploadedImage(e.target.files[0]);
-                    setUserInput(`Analyze this image: ${e.target.files[0].name}`);
                   }
                 }}
               />
@@ -478,20 +609,31 @@ const AIAssistantPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="flex justify-between items-center mt-3 px-4">
+          <div className="flex justify-between items-center mt-2.5 px-2 sm:px-4">
             <span className="text-xs text-slate-500">AI responses can be inaccurate.</span>
-            {chatHistory.length > 0 && (
+            <div className="flex items-center gap-3">
               <button
-                onClick={() =>
-                  confirm({ title: 'Clear Chat?', message: 'Delete all history?' }).then(
-                    (res) => res && setChatHistory([])
-                  )
-                }
-                className="text-xs text-red-400 hover:text-red-300 flex items-center"
+                type="button"
+                onClick={toggleVoiceMute}
+                className="text-xs font-semibold text-slate-400 hover:text-orange-400 transition-colors"
+                aria-pressed={isVoiceMuted}
               >
-                <TrashIcon className="w-3 h-3 mr-1" /> Clear
+                {isVoiceMuted ? '🔇 Voice Muted' : '🔊 Voice On'}
               </button>
-            )}
+              {chatHistory.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    confirm({ title: 'Clear Chat?', message: 'Delete all history?' }).then(
+                      (res) => res && setChatHistory([])
+                    )
+                  }
+                  className="text-xs text-red-400 hover:text-red-300 flex items-center"
+                >
+                  <TrashIcon className="w-3 h-3 mr-1" /> Clear
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

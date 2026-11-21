@@ -89,7 +89,16 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const activeIndexRef = useRef(0);
+  const touchPauseTimeoutRef = useRef<number | null>(null);
   activeIndexRef.current = activeIndex;
+
+  useEffect(() => {
+    return () => {
+      if (touchPauseTimeoutRef.current !== null) {
+        window.clearTimeout(touchPauseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Filter for featured/trending (just take the first 6 for now)
   const trendingArticles = articles.filter((a) => a.featured || true).slice(0, 6);
@@ -153,8 +162,20 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
       className="mb-12 relative"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={() => setIsPaused(true)}
-      onTouchEnd={() => setIsPaused(false)}
+      onTouchStart={() => {
+        if (touchPauseTimeoutRef.current !== null) {
+          window.clearTimeout(touchPauseTimeoutRef.current);
+        }
+        setIsPaused(true);
+      }}
+      onTouchEnd={() => {
+        if (touchPauseTimeoutRef.current !== null) {
+          window.clearTimeout(touchPauseTimeoutRef.current);
+        }
+        touchPauseTimeoutRef.current = window.setTimeout(() => {
+          setIsPaused(false);
+        }, 10000);
+      }}
     >
       <div className="flex items-center justify-between mb-4 px-3 md:px-0">
         <div className="flex items-center gap-3 md:gap-4">

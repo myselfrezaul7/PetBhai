@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import ServicesBookingPage from '../../pages/ServicesBookingPage';
 
 const mockToastSuccess = jest.fn();
@@ -109,5 +109,19 @@ describe('ServicesBookingPage', () => {
       expect(window.location.href).toContain('mini');
       expect(mockToastSuccess).toHaveBeenCalled();
     });
+  });
+
+  it('prefills selected package from subservice query parameter', () => {
+    render(
+      <MemoryRouter
+        initialEntries={['/services/booking?service=grooming&subservice=Spa%20%26%20Coat%20Care']}
+      >
+        <ServicesBookingPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/Selected Service:/i)).toBeInTheDocument();
+    const packageSelect = screen.getByDisplayValue('Full Spa & Hair Styling') as HTMLSelectElement;
+    expect(packageSelect.value).toBe('Full Spa & Hair Styling');
   });
 });

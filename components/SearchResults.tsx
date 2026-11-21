@@ -34,6 +34,7 @@ interface SearchResultsProps {
   results: SearchResultsData;
   loading: boolean;
   onClose: () => void;
+  onSelectResult?: () => void;
   activeIndex?: number;
   isFullScreen?: boolean;
 }
@@ -44,12 +45,20 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   results,
   loading,
   onClose,
+  onSelectResult,
   activeIndex = -1,
   isFullScreen = false,
 }) => {
   const { cartItems } = useCart();
   const { t } = useLanguage();
-  const [activeFilter, setActiveFilter] = React.useState<'All' | 'Products' | 'Vets' | 'Animals'>('All');
+  const [activeFilter, setActiveFilter] = React.useState<
+    'All' | 'Products' | 'Vets' | 'Animals' | 'Articles'
+  >('All');
+
+  const handleResultClick = () => {
+    onSelectResult?.();
+    onClose();
+  };
 
   const filteredResults = useMemo(() => {
     if (activeFilter === 'Products') {
@@ -62,6 +71,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
     if (activeFilter === 'Animals') {
       return { ...results, pages: [], articles: [], products: [], vets: [] };
+    }
+
+    if (activeFilter === 'Articles') {
+      return { ...results, pages: [], products: [], vets: [], animals: [] };
     }
 
     return results;
@@ -130,7 +143,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       </div>
       {isFullScreen && hasResults && !loading && (
         <div className="flex space-x-2 px-4 py-2 overflow-x-auto hide-scrollbar border-b border-slate-200 dark:border-slate-700/50">
-          {(['All', 'Products', 'Vets', 'Animals'] as const).map((filter) => (
+          {(['All', 'Products', 'Vets', 'Animals', 'Articles'] as const).map((filter) => (
             <button
               key={filter}
               type="button"
@@ -149,7 +162,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       )}
       <div
         className={
-          isFullScreen ? 'flex-grow overflow-y-auto w-full p-4' : 'max-h-[70vh] overflow-y-auto custom-scrollbar'
+          isFullScreen
+            ? 'flex-grow overflow-y-auto w-full p-4'
+            : 'max-h-[70vh] overflow-y-auto custom-scrollbar'
         }
       >
         {!loading && query && (
@@ -196,7 +211,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     <Link
                       key={`page-${page.path}`}
                       to={page.path}
-                      onClick={onClose}
+                      onClick={handleResultClick}
                       className={`flex items-center space-x-3 p-2.5 rounded-lg transition-all ${
                         activeIndex === idx
                           ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 ring-1 ring-orange-200 dark:ring-orange-800'
@@ -228,7 +243,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                       <Link
                         key={`product-${product.id}`}
                         to={`/product/${product.id}`}
-                        onClick={onClose}
+                        onClick={handleResultClick}
                         className={`flex items-center space-x-4 p-2.5 rounded-lg transition-all ${
                           activeIndex === globalIdx
                             ? 'bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800'
@@ -293,7 +308,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                       <Link
                         key={`vet-${vet.id}`}
                         to={`/vet/${vet.id}`}
-                        onClick={onClose}
+                        onClick={handleResultClick}
                         className={`flex items-center space-x-4 p-2.5 rounded-lg transition-all ${
                           activeIndex === globalIdx
                             ? 'bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800'
@@ -355,7 +370,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                       <Link
                         key={`animal-${animal.id}`}
                         to={`/adopt/${animal.id}`}
-                        onClick={onClose}
+                        onClick={handleResultClick}
                         className={`flex items-center space-x-4 p-2.5 rounded-lg transition-all ${
                           activeIndex === globalIdx
                             ? 'bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800'
@@ -413,8 +428,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     return (
                       <Link
                         key={`article-${article.id}`}
-                          to={`/blog/${article.slug || article.id}`}
-                        onClick={onClose}
+                        to={`/blog/${article.slug || article.id}`}
+                        onClick={handleResultClick}
                         className={`flex items-center space-x-4 p-2.5 rounded-lg transition-all ${
                           activeIndex === globalIdx
                             ? 'bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800'
@@ -450,21 +465,27 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       </div>
 
       {hasResults && !loading && (
-        <div className="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
-          <p className="text-[10px] text-slate-400 dark:text-slate-300">
-            {t('search_navigation_tip').split('↑↓')[0]}
-            <kbd className="px-1 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-              ↑↓
-            </kbd>
-            {t('search_navigation_tip').split('↑↓')[1].split('Enter')[0]}
-            <kbd className="px-1 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-              Enter
-            </kbd>
-            {t('search_navigation_tip').split('Enter')[1]}
-          </p>
+        <div
+          className={`p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex items-center ${
+            isFullScreen ? 'justify-end' : 'justify-between'
+          }`}
+        >
+          {!isFullScreen && (
+            <p className="text-[10px] text-slate-400 dark:text-slate-300">
+              {t('search_navigation_tip').split('↑↓')[0]}
+              <kbd className="px-1 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                ↑↓
+              </kbd>
+              {t('search_navigation_tip').split('↑↓')[1].split('Enter')[0]}
+              <kbd className="px-1 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                Enter
+              </kbd>
+              {t('search_navigation_tip').split('Enter')[1]}
+            </p>
+          )}
           <Link
             to={`/shop?search=${encodeURIComponent(query)}`}
-            onClick={onClose}
+            onClick={handleResultClick}
             className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors"
           >
             {t('search_view_all')} →

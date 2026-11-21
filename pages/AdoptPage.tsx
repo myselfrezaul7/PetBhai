@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HeartIcon, PawIcon } from '../components/icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Cat Icon SVG Component
 const CatIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -29,7 +30,8 @@ const DogIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 interface AdoptionChoice {
   type: 'cat' | 'dog';
-  name: string;
+  nameBn: string;
+  nameEn: string;
   icon: React.FC<{ className?: string }>;
   url: string;
   partnerName: string;
@@ -44,7 +46,8 @@ interface AdoptionChoice {
 const adoptionChoices: AdoptionChoice[] = [
   {
     type: 'cat',
-    name: 'বিড়াল দত্তক নিন',
+    nameBn: 'বিড়াল দত্তক নিন',
+    nameEn: 'Adopt a Cat (বিড়াল দত্তক নিন)',
     icon: CatIcon,
     url: 'https://www.catwaala.com/',
     partnerName: 'CatWaala',
@@ -57,7 +60,8 @@ const adoptionChoices: AdoptionChoice[] = [
   },
   {
     type: 'dog',
-    name: 'কুকুর দত্তক নিন',
+    nameBn: 'কুকুর দত্তক নিন',
+    nameEn: 'Adopt a Dog (কুকুর দত্তক নিন)',
     icon: DogIcon,
     url: 'https://www.kuttawaala.com/',
     partnerName: 'KuttaWaala',
@@ -71,16 +75,9 @@ const adoptionChoices: AdoptionChoice[] = [
 ];
 
 const AdoptPage: React.FC = () => {
+  const { language } = useLanguage();
+  const isBn = language === 'bn';
   const [hoveredChoice, setHoveredChoice] = useState<'cat' | 'dog' | null>(null);
-  const [clickedChoice, setClickedChoice] = useState<'cat' | 'dog' | null>(null);
-
-  const handleChoiceClick = (choice: AdoptionChoice) => {
-    setClickedChoice(choice.type);
-    setTimeout(() => {
-      window.open(choice.url, '_blank', 'noopener,noreferrer');
-      setClickedChoice(null);
-    }, 350);
-  };
 
   return (
     <main className="min-h-screen relative overflow-hidden">
@@ -151,31 +148,31 @@ const AdoptPage: React.FC = () => {
 
         {/* Choice Cards */}
         <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 md:gap-8 max-w-3xl mx-auto mb-14">
-          {adoptionChoices.map((choice, index) => {
-            const Icon = choice.icon;
+          {adoptionChoices.map((choice) => {
             const isHovered = hoveredChoice === choice.type;
-            const isClicked = clickedChoice === choice.type;
+            const localizedName = isBn ? choice.nameBn : choice.nameEn;
 
             return (
-              <motion.button
+              <motion.a
                 key={choice.type}
-                onClick={() => handleChoiceClick(choice)}
+                href={choice.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 onMouseEnter={() => setHoveredChoice(choice.type)}
                 onMouseLeave={() => setHoveredChoice(null)}
                 whileHover={{ scale: 1.02, y: -4 }}
                 whileTap={{ scale: 0.97 }}
                 className={`
-                  group relative w-full md:w-1/2 text-center
+                  group relative block w-full md:w-1/2 text-center
                   bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl
                   border border-slate-200/60 dark:border-slate-700/40
                   rounded-2xl p-6 md:p-8
                   shadow-md shadow-slate-900/5 dark:shadow-black/20
                   cursor-pointer
                   transition-colors duration-300 ease-out
-                  ${isClicked ? 'opacity-80' : isHovered ? 'shadow-xl' : ''}
-                  
+                  ${isHovered ? 'shadow-xl' : ''}
                 `}
-                aria-label={`${choice.name} through ${choice.partnerName}`}
+                aria-label={`${localizedName} through ${choice.partnerName}`}
               >
                 {/* Subtle gradient overlay on hover */}
                 <div
@@ -194,7 +191,7 @@ const AdoptPage: React.FC = () => {
                 >
                   <img
                     src={choice.image}
-                    alt={choice.name}
+                    alt={localizedName}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
@@ -202,13 +199,13 @@ const AdoptPage: React.FC = () => {
 
                 {/* Content */}
                 <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                  {choice.name}
+                  {localizedName}
                 </h2>
                 <p className="text-sm md:text-base text-slate-500 dark:text-slate-300 mb-5 leading-relaxed">
                   {choice.description}
                 </p>
 
-                {/* Partner Badge - FIXED: solid colors instead of gradient text */}
+                {/* Partner Badge */}
                 <div
                   className={`
                   inline-flex items-center gap-2 px-4 py-2 rounded-full
@@ -250,7 +247,7 @@ const AdoptPage: React.FC = () => {
                   ${isHovered ? 'opacity-100 w-20' : 'opacity-0 w-12'}
                 `}
                 />
-              </motion.button>
+              </motion.a>
             );
           })}
         </div>

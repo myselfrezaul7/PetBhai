@@ -131,7 +131,7 @@ const InlineEditField: React.FC<{
                   onBlur={handleSave}
                   onKeyDown={handleKeyDown}
                   disabled={isSaving}
-                  className="w-full rounded-2xl bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-slate-200 dark:border-zinc-700/50 px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/50 shadow-sm disabled:opacity-50 transition-all resize-none"
+                  className="w-full rounded-2xl bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-slate-200 dark:border-zinc-700/50 px-4 py-3 text-base sm:text-sm focus:ring-2 focus:ring-amber-500/50 shadow-sm disabled:opacity-50 transition-all resize-none"
                   rows={3}
                 />
               ) : (
@@ -143,7 +143,7 @@ const InlineEditField: React.FC<{
                   onBlur={handleSave}
                   onKeyDown={handleKeyDown}
                   disabled={isSaving}
-                  className="w-full rounded-2xl bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-slate-200 dark:border-zinc-700/50 px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/50 shadow-sm disabled:opacity-50 transition-all"
+                  className="w-full rounded-2xl bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-slate-200 dark:border-zinc-700/50 px-4 py-3 text-base sm:text-sm focus:ring-2 focus:ring-amber-500/50 shadow-sm disabled:opacity-50 transition-all"
                 />
               )}
               {isSaving && (
@@ -166,9 +166,9 @@ const InlineEditField: React.FC<{
                   currentValue ? 'text-slate-700 dark:text-zinc-200' : 'text-slate-400 italic'
                 }`}
               >
-                {currentValue || `Click to add ${label.toLowerCase()}`}
+                {currentValue || `Tap to add ${label.toLowerCase()}`}
               </span>
-              <div className="p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100">
+              <div className="p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all transform scale-100 md:scale-75 md:group-hover:scale-100">
                 <EditIcon className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
               </div>
             </motion.div>
@@ -249,6 +249,7 @@ const ProfilePage: React.FC = () => {
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
+  const [isVipCardExpanded, setIsVipCardExpanded] = useState(false);
   const [expandedOrderIds, setExpandedOrderIds] = useState<Record<string, boolean>>({});
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
@@ -566,6 +567,51 @@ const ProfilePage: React.FC = () => {
     [activeNotifications]
   );
 
+  // Close open profile modals on Android hardware back button or Escape key
+  useEffect(() => {
+    const hasOpenModal =
+      Boolean(receiptOrder) ||
+      isCancelModalOpen ||
+      isPasswordModalOpen ||
+      isAddPetOpen ||
+      isAddReminderOpen;
+    if (!hasOpenModal) return;
+
+    const closeTopModal = () => {
+      if (receiptOrder) {
+        setReceiptOrder(null);
+      } else if (isCancelModalOpen) {
+        setIsCancelModalOpen(false);
+      } else if (isPasswordModalOpen) {
+        setIsPasswordModalOpen(false);
+      } else if (isAddPetOpen) {
+        setIsAddPetOpen(false);
+      } else if (isAddReminderOpen) {
+        setIsAddReminderOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeTopModal();
+      }
+    };
+
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      closeTopModal();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [receiptOrder, isCancelModalOpen, isPasswordModalOpen, isAddPetOpen, isAddReminderOpen]);
+
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -819,15 +865,23 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="sticky top-[4.5rem] z-30 md:static -mx-4 px-4 py-3 md:p-0 md:mx-0 bg-slate-50/90 dark:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-b border-slate-200/50 dark:border-none md:border-transparent dark:bg-zinc-950/90 mb-4 md:mb-0 transition-all">
+          <div className="sticky top-[calc(4.5rem+var(--safe-top))] z-30 md:static -mx-4 px-4 py-3 md:p-0 md:mx-0 bg-slate-50/90 dark:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-b border-slate-200/50 dark:border-none md:border-transparent dark:bg-zinc-950/90 mb-4 md:mb-0 transition-all">
             <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-1 md:pb-0 scrollbar-hide snap-x">
               {navItems.map((item) => {
                 const isActive = activeTab === item.id;
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`relative shrink-0 snap-start flex items-center justify-between px-4 py-2.5 md:py-3 rounded-2xl text-sm font-medium transition-colors ${
+                    type="button"
+                    onClick={(e) => {
+                      setActiveTab(item.id);
+                      e.currentTarget.scrollIntoView?.({
+                        behavior: 'smooth',
+                        inline: 'center',
+                        block: 'nearest',
+                      });
+                    }}
+                    className={`relative shrink-0 snap-start flex items-center justify-between min-h-[44px] px-4 py-2.5 md:py-3 rounded-2xl text-sm font-medium transition-colors ${
                       isActive
                         ? 'text-amber-800 dark:text-amber-300 font-bold'
                         : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-900 dark:hover:text-zinc-200'
@@ -909,24 +963,34 @@ const ProfilePage: React.FC = () => {
                     </div>
                   </header>
 
-                  {/* 3D Digital VIP Pass */}
-                  <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent p-5 sm:p-6 border border-amber-500/20 backdrop-blur-xl">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                      <div className="max-w-md text-left">
-                        <span className="inline-flex py-0.5 px-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[11px] font-black uppercase tracking-wider mb-2 shadow-xs">
-                          {currentUser.isPlusMember ? '★ Active Plus VIP' : 'Digital Member Pass'}
-                        </span>
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-50">
+                  {/* 3D Digital VIP Pass (Collapsible on Mobile) */}
+                  <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent p-4 sm:p-6 border border-amber-500/20 backdrop-blur-xl">
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6">
+                      <div className="w-full max-w-md text-left">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="inline-flex py-0.5 px-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[11px] font-black uppercase tracking-wider mb-1.5 shadow-xs">
+                            {currentUser.isPlusMember ? '★ Active Plus VIP' : 'Digital Member Pass'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsVipCardExpanded((prev) => !prev)}
+                            className="md:hidden min-h-[36px] px-3 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-bold"
+                            aria-expanded={isVipCardExpanded}
+                          >
+                            {isVipCardExpanded ? 'Hide 3D Card ▴' : 'Show 3D Card ▾'}
+                          </button>
+                        </div>
+                        <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-zinc-50">
                           Your PetBhai Digital VIP Card
                         </h2>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1 leading-relaxed">
                           Present this interactive card at partner vet clinics and stores across
                           Bangladesh for priority service and exclusive perks.
                         </p>
                         {!currentUser.isPlusMember && (
                           <Link
-                            to="/plus"
-                            className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 group"
+                            to="/plus-membership"
+                            className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 group"
                           >
                             <span>Upgrade to PetBhai+ for unlimited perks</span>
                             <span className="group-hover:translate-x-1 transition-transform">
@@ -935,7 +999,11 @@ const ProfilePage: React.FC = () => {
                           </Link>
                         )}
                       </div>
-                      <div className="w-full max-w-[360px] flex justify-center">
+                      <div
+                        className={`${
+                          isVipCardExpanded ? 'flex' : 'hidden md:flex'
+                        } w-full max-w-[360px] justify-center`}
+                      >
                         <Suspense
                           fallback={
                             <div className="h-[230px] w-full rounded-2xl bg-zinc-800/10 dark:bg-zinc-800/40 animate-pulse border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-xs text-zinc-400">
@@ -1259,52 +1327,54 @@ const ProfilePage: React.FC = () => {
                                 </div>
                               ) : (
                                 <div className="space-y-4">
-                                  <div className="grid grid-cols-5 gap-1 sm:gap-2 text-center relative">
-                                    {ORDER_TIMELINE_STEPS.map((step, idx) => {
-                                      const isPassed = idx < activeStepIdx;
-                                      const isCurrent = idx === activeStepIdx;
-                                      const stepHistory = order.statusHistory?.find(
-                                        (h) => h.status === step.key
-                                      );
+                                  <div className="overflow-x-auto hide-scrollbar pb-1">
+                                    <div className="grid grid-cols-5 min-w-[260px] gap-1 sm:gap-2 text-center relative">
+                                      {ORDER_TIMELINE_STEPS.map((step, idx) => {
+                                        const isPassed = idx < activeStepIdx;
+                                        const isCurrent = idx === activeStepIdx;
+                                        const stepHistory = order.statusHistory?.find(
+                                          (h) => h.status === step.key
+                                        );
 
-                                      return (
-                                        <div
-                                          key={step.key}
-                                          className="flex flex-col items-center relative z-10"
-                                        >
+                                        return (
                                           <div
-                                            className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                                              isPassed
-                                                ? 'bg-emerald-500 text-white shadow-sm'
-                                                : isCurrent
-                                                  ? 'bg-amber-500 text-white ring-4 ring-amber-100 dark:ring-amber-500/20 animate-pulse'
-                                                  : 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'
-                                            }`}
+                                            key={step.key}
+                                            className="flex flex-col items-center relative z-10"
                                           >
-                                            {isPassed ? '✓' : idx + 1}
-                                          </div>
-                                          <span
-                                            className={`text-[10px] sm:text-xs font-bold mt-1.5 ${
-                                              isCurrent
-                                                ? 'text-amber-600 dark:text-amber-400'
-                                                : isPassed
-                                                  ? 'text-slate-800 dark:text-zinc-200'
-                                                  : 'text-slate-400 dark:text-zinc-500'
-                                            }`}
-                                          >
-                                            {step.label}
-                                          </span>
-                                          {stepHistory?.timestamp && (
-                                            <span className="hidden sm:block text-[9px] text-slate-400 mt-0.5">
-                                              {new Date(stepHistory.timestamp).toLocaleDateString(
-                                                [],
-                                                { month: 'short', day: 'numeric' }
-                                              )}
+                                            <div
+                                              className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-black transition-all ${
+                                                isPassed
+                                                  ? 'bg-emerald-500 text-white shadow-sm'
+                                                  : isCurrent
+                                                    ? 'bg-amber-500 text-white ring-4 ring-amber-100 dark:ring-amber-500/20 animate-pulse'
+                                                    : 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'
+                                              }`}
+                                            >
+                                              {isPassed ? '✓' : idx + 1}
+                                            </div>
+                                            <span
+                                              className={`text-[10px] sm:text-xs font-bold mt-1.5 ${
+                                                isCurrent
+                                                  ? 'text-amber-600 dark:text-amber-400'
+                                                  : isPassed
+                                                    ? 'text-slate-800 dark:text-zinc-200'
+                                                    : 'text-slate-400 dark:text-zinc-500'
+                                              }`}
+                                            >
+                                              {step.label}
                                             </span>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
+                                            {stepHistory?.timestamp && (
+                                              <span className="hidden sm:block text-[9px] text-slate-400 mt-0.5">
+                                                {new Date(stepHistory.timestamp).toLocaleDateString(
+                                                  [],
+                                                  { month: 'short', day: 'numeric' }
+                                                )}
+                                              </span>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
                                   </div>
 
                                   {/* Tracking Details Banner */}
@@ -1520,8 +1590,9 @@ const ProfilePage: React.FC = () => {
                                   realtimeService.broadcast('pet-deleted', { petId: pet.id });
                                 }
                               }}
-                              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-red-500 transition-colors"
                               title="Delete pet"
+                              aria-label={`Delete ${pet.name}`}
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>
@@ -1593,7 +1664,7 @@ const ProfilePage: React.FC = () => {
                                     reminderId: rem.id,
                                   });
                                 }}
-                                className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shrink-0 transition-colors shadow-xs"
+                                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shrink-0 transition-colors shadow-xs"
                               >
                                 ✓ Mark Given
                               </button>
@@ -1688,7 +1759,7 @@ const ProfilePage: React.FC = () => {
                                     reminderId: rem.id,
                                   });
                                 }}
-                                className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors shadow-xs"
+                                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors shadow-xs"
                               >
                                 ✓ Mark Given
                               </button>
@@ -1708,7 +1779,8 @@ const ProfilePage: React.FC = () => {
                                     });
                                   }
                                 }}
-                                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-red-500 transition-colors"
+                                aria-label={`Delete reminder for ${rem.medicineName}`}
                               >
                                 <TrashIcon className="w-4 h-4" />
                               </button>
@@ -1910,12 +1982,19 @@ const ProfilePage: React.FC = () => {
       {/* MODAL 1: PRINT RECEIPT / INVOICE */}
       <AnimatePresence>
         {receiptOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Order receipt"
+            onClick={() => setReceiptOrder(null)}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-zinc-800 my-8"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl max-w-2xl w-full p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:p-8 shadow-2xl border border-slate-200 dark:border-zinc-800 sm:my-8 max-h-[90dvh] overflow-y-auto"
               id="printable-receipt"
             >
               <div className="flex justify-between items-start border-b border-slate-100 dark:border-zinc-800 pb-4">
@@ -2006,16 +2085,44 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3 no-print">
+              <div className="mt-6 flex flex-wrap justify-end gap-2.5 no-print">
                 <button
+                  type="button"
+                  onClick={async () => {
+                    const summaryText = `PetBhai Order #${receiptOrder.orderId}\nDate: ${new Date(receiptOrder.date).toLocaleDateString()}\nTotal: ৳${formatPrice(receiptOrder.total)}\nStatus: ${receiptOrder.status || 'Pending'}`;
+                    if (typeof navigator !== 'undefined' && navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: `PetBhai Receipt #${receiptOrder.orderId}`,
+                          text: summaryText,
+                        });
+                        return;
+                      } catch {
+                        // Fall through to clipboard copy
+                      }
+                    }
+                    try {
+                      await navigator.clipboard?.writeText(summaryText);
+                      toast.success('Receipt summary copied to clipboard');
+                    } catch {
+                      toast.info('Use Print Now to save as PDF');
+                    }
+                  }}
+                  className="min-h-[44px] px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors"
+                >
+                  📤 Share / Copy
+                </button>
+                <button
+                  type="button"
                   onClick={() => window.print()}
-                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
+                  className="min-h-[44px] px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
                 >
                   🖨️ Print Now
                 </button>
                 <button
+                  type="button"
                   onClick={() => setReceiptOrder(null)}
-                  className="px-5 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-700 dark:text-zinc-300 text-xs font-bold rounded-xl transition-colors"
+                  className="min-h-[44px] px-5 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-700 dark:text-zinc-300 text-xs font-bold rounded-xl transition-colors"
                 >
                   Close
                 </button>
@@ -2028,12 +2135,19 @@ const ProfilePage: React.FC = () => {
       {/* MODAL 2: CANCEL ORDER */}
       <AnimatePresence>
         {isCancelModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Cancel order"
+            onClick={() => setIsCancelModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-zinc-800"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 shadow-2xl border border-slate-200 dark:border-zinc-800"
             >
               <h3 className="text-lg font-bold text-slate-800 dark:text-white">Cancel Order</h3>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
@@ -2048,7 +2162,7 @@ const ProfilePage: React.FC = () => {
                 <select
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                  className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                 >
                   <option value="Changed my mind / Need to update items">
                     Changed my mind / Need to update items
@@ -2085,12 +2199,19 @@ const ProfilePage: React.FC = () => {
       {/* MODAL 3: PASSWORD CONFIRMATION FOR NON-SOCIAL ACCOUNT DELETION */}
       <AnimatePresence>
         {isPasswordModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm account deletion"
+            onClick={() => setIsPasswordModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 dark:border-red-900/50"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 shadow-2xl border border-red-200 dark:border-red-900/50"
             >
               <div className="flex items-center gap-3 text-red-600 dark:text-red-400 mb-2">
                 <ExclamationIcon className="w-6 h-6" />
@@ -2117,7 +2238,7 @@ const ProfilePage: React.FC = () => {
                     value={deletionPassword}
                     onChange={(e) => setDeletionPassword(e.target.value)}
                     placeholder="Enter your current password"
-                    className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-red-500 pr-10"
+                    className="w-full min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3.5 py-2.5 text-base sm:text-xs focus:ring-2 focus:ring-red-500 pr-10"
                   />
                   <button
                     type="button"
@@ -2158,12 +2279,19 @@ const ProfilePage: React.FC = () => {
       {/* MODAL 4: QUICK ADD PET */}
       <AnimatePresence>
         {isAddPetOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Add new pet"
+            onClick={() => setIsAddPetOpen(false)}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-zinc-800"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 shadow-2xl border border-slate-200 dark:border-zinc-800 max-h-[90dvh] overflow-y-auto"
             >
               <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 🐾 Add New Pet
@@ -2183,7 +2311,7 @@ const ProfilePage: React.FC = () => {
                     value={newPetName}
                     onChange={(e) => setNewPetName(e.target.value)}
                     placeholder="e.g. Charlie, Milo, Coco"
-                    className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                    className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
@@ -2195,7 +2323,7 @@ const ProfilePage: React.FC = () => {
                     <select
                       value={newPetType}
                       onChange={(e) => setNewPetType(e.target.value as any)}
-                      className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                      className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                     >
                       <option value="dog">🐕 Dog</option>
                       <option value="cat">🐱 Cat</option>
@@ -2213,7 +2341,7 @@ const ProfilePage: React.FC = () => {
                     <select
                       value={newPetGender}
                       onChange={(e) => setNewPetGender(e.target.value as any)}
-                      className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                      className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                     >
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -2231,7 +2359,7 @@ const ProfilePage: React.FC = () => {
                     value={newPetBreed}
                     onChange={(e) => setNewPetBreed(e.target.value)}
                     placeholder="e.g. Golden Retriever, Persian"
-                    className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                    className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
@@ -2243,10 +2371,11 @@ const ProfilePage: React.FC = () => {
                     <input
                       type="number"
                       step="0.1"
+                      inputMode="decimal"
                       value={newPetWeight}
                       onChange={(e) => setNewPetWeight(e.target.value)}
                       placeholder="e.g. 5.5"
-                      className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                      className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
@@ -2257,7 +2386,7 @@ const ProfilePage: React.FC = () => {
                       type="date"
                       value={newPetBirthDate}
                       onChange={(e) => setNewPetBirthDate(e.target.value)}
-                      className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                      className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                 </div>
@@ -2288,12 +2417,19 @@ const ProfilePage: React.FC = () => {
       {/* MODAL 5: ADD REMINDER */}
       <AnimatePresence>
         {isAddReminderOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Add health reminder"
+            onClick={() => setIsAddReminderOpen(false)}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-zinc-800"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 shadow-2xl border border-slate-200 dark:border-zinc-800 max-h-[90dvh] overflow-y-auto"
             >
               <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 💊 Add Health Reminder
@@ -2310,7 +2446,7 @@ const ProfilePage: React.FC = () => {
                   <select
                     value={reminderPetId}
                     onChange={(e) => setReminderPetId(e.target.value)}
-                    className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                    className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                   >
                     {pets.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -2330,7 +2466,7 @@ const ProfilePage: React.FC = () => {
                     value={reminderMedName}
                     onChange={(e) => setReminderMedName(e.target.value)}
                     placeholder="e.g. NexGard, Rabies Vaccine, Dewormer"
-                    className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                    className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
@@ -2344,7 +2480,7 @@ const ProfilePage: React.FC = () => {
                       value={reminderDosage}
                       onChange={(e) => setReminderDosage(e.target.value)}
                       placeholder="e.g. 1 chewable tablet"
-                      className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                      className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
@@ -2354,7 +2490,7 @@ const ProfilePage: React.FC = () => {
                     <select
                       value={reminderFrequency}
                       onChange={(e) => setReminderFrequency(e.target.value as any)}
-                      className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                      className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                     >
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>
@@ -2373,7 +2509,7 @@ const ProfilePage: React.FC = () => {
                     required
                     value={reminderNextDueDate}
                     onChange={(e) => setReminderNextDueDate(e.target.value)}
-                    className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                    className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
@@ -2386,7 +2522,7 @@ const ProfilePage: React.FC = () => {
                     value={reminderNotes}
                     onChange={(e) => setReminderNotes(e.target.value)}
                     placeholder="e.g. Give with morning food"
-                    className="w-full mt-1 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500"
+                    className="w-full mt-1 min-h-[44px] rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-3 py-2 text-base sm:text-xs focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 

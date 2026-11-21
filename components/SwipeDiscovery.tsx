@@ -66,10 +66,10 @@ const SwipeCard: React.FC<{
           exitDirection === 'right' ? 20 : exitDirection === 'left' ? -20 : x.get() > 0 ? 20 : -20,
         transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] },
       }}
-      className="absolute top-0 left-0 w-full h-[450px] origin-bottom rounded-3xl bg-white shadow-xl hover:shadow-2xl overflow-hidden border border-slate-200 cursor-grab active:cursor-grabbing transition-shadow duration-300"
+      className="absolute top-0 left-0 w-full h-[min(420px,54dvh)] origin-bottom rounded-3xl bg-white dark:bg-zinc-900 shadow-xl hover:shadow-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 cursor-grab active:cursor-grabbing transition-shadow duration-300"
     >
       {/* Product Image */}
-      <div className="w-full h-2/3 bg-slate-50 relative pointer-events-none">
+      <div className="w-full h-3/5 bg-slate-50 dark:bg-zinc-800/80 relative pointer-events-none">
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -94,17 +94,21 @@ const SwipeCard: React.FC<{
       </div>
 
       {/* Product Details */}
-      <div className="p-5 h-1/3 flex flex-col justify-between pointer-events-none bg-gradient-to-t from-white via-white to-transparent">
+      <div className="p-5 h-2/5 flex flex-col justify-between pointer-events-none bg-gradient-to-t from-white via-white to-transparent dark:from-zinc-900 dark:via-zinc-900">
         <div>
-          <div className="flex justify-between items-start">
-            <h3 className="font-black text-xl text-slate-800 line-clamp-1">{product.name}</h3>
-            <span className="font-bold text-lg text-orange-500 bg-orange-50 px-2 py-0.5 rounded-lg">
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="font-black text-lg sm:text-xl text-slate-800 dark:text-white line-clamp-1">
+              {product.name}
+            </h3>
+            <span className="font-bold text-base sm:text-lg text-orange-500 bg-orange-50 dark:bg-orange-500/15 px-2 py-0.5 rounded-lg shrink-0">
               ৳{product.price.toLocaleString('en-BD')}
             </span>
           </div>
-          <p className="text-sm text-slate-500 mt-1 line-clamp-2">{product.description}</p>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-300 mt-1 line-clamp-2">
+            {product.description}
+          </p>
         </div>
-        <div className="flex justify-between items-center text-xs font-bold text-slate-400">
+        <div className="flex justify-between items-center text-xs font-bold text-slate-400 dark:text-zinc-400">
           <span className="uppercase tracking-widest">{product.category}</span>
           <span className="flex items-center text-amber-400">
             <HeartIcon className="w-4 h-4 mr-1" /> {product.rating}
@@ -142,18 +146,18 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
   const currentProducts = products.slice(currentIndex);
 
   return (
-    <div className="flex flex-col items-center justify-center py-10 px-4 min-h-[600px]">
-      <div className="text-center mb-8">
+    <div className="flex flex-col items-center justify-center py-6 sm:py-10 px-4 min-h-[520px]">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-black text-slate-800 dark:text-white flex items-center justify-center gap-2">
           <PawIcon className="w-6 h-6 text-orange-500" />
           Discovery Mode
         </h2>
-        <p className="text-sm text-slate-500 mt-2">
+        <p className="text-sm text-slate-500 dark:text-zinc-300 mt-1.5">
           Swipe Right to add to cart. Swipe Left to pass.
         </p>
       </div>
 
-      <div className="relative w-full max-w-[340px] h-[450px]">
+      <div className="relative w-full max-w-[340px] h-[min(420px,54dvh)]">
         <AnimatePresence mode="popLayout">
           {currentProducts.map((product, i) => (
             <SwipeCard
@@ -196,7 +200,7 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
           whileHover={{ scale: 1.1 }}
           onClick={() => handleSwipe('left', currentProducts[0])}
           disabled={currentProducts.length === 0}
-          className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-rose-500 border border-slate-100 transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
+          className="w-16 h-16 rounded-full bg-white dark:bg-zinc-900 shadow-xl flex items-center justify-center text-rose-500 border border-slate-100 dark:border-zinc-800 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-50 disabled:hover:scale-100"
         >
           <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -212,7 +216,7 @@ export const SwipeDiscovery: React.FC<SwipeDiscoveryProps> = ({ products, onComp
           whileHover={{ scale: 1.1 }}
           onClick={() => handleSwipe('right', currentProducts[0])}
           disabled={currentProducts.length === 0}
-          className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-emerald-500 border border-slate-100 transition-colors hover:bg-emerald-50 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-white"
+          className="w-16 h-16 rounded-full bg-white dark:bg-zinc-900 shadow-xl flex items-center justify-center text-emerald-500 border border-slate-100 dark:border-zinc-800 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/30 disabled:opacity-50 disabled:hover:scale-100"
         >
           <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path

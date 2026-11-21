@@ -10,9 +10,9 @@ import { sanitizeInput } from '../lib/security';
 
 // Validation utilities
 const validatePhone = (phone: string): boolean => {
-  // Bangladesh phone number format
+  // Bangladesh phone number format (strip spaces, hyphens, and parentheses from OS autofill)
   const phoneRegex = /^(\+8801|01)[3-9]\d{8}$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
+  return phoneRegex.test(phone.replace(/[\s()-]/g, ''));
 };
 
 const validateEmail = (email: string): boolean => {
@@ -53,6 +53,18 @@ const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [isSocialLoading, setIsSocialLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+
+  const totalItemCount = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    [cartItems]
+  );
+
+  const paymentMethodLabel = useMemo(() => {
+    if (paymentMethod === 'bkash') return 'bKash';
+    if (paymentMethod === 'nagad') return 'Nagad';
+    return 'COD';
+  }, [paymentMethod]);
 
   const cartTotal = useMemo(
     () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
@@ -69,10 +81,19 @@ const CheckoutPage: React.FC = () => {
   // Pre-fill form if user is logged in
   useEffect(() => {
     if (currentUser) {
+      const savedPhone = currentUser.phone || currentUser.defaultShippingAddress?.phone || '';
+      const savedAddressParts = [
+        currentUser.defaultShippingAddress?.address,
+        currentUser.defaultShippingAddress?.city,
+      ].filter(Boolean);
+      const savedAddress = savedAddressParts.join(', ');
+
       setFormData((prev) => ({
         ...prev,
-        name: currentUser.name || prev.name,
-        email: currentUser.email || prev.email,
+        name: prev.name || currentUser.defaultShippingAddress?.fullName || currentUser.name || '',
+        email: prev.email || currentUser.email || '',
+        phone: prev.phone || savedPhone,
+        address: prev.address || savedAddress,
       }));
     }
   }, [currentUser]);
@@ -154,6 +175,15 @@ const CheckoutPage: React.FC = () => {
 
       if (!validateForm()) {
         toast.error('Please fix the errors in the form');
+        window.requestAnimationFrame(() => {
+          const firstInvalid = document.querySelector<HTMLElement>(
+            '#checkout-form [data-invalid="true"]'
+          );
+          if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus();
+          }
+        });
         return;
       }
 
@@ -165,7 +195,7 @@ const CheckoutPage: React.FC = () => {
         // Sanitize all form data before submission
         const sanitizedFormData = {
           name: sanitizeInput(formData.name.trim()),
-          phone: sanitizeInput(formData.phone.trim()),
+          phone: sanitizeInput(formData.phone.replace(/[\s()-]/g, '').trim()),
           address: sanitizeInput(formData.address.trim()),
           email: sanitizeInput(formData.email.trim()),
         };
@@ -176,6 +206,8 @@ const CheckoutPage: React.FC = () => {
           quantity: Math.min(Math.max(1, Math.floor(item.quantity)), 99),
           imageUrl: item.imageUrl,
           price: Number.isFinite(item.price) && item.price >= 0 ? item.price : 0,
+          isAutoShip: Boolean(item.isAutoShip),
+          autoShipFrequency: item.autoShipFrequency,
         }));
 
         if (normalizedCartItems.some((item) => item.price <= 0)) {
@@ -220,11 +252,13 @@ const CheckoutPage: React.FC = () => {
           if (
             typeof latest.price === 'number' &&
             Number.isFinite(latest.price) &&
-            latest.price > 0 &&
-            item.price !== latest.price
+            latest.price > 0
           ) {
-            cartPriceAdjusted = true;
-            item.price = latest.price;
+            const expectedPrice = item.isAutoShip ? Math.round(latest.price * 0.95) : latest.price;
+            if (Math.round(item.price) !== Math.round(expectedPrice)) {
+              cartPriceAdjusted = true;
+              item.price = expectedPrice;
+            }
           }
         });
 
@@ -374,9 +408,11 @@ const CheckoutPage: React.FC = () => {
                 required
                 maxLength={100}
                 autoComplete="name"
+                autoCapitalize="words"
+                enterKeyHint="next"
                 data-invalid={Boolean(formErrors.name)}
                 aria-describedby={formErrors.name ? 'name-error' : undefined}
-                className={`h-[52px] w-full rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
+                className={`h-[52px] w-full scroll-mb-28 rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.name
                     ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
@@ -420,7 +456,7 @@ const CheckoutPage: React.FC = () => {
                 enterKeyHint="next"
                 data-invalid={Boolean(formErrors.phone)}
                 aria-describedby={formErrors.phone ? 'phone-error' : undefined}
-                className={`h-[52px] w-full rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
+                className={`h-[52px] w-full scroll-mb-28 rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.phone
                     ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
@@ -463,7 +499,7 @@ const CheckoutPage: React.FC = () => {
                 placeholder="e.g. House No, Road No, Area, District"
                 data-invalid={Boolean(formErrors.address)}
                 aria-describedby={formErrors.address ? 'address-error' : undefined}
-                className={`min-h-[112px] w-full resize-none rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
+                className={`min-h-[112px] w-full scroll-mb-28 resize-none rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.address
                     ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
@@ -508,7 +544,7 @@ const CheckoutPage: React.FC = () => {
                 enterKeyHint="done"
                 data-invalid={Boolean(formErrors.email)}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
-                className={`h-[52px] w-full rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
+                className={`h-[52px] w-full scroll-mb-28 rounded-xl border bg-white/70 px-4 py-3 text-base focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:bg-slate-800/50 touch-manipulation transition-colors ${
                   formErrors.email
                     ? 'border-red-500 dark:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
                     : 'border-slate-300 dark:border-slate-600'
@@ -537,7 +573,7 @@ const CheckoutPage: React.FC = () => {
               </h2>
               <div className="space-y-3">
                 <label
-                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'cod' ? 'border-orange-500 ring-2 ring-orange-500/20 bg-orange-50/80 dark:bg-orange-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
+                  className={`flex items-start p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'cod' ? 'border-orange-500 ring-2 ring-orange-500/20 bg-orange-50/80 dark:bg-orange-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
                 >
                   <input
                     type="radio"
@@ -545,14 +581,19 @@ const CheckoutPage: React.FC = () => {
                     value="cod"
                     checked={paymentMethod === 'cod'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-orange-600 focus:ring-orange-500"
+                    className="mt-1 h-5 w-5 text-orange-600 focus:ring-orange-500"
                   />
-                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">
-                    Cash on Delivery
-                  </span>
+                  <div className="ml-3">
+                    <span className="block font-semibold text-slate-800 dark:text-slate-100">
+                      Cash on Delivery
+                    </span>
+                    <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Pay in cash when your order arrives at your doorstep
+                    </span>
+                  </div>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500/20 bg-pink-50/80 dark:bg-pink-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
+                  className={`flex items-start p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'bkash' ? 'border-pink-500 ring-2 ring-pink-500/20 bg-pink-50/80 dark:bg-pink-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
                 >
                   <input
                     type="radio"
@@ -560,14 +601,19 @@ const CheckoutPage: React.FC = () => {
                     value="bkash"
                     checked={paymentMethod === 'bkash'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-pink-600 focus:ring-pink-500"
+                    className="mt-1 h-5 w-5 text-pink-600 focus:ring-pink-500"
                   />
-                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
-                    bKash
-                  </span>
+                  <div className="ml-3">
+                    <span className="block font-semibold text-slate-800 dark:text-slate-100">
+                      bKash
+                    </span>
+                    <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Fast mobile wallet payment upon order confirmation
+                    </span>
+                  </div>
                 </label>
                 <label
-                  className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'nagad' ? 'border-orange-500 ring-2 ring-orange-500/20 bg-orange-50/80 dark:bg-orange-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
+                  className={`flex items-start p-4 border rounded-xl cursor-pointer transition-all touch-manipulation active:scale-[0.99] ${paymentMethod === 'nagad' ? 'border-orange-500 ring-2 ring-orange-500/20 bg-orange-50/80 dark:bg-orange-500/10' : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800'}`}
                 >
                   <input
                     type="radio"
@@ -575,11 +621,16 @@ const CheckoutPage: React.FC = () => {
                     value="nagad"
                     checked={paymentMethod === 'nagad'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="h-5 w-5 text-orange-600 focus:ring-orange-600"
+                    className="mt-1 h-5 w-5 text-orange-600 focus:ring-orange-600"
                   />
-                  <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200 flex items-center">
-                    Nagad
-                  </span>
+                  <div className="ml-3">
+                    <span className="block font-semibold text-slate-800 dark:text-slate-100">
+                      Nagad
+                    </span>
+                    <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Pay securely via Nagad digital mobile banking
+                    </span>
+                  </div>
                 </label>
               </div>
             </div>
@@ -621,67 +672,110 @@ const CheckoutPage: React.FC = () => {
           </form>
         </section>
 
-        {/* Order Summary */}
+        {/* Order Summary (Collapsible Accordion on Mobile, Sticky Aside on Desktop) */}
         <aside
-          className="glass-card-ios p-5 sm:p-8 h-fit lg:w-[42%] lg:sticky lg:top-24 border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl"
+          className="glass-card-ios p-4 sm:p-8 h-fit lg:w-[42%] lg:sticky lg:top-24 border border-white/35 dark:border-white/10 bg-white/60 dark:bg-slate-900/45 backdrop-blur-xl"
           aria-label="Order summary"
         >
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6">
-            Order Summary
-          </h2>
-          <div
-            className="space-y-4 max-h-80 overflow-y-auto pr-2 overscroll-contain"
-            role="list"
-            aria-label="Cart items"
+          <button
+            type="button"
+            onClick={() => setIsMobileSummaryOpen((prev) => !prev)}
+            className="flex w-full items-center justify-between text-left lg:hidden min-h-[44px]"
+            aria-expanded={isMobileSummaryOpen}
           >
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex justify-between items-start" role="listitem">
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={item.imageUrl}
-                    alt=""
-                    className="w-16 h-16 rounded-md object-cover flex-shrink-0 bg-slate-200 dark:bg-slate-700"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
-                    }}
-                  />
-                  <div className="min-w-0">
-                    <p className="font-semibold text-slate-800 dark:text-white truncate max-w-[150px] sm:max-w-[200px]">
-                      {item.name}
-                    </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-300">
-                      Qty: {item.quantity}
-                    </p>
-                  </div>
-                </div>
-                <p className="font-semibold text-slate-700 dark:text-slate-200 text-right shrink-0 ml-4 tabular-nums">
-                  ৳
-                  {(item.price * item.quantity).toLocaleString('en-BD', {
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-slate-300/50 dark:border-slate-600/50 mt-6 pt-4">
-            <div className="flex justify-between items-center text-lg sm:text-xl font-bold">
-              <span className="text-slate-800 dark:text-white">Total:</span>
-              <span className="text-slate-800 dark:text-white tabular-nums">
+            <div>
+              <span className="text-base font-bold text-slate-800 dark:text-white">
+                Order Summary ({totalItemCount} {totalItemCount === 1 ? 'item' : 'items'})
+              </span>
+              <span className="block text-xs text-slate-500 dark:text-slate-300">
+                {isMobileSummaryOpen ? 'Tap to hide items' : 'Tap to view cart items'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-extrabold text-orange-600 dark:text-orange-400 tabular-nums">
                 ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
               </span>
+              <span
+                className={`text-slate-500 transition-transform duration-200 ${
+                  isMobileSummaryOpen ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+            </div>
+          </button>
+
+          <h2 className="hidden lg:block text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-6">
+            Order Summary
+          </h2>
+
+          <div
+            className={`${
+              isMobileSummaryOpen
+                ? 'mt-4 block border-t border-slate-200/70 pt-4 dark:border-slate-700/60'
+                : 'hidden'
+            } lg:mt-0 lg:block lg:border-t-0 lg:pt-0`}
+          >
+            <div
+              className="space-y-4 max-h-80 overflow-y-auto pr-2 overscroll-contain"
+              role="list"
+              aria-label="Cart items"
+            >
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex justify-between items-start" role="listitem">
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={item.imageUrl}
+                      alt=""
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-md object-cover flex-shrink-0 bg-slate-200 dark:bg-slate-700"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-800 dark:text-white truncate max-w-[150px] sm:max-w-[200px]">
+                        {item.name}
+                      </p>
+                      <p className="text-sm text-slate-500 dark:text-slate-300">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="font-semibold text-slate-700 dark:text-slate-200 text-right shrink-0 ml-4 tabular-nums">
+                    ৳
+                    {(item.price * item.quantity).toLocaleString('en-BD', {
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-slate-300/50 dark:border-slate-600/50 mt-6 pt-4">
+              <div className="flex justify-between items-center text-lg sm:text-xl font-bold">
+                <span className="text-slate-800 dark:text-white">Total:</span>
+                <span className="text-slate-800 dark:text-white tabular-nums">
+                  ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
           </div>
         </aside>
       </div>
 
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/60 bg-white/90 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/90 md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/60 bg-white/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/95 md:hidden">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
-          <div className="min-w-[8rem] rounded-xl border border-white/70 bg-white/75 px-3 py-2 dark:border-slate-700/70 dark:bg-slate-800/70">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
-              Total
-            </p>
-            <p className="text-base font-bold text-slate-800 dark:text-white">
+          <div className="min-w-[8.5rem] rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-2 dark:border-slate-700/70 dark:bg-slate-800/80">
+            <div className="flex items-center justify-between gap-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-300">
+                {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
+              </p>
+              <span className="rounded bg-orange-500/15 px-1.5 py-0.5 text-[10px] font-bold text-orange-600 dark:text-orange-400">
+                {paymentMethodLabel}
+              </span>
+            </div>
+            <p className="text-base font-extrabold text-slate-900 dark:text-white tabular-nums">
               ৳{cartTotal.toLocaleString('en-BD', { minimumFractionDigits: 2 })}
             </p>
           </div>

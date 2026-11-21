@@ -53,9 +53,10 @@ const ShopPage: React.FC = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([PRICE_MIN, PRICE_MAX]);
   const [activeWeight, setActiveWeight] = useState<string>('All');
   const [minRating, setMinRating] = useState<number>(0);
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [isMobileAdvancedOpen, setIsMobileAdvancedOpen] = useState(false);
 
   // Quick View State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -89,9 +90,20 @@ const ShopPage: React.FC = () => {
     if (activeWeight !== 'All') count++;
     if (priceRange[0] > PRICE_MIN || priceRange[1] < PRICE_MAX) count++;
     if (minRating > 0) count++;
+    if (inStockOnly) count++;
+    if (sortOption !== 'default') count++;
     if (searchQuery.trim() !== '') count++;
     return count;
-  }, [activeCategory, activeBrand, activeWeight, priceRange, minRating, searchQuery]);
+  }, [
+    activeCategory,
+    activeBrand,
+    activeWeight,
+    priceRange,
+    minRating,
+    inStockOnly,
+    sortOption,
+    searchQuery,
+  ]);
 
   // Reset brand filter when coming from external navigation
   useEffect(() => {
@@ -175,6 +187,7 @@ const ShopPage: React.FC = () => {
     setActiveWeight('All');
     setPriceRange([PRICE_MIN, PRICE_MAX]);
     setMinRating(0);
+    setInStockOnly(false);
     setSortOption('default');
   }, []);
 
@@ -186,8 +199,17 @@ const ShopPage: React.FC = () => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      setIsFilterSheetOpen(false);
+    };
+    window.addEventListener('petbhai-back-button', handleBackButton);
+
     return () => {
       document.body.style.overflow = previousOverflow;
+      window.removeEventListener('petbhai-back-button', handleBackButton);
     };
   }, [isFilterSheetOpen]);
 
@@ -234,6 +256,11 @@ const ShopPage: React.FC = () => {
       products = products.filter((p) => p.rating >= minRating);
     }
 
+    // 6b. Filter by in-stock status
+    if (inStockOnly) {
+      products = products.filter((p) => p.stockStatus !== 'out-of-stock');
+    }
+
     // 7. Sort - use stable sort for consistent results
     switch (sortOption) {
       case 'price-asc':
@@ -268,6 +295,7 @@ const ShopPage: React.FC = () => {
     priceRange,
     activeWeight,
     minRating,
+    inStockOnly,
   ]);
 
   // Memoized category button component
@@ -328,7 +356,7 @@ const ShopPage: React.FC = () => {
         structuredData={structuredData}
         url={`${window.location.origin}/#/shop`}
       />
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+      <main className="container mx-auto px-3 md:px-6 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:py-16">
         <header className="text-center mb-6 md:mb-10 glass-card-ios border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl p-5 md:p-8">
           <span className="inline-flex items-center rounded-full bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-amber-900/10 dark:border-amber-100/10 px-3 py-1 text-xs md:text-sm font-semibold text-amber-600 dark:text-amber-500 mb-3">
             PetBhai Shop
@@ -379,68 +407,36 @@ const ShopPage: React.FC = () => {
         )}
 
         {/* Filters & Sorting */}
-        <div className="glass-card-ios mb-8 space-y-4 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-4 shadow-xl backdrop-blur-xl dark:border-amber-100/10 dark:bg-zinc-900/95 md:sticky md:top-20 md:mb-12 md:space-y-6 md:p-6">
-          {/* Search Bar */}
-          <div className="relative max-w-lg mx-auto">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
-              <SearchIcon
-                className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500 dark:text-zinc-300"
-                aria-hidden="true"
+        <div className="sticky top-[calc(4.5rem+var(--safe-top))] z-30 glass-card-ios mb-6 space-y-3 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3.5 shadow-xl backdrop-blur-xl md:top-20 md:mb-12 md:space-y-6 md:p-6">
+          {/* Search Bar + Mobile Filter & Discovery Actions */}
+          <div className="flex items-center gap-2 max-w-2xl mx-auto">
+            <div className="relative flex-1">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
+                <SearchIcon
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500 dark:text-zinc-300"
+                  aria-hidden="true"
+                />
+              </span>
+              <input
+                type="search"
+                placeholder={t('shop_search_placeholder')}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 180)}
+                inputMode="search"
+                enterKeyHint="search"
+                className="w-full py-2.5 sm:py-3 pl-9 sm:pl-12 pr-4 text-base text-zinc-700 dark:text-zinc-200 bg-white/95 dark:bg-zinc-800/80 border border-slate-300/50 dark:border-amber-100/10 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
+                aria-label={t('shop_search_label')}
+                autoComplete="off"
               />
-            </span>
-            <input
-              type="search"
-              placeholder={t('shop_search_placeholder')}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              inputMode="search"
-              enterKeyHint="search"
-              className="w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base text-zinc-500 dark:text-zinc-300 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-800/80 border border-slate-300/50 dark:border-amber-100/10 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm focus:shadow-md touch-manipulation"
-              aria-label={t('shop_search_label')}
-              autoComplete="off"
-            />
-          </div>
+            </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300">Popular:</span>
-            {QUICK_SEARCH_TERMS.map((term) => (
-              <button
-                key={term}
-                onClick={() => setSearchQuery(term)}
-                className="text-xs px-3 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 text-zinc-500 dark:text-zinc-300 hover:bg-amber-500/10 dark:hover:bg-slate-600 transition-colors"
-              >
-                {term}
-              </button>
-            ))}
-          </div>
-
-          {/* Discovery Mode Toggle */}
-          <div className="flex justify-end mb-4">
             <button
-              onClick={() => setIsDiscoveryMode(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 transition-all active:scale-95"
-            >
-              <SparklesIcon className="w-5 h-5" />
-              Try Discovery Mode
-            </button>
-          </div>
-
-          {/* Category Filter Buttons */}
-          <div
-            className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 md:gap-3 overflow-x-auto overflow-y-hidden pb-2 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
-            role="group"
-            aria-label="Product categories"
-          >
-            {CATEGORY_OPTIONS.map((category) => (
-              <CategoryFilterButton key={category} filter={category} />
-            ))}
-          </div>
-
-          {/* Filter & Sort Bottom Action (Mobile) */}
-          <div className="md:hidden mt-2 flex w-full">
-            <button
+              type="button"
               onClick={() => setIsFilterSheetOpen(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-amber-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-md transition-transform active:scale-95"
+              className="md:hidden relative flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-slate-900 dark:bg-amber-500 px-3.5 py-2.5 text-xs font-bold text-white dark:text-zinc-950 shadow-md transition-transform active:scale-95 shrink-0"
+              aria-label="Filter and sort products"
             >
               <svg
                 className="h-4 w-4"
@@ -456,13 +452,54 @@ const ShopPage: React.FC = () => {
                   d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                 />
               </svg>
-              Filter & Sort
+              <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold leading-none text-white">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 dark:bg-zinc-950 text-[10px] font-bold leading-none text-white dark:text-amber-400">
                   {activeFiltersCount}
                 </span>
               )}
             </button>
+
+            <button
+              type="button"
+              onClick={() => setIsDiscoveryMode((prev) => !prev)}
+              className="flex min-h-[44px] items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 transition-all active:scale-95 shrink-0"
+              aria-label="Toggle Discovery Mode"
+            >
+              <SparklesIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Try Discovery Mode</span>
+              <span className="sm:hidden">Discover</span>
+            </button>
+          </div>
+
+          <div
+            className={`${
+              isSearchFocused ? 'flex' : 'hidden md:flex'
+            } flex-wrap items-center justify-center gap-2`}
+          >
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300">Popular:</span>
+            {QUICK_SEARCH_TERMS.map((term) => (
+              <button
+                key={term}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setSearchQuery(term)}
+                className="text-xs px-3 py-1.5 rounded-full bg-amber-50/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-amber-500/10 dark:hover:bg-slate-700 transition-colors"
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+
+          {/* Category Filter Buttons */}
+          <div
+            className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 md:gap-3 overflow-x-auto overflow-y-hidden pb-1 snap-x snap-mandatory hide-scrollbar -mx-3.5 px-3.5 sm:mx-0 sm:px-0"
+            role="group"
+            aria-label="Product categories"
+          >
+            {CATEGORY_OPTIONS.map((category) => (
+              <CategoryFilterButton key={category} filter={category} />
+            ))}
           </div>
 
           {/* Brand, Sort & Advanced Filters Toggle */}
@@ -757,31 +794,115 @@ const ShopPage: React.FC = () => {
         </div>
 
         {activeFiltersCount > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-5">
+          <div
+            className="flex flex-nowrap items-center gap-2 mb-5 overflow-x-auto hide-scrollbar pb-1"
+            aria-label="Active filters"
+          >
             {searchQuery.trim() && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-500">
-                Search: {searchQuery}
-              </span>
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/15 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label={`Remove search filter ${searchQuery}`}
+              >
+                <span>Search: {searchQuery}</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
             )}
             {activeCategory !== 'All' && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300">
-                Category: {activeCategory}
-              </span>
+              <button
+                type="button"
+                onClick={() => setActiveCategory('All')}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label={`Remove category filter ${activeCategory}`}
+              >
+                <span>Category: {activeCategory}</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
             )}
             {activeBrand !== 'All' && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
-                Brand: {activeBrand}
-              </span>
+              <button
+                type="button"
+                onClick={() => setActiveBrand('All')}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label={`Remove brand filter ${activeBrand}`}
+              >
+                <span>Brand: {activeBrand}</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
+            )}
+            {(priceRange[0] > PRICE_MIN || priceRange[1] < PRICE_MAX) && (
+              <button
+                type="button"
+                onClick={() => setPriceRange([PRICE_MIN, PRICE_MAX])}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label="Remove price range filter"
+              >
+                <span>
+                  ৳{priceRange[0].toLocaleString('en-BD')}–৳{priceRange[1].toLocaleString('en-BD')}
+                </span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
             )}
             {activeWeight !== 'All' && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                Size: {activeWeight}
-              </span>
+              <button
+                type="button"
+                onClick={() => setActiveWeight('All')}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label={`Remove size filter ${activeWeight}`}
+              >
+                <span>Size: {activeWeight}</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
             )}
             {minRating > 0 && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
-                Rating: {minRating}★+
-              </span>
+              <button
+                type="button"
+                onClick={() => setMinRating(0)}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label={`Remove minimum rating filter ${minRating} stars`}
+              >
+                <span>Rating: {minRating}★+</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
+            )}
+            {inStockOnly && (
+              <button
+                type="button"
+                onClick={() => setInStockOnly(false)}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label="Remove in-stock filter"
+              >
+                <span>In Stock Only</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
+            )}
+            {sortOption !== 'default' && (
+              <button
+                type="button"
+                onClick={() => setSortOption('default')}
+                className="min-h-[36px] inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 whitespace-nowrap active:scale-95 transition-transform"
+                aria-label="Reset sort order"
+              >
+                <span>Sort: {sortOption}</span>
+                <span aria-hidden="true" className="font-bold text-sm leading-none">
+                  ×
+                </span>
+              </button>
             )}
           </div>
         )}
@@ -873,7 +994,7 @@ const ShopPage: React.FC = () => {
 
       {isFilterSheetOpen && (
         <div
-          className="fixed inset-0 z-50 md:hidden"
+          className="fixed inset-0 z-[60] md:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Filters and sorting"
@@ -881,22 +1002,23 @@ const ShopPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsFilterSheetOpen(false)}
-            className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"
             aria-label="Close filter overlay"
           />
 
-          <aside className="safe-bottom absolute bottom-0 left-0 right-0 max-h-[84dvh] overflow-y-auto rounded-t-[2rem] border-t border-amber-900/10 dark:border-amber-100/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.96),rgba(236,243,255,0.93))] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 shadow-[0_-18px_48px_rgba(15,23,42,0.24)] dark:border-amber-100/10 dark:bg-[linear-gradient(160deg,rgba(15,23,42,0.96),rgba(30,41,59,0.93))]">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Filter Products</h2>
+          <aside className="absolute bottom-0 left-0 right-0 flex max-h-[86dvh] flex-col rounded-t-[2rem] border-t border-amber-900/10 dark:border-amber-100/10 bg-white dark:bg-zinc-900 shadow-[0_-18px_48px_rgba(15,23,42,0.28)]">
+            <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-slate-300 dark:bg-zinc-700" />
+            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-zinc-800 px-5 py-3.5">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Filter & Sort</h2>
               <button
                 type="button"
                 onClick={() => setIsFilterSheetOpen(false)}
-                className="min-h-[44px] min-w-[44px] rounded-full text-slate-500"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-slate-500 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800"
                 aria-label="Close filters"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="mx-auto h-6 w-6"
+                  className="h-6 w-6"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -910,155 +1032,177 @@ const ShopPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <label
-                  htmlFor="brand-filter-mobile"
-                  className="text-sm font-semibold text-zinc-500 dark:text-zinc-300"
-                >
-                  {t('filter_brand')}
-                </label>
-                <select
-                  id="brand-filter-mobile"
-                  value={activeBrand}
-                  onChange={handleBrandChange}
-                  className="w-full rounded-lg border border-slate-300 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm dark:border-amber-100/10 dark:bg-zinc-900/95/50"
-                >
-                  <option value="All">{t('filter_brand_all')}</option>
-                  {brands.map((brand) => (
-                    <option key={brand.id} value={brand.name}>
-                      {brand.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <label
-                  htmlFor="sort-by-mobile"
-                  className="text-sm font-semibold text-zinc-500 dark:text-zinc-300"
-                >
+            <div className="flex-1 space-y-5 overflow-y-auto overscroll-contain px-5 py-4">
+              {/* Sort Radio Pills */}
+              <div>
+                <p className="mb-2.5 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                   {t('filter_sort')}
-                </label>
-                <select
-                  id="sort-by-mobile"
-                  value={sortOption}
-                  onChange={handleSortChange}
-                  className="w-full rounded-lg border border-slate-300 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm dark:border-amber-100/10 dark:bg-zinc-900/95/50"
-                >
-                  <option value="default">{t('filter_sort_default')}</option>
-                  <option value="price-asc">{t('filter_sort_price_asc')}</option>
-                  <option value="price-desc">{t('filter_sort_price_desc')}</option>
-                  <option value="rating-desc">{t('filter_sort_rating')}</option>
-                  <option value="top-sold">{t('filter_sort_top_sold')}</option>
-                </select>
-              </div>
-
-              <button
-                onClick={() => setIsMobileAdvancedOpen((prev) => !prev)}
-                className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-amber-100/10 dark:bg-zinc-900/95 dark:text-slate-200"
-              >
-                <span>Advanced Filters</span>
-                <span>{isMobileAdvancedOpen ? 'Hide' : 'Show'}</span>
-              </button>
-
-              {isMobileAdvancedOpen && (
-                <div className="space-y-4 rounded-2xl border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 p-3 dark:border-amber-100/10 dark:bg-zinc-900/95">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-300">
-                      {t('filter_price_range')}
-                    </label>
-                    <p className="text-xs font-semibold text-amber-600 dark:text-amber-500">
-                      ৳{priceRange[0].toLocaleString('en-BD')} - ৳
-                      {priceRange[1].toLocaleString('en-BD')}
-                    </p>
-                    <input
-                      type="range"
-                      min={PRICE_MIN}
-                      max={PRICE_MAX}
-                      step={10}
-                      value={priceRange[0]}
-                      aria-label="Minimum price"
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setPriceRange((prev) => [Math.min(val, prev[1] - 10), prev[1]]);
-                      }}
-                      className="w-full accent-orange-500"
-                    />
-                    <input
-                      type="range"
-                      min={PRICE_MIN}
-                      max={PRICE_MAX}
-                      step={10}
-                      value={priceRange[1]}
-                      aria-label="Maximum price"
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setPriceRange((prev) => [prev[0], Math.max(val, prev[0] + 10)]);
-                      }}
-                      className="w-full accent-orange-500"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <label
-                      htmlFor="weight-filter-mobile"
-                      className="text-sm font-semibold text-zinc-500 dark:text-zinc-300"
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(
+                    [
+                      { value: 'default', label: t('filter_sort_default') },
+                      { value: 'top-sold', label: t('filter_sort_top_sold') },
+                      { value: 'price-asc', label: t('filter_sort_price_asc') },
+                      { value: 'price-desc', label: t('filter_sort_price_desc') },
+                      { value: 'rating-desc', label: t('filter_sort_rating') },
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setSortOption(opt.value)}
+                      className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs font-bold transition-all active:scale-95 ${
+                        sortOption === opt.value
+                          ? 'border-amber-500 bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                          : 'border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/60 text-zinc-700 dark:text-zinc-200'
+                      }`}
                     >
-                      {t('filter_weight')}
-                    </label>
-                    <select
-                      id="weight-filter-mobile"
-                      value={activeWeight}
-                      onChange={(e) => setActiveWeight(e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-white/95 dark:bg-zinc-900/95 px-3 py-2.5 text-sm dark:border-amber-100/10 dark:bg-zinc-900/95/50"
-                    >
-                      <option value="All">{t('filter_weight_all')}</option>
-                      {weightOptions.map((w) => (
-                        <option key={w} value={w}>
-                          {w}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <p className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-300">
-                      {t('filter_min_rating')}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {[0, 1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          onClick={() => setMinRating(star)}
-                          className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                            minRating === star
-                              ? 'bg-amber-500 dark:bg-amber-600 text-white'
-                              : 'bg-white/95 dark:bg-zinc-900/95 text-slate-700 dark:text-slate-200'
-                          }`}
-                        >
-                          {star === 0 ? t('filter_min_rating_all') : `${star}★+`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <button
-                  onClick={resetAllFilters}
-                  className="min-h-[44px] rounded-xl border border-orange-200 bg-amber-500/10 text-sm font-semibold text-orange-700 dark:border-orange-700/60 dark:bg-amber-500/20 dark:text-orange-300"
-                >
-                  {t('shop_clear_filters')}
-                </button>
-                <button
-                  onClick={() => setIsFilterSheetOpen(false)}
-                  className="min-h-[44px] rounded-xl bg-slate-900 text-sm font-semibold text-white dark:bg-zinc-900/95 dark:text-slate-900"
-                >
-                  Apply
-                </button>
               </div>
+
+              {/* Brand & Size Row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor="brand-filter-mobile"
+                    className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                  >
+                    {t('filter_brand')}
+                  </label>
+                  <select
+                    id="brand-filter-mobile"
+                    value={activeBrand}
+                    onChange={handleBrandChange}
+                    className="min-h-[44px] w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-3 py-2.5 text-sm font-medium text-zinc-800 dark:text-zinc-100"
+                  >
+                    <option value="All">{t('filter_brand_all')}</option>
+                    {brands.map((brand) => (
+                      <option key={brand.id} value={brand.name}>
+                        {brand.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="weight-filter-mobile"
+                    className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                  >
+                    {t('filter_weight')}
+                  </label>
+                  <select
+                    id="weight-filter-mobile"
+                    value={activeWeight}
+                    onChange={(e) => setActiveWeight(e.target.value)}
+                    className="min-h-[44px] w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-3 py-2.5 text-sm font-medium text-zinc-800 dark:text-zinc-100"
+                  >
+                    <option value="All">{t('filter_weight_all')}</option>
+                    {weightOptions.map((w) => (
+                      <option key={w} value={w}>
+                        {w}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div className="space-y-2 rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/40 p-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    {t('filter_price_range')}
+                  </label>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                    ৳{priceRange[0].toLocaleString('en-BD')} – ৳
+                    {priceRange[1].toLocaleString('en-BD')}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={PRICE_MIN}
+                  max={PRICE_MAX}
+                  step={10}
+                  value={priceRange[0]}
+                  aria-label="Minimum price"
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setPriceRange((prev) => [Math.min(val, prev[1] - 10), prev[1]]);
+                  }}
+                  className="w-full accent-orange-500"
+                />
+                <input
+                  type="range"
+                  min={PRICE_MIN}
+                  max={PRICE_MAX}
+                  step={10}
+                  value={priceRange[1]}
+                  aria-label="Maximum price"
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setPriceRange((prev) => [prev[0], Math.max(val, prev[0] + 10)]);
+                  }}
+                  className="w-full accent-orange-500"
+                />
+              </div>
+
+              {/* Rating Buttons (44px tall) */}
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  {t('filter_min_rating')}
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[0, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setMinRating(star)}
+                      className={`min-h-[44px] rounded-xl border px-3 py-2 text-xs font-bold transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                        minRating === star
+                          ? 'border-amber-500 bg-amber-500 text-white dark:text-zinc-950'
+                          : 'border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/60 text-slate-700 dark:text-slate-200'
+                      }`}
+                    >
+                      {star === 0 ? t('filter_min_rating_all') : `${star}★ & Up`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* In-Stock Toggle */}
+              <label className="flex min-h-[48px] cursor-pointer items-center justify-between rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/40 px-4 py-3">
+                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">
+                  In-Stock Items Only
+                </span>
+                <input
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(e) => setInStockOnly(e.target.checked)}
+                  className="h-5 w-5 rounded accent-amber-500"
+                />
+              </label>
+            </div>
+
+            {/* Sticky 2-Column Footer */}
+            <div className="grid grid-cols-2 gap-3 border-t border-slate-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 px-5 pt-3.5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="min-h-[48px] rounded-xl border border-orange-300 dark:border-orange-700/60 bg-amber-500/10 dark:bg-amber-500/15 text-sm font-bold text-orange-700 dark:text-orange-300 active:scale-95 transition-transform"
+              >
+                Clear All
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsFilterSheetOpen(false)}
+                className="min-h-[48px] rounded-xl bg-amber-500 text-white dark:bg-amber-500 dark:text-zinc-950 text-sm font-bold shadow-md active:scale-95 transition-transform"
+              >
+                Show {sortedAndFilteredProducts.length} Items
+              </button>
             </div>
           </aside>
         </div>

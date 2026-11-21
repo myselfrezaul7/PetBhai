@@ -72,10 +72,19 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
       }
     };
 
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      onClose();
+    };
+
     document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('petbhai-back-button', handleBackButton);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('petbhai-back-button', handleBackButton);
     };
   }, [product, onClose]);
 
@@ -109,7 +118,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
 
   return (
     <motion.div
-      className="safe-modal-padding fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-end md:items-center"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex justify-center items-end md:items-center p-0 md:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -144,7 +153,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 bg-white/80 dark:bg-black/50 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm backdrop-blur-md"
+          className="absolute top-3.5 right-3.5 z-20 min-h-[44px] min-w-[44px] flex items-center justify-center bg-white/85 dark:bg-black/60 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm backdrop-blur-md"
           aria-label={t('aria_close_modal')}
         >
           <CloseIcon className="w-5 h-5 text-slate-700 dark:text-white" />
@@ -220,7 +229,7 @@ const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({ product, 
                         ? 'bg-slate-400 text-white cursor-not-allowed'
                         : isAdding
                           ? 'bg-green-500 text-white scale-95 cursor-default'
-                          : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95 animate-pulse'
+                          : 'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/25 active:scale-95'
                     }`}
               >
                 <ShoppingCartIcon className="w-5 h-5" />

@@ -2,7 +2,9 @@ package com.petbhai.app;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
@@ -22,12 +24,14 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(NativeGoogleAuthPlugin.class);
         super.onCreate(savedInstanceState);
 
-        // Ensure proper system bar & camera cutout insets on Android 15/16 (targetSdk 36)
+        // Ensure proper system bar, camera cutout & IME soft keyboard insets on Android 15/16 (targetSdk 36)
         View contentView = findViewById(android.R.id.content);
         if (contentView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(contentView, (v, windowInsets) -> {
                 Insets insets = windowInsets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+                    WindowInsetsCompat.Type.systemBars()
+                        | WindowInsetsCompat.Type.displayCutout()
+                        | WindowInsetsCompat.Type.ime()
                 );
                 v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
                 return WindowInsetsCompat.CONSUMED;
@@ -127,6 +131,52 @@ public class MainActivity extends BridgeActivity {
             String link = pendingDeepLink;
             pendingDeepLink = null;
             return link != null ? link : "";
+        }
+
+        @JavascriptInterface
+        public void triggerHaptic(String style) {
+            if (getBridge() == null || getBridge().getWebView() == null) {
+                return;
+            }
+            final WebView webView = getBridge().getWebView();
+            final String hapticStyle = style != null ? style.toUpperCase() : "LIGHT";
+            webView.post(() -> {
+                int constant = HapticFeedbackConstants.CLOCK_TICK;
+                switch (hapticStyle) {
+                    case "MEDIUM":
+                    case "CONTEXT_CLICK":
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            constant = HapticFeedbackConstants.CONTEXT_CLICK;
+                        }
+                        break;
+                    case "HEAVY":
+                    case "LONG_PRESS":
+                        constant = HapticFeedbackConstants.LONG_PRESS;
+                        break;
+                    case "SUCCESS":
+                    case "CONFIRM":
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            constant = HapticFeedbackConstants.CONFIRM;
+                        } else {
+                            constant = HapticFeedbackConstants.VIRTUAL_KEY;
+                        }
+                        break;
+                    case "ERROR":
+                    case "REJECT":
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            constant = HapticFeedbackConstants.REJECT;
+                        } else {
+                            constant = HapticFeedbackConstants.LONG_PRESS;
+                        }
+                        break;
+                    case "LIGHT":
+                    case "CLOCK_TICK":
+                    default:
+                        constant = HapticFeedbackConstants.CLOCK_TICK;
+                        break;
+                }
+                webView.performHapticFeedback(constant);
+            });
         }
     }
 }

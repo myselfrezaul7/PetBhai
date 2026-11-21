@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBrands } from '../contexts/BrandContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { HeartIcon, ShoppingCartIcon } from '../components/icons';
+import { HeartIcon, ShoppingCartIcon, PlusIcon, MinusIcon, CloseIcon } from '../components/icons';
 import ProductCard from '../components/ProductCard';
 import type { BundleOffer, Review } from '../types';
 import { useProducts } from '../contexts/ProductContext';
@@ -14,6 +14,65 @@ import ApiStateCard from '../components/ApiStateCard';
 import { getResponsiveImageSizes, handleImageError } from '../lib/imageUtils';
 import ShareModal from '../components/ShareModal';
 
+const StarRatingDisplay = memo(
+  ({ rating, className = 'w-5 h-5' }: { rating: number; className?: string }) => (
+    <div className="flex items-center" aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}>
+      {[...Array(5)].map((_, i) => (
+        <svg
+          key={i}
+          className={`${className} ${i < Math.round(rating) ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  )
+);
+StarRatingDisplay.displayName = 'StarRatingDisplay';
+
+const StarRatingInput: React.FC<{
+  rating: number;
+  onRate: (value: number) => void;
+}> = memo(({ rating, onRate }) => {
+  const [hoverRating, setHoverRating] = useState(0);
+
+  return (
+    <div className="flex items-center gap-1" role="group" aria-label="Select rating">
+      {[...Array(5)].map((_, index) => {
+        const starValue = index + 1;
+        return (
+          <button
+            key={starValue}
+            type="button"
+            onMouseEnter={() => setHoverRating(starValue)}
+            onMouseLeave={() => setHoverRating(0)}
+            onClick={() => onRate(starValue)}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-3xl transition-transform transform hover:scale-110 touch-manipulation active:scale-95"
+            aria-label={`Rate ${starValue} star${starValue > 1 ? 's' : ''}`}
+            aria-pressed={rating === starValue}
+            data-pressed={rating === starValue}
+          >
+            <svg
+              className={`w-8 h-8 transition-colors ${starValue <= (hoverRating || rating) ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </button>
+        );
+      })}
+    </div>
+  );
+});
+StarRatingInput.displayName = 'StarRatingInput';
+
+const AUTO_SHIP_FREQUENCIES = ['Every 2 Weeks', 'Every Month', 'Every 2 Months'] as const;
+
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -22,13 +81,14 @@ const ProductDetailPage: React.FC = () => {
 
   const product = useMemo(() => products.find((p) => p.id === Number(id)), [id, products]);
 
-  const { addToCart, cartItems } = useCart();
+  const { addToCart, updateQuantity, removeFromCart, cartItems } = useCart();
   const { isAuthenticated, currentUser, addToWishlist, removeFromWishlist } = useAuth();
 
   const [isAdding, setIsAdding] = useState(false);
   const [isAutoShip, setIsAutoShip] = useState(false);
-  const [autoShipFrequency, setAutoShipFrequency] = useState('1 Month');
+  const [autoShipFrequency, setAutoShipFrequency] = useState<string>('Every Month');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // State for the new review form
   const [newRating, setNewRating] = useState(0);
@@ -69,7 +129,7 @@ const ProductDetailPage: React.FC = () => {
       finalProduct = {
         ...product,
         name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
-        price: product.price * 0.95, // 5% discount
+        price: Math.round(product.price * 0.95), // 5% discount
         isAutoShip: true,
         autoShipFrequency: autoShipFrequency,
       };
@@ -77,6 +137,24 @@ const ProductDetailPage: React.FC = () => {
     addToCart(finalProduct);
     setTimeout(() => setIsAdding(false), 1000);
   }, [addToCart, product, isAutoShip, autoShipFrequency]);
+
+  const handleBuyNow = useCallback(() => {
+    if (!product || isOutOfStock) return;
+    if (quantityInCart === 0) {
+      let finalProduct = product;
+      if (isAutoShip) {
+        finalProduct = {
+          ...product,
+          name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
+          price: Math.round(product.price * 0.95),
+          isAutoShip: true,
+          autoShipFrequency,
+        };
+      }
+      addToCart(finalProduct);
+    }
+    navigate('/checkout');
+  }, [product, isOutOfStock, quantityInCart, isAutoShip, autoShipFrequency, addToCart, navigate]);
 
   const handleWishlistClick = useCallback(() => {
     if (!product) return;
@@ -133,6 +211,27 @@ const ProductDetailPage: React.FC = () => {
   );
 
   useEffect(() => {
+    if (!isLightboxOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+      }
+    };
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      setIsLightboxOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [isLightboxOpen]);
+
+  useEffect(() => {
     if (!product) {
       setBundleOffer(null);
       return;
@@ -173,7 +272,7 @@ const ProductDetailPage: React.FC = () => {
       finalProduct = {
         ...product,
         name: `${product.name} (Auto-Ship: ${autoShipFrequency})`,
-        price: product.price * 0.95, // 5% discount
+        price: Math.round(product.price * 0.95), // 5% discount
         isAutoShip: true,
         autoShipFrequency: autoShipFrequency,
       };
@@ -229,61 +328,8 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const StarRatingDisplay = memo(
-    ({ rating, className = 'w-5 h-5' }: { rating: number; className?: string }) => (
-      <div className="flex items-center" aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}>
-        {[...Array(5)].map((_, i) => (
-          <svg
-            key={i}
-            className={`${className} ${i < Math.round(rating) ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            aria-hidden="true"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
-      </div>
-    )
-  );
-  StarRatingDisplay.displayName = 'StarRatingDisplay';
-
-  const StarRatingInput: React.FC = () => {
-    const [hoverRating, setHoverRating] = useState(0);
-
-    return (
-      <div className="flex items-center" role="group" aria-label="Select rating">
-        {[...Array(5)].map((_, index) => {
-          const starValue = index + 1;
-          return (
-            <button
-              key={starValue}
-              type="button"
-              onMouseEnter={() => setHoverRating(starValue)}
-              onMouseLeave={() => setHoverRating(0)}
-              onClick={() => setNewRating(starValue)}
-              className="text-3xl transition-transform transform hover:scale-125 touch-manipulation active:scale-95"
-              aria-label={`Rate ${starValue} star${starValue > 1 ? 's' : ''}`}
-              aria-pressed="false"
-              data-pressed={newRating === starValue}
-            >
-              <svg
-                className={`w-8 h-8 transition-colors ${starValue <= (hoverRating || newRating) ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                aria-hidden="true"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </button>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
-    <main className="container mx-auto px-4 pb-32 pt-8 sm:px-6 sm:pb-12 sm:pt-12">
+    <main className="container mx-auto px-4 pb-32 pt-6 sm:px-6 md:pb-12 sm:pt-12">
       <SEO
         title={`${product.name} - Shop`}
         description={product.description}
@@ -298,15 +344,57 @@ const ProductDetailPage: React.FC = () => {
       />
       <article className="glass-card-ios overflow-hidden lg:flex border border-white/35 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-xl shadow-2xl">
         <div className="lg:w-1/2 p-4 sm:p-6">
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full h-auto object-cover rounded-2xl"
-            loading="lazy"
-            decoding="async"
-            sizes={getResponsiveImageSizes('detail')}
-            onError={handleImageError}
-          />
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800/80">
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              onClick={() => setIsLightboxOpen(true)}
+              className="h-full w-full cursor-zoom-in object-cover transition-transform duration-300 hover:scale-105"
+              loading="eager"
+              decoding="async"
+              sizes={getResponsiveImageSizes('detail')}
+              onError={handleImageError}
+            />
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(true)}
+              className="absolute bottom-3 left-3 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md"
+              aria-label="Tap to zoom image"
+            >
+              Tap to zoom
+            </button>
+
+            {/* Mobile top-right Wishlist & Share action pills */}
+            <div className="absolute right-3 top-3 flex items-center gap-2 md:hidden">
+              <button
+                type="button"
+                onClick={handleWishlistClick}
+                className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border shadow-md backdrop-blur-md transition-all active:scale-95 ${
+                  isWishlisted
+                    ? 'border-red-500 bg-red-500 text-white'
+                    : 'border-white/60 bg-white/85 text-slate-700 dark:border-slate-700 dark:bg-slate-900/85 dark:text-slate-200'
+                }`}
+                aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              >
+                <HeartIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(true)}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/60 bg-white/85 text-slate-700 shadow-md backdrop-blur-md transition-all active:scale-95 dark:border-slate-700 dark:bg-slate-900/85 dark:text-slate-200"
+                aria-label="Share product"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
         <div className="p-6 sm:p-8 lg:w-1/2 flex flex-col">
           <header>
@@ -353,19 +441,62 @@ const ProductDetailPage: React.FC = () => {
             </p>
           </header>
 
-          <div className="mt-6 glass-card-ios bg-white/45 dark:bg-slate-900/40 border border-white/35 dark:border-white/10 p-4 rounded-2xl">
-            <p className="font-bold text-sm sm:text-base text-slate-700 dark:text-slate-200">
-              Auto-Ship Subscription
-            </p>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-              Never run out! Get this item delivered automatically and save 5%.
-            </p>
-            <button className="mt-2 text-xs sm:text-sm font-bold text-orange-600 hover:underline touch-manipulation">
-              Learn More
-            </button>
+          <div className="mt-6 glass-card-ios bg-white/60 dark:bg-slate-900/50 border border-amber-500/25 dark:border-amber-400/20 p-4 rounded-2xl">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  <span>Auto-Ship & Save 5%</span>
+                  <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                    ৳{Math.round(product.price * 0.95).toLocaleString('en-BD')}
+                  </span>
+                </p>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-0.5">
+                  Never run out! Schedule automatic deliveries and cancel anytime.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isAutoShip}
+                aria-label="Enable Auto-Ship and save 5%"
+                onClick={() => setIsAutoShip((prev) => !prev)}
+                className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  isAutoShip ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-700'
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    isAutoShip ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            {isAutoShip && (
+              <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-700/60">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-300 mb-2">
+                  Delivery Frequency:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {AUTO_SHIP_FREQUENCIES.map((freq) => (
+                    <button
+                      key={freq}
+                      type="button"
+                      onClick={() => setAutoShipFrequency(freq)}
+                      className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                        autoShipFrequency === freq
+                          ? 'bg-orange-500 text-white shadow-sm'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'
+                      }`}
+                    >
+                      {freq}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="mt-6 hidden items-center space-x-3 sm:mt-8 sm:flex sm:space-x-4">
+          <div className="mt-6 hidden items-center space-x-3 md:mt-8 md:flex md:space-x-4">
             <button
               onClick={handleAddToCart}
               disabled={isAdding || isOutOfStock}
@@ -502,13 +633,13 @@ const ProductDetailPage: React.FC = () => {
                   Write a review
                 </h3>
                 <div className="my-2">
-                  <StarRatingInput />
+                  <StarRatingInput rating={newRating} onRate={setNewRating} />
                 </div>
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Share your thoughts about this product..."
-                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 text-sm sm:text-base"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 text-base"
                   rows={3}
                   required
                   aria-label="Review comment"
@@ -593,60 +724,92 @@ const ProductDetailPage: React.FC = () => {
         </section>
       )}
 
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/65 bg-white/90 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/88 sm:hidden">
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
-          <div className="min-w-[6.8rem] rounded-xl border border-white/70 bg-white/75 px-2.5 py-2 dark:border-slate-700/70 dark:bg-slate-800/75">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
-              Price
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/65 bg-white/95 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/95 md:hidden">
+        <div className="mx-auto flex max-w-3xl items-center gap-2.5 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+          <div className="min-w-[5.8rem] rounded-xl border border-slate-200/80 bg-slate-50/90 px-2.5 py-2 dark:border-slate-700/70 dark:bg-slate-800/80">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-300">
+              {isAutoShip ? 'Auto-Ship' : 'Price'}
             </p>
-            <p className="text-base font-bold text-slate-800 dark:text-white">
-              ৳{product.price.toLocaleString('en-BD')}
+            <p className="text-base font-extrabold text-slate-900 dark:text-white tabular-nums">
+              ৳
+              {(isAutoShip ? Math.round(product.price * 0.95) : product.price).toLocaleString(
+                'en-BD'
+              )}
             </p>
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            disabled={isAdding || isOutOfStock}
-            className="min-h-[48px] flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98] disabled:from-slate-400 disabled:to-slate-500"
-          >
-            {isOutOfStock
-              ? 'Out of Stock'
-              : isAdding
-                ? 'Added!'
-                : quantityInCart > 0
-                  ? `Add More (${quantityInCart})`
-                  : 'Add to Cart'}
-          </button>
+          {quantityInCart > 0 ? (
+            <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-1">
+              <button
+                type="button"
+                onClick={() =>
+                  quantityInCart > 1
+                    ? updateQuantity(product.id, quantityInCart - 1)
+                    : removeFromCart(product.id)
+                }
+                className="flex min-h-[42px] min-w-[40px] items-center justify-center rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 shadow-sm active:scale-95"
+                aria-label="Decrease quantity"
+              >
+                <MinusIcon className="h-4 w-4" />
+              </button>
+              <span className="w-8 text-center text-sm font-bold text-slate-900 dark:text-white tabular-nums">
+                {quantityInCart}
+              </span>
+              <button
+                type="button"
+                onClick={() => updateQuantity(product.id, Math.min(99, quantityInCart + 1))}
+                className="flex min-h-[42px] min-w-[40px] items-center justify-center rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 shadow-sm active:scale-95"
+                aria-label="Increase quantity"
+              >
+                <PlusIcon className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isAdding || isOutOfStock}
+              className="min-h-[48px] flex-1 rounded-xl border-2 border-orange-500 bg-orange-500/10 dark:bg-orange-500/15 px-3 py-2.5 text-sm font-bold text-orange-600 dark:text-orange-400 transition-all active:scale-[0.98] disabled:border-slate-300 disabled:text-slate-400"
+            >
+              {isOutOfStock ? 'Out of Stock' : isAdding ? 'Added!' : 'Add to Cart'}
+            </button>
+          )}
 
           <button
-            onClick={handleWishlistClick}
-            className={`min-h-[48px] min-w-[48px] rounded-xl border-2 transition-colors active:scale-[0.98] ${
-              isWishlisted
-                ? 'border-red-500 bg-red-500 text-white'
-                : 'border-slate-300 bg-white/80 text-slate-600 dark:border-slate-600 dark:bg-slate-800/75 dark:text-slate-300'
-            }`}
-            aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            type="button"
+            onClick={handleBuyNow}
+            disabled={isOutOfStock}
+            className="min-h-[48px] flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98] disabled:from-slate-400 disabled:to-slate-500"
           >
-            <HeartIcon className="mx-auto h-5 w-5" aria-hidden="true" />
-          </button>
-
-          <button
-            onClick={() => setIsShareModalOpen(true)}
-            className="min-h-[48px] min-w-[48px] rounded-xl border-2 border-slate-300 bg-white/80 text-slate-600 hover:text-orange-600 dark:border-slate-600 dark:bg-slate-800/75 dark:text-slate-300 transition-colors active:scale-[0.98]"
-            aria-label="Share product"
-            title="Share product"
-          >
-            <svg className="mx-auto h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-              />
-            </svg>
+            Buy Now
           </button>
         </div>
       </div>
+
+      {isLightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={product.name}
+          onClick={() => setIsLightboxOpen(false)}
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+        >
+          <button
+            type="button"
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
+            aria-label="Close image preview"
+          >
+            <CloseIcon className="h-6 w-6" />
+          </button>
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[85dvh] max-w-full rounded-2xl object-contain"
+          />
+        </div>
+      )}
 
       {product && (
         <ShareModal
@@ -656,7 +819,7 @@ const ProductDetailPage: React.FC = () => {
             title: product.name,
             description: product.description,
             price: product.price,
-            path: `/shop/${product.id}`,
+            path: `/product/${product.id}`,
             imageUrl: product.imageUrl,
             category: product.category,
             type: 'product',

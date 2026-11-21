@@ -107,6 +107,8 @@ const Header: React.FC = () => {
   const mobileInputRef = useRef<HTMLInputElement | null>(null);
   const menuTouchStartXRef = useRef<number | null>(null);
   const menuTouchCurrentXRef = useRef<number | null>(null);
+  const menuTouchStartYRef = useRef<number | null>(null);
+  const menuTouchCurrentYRef = useRef<number | null>(null);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const { scrollDirection, isAtTop } = useScrollDirection();
 
@@ -266,9 +268,9 @@ const Header: React.FC = () => {
     }
   };
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll when mobile menu or mobile search overlay is open
   useEffect(() => {
-    if (!isMenuOpen) {
+    if (!isMenuOpen && !isSearchOpen) {
       return;
     }
 
@@ -299,7 +301,31 @@ const Header: React.FC = () => {
       body.style.width = previousStyles.width;
       window.scrollTo(0, scrollY);
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isSearchOpen]);
+
+  // Dismiss open mobile search or menu drawer on Android hardware back button
+  useEffect(() => {
+    if (!isMenuOpen && !isSearchOpen) return;
+    const handleBackButton = (e: Event) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      if (isSearchOpen) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setIsSearchOpen(false);
+        setIsSearchActive(false);
+        setSearchQuery('');
+        setActiveIndex(-1);
+      } else if (isMenuOpen) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener('petbhai-back-button', handleBackButton);
+    return () => {
+      window.removeEventListener('petbhai-back-button', handleBackButton);
+    };
+  }, [isMenuOpen, isSearchOpen]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -375,10 +401,13 @@ const Header: React.FC = () => {
   const handleMenuTouchStart = useCallback((event: React.TouchEvent<HTMLElement>) => {
     menuTouchStartXRef.current = event.touches[0]?.clientX ?? null;
     menuTouchCurrentXRef.current = menuTouchStartXRef.current;
+    menuTouchStartYRef.current = event.touches[0]?.clientY ?? null;
+    menuTouchCurrentYRef.current = menuTouchStartYRef.current;
   }, []);
 
   const handleMenuTouchMove = useCallback((event: React.TouchEvent<HTMLElement>) => {
     menuTouchCurrentXRef.current = event.touches[0]?.clientX ?? null;
+    menuTouchCurrentYRef.current = event.touches[0]?.clientY ?? null;
   }, []);
 
   const handleMenuTouchEnd = useCallback(() => {
@@ -387,12 +416,18 @@ const Header: React.FC = () => {
     }
 
     const deltaX = menuTouchCurrentXRef.current - menuTouchStartXRef.current;
-    if (deltaX < -80) {
+    const deltaY =
+      menuTouchStartYRef.current !== null && menuTouchCurrentYRef.current !== null
+        ? menuTouchCurrentYRef.current - menuTouchStartYRef.current
+        : 0;
+    if (deltaX < -80 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
       handleMenuClose();
     }
 
     menuTouchStartXRef.current = null;
     menuTouchCurrentXRef.current = null;
+    menuTouchStartYRef.current = null;
+    menuTouchCurrentYRef.current = null;
   }, [handleMenuClose]);
 
   const desktopLinks = [
@@ -408,116 +443,151 @@ const Header: React.FC = () => {
     },
   ];
 
-  const mobileLinks = [
-    {
-      to: '/',
-      label: t('nav_home'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M12 3.2 3 10.4V21h6.75v-6h4.5v6H21V10.4l-9-7.2z" />
-        </svg>
-      ),
-    },
-    {
-      to: '/shop',
-      label: t('nav_shop'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M6 2.75A1.75 1.75 0 0 0 4.25 4.5V7H3a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1h-1.25V4.5A1.75 1.75 0 0 0 18 2.75H6zm.25 4.25V4.75h11.5V7H6.25zm4.25 3h3a1 1 0 0 1 0 2h-3a1 1 0 1 1 0-2z" />
-        </svg>
-      ),
-    },
-    {
-      to: '/services',
-      label: t('nav_services'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M19 8h-1V6a1 1 0 0 0-1-1h-2V4a1 1 0 1 0-2 0v1h-2V4a1 1 0 1 0-2 0v1H7a1 1 0 0 0-1 1v2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zM8 7h8v1H8V7zm4 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
-        </svg>
-      ),
-    },
-    {
-      to: '/community',
-      label: t('nav_community'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M8 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm8 0a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 16 12zm-8 2c-3.31 0-6 1.79-6 4v1.25A1.75 1.75 0 0 0 3.75 21h8.5A1.75 1.75 0 0 0 14 19.25V18c0-2.21-2.69-4-6-4zm8 1c-1.05 0-2.03.21-2.88.58A5.96 5.96 0 0 1 15 18v1.25c0 .27-.04.52-.1.75h5.35A1.75 1.75 0 0 0 22 18.25V18c0-1.66-2.69-3-6-3z" />
-        </svg>
-      ),
-    },
-    {
-      to: '/adopt',
-      label: t('nav_adopt'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 12 5.08 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />
-        </svg>
-      ),
-    },
-    {
-      to: '/blog',
-      label: t('nav_blog'),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 4v2h10V7H7zm0 4v2h10v-2H7zm0 4v2h6v-2H7z" />
-        </svg>
-      ),
-    },
-    {
-      to: '/report',
-      label: 'Contact',
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 3-8 5L4 7V6l8 5 8-5z" />
-        </svg>
-      ),
-    },
-  ];
+  const mobileLinks = useMemo(
+    () => [
+      {
+        to: '/',
+        label: t('nav_home'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 3.2 3 10.4V21h6.75v-6h4.5v6H21V10.4l-9-7.2z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/shop',
+        label: t('nav_shop'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M6 2.75A1.75 1.75 0 0 0 4.25 4.5V7H3a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1h-1.25V4.5A1.75 1.75 0 0 0 18 2.75H6zm.25 4.25V4.75h11.5V7H6.25zm4.25 3h3a1 1 0 0 1 0 2h-3a1 1 0 1 1 0-2z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/services',
+        label: t('nav_services'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M19 8h-1V6a1 1 0 0 0-1-1h-2V4a1 1 0 1 0-2 0v1h-2V4a1 1 0 1 0-2 0v1H7a1 1 0 0 0-1 1v2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zM8 7h8v1H8V7zm4 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/community',
+        label: t('nav_community'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M8 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm8 0a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 16 12zm-8 2c-3.31 0-6 1.79-6 4v1.25A1.75 1.75 0 0 0 3.75 21h8.5A1.75 1.75 0 0 0 14 19.25V18c0-2.21-2.69-4-6-4zm8 1c-1.05 0-2.03.21-2.88.58A5.96 5.96 0 0 1 15 18v1.25c0 .27-.04.52-.1.75h5.35A1.75 1.75 0 0 0 22 18.25V18c0-1.66-2.69-3-6-3z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/adopt',
+        label: t('nav_adopt'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 12 5.08 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/blog',
+        label: t('nav_blog'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 4v2h10V7H7zm0 4v2h10v-2H7zm0 4v2h6v-2H7z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/ai-assistant',
+        label: 'AI Vet Assistant',
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 2a2 2 0 0 1 2 2v1h3a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3V4a2 2 0 0 1 2-2zm-3 8a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-6 5.5c.83.94 1.83 1.5 3 1.5s2.17-.56 3-1.5H9z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/plus-membership',
+        label: t('nav_plus'),
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
+          </svg>
+        ),
+      },
+      {
+        to: '/report',
+        label: 'Contact',
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 3-8 5L4 7V6l8 5 8-5z" />
+          </svg>
+        ),
+      },
+    ],
+    [t]
+  );
 
   const mobileSections = useMemo(
     () => [
       {
         title: 'Discover',
-        links: mobileLinks.filter((link) => ['/', '/shop', '/adopt'].includes(link.to)),
+        links: mobileLinks.filter((link) =>
+          ['/', '/shop', '/adopt', '/plus-membership'].includes(link.to)
+        ),
       },
       {
         title: 'Care & Community',
-        links: mobileLinks.filter((link) => ['/services', '/community', '/blog'].includes(link.to)),
+        links: mobileLinks.filter((link) =>
+          ['/services', '/ai-assistant', '/community', '/blog'].includes(link.to)
+        ),
       },
       {
         title: 'Support',
@@ -640,6 +710,7 @@ const Header: React.FC = () => {
                       results={searchResults}
                       loading={isSearching}
                       onClose={closeSearchResults}
+                      onSelectResult={() => addToRecentSearches(searchQuery)}
                       activeIndex={activeIndex}
                     />
                   ) : (
@@ -820,10 +891,15 @@ const Header: React.FC = () => {
 
       {/* Full-screen Mobile Search Overlay */}
       {isSearchOpen && (
-        <div className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 lg:hidden animate-fade-in">
-          <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile search"
+          className="safe-top safe-bottom fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 lg:hidden animate-fade-in"
+        >
+          <div className="flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-800 gap-2">
             <div className="relative flex-grow">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
                 <SearchIcon className="w-5 h-5 text-slate-400 dark:text-slate-300" />
               </span>
               <input
@@ -834,21 +910,34 @@ const Header: React.FC = () => {
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 onKeyDown={handleKeyDown}
-                className="w-full py-3 pl-10 pr-4 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:ring-amber-400"
+                className="w-full py-3 pl-10 pr-10 text-base text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:ring-amber-400"
                 aria-label="Search"
                 autoFocus
                 autoComplete="off"
                 inputMode="search"
                 enterKeyHint="search"
               />
+              {searchQuery.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    mobileInputRef.current?.focus();
+                  }}
+                  className="absolute inset-y-0 right-1 flex items-center justify-center w-9 h-9 my-auto text-slate-400 hover:text-slate-600 dark:text-slate-300 dark:hover:text-white rounded-full touch-manipulation"
+                  aria-label="Clear search query"
+                >
+                  <CloseIcon className="w-5 h-5" />
+                </button>
+              )}
             </div>
             <button
               type="button"
               onClick={handleCloseMobileSearch}
-              className="ml-3 min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-slate-600 dark:text-slate-300 hover:text-orange-500 touch-manipulation active:scale-95"
+              className="min-h-[44px] px-3 flex items-center justify-center rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-orange-500 touch-manipulation active:scale-95"
               aria-label="Close search"
             >
-              <CloseIcon className="w-7 h-7" />
+              Cancel
             </button>
           </div>
           <div className="flex-grow overflow-y-auto">
@@ -859,44 +948,100 @@ const Header: React.FC = () => {
                 results={searchResults}
                 loading={isSearching}
                 onClose={handleCloseMobileSearch}
+                onSelectResult={() => addToRecentSearches(searchQuery)}
                 activeIndex={activeIndex}
                 isFullScreen={true}
               />
             ) : (
-              hasOptionalConsent &&
-              recentSearches.length > 0 && (
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-500 uppercase">Recent Searches</h3>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRecentSearches([]);
-                        safeStorage.removeItem('petbhai_recent_searches');
-                      }}
-                      className="text-xs text-red-500 font-bold"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {recentSearches.map((s, i) => (
+              <div className="p-4 space-y-6">
+                {hasOptionalConsent && recentSearches.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-300 uppercase">
+                        Recent Searches
+                      </h3>
                       <button
-                        key={i}
                         type="button"
                         onClick={() => {
-                          setSearchQuery(s);
+                          setRecentSearches([]);
+                          safeStorage.removeItem('petbhai_recent_searches');
+                        }}
+                        className="text-xs text-red-500 font-bold min-h-[32px] px-2"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {recentSearches.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery(s);
+                            mobileInputRef.current?.focus();
+                          }}
+                          className="w-full text-left p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 flex items-center space-x-3 active:scale-[0.98] transition-all"
+                        >
+                          <SearchIcon className="w-4 h-4 opacity-50" />
+                          <span className="font-medium">{s}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-300 uppercase mb-3">
+                    Popular Searches
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'Cat Food',
+                      'Dog Food',
+                      'Vet Near Me',
+                      'Cat Litter',
+                      'Vaccine',
+                      'Pet Toys',
+                    ].map((term) => (
+                      <button
+                        key={term}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(term);
                           mobileInputRef.current?.focus();
                         }}
-                        className="w-full text-left p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 flex items-center space-x-3 active:scale-[0.98] transition-all"
+                        className="min-h-[40px] px-3.5 py-2 rounded-full bg-amber-50/80 dark:bg-slate-800 border border-amber-500/20 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:border-amber-500 transition-colors active:scale-95"
                       >
-                        <SearchIcon className="w-4 h-4 opacity-50" />
-                        <span className="font-medium">{s}</span>
+                        {term}
                       </button>
                     ))}
                   </div>
                 </div>
-              )
+
+                <div>
+                  <h3 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-300 uppercase mb-3">
+                    Quick Shortcuts
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {[
+                      { label: 'Shop Supplies', to: '/shop' },
+                      { label: 'Consult a Vet', to: '/services' },
+                      { label: 'AI Vet Chat', to: '/ai-assistant' },
+                      { label: 'Adopt a Pet', to: '/adopt' },
+                    ].map((shortcut) => (
+                      <Link
+                        key={shortcut.to}
+                        to={shortcut.to}
+                        onClick={handleCloseMobileSearch}
+                        className="min-h-[48px] px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between active:scale-95 transition-all"
+                      >
+                        <span>{shortcut.label}</span>
+                        <span className="text-amber-500">→</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -972,11 +1117,15 @@ const Header: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <p className="max-w-[11rem] truncate text-2xl font-extrabold leading-none tracking-tight text-slate-900 dark:text-white">
-                      {isAuthenticated && currentUser ? currentUser.name : 'Guardian Name'}
+                    <p className="max-w-[11rem] truncate text-xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white">
+                      {isAuthenticated && currentUser ? currentUser.name : 'Welcome to PetBhai'}
                     </p>
-                    <p className="text-xl font-semibold text-amber-600 dark:text-amber-300">
-                      {isAuthenticated ? 'Premium Member' : 'Pet Parent'}
+                    <p className="text-sm font-semibold text-amber-600 dark:text-amber-300 mt-0.5">
+                      {isAuthenticated && currentUser
+                        ? currentUser.isPlusMember
+                          ? 'PetBhai+ Member'
+                          : 'Pet Parent'
+                        : 'Join our pet care family'}
                     </p>
                   </div>
                 </div>

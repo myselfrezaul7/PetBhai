@@ -128,7 +128,7 @@ const GlobalCartElements: React.FC = () => {
       <button
         key={lastActionTimestamp || 'initial'}
         onClick={openCart}
-        className={`fixed right-5 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-44 md:h-14 md:w-14 ${
+        className={`fixed right-5 z-30 hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl shadow-orange-500/30 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) animate-badge-pop focus:outline-none focus:ring-4 focus:ring-orange-300 hover:scale-110 active:scale-95 md:bottom-44 md:h-14 md:w-14 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'
         } bottom-[calc(10rem+var(--safe-bottom))]`}
         aria-label={`Open shopping cart with ${cartCount} items`}
@@ -342,6 +342,11 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const win = window as unknown as { __petbhaiHandleBack?: () => string };
     win.__petbhaiHandleBack = () => {
+      const backEvent = new CustomEvent('petbhai-back-button', { cancelable: true });
+      const notPrevented = window.dispatchEvent(backEvent);
+      if (!notPrevented) {
+        return 'handled';
+      }
       if (isCartOpen) {
         closeCart();
         return 'handled';
@@ -410,7 +415,13 @@ const AppContent: React.FC = () => {
     let lastX = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1 || window.scrollY > 2 || isRefreshingRef.current) {
+      if (
+        e.touches.length !== 1 ||
+        window.scrollY > 2 ||
+        isRefreshingRef.current ||
+        document.body.style.overflow === 'hidden' ||
+        Boolean(document.querySelector('[role="dialog"], dialog[open]'))
+      ) {
         active = false;
         return;
       }
@@ -645,7 +656,13 @@ const AppContent: React.FC = () => {
       <RouteSEO />
       <OfflineIndicator />
       <Header />
-      <main className="flex-grow app-main pb-24 pt-24 md:pb-0 md:pt-28">
+      <main
+        className={`flex-grow app-main pt-[calc(4.75rem+var(--safe-top))] md:pt-28 md:pb-0 ${
+          location.pathname === '/ai-assistant'
+            ? 'pb-[env(safe-area-inset-bottom)]'
+            : 'pb-[calc(5.75rem+var(--safe-bottom))]'
+        }`}
+      >
         <SwipeNavigationProvider>
           <ErrorBoundary>
             <Suspense fallback={<PawHeartLoader />}>
@@ -720,7 +737,7 @@ const AppContent: React.FC = () => {
       <BottomNav />
       <ScrollToTop />
       <ScrollToTopOnNavigate />
-      <Footer />
+      {location.pathname !== '/ai-assistant' && <Footer />}
       {!isNativeApp() && <SpeedInsights />}
       <ToastContainer />
       <ConfirmationModal />

@@ -191,7 +191,10 @@ const HomePage: React.FC = () => {
           >
             {t('section_best_sellers')}
           </h2>
-          <Link to="/shop" className="text-sm font-semibold text-amber-600 dark:text-amber-500">
+          <Link
+            to="/shop"
+            className="min-h-[44px] inline-flex items-center px-2 text-sm font-semibold text-amber-600 dark:text-amber-500"
+          >
             See all
           </Link>
         </div>
@@ -273,7 +276,10 @@ const HomePage: React.FC = () => {
           >
             {t('recent_articles')}
           </h2>
-          <Link to="/blog" className="text-sm font-semibold text-amber-600 dark:text-amber-500">
+          <Link
+            to="/blog"
+            className="min-h-[44px] inline-flex items-center px-2 text-sm font-semibold text-amber-600 dark:text-amber-500"
+          >
             See all
           </Link>
         </div>

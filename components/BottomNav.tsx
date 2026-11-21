@@ -57,8 +57,8 @@ const BottomNav: React.FC = () => {
   const { scrollDirection, isAtTop } = useScrollDirection();
   const { hapticLight } = useHaptics();
 
-  // Hide on pages that have their own sticky bottom bar
-  const hideOnRoutes = ['/product/', '/checkout', '/admin'];
+  // Hide on pages that have their own sticky bottom bar or full-height chat
+  const hideOnRoutes = ['/product/', '/checkout', '/admin', '/ai-assistant', '/services/booking'];
   const shouldHide = hideOnRoutes.some((route) => location.pathname.startsWith(route));
   if (shouldHide) return null;
 

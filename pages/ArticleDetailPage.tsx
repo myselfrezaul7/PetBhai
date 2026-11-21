@@ -21,6 +21,8 @@ const ArticleDetailPage: React.FC = () => {
   const [commentText, setCommentText] = useState('');
   const [activeHeadingId, setActiveHeadingId] = useState<string>('');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>('md');
+  const tocDetailsRef = React.useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -317,73 +319,108 @@ const ArticleDetailPage: React.FC = () => {
               </span>
             </div>
 
-            {/* Engagement Bar */}
-            <div className="mt-4 pt-4 flex items-center gap-6 text-zinc-600 dark:text-zinc-300">
-              <button
-                onClick={handleToggleLike}
-                className="flex items-center gap-2 hover:text-red-500 transition-colors group"
-                aria-label={isLiked ? 'Unlike article' : 'Like article'}
-              >
-                <svg
-                  className={`w-6 h-6 transition-transform ${isLiked ? 'text-red-500 fill-current scale-110' : 'text-zinc-400 group-hover:scale-110'}`}
-                  fill={isLiked ? 'currentColor' : 'none'}
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            {/* Engagement Bar + Share + Font Size Switcher */}
+            <div className="mt-4 pt-4 flex flex-wrap items-center justify-between gap-4 text-zinc-600 dark:text-zinc-300">
+              <div className="flex items-center gap-5">
+                <button
+                  type="button"
+                  onClick={handleToggleLike}
+                  className="min-h-[40px] flex items-center gap-2 hover:text-red-500 transition-colors group"
+                  aria-label={isLiked ? 'Unlike article' : 'Like article'}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={isLiked ? 0 : 2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                <span className="font-semibold">{likeCount || 0}</span>
-              </button>
+                  <svg
+                    className={`w-6 h-6 transition-transform ${isLiked ? 'text-red-500 fill-current scale-110' : 'text-zinc-400 group-hover:scale-110'}`}
+                    fill={isLiked ? 'currentColor' : 'none'}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={isLiked ? 0 : 2}
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                  <span className="font-semibold">{likeCount || 0}</span>
+                </button>
 
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-6 h-6 text-zinc-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <button
+                  type="button"
+                  onClick={() =>
+                    document
+                      .getElementById('article-comments')
+                      ?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                  className="min-h-[40px] flex items-center gap-2 hover:text-orange-500 transition-colors"
+                  aria-label="Scroll to comments"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-                <span className="font-semibold">{commentCount || 0}</span>
+                  <svg
+                    className="w-6 h-6 text-zinc-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                  <span className="font-semibold">{commentCount || 0}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="min-h-[40px] flex items-center gap-1.5 hover:text-orange-500 transition-colors"
+                  aria-label="Share article"
+                >
+                  <svg
+                    className="w-5 h-5 text-zinc-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                  <span className="text-sm font-semibold">Share</span>
+                </button>
               </div>
 
+              {/* Font Size Switcher (A- / A / A+) */}
               <div
-                className="flex items-center gap-2"
-                title={`${viewCount} ${t('blog_readers') || 'readers'}`}
+                className="inline-flex items-center rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100/80 dark:bg-zinc-800/80 p-1"
+                role="group"
+                aria-label="Reading text size"
               >
-                <svg
-                  className="w-6 h-6 text-zinc-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-                <span className="font-semibold">{viewCount}</span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {t('blog_readers') || 'readers'}
-                </span>
+                {(
+                  [
+                    { key: 'sm', label: 'A-', title: 'Standard text size (16px)' },
+                    { key: 'md', label: 'A', title: 'Comfortable text size (18px)' },
+                    { key: 'lg', label: 'A+', title: 'Large text size (20px)' },
+                  ] as const
+                ).map((sizeOpt) => (
+                  <button
+                    key={sizeOpt.key}
+                    type="button"
+                    onClick={() => setFontSize(sizeOpt.key)}
+                    title={sizeOpt.title}
+                    aria-pressed={fontSize === sizeOpt.key}
+                    className={`min-h-[34px] min-w-[36px] rounded-lg px-2.5 text-xs font-bold transition-all ${
+                      fontSize === sizeOpt.key
+                        ? 'bg-amber-500 text-white shadow-xs'
+                        : 'text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {sizeOpt.label}
+                  </button>
+                ))}
               </div>
             </div>
           </header>
@@ -421,7 +458,10 @@ const ArticleDetailPage: React.FC = () => {
 
           {/* Mobile Table of Contents Accordion */}
           {headings.length > 0 && (
-            <details className="lg:hidden glass-card-ios mb-8 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl group overflow-hidden">
+            <details
+              ref={tocDetailsRef}
+              className="lg:hidden glass-card-ios mb-8 border border-amber-900/10 dark:border-amber-100/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl group overflow-hidden"
+            >
               <summary className="p-4 md:p-5 text-lg font-bold text-zinc-900 dark:text-zinc-50 cursor-pointer flex justify-between items-center outline-none list-none [&::-webkit-details-marker]:hidden">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">📑</span> বিষয়বস্তু
@@ -449,17 +489,22 @@ const ArticleDetailPage: React.FC = () => {
                         <li key={i}>
                           <a
                             href={`#${heading.id}`}
-                            onClick={() => setActiveHeadingId(heading.id)}
-                            className={`text-sm transition-all line-clamp-2 py-1.5 px-3 rounded-lg flex items-center gap-2 ${
+                            onClick={() => {
+                              setActiveHeadingId(heading.id);
+                              if (tocDetailsRef.current) {
+                                tocDetailsRef.current.open = false;
+                              }
+                            }}
+                            className={`text-sm transition-all py-2 px-3 rounded-lg flex items-start gap-2 ${
                               isActive
                                 ? 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border-l-4 border-amber-500 shadow-sm'
                                 : 'text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 font-medium'
                             }`}
                           >
                             {isActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 flex-shrink-0" />
+                              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 flex-shrink-0" />
                             )}
-                            <span className="truncate">{heading.text}</span>
+                            <span className="line-clamp-2 break-words">{heading.text}</span>
                           </a>
                         </li>
                       );
@@ -471,13 +516,16 @@ const ArticleDetailPage: React.FC = () => {
           )}
 
           {/* Article Body */}
-          <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10 mb-8">
-            <MarkdownRenderer content={article.content} />
+          <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10 mb-8">
+            <MarkdownRenderer content={article.content} fontSize={fontSize} />
             <BlogCommunityCTA />
           </section>
 
           {/* Comment Section */}
-          <section className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10">
+          <section
+            id="article-comments"
+            className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10 scroll-mt-24"
+          >
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
               <svg
                 className="w-6 h-6 text-orange-500"
@@ -680,28 +728,14 @@ const ArticleDetailPage: React.FC = () => {
         </aside>
       </div>
 
-      {/* Floating Share Button and Toasts */}
-      <div className="fixed bottom-[120px] md:bottom-[120px] right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
-        {toastMsg && (
-          <div className="mb-4 bg-zinc-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-auto transform transition-all animate-fade-in-up">
+      {/* Toasts */}
+      {toastMsg && (
+        <div className="fixed bottom-[calc(5.75rem+var(--safe-bottom))] right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
+          <div className="bg-zinc-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-auto transform transition-all animate-fade-in-up">
             {toastMsg}
           </div>
-        )}
-        <button
-          onClick={handleShare}
-          className="pointer-events-auto w-14 h-14 bg-gradient-to-tr from-orange-500 to-amber-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-orange-500/30 touch-manipulation hover:scale-105 active:scale-95 transition-all outline-none"
-          aria-label="Share article"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-            />
-          </svg>
-        </button>
-      </div>
+        </div>
+      )}
 
       {article && (
         <ShareModal
