@@ -530,20 +530,6 @@ const Header: React.FC = () => {
         ),
       },
       {
-        to: '/ai-assistant',
-        label: 'AI Vet Assistant',
-        icon: (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2a2 2 0 0 1 2 2v1h3a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3V4a2 2 0 0 1 2-2zm-3 8a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-6 5.5c.83.94 1.83 1.5 3 1.5s2.17-.56 3-1.5H9z" />
-          </svg>
-        ),
-      },
-      {
         to: '/plus-membership',
         label: t('nav_plus'),
         icon: (
@@ -585,9 +571,7 @@ const Header: React.FC = () => {
       },
       {
         title: 'Care & Community',
-        links: mobileLinks.filter((link) =>
-          ['/services', '/ai-assistant', '/community', '/blog'].includes(link.to)
-        ),
+        links: mobileLinks.filter((link) => ['/services', '/community', '/blog'].includes(link.to)),
       },
       {
         title: 'Support',
@@ -1026,7 +1010,7 @@ const Header: React.FC = () => {
                     {[
                       { label: 'Shop Supplies', to: '/shop' },
                       { label: 'Consult a Vet', to: '/services' },
-                      { label: 'AI Vet Chat', to: '/ai-assistant' },
+                      { label: 'Pet Care Blog', to: '/blog' },
                       { label: 'Adopt a Pet', to: '/adopt' },
                     ].map((shortcut) => (
                       <Link

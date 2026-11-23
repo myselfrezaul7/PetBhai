@@ -82,7 +82,8 @@ const FAQPage: React.FC = () => {
                 processed within 24 hours and you&apos;ll receive tracking information via email.
               </p>
             ),
-              schemaAnswer: 'Browse our shop, add items to your cart, proceed to checkout, and complete payment. Orders are processed within 24 hours and you\'ll receive tracking information via email.',
+            schemaAnswer:
+              "Browse our shop, add items to your cart, proceed to checkout, and complete payment. Orders are processed within 24 hours and you'll receive tracking information via email.",
           },
           {
             id: 'delivery-areas',
@@ -94,7 +95,8 @@ const FAQPage: React.FC = () => {
                 check delivery availability for your area during checkout.
               </p>
             ),
-              schemaAnswer: 'We deliver across Bangladesh including Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Rangpur, Barisal, and other major cities. Delivery times vary by location. You can check delivery availability for your area during checkout.',
+            schemaAnswer:
+              'We deliver across Bangladesh including Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Rangpur, Barisal, and other major cities. Delivery times vary by location. You can check delivery availability for your area during checkout.',
           },
           {
             id: 'product-authenticity',
@@ -106,7 +108,8 @@ const FAQPage: React.FC = () => {
                 quality standards, we&apos;ll replace it.
               </p>
             ),
-              schemaAnswer: 'Yes! We guarantee 100% authentic products from verified suppliers. We do not sell counterfeit or expired items. If you receive a product that doesn\'t meet quality standards, we\'ll replace it.',
+            schemaAnswer:
+              "Yes! We guarantee 100% authentic products from verified suppliers. We do not sell counterfeit or expired items. If you receive a product that doesn't meet quality standards, we'll replace it.",
           },
           {
             id: 'payment-methods',
@@ -117,7 +120,8 @@ const FAQPage: React.FC = () => {
                 areas within Bangladesh.
               </p>
             ),
-              schemaAnswer: 'We accept bKash, Nagad, credit/debit cards, and cash on delivery (COD) for most areas within Bangladesh.',
+            schemaAnswer:
+              'We accept bKash, Nagad, credit/debit cards, and cash on delivery (COD) for most areas within Bangladesh.',
           },
           {
             id: 'return-policy',
@@ -130,7 +134,8 @@ const FAQPage: React.FC = () => {
                 quality issue.
               </p>
             ),
-              schemaAnswer: 'We accept returns for unopened and unused products within 7 days of purchase. Please contact our customer service with your order number to initiate a return. Note that perishable items like food are generally not eligible for return unless there is a quality issue.',
+            schemaAnswer:
+              'We accept returns for unopened and unused products within 7 days of purchase. Please contact our customer service with your order number to initiate a return. Note that perishable items like food are generally not eligible for return unless there is a quality issue.',
           },
         ],
       },
@@ -151,7 +156,8 @@ const FAQPage: React.FC = () => {
                 meet-and-greet with the pet.
               </p>
             ),
-              schemaAnswer: 'Visit our Adopt page, browse available pets, fill out the adoption application, and our team will contact you for next steps including an interview, a home check, and a meet-and-greet with the pet.',
+            schemaAnswer:
+              'Visit our Adopt page, browse available pets, fill out the adoption application, and our team will contact you for next steps including an interview, a home check, and a meet-and-greet with the pet.',
           },
           {
             id: 'adoption-fee',
@@ -173,7 +179,8 @@ const FAQPage: React.FC = () => {
                 </p>
               </div>
             ),
-              schemaAnswer: 'PetBhai does not charge any adoption fee. We believe every animal deserves a loving home, not a price tag. However, adopters are expected to: Keep vaccinations up to date, Spay or neuter the adopted pet, Provide a safe and caring environment.',
+            schemaAnswer:
+              'PetBhai does not charge any adoption fee. We believe every animal deserves a loving home, not a price tag. However, adopters are expected to: Keep vaccinations up to date, Spay or neuter the adopted pet, Provide a safe and caring environment.',
           },
           {
             id: 'stray-rescue',
@@ -188,7 +195,8 @@ const FAQPage: React.FC = () => {
                 animal&apos;s condition. Your report will alert our rescue team to the situation.
               </p>
             ),
-              schemaAnswer: 'If you find an animal in need of rescue, please fill out our rescue report form immediately. Provide as much detail as possible, including the location and the animal\'s condition. Your report will alert our rescue team to the situation.',
+            schemaAnswer:
+              "If you find an animal in need of rescue, please fill out our rescue report form immediately. Provide as much detail as possible, including the location and the animal's condition. Your report will alert our rescue team to the situation.",
           },
         ],
       },
@@ -208,22 +216,8 @@ const FAQPage: React.FC = () => {
                 video call. You&apos;ll receive advice and prescriptions digitally.
               </p>
             ),
-              schemaAnswer: 'Book a consultation through our Services page, describe your pet\'s symptoms, and connect with a licensed vet via chat or video call. You\'ll receive advice and prescriptions digitally.',
-          },
-          {
-            id: 'ai-vs-vet',
-            question: 'Can the AI assistant replace a vet?',
-            answer: (
-              <p>
-                No. Our{' '}
-                <Link to="/ai-assistant" className="text-orange-500 hover:underline">
-                  AI Assistant
-                </Link>{' '}
-                provides general pet care guidance only. For medical emergencies or serious health
-                concerns, always consult a licensed veterinarian.
-              </p>
-            ),
-              schemaAnswer: 'No. Our AI Assistant provides general pet care guidance only. For medical emergencies or serious health concerns, always consult a licensed veterinarian.',
+            schemaAnswer:
+              "Book a consultation through our Services page, describe your pet's symptoms, and connect with a licensed vet via chat or video call. You'll receive advice and prescriptions digitally.",
           },
         ],
       },
@@ -243,25 +237,27 @@ const FAQPage: React.FC = () => {
                 , and our team will get in touch with you about available opportunities.
               </p>
             ),
-              schemaAnswer: 'We are always looking for passionate volunteers! You can help with shelter care, adoption events, transportation, and more. Please fill out our volunteer application form, and our team will get in touch with you about available opportunities.',
+            schemaAnswer:
+              'We are always looking for passionate volunteers! You can help with shelter care, adoption events, transportation, and more. Please fill out our volunteer application form, and our team will get in touch with you about available opportunities.',
           },
           {
             id: 'contact-support',
             question: 'How do I contact customer support?',
             answer: (
               <p>
-                Use our{' '}
-                <Link to="/ai-assistant" className="text-orange-500 hover:underline">
-                  AI Assistant
-                </Link>{' '}
-                for instant help, or reach us via email at{' '}
+                Ask a question on our{' '}
+                <Link to="/blog#ask-petbhai-title" className="text-orange-500 hover:underline">
+                  PetBhai Blog
+                </Link>
+                , chat with us on WhatsApp, or reach us via email at{' '}
                 <a href="mailto:petbhaibd@gmail.com" className="text-orange-500 hover:underline">
                   petbhaibd@gmail.com
                 </a>
                 . We typically respond within 24 hours.
               </p>
             ),
-              schemaAnswer: 'Use our AI Assistant for instant help, or reach us via email at petbhaibd@gmail.com. We typically respond within 24 hours.',
+            schemaAnswer:
+              'Ask a question on our PetBhai Blog, chat with us on WhatsApp, or reach us via email at petbhaibd@gmail.com. We typically respond within 24 hours.',
           },
         ],
       },
@@ -280,85 +276,87 @@ const FAQPage: React.FC = () => {
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqSections.flatMap(s => s.faqs).map((faq: any) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.schemaAnswer,
-      },
-    })),
+    mainEntity: faqSections
+      .flatMap((s) => s.faqs)
+      .map((faq: any) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.schemaAnswer,
+        },
+      })),
   };
 
   return (
     <>
-      <SEO 
-        title="FAQ | PetBhai" 
+      <SEO
+        title="FAQ | PetBhai"
         description="Frequently asked questions about PetBhai's services, adoption, shipping, and more."
         structuredData={faqSchema}
       />
       <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
-      <header className="text-center mb-8 sm:mb-12 max-w-3xl mx-auto">
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">
-          Frequently Asked Questions
-        </h1>
-        <p className="text-sm sm:text-lg text-slate-700 dark:text-slate-200 mt-3 sm:mt-4 px-2">
-          Have questions? We've got answers! Find information about our adoption process, products,
-          and how you can help.
-        </p>
-      </header>
-      <section
-        className="max-w-3xl mx-auto glass-card-ios overflow-hidden"
-        aria-label="FAQ accordion"
-      >
-        {faqSections.map((section) => {
-          const sectionItems = section.faqs.map((faq, localIndex) => {
-            const globalIndex = cumulativeIndex + localIndex;
+        <header className="text-center mb-8 sm:mb-12 max-w-3xl mx-auto">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white">
+            Frequently Asked Questions
+          </h1>
+          <p className="text-sm sm:text-lg text-slate-700 dark:text-slate-200 mt-3 sm:mt-4 px-2">
+            Have questions? We've got answers! Find information about our adoption process,
+            products, and how you can help.
+          </p>
+        </header>
+        <section
+          className="max-w-3xl mx-auto glass-card-ios overflow-hidden"
+          aria-label="FAQ accordion"
+        >
+          {faqSections.map((section) => {
+            const sectionItems = section.faqs.map((faq, localIndex) => {
+              const globalIndex = cumulativeIndex + localIndex;
+              return (
+                <FAQItem
+                  key={faq.id}
+                  id={faq.id}
+                  question={faq.question}
+                  answer={faq.answer}
+                  isOpen={openIndex === globalIndex}
+                  onClick={() => handleToggle(globalIndex)}
+                />
+              );
+            });
+            cumulativeIndex += section.faqs.length;
             return (
-              <FAQItem
-                key={faq.id}
-                id={faq.id}
-                question={faq.question}
-                answer={faq.answer}
-                isOpen={openIndex === globalIndex}
-                onClick={() => handleToggle(globalIndex)}
-              />
+              <div key={section.title}>
+                <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white px-4 sm:px-6 pt-5 sm:pt-6 pb-1">
+                  {section.title}
+                </h2>
+                {sectionItems}
+              </div>
             );
-          });
-          cumulativeIndex += section.faqs.length;
-          return (
-            <div key={section.title}>
-              <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white px-4 sm:px-6 pt-5 sm:pt-6 pb-1">
-                {section.title}
-              </h2>
-              {sectionItems}
-            </div>
-          );
-        })}
-      </section>
+          })}
+        </section>
 
-      {/* Still have questions? */}
-      <div className="max-w-3xl mx-auto mt-8 sm:mt-12 text-center">
-        <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3">
-          Still Have Questions?
-        </h2>
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm sm:text-base">
-          <Link
-            to="/community"
-            className="text-orange-500 hover:text-orange-600 font-semibold hover:underline"
-          >
-            Ask the Community
-          </Link>
-          <span className="text-slate-400">•</span>
-          <a
-            href="mailto:petbhaibd@gmail.com"
-            className="text-orange-500 hover:text-orange-600 font-semibold hover:underline"
-          >
-            Email Support
-          </a>
+        {/* Still have questions? */}
+        <div className="max-w-3xl mx-auto mt-8 sm:mt-12 text-center">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3">
+            Still Have Questions?
+          </h2>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm sm:text-base">
+            <Link
+              to="/community"
+              className="text-orange-500 hover:text-orange-600 font-semibold hover:underline"
+            >
+              Ask the Community
+            </Link>
+            <span className="text-slate-400">•</span>
+            <a
+              href="mailto:petbhaibd@gmail.com"
+              className="text-orange-500 hover:text-orange-600 font-semibold hover:underline"
+            >
+              Email Support
+            </a>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   type PetProfile,
@@ -8,8 +8,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useConfirmation } from '../contexts/ConfirmationContext';
 import { HeartIcon, PawIcon } from '../components/icons';
-import { generateText } from '../services/geminiService';
-import { RateLimiter, sanitizeInput } from '../lib/security';
+import { sanitizeInput } from '../lib/security';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type DashboardTab = 'overview' | 'reminders' | 'profile' | 'add-pet';
@@ -74,10 +73,6 @@ const PetDashboardPage: React.FC = () => {
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
   const [selectedWeightIdx, setSelectedWeightIdx] = useState<number | null>(null);
   const [dashboardError, setDashboardError] = useState('');
-
-  const [aiInsight, setAiInsight] = useState('');
-  const [loadingAi, setLoadingAi] = useState(false);
-  const aiLimiterRef = useRef(new RateLimiter(4, 60_000));
 
   const [newWeightValue, setNewWeightValue] = useState('');
 
@@ -296,7 +291,6 @@ const PetDashboardPage: React.FC = () => {
 
     try {
       await deletePet(selectedPet.id);
-      setAiInsight('');
       setNewWeightValue('');
     } catch (error) {
       setDashboardError(error instanceof Error ? error.message : 'Failed to delete pet profile.');
@@ -380,28 +374,6 @@ const PetDashboardPage: React.FC = () => {
       }));
     } catch (error) {
       setDashboardError(error instanceof Error ? error.message : 'Failed to add reminder.');
-    }
-  };
-
-  const getAiHealthTip = async () => {
-    if (!selectedPet) return;
-    setDashboardError('');
-
-    if (!aiLimiterRef.current.canProceed()) {
-      const seconds = Math.ceil(aiLimiterRef.current.getTimeUntilReset() / 1000);
-      setDashboardError(`AI insights are rate-limited. Try again in ${seconds}s.`);
-      return;
-    }
-
-    setLoadingAi(true);
-    try {
-      const prompt = `Provide a concise but practical health and lifestyle recommendation for a ${selectedPet.activityLevel} activity ${selectedPet.gender} ${selectedPet.breed || selectedPet.type} named ${selectedPet.name}, weight ${selectedPet.weight || 'unknown'}kg, living in Bangladesh climate.`;
-      const insight = await generateText(prompt);
-      setAiInsight(sanitizeInput(insight, 1200));
-    } catch {
-      setDashboardError('Unable to generate AI insight right now. Please try again shortly.');
-    } finally {
-      setLoadingAi(false);
     }
   };
 
@@ -802,31 +774,43 @@ const PetDashboardPage: React.FC = () => {
                       <div className="rounded-2xl border border-white/70 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/65 flex flex-col">
                         <h3 className="flex items-center gap-2 font-bold text-slate-800 dark:text-white">
                           <HeartIcon className="h-5 w-5 text-red-500" />
-                          AI Health Insight
+                          Veterinary Care &amp; Wellness
                         </h3>
-                        <div className="mt-3 flex-grow text-sm text-slate-700 dark:text-slate-200">
-                          {loadingAi ? (
-                            <div className="space-y-2 animate-pulse">
-                              <div className="h-2 w-4/5 rounded bg-slate-200" />
-                              <div className="h-2 w-2/3 rounded bg-slate-200" />
-                            </div>
-                          ) : aiInsight ? (
-                            <p className="leading-relaxed">{aiInsight}</p>
-                          ) : (
-                            <p className="text-slate-500 dark:text-slate-300">
-                              Generate a personalized health insight for this pet based on real-time
-                              biometric data.
-                            </p>
-                          )}
+                        <div className="mt-3 flex-grow space-y-2.5 text-sm text-slate-700 dark:text-slate-200">
+                          <p className="leading-relaxed text-slate-600 dark:text-slate-300">
+                            Keep <strong>{selectedPet.name}</strong> healthy with regular checkups,
+                            timely vaccinations, and plenty of fresh water in Bangladesh&apos;s warm
+                            climate.
+                          </p>
+                          <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                            <li>
+                              • Activity level:{' '}
+                              <span className="font-semibold capitalize">
+                                {selectedPet.activityLevel}
+                              </span>
+                            </li>
+                            <li>
+                              • Active medicine reminders:{' '}
+                              <span className="font-semibold">
+                                {petReminders.filter((item) => item.isActive).length}
+                              </span>
+                            </li>
+                          </ul>
                         </div>
-                        <button
-                          type="button"
-                          onClick={getAiHealthTip}
-                          disabled={loadingAi}
-                          className="mt-4 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-black disabled:opacity-60 transition-transform active:scale-95 w-full"
-                        >
-                          {loadingAi ? 'Analyzing Data...' : 'Generate AI Insight'}
-                        </button>
+                        <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                          <Link
+                            to="/services"
+                            className="flex-1 rounded-xl bg-slate-950 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-black transition-transform active:scale-95"
+                          >
+                            Book a Verified Vet
+                          </Link>
+                          <Link
+                            to="/blog#ask-petbhai-title"
+                            className="flex-1 rounded-xl border border-orange-500/40 bg-orange-50 px-4 py-2.5 text-center text-sm font-bold text-orange-700 hover:bg-orange-100 dark:bg-orange-950/30 dark:text-orange-300 dark:hover:bg-orange-950/50 transition-colors"
+                          >
+                            Ask PetBhai Team
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </section>

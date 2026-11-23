@@ -1,48 +1,7 @@
-// This service now delegates all AI operations to the backend API
+// This service delegates active media/image AI operations to the backend API
 // to protect API keys and centralize logic.
 
 import { apiRequest, ApiRequestError } from './apiClient';
-
-export const isAiConfigured = (): boolean => {
-  // In the full-stack architecture, we assume the backend is configured.
-  // You could add a health check here if needed, but for now we'll assume it's ready.
-  return true;
-};
-
-export const generateText = async (prompt: string): Promise<string> => {
-  return await getVetAssistantResponse(prompt);
-};
-
-export const getVetAssistantResponse = async (prompt: string): Promise<string> => {
-  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
-    return 'Please provide a question for me to answer.';
-  }
-
-  try {
-    const data = await apiRequest<{ text?: string }>('/ai/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: prompt.trim() }),
-      timeoutMs: 30000,
-    });
-
-    return (
-      data.text || "I received your question but couldn't generate a response. Please try again."
-    );
-  } catch (error) {
-    console.error('Error in getVetAssistantResponse:', error);
-
-    if (error instanceof ApiRequestError && error.statusCode === 408) {
-      throw new Error('The request took too long. Please try again with a simpler question.');
-    }
-
-    throw error instanceof Error
-      ? error
-      : new Error(
-          "I'm sorry, but I'm having trouble connecting to my knowledge base right now. Please try again later."
-        );
-  }
-};
 
 export const generateImageFromPrompt = async (prompt: string): Promise<string> => {
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {

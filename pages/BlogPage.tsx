@@ -58,7 +58,8 @@ const cardVariants: Variants = {
 
 const BlogPage: React.FC = () => {
   const { articles, loading, error, refetch } = useArticles();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isBn = language === 'bn';
 
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFilter = searchParams.get('category') || 'All';
@@ -216,7 +217,7 @@ const BlogPage: React.FC = () => {
   // Loading state
   if (loading) {
     return (
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16">
+      <main className="container mx-auto px-4 sm:px-6 py-6 md:py-12">
         <ArticleGridSkeleton count={9} />
       </main>
     );
@@ -270,12 +271,12 @@ const BlogPage: React.FC = () => {
         structuredData={structuredData}
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://petbhai.com'}/blog`}
       />
-      <main className="container mx-auto px-3 md:px-6 py-8 md:py-16 overflow-hidden">
+      <main className="container mx-auto px-4 sm:px-6 py-6 md:py-12 overflow-x-clip">
         {/* Trending Stories Carousel - Shown on primary root view */}
         {showTrendingCarousel && <TrendingCarousel articles={articles} />}
 
         {/* Search Bar with Active Ring, Animated Clear, & Count Badge */}
-        <div className="mb-8 max-w-2xl mx-auto">
+        <div className="mb-6 sm:mb-7 max-w-2xl mx-auto">
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <svg
@@ -338,7 +339,7 @@ const BlogPage: React.FC = () => {
         </div>
 
         {/* Liquid Category Pill Filters with Animated Active Indicator */}
-        <div className="relative flex overflow-x-auto pb-4 mb-8 -mx-3 px-3 md:mx-0 md:px-0 scrollbar-hide snap-x space-x-3 py-1">
+        <div className="relative flex overflow-x-auto pb-3 mb-8 md:mb-10 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide snap-x space-x-2.5 sm:space-x-3 py-1">
           {categories.map((cat) => {
             const isSelected = categoryFilter === cat.name;
             return (
@@ -394,7 +395,7 @@ const BlogPage: React.FC = () => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="space-y-6 md:space-y-8 w-full"
+              className="space-y-8 md:space-y-10 w-full"
             >
               {/* HERO SLOT */}
               {heroArticle && (
@@ -403,29 +404,45 @@ const BlogPage: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* LARGE SLOTS */}
+              {/* FEATURED LARGE SLOTS */}
               {largeArticles.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {largeArticles.map((article, idx) => (
-                    <motion.div key={article.id} variants={cardVariants} layout>
+                    <motion.div key={article.id} variants={cardVariants} layout className="h-full">
                       <ArticleCard article={article} variant="large" index={idx} />
                     </motion.div>
                   ))}
                 </div>
               )}
 
-              {/* DEFAULT GRID SLOTS */}
+              {/* ALL ARTICLES GRID SLOTS */}
               {gridArticles.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {gridArticles.map((article, idx) => (
-                    <motion.div key={article.id} variants={cardVariants} layout>
-                      <ArticleCard
-                        article={article}
-                        variant="default"
-                        index={idx + largeArticles.length}
-                      />
-                    </motion.div>
-                  ))}
+                <div className="space-y-5">
+                  {isMagazineEligible && (heroArticle || largeArticles.length > 0) && (
+                    <div className="flex items-center gap-4 pt-2">
+                      <h2 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
+                        {isBn ? 'সর্বশেষ লেখা' : t('recent_articles') || 'All Articles'}
+                      </h2>
+                      <div className="h-px flex-grow bg-zinc-200/80 dark:bg-zinc-800" />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                    {gridArticles.map((article, idx) => (
+                      <motion.div
+                        key={article.id}
+                        variants={cardVariants}
+                        layout
+                        className="h-full"
+                      >
+                        <ArticleCard
+                          article={article}
+                          variant="default"
+                          index={idx + largeArticles.length}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               )}
             </motion.section>

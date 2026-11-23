@@ -1172,7 +1172,7 @@ const ProfilePage: React.FC = () => {
                             to="/dashboard"
                             className="p-3 bg-white dark:bg-zinc-900/50 rounded-2xl text-sm font-bold text-emerald-700 dark:text-emerald-500 border border-slate-100 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors shadow-sm"
                           >
-                            AI Pet Health
+                            Pet Health Hub
                           </Link>
                           <button
                             onClick={() => setActiveTab('pets')}
@@ -1487,7 +1487,7 @@ const ProfilePage: React.FC = () => {
                         My Registered Pets
                       </h2>
                       <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                        Manage your pets' vitals, vaccines, and AI health insights
+                        Manage your pets' vitals, vaccines, and care reminders
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1495,7 +1495,7 @@ const ProfilePage: React.FC = () => {
                         to="/dashboard"
                         className="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 text-xs font-bold transition-colors border border-emerald-200/60 dark:border-emerald-800/40"
                       >
-                        ⚡ AI Health Dashboard
+                        🩺 Pet Health Dashboard
                       </Link>
                       <button
                         onClick={() => setIsAddPetOpen(true)}
@@ -1513,8 +1513,8 @@ const ProfilePage: React.FC = () => {
                         No pets added yet
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-sm mx-auto mt-1 mb-5">
-                        Register your pet to receive customized nutrition suggestions, medication
-                        reminders, and full AI health diagnostics!
+                        Register your pet to receive customized nutrition estimates, medication
+                        reminders, and daily health tracking!
                       </p>
                       <button
                         onClick={() => setIsAddPetOpen(true)}
@@ -1574,7 +1574,7 @@ const ProfilePage: React.FC = () => {
                               to="/dashboard"
                               className="text-xs font-bold text-amber-600 dark:text-amber-500 hover:underline flex items-center gap-1"
                             >
-                              AI Health & Diagnostics →
+                              Pet Health Dashboard →
                             </Link>
                             <button
                               onClick={async () => {

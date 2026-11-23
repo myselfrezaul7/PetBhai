@@ -40,15 +40,88 @@ export const ProductCardSkeleton: React.FC = () => (
 );
 
 export const ArticleHeroSkeleton: React.FC = () => (
-  <Skeleton className="w-full h-[320px] md:h-[420px] rounded-3xl mb-8 border border-white/10" />
+  <div className="grid grid-cols-1 lg:grid-cols-12 rounded-3xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-lg">
+    <div className="lg:col-span-5 relative bg-zinc-100 dark:bg-zinc-800 aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[360px]">
+      <Skeleton className="w-full h-full rounded-none" />
+      <div className="absolute top-4 left-4 flex items-center gap-2">
+        <Skeleton className="h-6 w-20 rounded-full" />
+        <Skeleton className="h-6 w-24 rounded-full" />
+      </div>
+    </div>
+    <div className="lg:col-span-7 p-6 md:p-8 lg:p-10 flex flex-col justify-between gap-6">
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="w-6 h-6 rounded-full" />
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+        <Skeleton className="h-8 sm:h-9 w-5/6 mb-2.5" />
+        <Skeleton className="h-8 sm:h-9 w-2/3 mb-4" />
+        <Skeleton className="h-4 w-full mb-2" />
+        <Skeleton className="h-4 w-11/12 mb-2" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+      <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center gap-4">
+        <Skeleton className="h-5 w-14" />
+        <Skeleton className="h-5 w-10" />
+        <Skeleton className="h-5 w-24 ml-auto" />
+        <Skeleton className="h-6 w-6 rounded-md" />
+      </div>
+    </div>
+  </div>
 );
 
 export const ArticleLargeSkeleton: React.FC = () => (
-  <Skeleton className="w-full h-[280px] rounded-2xl border border-white/10" />
+  <div className="flex flex-col sm:flex-row h-full rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm">
+    <div className="sm:w-2/5 relative bg-zinc-100 dark:bg-zinc-800 aspect-[4/3] sm:aspect-square flex-shrink-0">
+      <Skeleton className="w-full h-full rounded-none" />
+      <Skeleton className="absolute top-3 left-3 h-6 w-20 rounded-full" />
+    </div>
+    <div className="p-4 sm:p-5 flex flex-col flex-grow">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <Skeleton className="h-3.5 w-28" />
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </div>
+      <Skeleton className="h-5 w-11/12 mb-1.5" />
+      <Skeleton className="h-5 w-3/4 mb-3" />
+      <Skeleton className="h-3.5 w-full mb-1.5" />
+      <Skeleton className="h-3.5 w-4/5 mb-4" />
+      <div className="mt-auto pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center gap-3">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-8" />
+        <Skeleton className="h-4 w-20 ml-auto" />
+        <Skeleton className="h-5 w-5 rounded-md" />
+      </div>
+    </div>
+  </div>
 );
 
 export const ArticleCardSkeleton: React.FC = () => (
-  <Skeleton className="w-full h-[220px] md:h-[260px] rounded-2xl border border-white/10" />
+  <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm">
+    <div className="relative aspect-[4/3] w-full bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
+      <Skeleton className="w-full h-full rounded-none" />
+      <Skeleton className="absolute top-3 left-3 h-6 w-20 rounded-full" />
+    </div>
+    <div className="p-4 sm:p-5 flex flex-col flex-grow">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <Skeleton className="h-3.5 w-32" />
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </div>
+      <Skeleton className="h-5 w-11/12 mb-1.5" />
+      <Skeleton className="h-5 w-2/3 mb-3" />
+      <Skeleton className="h-3.5 w-full mb-1.5" />
+      <Skeleton className="h-3.5 w-4/5 mb-4" />
+      <div className="mt-auto pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center gap-3">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-8" />
+        <Skeleton className="h-4 w-20 ml-auto" />
+        <Skeleton className="h-5 w-5 rounded-md" />
+      </div>
+    </div>
+  </div>
 );
 
 // Vet card skeleton
@@ -248,13 +321,13 @@ export const ProductGridSkeleton: React.FC<{ count?: number }> = ({ count = 8 })
 // Magazine layout skeleton
 export const ArticleGridSkeleton: React.FC<{ count?: number }> = ({ count = 9 }) => {
   return (
-    <div className="space-y-8 w-full">
+    <div className="space-y-8 md:space-y-10 w-full">
       <ArticleHeroSkeleton />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ArticleLargeSkeleton />
         <ArticleLargeSkeleton />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
         {Array.from({ length: Math.max(0, count - 3) }).map((_, i) => (
           <ArticleCardSkeleton key={i} />
         ))}

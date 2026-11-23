@@ -34,11 +34,6 @@ export interface Article {
   commentCount?: number;
 }
 
-export interface ChatMessage {
-  sender: 'user' | 'ai';
-  text: string;
-}
-
 export interface Order {
   orderId: string;
   date: string; // ISO string
@@ -349,6 +344,15 @@ export interface PetSitter extends BaseProfessional {
   petTypes: ('Dogs' | 'Cats' | 'Small Animals')[];
 }
 
+export interface ArticleComment {
+  id: string;
+  userId: string;
+  userName: string;
+  text: string;
+  createdAt: number;
+  isGuest?: boolean;
+}
+
 export interface Question {
   id: number;
   name: string;
@@ -357,5 +361,10 @@ export interface Question {
   question: string;
   createdAt: string;
   status?: 'pending' | 'answered' | 'rejected';
+  answer?: string;
+  answeredBy?: string;
+  answeredAt?: string;
   answeredBlogSlug?: string;
+  answeredBlogTitle?: string;
+  helpfulCount?: number;
 }

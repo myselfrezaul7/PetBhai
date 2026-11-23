@@ -10,7 +10,6 @@ import { getFirestore, type Firestore } from 'firebase/firestore';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 import { getPerformance } from 'firebase/performance';
 
-
 const getEnvVar = (key: string): string => {
   try {
     if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
@@ -72,8 +71,15 @@ if (isFirebaseConfigured()) {
       });
 
       // Initialize App Check (Security)
-      const siteKey = getEnvVar('VITE_RECAPTCHA_ENTERPRISE_SITE_KEY');
-      if (siteKey && siteKey !== 'your_recaptcha_enterprise_site_key_here') {
+      const siteKey = getEnvVar('VITE_RECAPTCHA_ENTERPRISE_SITE_KEY').trim();
+      const lowerSiteKey = siteKey.toLowerCase();
+      const isPlaceholderSiteKey =
+        !siteKey ||
+        siteKey.startsWith('your_') ||
+        siteKey.includes('placeholder') ||
+        lowerSiteKey.startsWith('your_') ||
+        lowerSiteKey.includes('placeholder');
+      if (!isPlaceholderSiteKey) {
         try {
           initializeAppCheck(app, {
             provider: new ReCaptchaEnterpriseProvider(siteKey),
@@ -84,7 +90,9 @@ if (isFirebaseConfigured()) {
           console.error('Firebase App Check initialization failed:', appCheckError);
         }
       } else {
-        console.warn('Firebase App Check was not initialized: VITE_RECAPTCHA_ENTERPRISE_SITE_KEY is missing or placeholder.');
+        console.warn(
+          'Firebase App Check was not initialized: VITE_RECAPTCHA_ENTERPRISE_SITE_KEY is missing or placeholder.'
+        );
       }
 
       // Initialize Performance Monitoring

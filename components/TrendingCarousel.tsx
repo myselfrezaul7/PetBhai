@@ -1,9 +1,28 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { handleBlogImageError } from '../lib/imageUtils';
+import { safeStorage } from '../lib/storage';
+import { getBaselineReaders } from '../services/blogEngagement';
 import { useArticleEngagement } from '../hooks/useArticleEngagement';
+
+const getEffectiveArticleViews = (article: Article): number => {
+  const key = String(article.id);
+  const rawStored = safeStorage.getItem(`article_views_${key}`);
+  const storedViews = rawStored ? parseInt(rawStored, 10) : 0;
+  const rawDelta = safeStorage.getItem(`petbhai_viewed_delta_${key}`);
+  const localDelta = rawDelta ? parseInt(rawDelta, 10) : 0;
+  const articleViews =
+    typeof article.views === 'number' && Number.isFinite(article.views) ? article.views : 0;
+  const baseline = getBaselineReaders(article.id);
+
+  const safeStored = Number.isFinite(storedViews) && storedViews > 0 ? storedViews : 0;
+  const safeDelta = Number.isFinite(localDelta) && localDelta > 0 ? localDelta : 0;
+  const safeBaseline = Number.isFinite(baseline) && baseline > 0 ? baseline : 0;
+
+  return Math.max(safeStored, articleViews, safeBaseline + safeDelta);
+};
 
 interface TrendingCardProps {
   article: Article;
@@ -13,65 +32,101 @@ const TrendingCard: React.FC<TrendingCardProps> = ({ article }) => {
   const { t, language } = useLanguage();
   const isBn = language === 'bn';
   const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const { viewCount } = useArticleEngagement(article.id);
+
+  const imageSrc = article.imageUrl || '/blog-images/blog-placeholder.png';
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      setIsLoaded(true);
+    } else {
+      setIsLoaded(false);
+    }
+  }, [imageSrc]);
 
   return (
     <Link
       to={`/blog/${article.slug || article.id}`}
-      className="block relative w-[280px] sm:w-[360px] h-[180px] sm:h-[220px] flex-shrink-0 rounded-2xl overflow-hidden snap-start group shadow-md hover:shadow-xl transition-all duration-300 border border-white/10"
+      className="w-[300px] sm:w-[360px] flex-shrink-0 snap-start p-3 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-amber-300/80 dark:hover:border-amber-500/40 flex items-center gap-3.5 transition-all duration-300 group"
     >
-      {/* Background Image with shimmer skeleton */}
-      <div className="absolute inset-0 bg-slate-200 dark:bg-slate-700 overflow-hidden">
+      {/* Left 1:1 Square Unobstructed Thumbnail (zero cropping of 1024x1024 art) */}
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
         {!isLoaded && (
-          <div className="w-full h-full bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent bg-[length:200%_100%] animate-shimmer" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/5 to-transparent bg-[length:200%_100%] animate-shimmer" />
         )}
         <img
-          src={article.imageUrl || '/blog-images/blog-placeholder.png'}
+          ref={imgRef}
+          src={imageSrc}
           alt={article.title}
-          className={`w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          width={112}
+          height={112}
+          className={`w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           onLoad={() => setIsLoaded(true)}
-          onError={handleBlogImageError}
+          onError={(e) => {
+            handleBlogImageError(e);
+            setIsLoaded(true);
+          }}
           loading="lazy"
           decoding="async"
         />
       </div>
 
-      {/* Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+      {/* Right Editorial Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5 min-w-0">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 shrink-0">
+              <span aria-hidden="true">🔥</span>
+              <span>{isBn ? 'ট্রেন্ডিং' : 'Trending'}</span>
+            </span>
+            {article.category && (
+              <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 truncate">
+                {article.category}
+              </span>
+            )}
+          </div>
 
-      {/* Top badges */}
-      <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
-        <span className="bg-amber-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border border-amber-500/80 backdrop-blur-md">
-          🔥 {isBn ? 'ট্রেন্ডিং' : 'Trending'}
-        </span>
-        <span className="bg-black/60 text-white/90 text-xs font-semibold px-2.5 py-1 rounded-full shadow-md backdrop-blur-md border border-white/20">
-          {article.readTime} {isBn ? 'মিনিট পড়া' : 'min read'}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-transform duration-300 z-10">
-        <div className="text-xs font-bold text-amber-400 mb-1 tracking-wider uppercase drop-shadow-md">
-          {article.category}
+          <h3 className="text-sm sm:text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+            {article.title}
+          </h3>
         </div>
-        <h3 className="text-white font-bold text-lg leading-tight line-clamp-2 drop-shadow-md group-hover:text-amber-300 transition-colors">
-          {article.title}
-        </h3>
 
-        {/* Engagement row */}
-        <div className="mt-2 flex items-center text-xs text-white/80 gap-3">
-          <span className="flex items-center gap-1 font-medium">
-            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+        {/* Live Reader Count + Read Time */}
+        <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="inline-flex items-center gap-1 font-medium text-zinc-700 dark:text-zinc-300 tabular-nums min-w-0">
+            <svg
+              className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
-                fillRule="evenodd"
-                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                clipRule="evenodd"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
               />
             </svg>
-            {viewCount} {t('blog_readers') || 'readers'}
+            <span className="truncate">
+              {viewCount.toLocaleString()} {t('blog_readers') || 'readers'}
+            </span>
           </span>
-          <span className="truncate">{article.author}</span>
+          <span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">
+            •
+          </span>
+          <span className="shrink-0 whitespace-nowrap">
+            {article.readTime} {isBn ? 'মিনিট পড়া' : 'min read'}
+          </span>
         </div>
       </div>
     </Link>
@@ -100,8 +155,20 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
     };
   }, []);
 
-  // Filter for featured/trending (just take the first 6 for now)
-  const trendingArticles = articles.filter((a) => a.featured || true).slice(0, 6);
+  // Sort by featured priority first, then actual reader/view count, then newest date
+  const trendingArticles = useMemo(() => {
+    return [...articles]
+      .sort((a, b) => {
+        const featuredDiff = Number(Boolean(b.featured)) - Number(Boolean(a.featured));
+        if (featuredDiff !== 0) return featuredDiff;
+
+        const viewsDiff = getEffectiveArticleViews(b) - getEffectiveArticleViews(a);
+        if (viewsDiff !== 0) return viewsDiff;
+
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      })
+      .slice(0, 6);
+  }, [articles]);
 
   const scrollToIndex = (index: number) => {
     const container = scrollRef.current;
@@ -158,8 +225,9 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
   if (trendingArticles.length === 0) return null;
 
   return (
-    <div
-      className="mb-12 relative"
+    <section
+      aria-label={isBn ? 'জনপ্রিয় লেখাগুলো' : 'Trending Stories'}
+      className="mb-10 md:mb-12 relative"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => {
@@ -177,10 +245,13 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
         }, 10000);
       }}
     >
-      <div className="flex items-center justify-between mb-4 px-3 md:px-0">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 md:gap-4">
           <h2 className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-            <span className="text-2xl">🔥</span> {isBn ? 'জনপ্রিয় লেখাগুলো' : 'Trending Stories'}
+            <span aria-hidden="true" className="text-2xl">
+              🔥
+            </span>
+            <span>{isBn ? 'জনপ্রিয় লেখাগুলো' : 'Trending Stories'}</span>
           </h2>
 
           {/* Desktop/Tablet Pagination Indicator Dots */}
@@ -194,7 +265,7 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
                 type="button"
                 onClick={() => scrollToIndex(i)}
                 aria-label={`Go to trending slide ${i + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                   i === activeIndex
                     ? 'w-6 bg-amber-500 shadow-xs'
                     : 'w-2 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600'
@@ -204,13 +275,13 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
           </div>
         </div>
 
-        {/* Frosted Glass Navigation Buttons */}
+        {/* Navigation Buttons */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleScrollPrev}
             aria-label="Previous trending article"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-700/80 shadow-xs flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 dark:hover:bg-amber-500 dark:hover:text-white dark:hover:border-amber-500 active:scale-95 transition-all duration-200"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-700/80 shadow-xs flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 dark:hover:bg-amber-500 dark:hover:text-white dark:hover:border-amber-500 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -225,7 +296,7 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
             type="button"
             onClick={handleScrollNext}
             aria-label="Next trending article"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-700/80 shadow-xs flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 dark:hover:bg-amber-500 dark:hover:text-white dark:hover:border-amber-500 active:scale-95 transition-all duration-200"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-700/80 shadow-xs flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 dark:hover:bg-amber-500 dark:hover:text-white dark:hover:border-amber-500 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -243,7 +314,7 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto gap-4 pb-4 px-3 md:px-0 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+        className="flex overflow-x-auto gap-4 py-1 pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-hide scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {trendingArticles.map((article) => (
@@ -262,7 +333,7 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
             type="button"
             onClick={() => scrollToIndex(i)}
             aria-label={`Go to trending slide ${i + 1}`}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
               i === activeIndex
                 ? 'w-5 bg-amber-500 shadow-xs'
                 : 'w-1.5 bg-zinc-300 dark:bg-zinc-700'
@@ -271,9 +342,9 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({ articles }) => {
         ))}
       </div>
 
-      {/* Fade edges for desktop */}
-      <div className="hidden md:block absolute top-12 right-0 bottom-4 w-12 bg-gradient-to-l from-slate-50 dark:from-zinc-950 to-transparent pointer-events-none" />
-    </div>
+      {/* Subtle Fade Edge for Desktop */}
+      <div className="hidden md:block absolute top-12 right-0 bottom-3 w-12 bg-gradient-to-l from-kw-bg-page to-transparent pointer-events-none" />
+    </section>
   );
 };
 

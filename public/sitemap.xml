@@ -59,14 +59,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- AI Tools - Medium-High Priority -->
-  <url>
-    <loc>https://www.petbhai.com/ai-assistant</loc>
-    <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
+  <!-- Interactive Tools -->
   <url>
     <loc>https://www.petbhai.com/compatibility-quiz</loc>
     <lastmod>2026-06-12</lastmod>

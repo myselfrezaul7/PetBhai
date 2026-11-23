@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { safeStorage } from '../lib/storage';
 import {
   subscribeEngagement,
   subscribeComments,
@@ -8,6 +9,9 @@ import {
   deleteComment,
   incrementViews,
   shareArticle,
+  getInitialEngagementState,
+  getOrCreateGuestId,
+  getExistingGuestId,
   type Comment,
   type EngagementState,
 } from '../services/blogEngagement';
@@ -23,26 +27,23 @@ export const useArticleEngagement = (
   const { currentUser } = useAuth();
   const userId = currentUser?.id?.toString() || null;
 
-  const [state, setState] = useState<EngagementState>({
-    likeCount: 0,
-    commentCount: 0,
-    viewCount: 0,
-  });
+  const [state, setState] = useState<EngagementState>(() => getInitialEngagementState(articleId));
   const [isLiked, setIsLiked] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(true);
 
   // Subscribe to likes & views
   useEffect(() => {
-    if (!articleId) return;
+    if (articleId === '' || articleId === null || articleId === undefined) return;
 
     const unsubscribe = subscribeEngagement(articleId, userId, (newState, likedByMe) => {
       setState(newState);
       setIsLiked(likedByMe);
     });
 
-    // Only increment view if trackView is explicitly requested (e.g. on full article detail view)
-    // Called after subscribeEngagement so this hook immediately receives the optimistic increment
+    // Only increment view if trackView is explicitly requested (e.g. on full article detail view).
+    // Called right after subscribeEngagement so this hook immediately receives the optimistic +1.
+    // StrictMode double-invocations are guarded via runtime Set + sessionStorage in incrementViews.
     if (options?.trackView) {
       void incrementViews(articleId);
     }
@@ -52,7 +53,11 @@ export const useArticleEngagement = (
 
   // Subscribe to comments
   useEffect(() => {
-    if (!articleId) return;
+    if (articleId === '' || articleId === null || articleId === undefined) {
+      setComments([]);
+      setLoadingComments(false);
+      return;
+    }
     setLoadingComments(true);
 
     const unsubscribe = subscribeComments(articleId, 20, (newComments) => {
@@ -65,7 +70,6 @@ export const useArticleEngagement = (
 
   const handleToggleLike = useCallback(async () => {
     if (!userId) {
-      // Could throw or return false so UI can show login modal
       throw new Error('AUTH_REQUIRED');
     }
 
@@ -90,20 +94,39 @@ export const useArticleEngagement = (
   }, [articleId, userId, isLiked]);
 
   const handleAddComment = useCallback(
-    async (text: string) => {
-      if (!userId || !currentUser) {
-        throw new Error('AUTH_REQUIRED');
+    async (text: string, guestName?: string): Promise<void> => {
+      const trimmedText = typeof text === 'string' ? text.trim() : '';
+      if (trimmedText.length < 2) {
+        throw new Error('Please write at least 2 characters.');
       }
-      return addComment(articleId, userId, currentUser.name, text);
+
+      let resolvedUserId: string;
+      let resolvedUserName: string;
+
+      if (userId && currentUser) {
+        resolvedUserId = userId;
+        resolvedUserName = currentUser.name || 'PetBhai Member';
+      } else {
+        const trimmedGuestName = typeof guestName === 'string' ? guestName.trim() : '';
+        if (trimmedGuestName) {
+          safeStorage.setItem('petbhai_guest_name', trimmedGuestName);
+        }
+        resolvedUserName =
+          trimmedGuestName || safeStorage.getItem('petbhai_guest_name')?.trim() || 'Pet Parent';
+        resolvedUserId = getOrCreateGuestId();
+      }
+
+      await addComment(articleId, resolvedUserId, resolvedUserName, trimmedText);
     },
     [articleId, userId, currentUser]
   );
 
   const handleDeleteComment = useCallback(
-    async (commentId: string) => {
-      return deleteComment(articleId, commentId);
+    async (commentId: string): Promise<void> => {
+      const requesterId = userId || getExistingGuestId() || undefined;
+      await deleteComment(articleId, commentId, requesterId);
     },
-    [articleId]
+    [articleId, userId]
   );
 
   const handleShare = useCallback(

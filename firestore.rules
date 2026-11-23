@@ -6,18 +6,41 @@ service cloud.firestore {
     match /articles/{articleId} {
       // Anyone can read engagement counts
       allow read: if true;
-      // Anyone can increment views (anonymous visitors)
+      // Anyone can increment views (anonymous visitors & REST fallback)
       allow create: if true;
       allow update: if true;
-      
+
       // Comments subcollection
       match /comments/{commentId} {
         allow read: if true;
-        // Authenticated users can add comments
-        allow create: if request.auth != null;
-        // Only comment author can delete
+        // Authenticated users or validated guest visitors can add comments
+        allow create: if request.auth != null
+          || (
+            request.resource.data.text is string
+            && request.resource.data.text.size() >= 2
+            && request.resource.data.text.size() <= 1500
+            && request.resource.data.userName is string
+            && request.resource.data.userName.size() >= 1
+            && request.resource.data.userName.size() <= 100
+          );
+        // Authenticated users/admins can delete
         allow delete: if request.auth != null;
       }
+    }
+
+    // Public visitor Q&A questions (private email is stripped before sync)
+    match /questions/{questionId} {
+      allow read: if true;
+      allow create: if request.resource.data.question is string
+        && request.resource.data.question.size() >= 10
+        && request.resource.data.question.size() <= 1000
+        && !('email' in request.resource.data);
+      allow update: if request.auth != null
+        || (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['helpfulCount', 'updatedAt'])
+          && !('email' in request.resource.data)
+        );
+      allow delete: if request.auth != null;
     }
   }
 }

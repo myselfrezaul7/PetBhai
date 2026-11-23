@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import type { Article } from '../types';
 import { normalizeArticle } from '../lib/articleUtils';
+import { seedArticlesEngagement } from '../services/blogEngagement';
 import { apiRequest, getErrorMessage, ApiRequestError } from '../services/apiClient';
 import { safeSessionStorage } from '../lib/storage';
 
@@ -26,6 +27,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const validData = Array.isArray(data) ? data.filter(Boolean) : [];
       const normalizedData = validData.map(normalizeArticle);
 
+      seedArticlesEngagement(normalizedData);
       setArticles(normalizedData);
 
       // Save to cache
@@ -60,7 +62,9 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
         console.log('Using cached articles as fallback');
-        setArticles(cachedData);
+        const normalizedCached = cachedData.filter(Boolean).map(normalizeArticle);
+        seedArticlesEngagement(normalizedCached);
+        setArticles(normalizedCached);
         if (!silent) setError(null); // Clear error since we have cached data
       } else if (!silent || (!retryable && isApiError)) {
         setError(getErrorMessage(err, 'Failed to load articles. Please try again.'));

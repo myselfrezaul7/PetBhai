@@ -1,6 +1,29 @@
 import type { Article } from '../types';
 
 /**
+ * Returns a deterministic baseline reader count for an article so every article starts
+ * with realistic, stable readership across frontend and backend (range: 85–479).
+ */
+export function getBaselineReaders(articleId: string | number): number {
+  if (articleId === '' || articleId === null || articleId === undefined) {
+    return 0;
+  }
+
+  const raw = String(articleId).trim();
+  if (!raw) return 0;
+
+  let num = parseInt(raw, 10);
+  if (!Number.isFinite(num) || Number.isNaN(num)) {
+    num = 0;
+    for (let i = 0; i < raw.length; i++) {
+      num = (num * 31 + raw.charCodeAt(i)) % 100000;
+    }
+  }
+
+  return 85 + ((Math.abs(num) * 47) % 395);
+}
+
+/**
  * Calculates read time in minutes for an article based on content length.
  * Assumes an average reading speed of 225 words per minute.
  */
@@ -35,10 +58,10 @@ export function calculateReadTimeMinutes(content: string): number {
  */
 export function normalizeArticle(article: Article): Article {
   if (!article) return article;
-  
+
   // Calculate read time
   const readTime = calculateReadTimeMinutes(article.content || '');
-  
+
   // Generate excerpt if missing
   let excerpt = article.excerpt;
   if (!excerpt && article.content) {
@@ -46,13 +69,23 @@ export function normalizeArticle(article: Article): Article {
     cleanText = cleanText.replace(/\s+/g, ' ').trim();
     excerpt = cleanText.length > 155 ? cleanText.substring(0, 155) + '...' : cleanText;
   }
-  
+
   // Automatically generate a slug if missing
-  const slug = article.slug || article.title
-    .toLowerCase()
-    .replace(/[^a-z0-9\u0980-\u09FF \-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-') + '-' + article.id;
+  const slug =
+    article.slug ||
+    article.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\u0980-\u09FF \-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-') +
+      '-' +
+      article.id;
+
+  const baselineViews = getBaselineReaders(article.id);
+  const views =
+    typeof article.views === 'number' && Number.isFinite(article.views)
+      ? Math.max(article.views, baselineViews)
+      : baselineViews;
 
   return {
     ...article,
@@ -60,8 +93,9 @@ export function normalizeArticle(article: Article): Article {
     readTime,
     excerpt,
     slug,
+    views,
     category: article.category || 'General Pet Care',
     updatedAt: article.updatedAt || article.date,
-    tags: article.tags || []
+    tags: article.tags || [],
   };
 }

@@ -19,7 +19,7 @@ interface WhatsAppButtonProps {
   defaultMessage?: string;
 }
 
-const HIDE_WHATSAPP_ROUTES = ['/checkout', '/ai-assistant', '/admin', '/login', '/signup'];
+const HIDE_WHATSAPP_ROUTES = ['/checkout', '/admin', '/login', '/signup'];
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   phoneNumber = '8801712345678',

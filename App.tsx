@@ -66,7 +66,6 @@ const AdoptionQuizPage = lazy(() => import('./pages/AdoptionQuizPage'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'));
 const MessengerPlugin = lazy(() => import('./components/MessengerPlugin'));
-const AIAssistantPage = lazy(() => import('./pages/AIAssistantPage'));
 
 const ADMIN_EMAILS = ['petbhaibd@gmail.com', 'rsrezaul55@gmail.com'];
 
@@ -178,15 +177,6 @@ const RouteSEO: React.FC = () => {
         title="Frequently Asked Questions"
         description="Find answers to common PetBhai questions about orders, deliveries, adoption, and services."
         keywords={['petbhai faq', 'pet care questions', 'pet services help']}
-      />
-    );
-  }
-  if (path === '/ai-assistant') {
-    return (
-      <SEO
-        title="AI Vet Assistant"
-        description="Chat with PetBhai's AI assistant for helpful guidance on pet health, behavior, and care."
-        keywords={['ai vet', 'pet health advice', 'petbhai ai', 'pet care assistant']}
       />
     );
   }
@@ -656,13 +646,7 @@ const AppContent: React.FC = () => {
       <RouteSEO />
       <OfflineIndicator />
       <Header />
-      <main
-        className={`flex-grow app-main pt-[calc(4.75rem+var(--safe-top))] md:pt-28 md:pb-0 ${
-          location.pathname === '/ai-assistant'
-            ? 'pb-[env(safe-area-inset-bottom)]'
-            : 'pb-[calc(5.75rem+var(--safe-bottom))]'
-        }`}
-      >
+      <main className="flex-grow app-main pt-[calc(4.75rem+var(--safe-top))] pb-[calc(5.75rem+var(--safe-bottom))] md:pt-28 md:pb-0">
         <SwipeNavigationProvider>
           <ErrorBoundary>
             <Suspense fallback={<PawHeartLoader />}>
@@ -720,7 +704,7 @@ const AppContent: React.FC = () => {
                   <Route path="/dashboard" element={<PetDashboardPage />} />
                   <Route path="/compatibility-quiz" element={<PetCompatibilityPage />} />
                   <Route path="/services/booking" element={<ServicesBookingPage />} />
-                  <Route path="/ai-assistant" element={<AIAssistantPage />} />
+                  <Route path="/ai-assistant" element={<Navigate to="/services" replace />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </div>
@@ -737,7 +721,7 @@ const AppContent: React.FC = () => {
       <BottomNav />
       <ScrollToTop />
       <ScrollToTopOnNavigate />
-      {location.pathname !== '/ai-assistant' && <Footer />}
+      <Footer />
       {!isNativeApp() && <SpeedInsights />}
       <ToastContainer />
       <ConfirmationModal />

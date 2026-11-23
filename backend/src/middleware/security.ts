@@ -19,18 +19,24 @@ export const escapeHtml = (str: string): string => {
   return str.replace(/[&<>"'`=/]/g, (char) => htmlEntities[char] || char);
 };
 
-// Remove dangerous characters and patterns
+// Remove dangerous characters and patterns while preserving intentional newlines (\n)
 export const sanitizeString = (str: string, maxLength = 1000): string => {
   if (typeof str !== 'string') return '';
 
   return (
     str
-      // Trim whitespace
-      .trim()
+      // Normalize line endings to \n
+      .replace(/\r\n?/g, '\n')
       // Remove null bytes
       .replace(/\0/g, '')
-      // Remove excessive whitespace
-      .replace(/\s+/g, ' ')
+      // Collapse excessive horizontal whitespace (spaces/tabs) without stripping newlines
+      .replace(/[^\S\n]+/g, ' ')
+      // Trim horizontal spaces around newlines
+      .replace(/ *\n */g, '\n')
+      // Limit consecutive blank lines to at most one blank line
+      .replace(/\n{3,}/g, '\n\n')
+      // Trim outer whitespace
+      .trim()
       // Limit length
       .slice(0, maxLength)
   );
@@ -47,6 +53,20 @@ const TOKEN_KEYS = new Set([
   'provideruserid',
 ]);
 
+// Multi-line content keys that allow longer text while preserving \n line breaks
+const MULTILINE_KEYS = new Set([
+  'question',
+  'answer',
+  'text',
+  'content',
+  'comment',
+  'bio',
+  'description',
+  'notes',
+  'message',
+  'excerpt',
+]);
+
 // Deep sanitize an object (recursively)
 export const sanitizeObject = <T extends object>(obj: T, maxDepth = 10): T => {
   if (maxDepth <= 0) return obj;
@@ -59,13 +79,16 @@ export const sanitizeObject = <T extends object>(obj: T, maxDepth = 10): T => {
       continue;
     }
 
-    // Sanitize the key itself
-    const sanitizedKey = sanitizeString(key, 100);
+    // Sanitize the key itself (single-line)
+    const sanitizedKey = sanitizeString(key, 100).replace(/\n+/g, ' ');
+    const lowerKey = sanitizedKey.toLowerCase();
 
     if (typeof value === 'string') {
       // Don't truncate known token fields — they can be 1400+ chars (JWTs)
-      if (TOKEN_KEYS.has(sanitizedKey.toLowerCase())) {
+      if (TOKEN_KEYS.has(lowerKey)) {
         sanitized[sanitizedKey] = value.trim().replace(/\0/g, '');
+      } else if (MULTILINE_KEYS.has(lowerKey)) {
+        sanitized[sanitizedKey] = sanitizeString(value, 5000);
       } else {
         sanitized[sanitizedKey] = sanitizeString(value);
       }
@@ -112,8 +135,6 @@ const dangerousPatterns = [
   /<img.*onerror/i,
 ];
 
-
-
 // Detect potentially malicious content
 export const detectMaliciousContent = (str: string): boolean => {
   if (typeof str !== 'string') return false;
@@ -125,8 +146,6 @@ export const detectMaliciousContent = (str: string): boolean => {
 
   return false;
 };
-
-
 
 // Check object for malicious content
 const checkObjectForMalicious = (obj: unknown, path = ''): string[] => {

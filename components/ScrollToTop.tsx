@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const HIDE_ON_ROUTES = ['/product/', '/checkout', '/ai-assistant', '/services/booking'];
+const HIDE_ON_ROUTES = ['/product/', '/checkout', '/services/booking'];
 
 const ScrollToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);

@@ -310,8 +310,9 @@ const TermsPage: React.FC = () => {
                     schedules you optionally save in the Pet Dashboard.
                   </li>
                   <li>
-                    <strong>Community & AI Assistant Inputs:</strong> Posts, comments, uploaded pet
-                    photos, and questions submitted to the Community Hub or PetBhai AI Assistant.
+                    <strong>Community &amp; Visitor Q&amp;A Inputs:</strong> Posts, comments,
+                    uploaded pet photos, and questions submitted to the Community Hub or PetBhai
+                    Blog.
                   </li>
                 </ul>
               </div>
@@ -362,16 +363,17 @@ const TermsPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                  Community Safety (UGC) & AI Veterinary Disclaimer
+                  Community Safety (UGC) &amp; Pet Care Guidance Disclaimer
                 </h3>
                 <p>
                   Users can report objectionable community posts/comments or block abusive users
-                  directly from any post in the Community Hub. The PetBhai AI Assistant provides
-                  general educational and first-aid pet care guidance only and is{' '}
+                  directly from any post in the Community Hub. General pet care articles and
+                  community guidance on PetBhai are for educational purposes only and are{' '}
                   <strong>
                     not a substitute for professional veterinary diagnosis or treatment
                   </strong>
-                  . Users can flag any AI response using the in-chat <em>Report</em> button.
+                  . For medical emergencies or serious health concerns, always consult a licensed
+                  veterinarian.
                 </p>
               </div>
             </div>

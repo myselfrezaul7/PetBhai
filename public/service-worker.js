@@ -3,7 +3,7 @@ const STATIC_CACHE = 'petbhai-static-v6';
 const DYNAMIC_CACHE = 'petbhai-dynamic-v4';
 const IMAGE_CACHE = 'petbhai-images-v4';
 const FONT_CACHE = 'petbhai-fonts-v2';
-const API_CACHE = 'petbhai-api-v2';
+const API_CACHE = 'petbhai-api-v3';
 
 // Critical assets to precache
 const urlsToCache = [
@@ -143,41 +143,39 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // API requests: Network first with cache fallback for GET requests
+  // API requests: Network-First with valid cache fallback for GET requests
   if (event.request.url.includes('/api/')) {
-    // Skip caching for auth and order endpoints (sensitive data)
-    if (
-      event.request.url.includes('/api/auth') ||
-      event.request.url.includes('/api/orders') ||
-      event.request.url.includes('/api/csrf')
-    ) {
+    const pathname = requestUrl.pathname;
+    // Exclude auth, orders, csrf, live article engagement/comments, and visitor questions from caching (network-only)
+    const isNetworkOnlyApi =
+      pathname.includes('/api/auth') ||
+      pathname.includes('/api/orders') ||
+      pathname.includes('/api/csrf') ||
+      pathname.includes('/api/questions') ||
+      pathname.includes('/api/articles/engagement') ||
+      /\/api\/articles\/[^/]+\/(view|like|comments)(\/|$)/.test(pathname);
+
+    if (isNetworkOnlyApi) {
       event.respondWith(fetch(event.request));
       return;
     }
 
-    // Stale-while-revalidate for product/article data to improve perceived load speed
+    // True Network-First with offline valid cache fallback for general GET API endpoints
     event.respondWith(
       caches.open(API_CACHE).then(async (cache) => {
-        const cachedResponse = await cache.match(event.request);
-        
-        const fetchPromise = fetch(event.request).then(async (networkResponse) => {
-          if (networkResponse.ok) {
+        try {
+          const networkResponse = await fetch(event.request);
+          if (networkResponse && networkResponse.ok) {
             const responseWithTimestamp = await addCacheTimestamp(networkResponse.clone());
             cache.put(event.request, responseWithTimestamp);
             trimCache(API_CACHE, API_CACHE_LIMIT);
           }
           return networkResponse;
-        }).catch((err) => {
-          if (!cachedResponse) throw err;
-        });
-
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        try {
-          return await fetchPromise;
         } catch {
+          const cachedResponse = await cache.match(event.request);
+          if (cachedResponse && isCacheValid(cachedResponse, API_CACHE_TTL)) {
+            return cachedResponse;
+          }
           return new Response(JSON.stringify({ error: 'Offline' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' },

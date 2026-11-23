@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useArticles } from '../contexts/ArticleContext';
 import { ImageIcon, PawIcon } from '../components/icons';
@@ -10,19 +10,121 @@ import ReadingProgressBar from '../components/ReadingProgressBar';
 import { useArticleEngagement } from '../hooks/useArticleEngagement';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
+import { getErrorMessage } from '../services/apiClient';
+import { getBaselineReaders } from '../lib/articleUtils';
+import { safeStorage } from '../lib/storage';
+import type { Article } from '../types';
+
+const GUEST_NAME_STORAGE_KEY = 'petbhai_guest_name';
+const GUEST_ID_STORAGE_KEY = 'petbhai_guest_id';
+const BLOG_PLACEHOLDER_IMAGE = '/blog-images/blog-placeholder.png';
+
+const getExistingGuestId = (): string | null => {
+  const existing = safeStorage.getItem(GUEST_ID_STORAGE_KEY)?.trim();
+  return existing && existing.startsWith('guest_') ? existing : null;
+};
+
+const RelatedArticleCard: React.FC<{ article: Article }> = ({ article }) => {
+  const { t } = useLanguage();
+  const { viewCount } = useArticleEngagement(article.id);
+  const displayViews = Math.max(viewCount || 0, article.views || 0, getBaselineReaders(article.id));
+
+  return (
+    <Link
+      to={`/blog/${article.slug || article.id}`}
+      className="block group rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all duration-300 touch-manipulation"
+    >
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+        <img
+          src={article.imageUrl || BLOG_PLACEHOLDER_IMAGE}
+          alt={`Thumbnail for ${article.title}`}
+          className="w-full h-full object-cover object-[center_42%] transition-transform duration-500 ease-out group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = BLOG_PLACEHOLDER_IMAGE;
+          }}
+        />
+        {article.category && (
+          <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/95 dark:bg-zinc-900/90 text-amber-700 dark:text-amber-400 border border-amber-500/20 shadow-xs">
+            {article.category}
+          </span>
+        )}
+      </div>
+
+      <div className="p-3.5 space-y-2">
+        <h3 className="font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-orange-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 text-sm md:text-base leading-snug">
+          {article.title}
+        </h3>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
+          <time dateTime={article.date}>
+            {new Date(article.date).toLocaleDateString('en-GB', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </time>
+
+          <span className="inline-flex items-center gap-1 font-semibold text-amber-700 dark:text-amber-400">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            {displayViews.toLocaleString()} {t('blog_readers') || 'readers'}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+};
 
 const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { articles, loading, error } = useArticles();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isBn = language === 'bn';
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [guestName, setGuestName] = useState<string>(
+    () => safeStorage.getItem(GUEST_NAME_STORAGE_KEY) || ''
+  );
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [activeHeadingId, setActiveHeadingId] = useState<string>('');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>('md');
-  const tocDetailsRef = React.useRef<HTMLDetailsElement>(null);
+  const tocDetailsRef = useRef<HTMLDetailsElement>(null);
+  const toastTimerRef = useRef<number | null>(null);
+
+  const showToast = useCallback((message: string) => {
+    setToastMsg(message);
+    if (toastTimerRef.current) {
+      window.clearTimeout(toastTimerRef.current);
+    }
+    toastTimerRef.current = window.setTimeout(() => {
+      setToastMsg(null);
+      toastTimerRef.current = null;
+    }, 3500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -32,6 +134,12 @@ const ArticleDetailPage: React.FC = () => {
     () => articles.find((a) => a.slug === slug || a.id.toString() === slug),
     [slug, articles]
   );
+
+  const [heroImageSrc, setHeroImageSrc] = useState<string>(article?.imageUrl || '');
+
+  useEffect(() => {
+    setHeroImageSrc(article?.imageUrl || '');
+  }, [article?.imageUrl]);
 
   const {
     likeCount,
@@ -52,27 +160,69 @@ const ArticleDetailPage: React.FC = () => {
   const handleToggleLike = async () => {
     try {
       await toggleLike();
-    } catch (err: any) {
-      if (err.message === 'AUTH_REQUIRED') {
-        setToastMsg('Please sign in to like this article.');
-        setTimeout(() => setToastMsg(null), 3000);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message === 'AUTH_REQUIRED') {
+        showToast(
+          isBn
+            ? 'আর্টিকেলে লাইক দিতে অনুগ্রহ করে সাইন ইন করুন।'
+            : 'Please sign in to like this article.'
+        );
+      } else {
+        showToast(getErrorMessage(err, 'Could not update like. Please try again.'));
       }
     }
   };
 
+  const handleGuestNameChange = (value: string) => {
+    setGuestName(value);
+    safeStorage.setItem(GUEST_NAME_STORAGE_KEY, value);
+  };
+
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    const trimmedText = commentText.trim();
+    if (!trimmedText || isSubmittingComment) return;
+
+    const trimmedGuestName = guestName.trim();
+    if (!currentUser && !trimmedGuestName) {
+      showToast(
+        isBn
+          ? 'প্রশ্ন বা মন্তব্য পোস্ট করতে অনুগ্রহ করে আপনার নাম লিখুন।'
+          : 'Please enter your name before posting your question or comment.'
+      );
+      return;
+    }
+
+    if (!currentUser) {
+      safeStorage.setItem(GUEST_NAME_STORAGE_KEY, trimmedGuestName);
+    }
+
+    setIsSubmittingComment(true);
     try {
-      await addComment(commentText);
-      setCommentText('');
-      setToastMsg('Comment added successfully!');
-      setTimeout(() => setToastMsg(null), 3000);
-    } catch (err: any) {
-      if (err.message === 'AUTH_REQUIRED') {
-        setToastMsg('Please sign in to comment.');
-        setTimeout(() => setToastMsg(null), 3000);
+      if (currentUser) {
+        await addComment(trimmedText);
+      } else {
+        await addComment(trimmedText, trimmedGuestName);
       }
+      setCommentText('');
+      showToast(
+        isBn
+          ? 'আপনার প্রশ্ন/মন্তব্য সফলভাবে প্রকাশিত হয়েছে!'
+          : 'Your question/comment has been posted!'
+      );
+    } catch (err: unknown) {
+      showToast(getErrorMessage(err, 'Could not post your question. Please try again.'));
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteComment(commentId);
+      showToast(isBn ? 'মন্তব্য মুছে ফেলা হয়েছে।' : 'Comment deleted.');
+    } catch (err: unknown) {
+      showToast(getErrorMessage(err, 'Could not delete your comment. Please try again.'));
     }
   };
 
@@ -315,7 +465,12 @@ const ArticleDetailPage: React.FC = () => {
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                {viewCount} {t('blog_readers') || 'readers'}
+                {Math.max(
+                  viewCount || 0,
+                  article.views || 0,
+                  getBaselineReaders(article.id)
+                ).toLocaleString()}{' '}
+                {t('blog_readers') || 'readers'}
               </span>
             </div>
 
@@ -425,21 +580,32 @@ const ArticleDetailPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Article Image or Generator */}
-          <figure className="glass-card-ios w-full h-auto max-h-[500px] rounded-2xl shadow-lg mb-8 overflow-hidden bg-slate-200/60 dark:bg-zinc-900/80 border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl">
-            {article.imageUrl ? (
-              <img
-                src={article.imageUrl}
-                alt={article.title}
-                width={800}
-                height={500}
-                className="w-full h-full object-cover"
-                loading="eager"
-                sizes="(max-width: 768px) 100vw, 800px"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
-                }}
-              />
+          {/* Subject-Preserving Article Feature Image Showcase */}
+          <figure className="relative glass-card-ios w-full rounded-2xl shadow-lg mb-8 overflow-hidden bg-slate-100/80 dark:bg-zinc-900/90 border border-amber-900/10 dark:border-amber-100/10 backdrop-blur-xl">
+            {heroImageSrc ? (
+              <div className="relative w-full min-h-[260px] sm:min-h-[340px] flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+                <img
+                  src={heroImageSrc}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover opacity-25 blur-2xl scale-110 pointer-events-none select-none"
+                  loading="eager"
+                />
+                <img
+                  src={heroImageSrc}
+                  alt={article.title}
+                  width={1024}
+                  height={1024}
+                  className="relative z-10 max-h-[480px] w-auto max-w-full mx-auto object-contain rounded-xl shadow-md"
+                  loading="eager"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  onError={() => {
+                    if (heroImageSrc !== BLOG_PLACEHOLDER_IMAGE) {
+                      setHeroImageSrc(BLOG_PLACEHOLDER_IMAGE);
+                    }
+                  }}
+                />
+              </div>
             ) : (
               <div className="w-full min-h-[300px] h-full flex flex-col items-center justify-center p-6 text-center">
                 <ImageIcon
@@ -521,7 +687,7 @@ const ArticleDetailPage: React.FC = () => {
             <BlogCommunityCTA />
           </section>
 
-          {/* Comment Section */}
+          {/* Questions & Comments Section */}
           <section
             id="article-comments"
             className="glass-card-ios p-4 md:p-8 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-amber-900/10 dark:border-amber-100/10 scroll-mt-24"
@@ -540,7 +706,13 @@ const ArticleDetailPage: React.FC = () => {
                   d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
                 />
               </svg>
-              Comments ({commentCount || 0})
+              {t('questions_and_comments') &&
+              t('questions_and_comments') !== 'questions_and_comments'
+                ? t('questions_and_comments')
+                : isBn
+                  ? 'প্রশ্ন ও মন্তব্য'
+                  : 'Questions & Comments'}{' '}
+              ({commentCount || 0})
             </h2>
 
             {currentUser ? (
@@ -549,8 +721,12 @@ const ArticleDetailPage: React.FC = () => {
                   <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Share your thoughts..."
-                    className="w-full bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-xl p-4 pr-12 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none min-h-[100px]"
+                    placeholder={
+                      isBn
+                        ? 'এই গাইড সম্পর্কে আপনার প্রশ্ন বা অভিজ্ঞতা লিখুন...'
+                        : 'Ask a question about this guide or share your thoughts...'
+                    }
+                    className="w-full bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/50 rounded-xl p-4 pr-14 text-base sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none min-h-[104px]"
                     maxLength={1000}
                   />
                   <div className="absolute bottom-3 right-3 text-xs text-zinc-400">
@@ -560,10 +736,16 @@ const ArticleDetailPage: React.FC = () => {
                 <div className="mt-3 flex justify-end">
                   <button
                     type="submit"
-                    disabled={!commentText.trim()}
-                    className="bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-zinc-400 disabled:cursor-not-allowed dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600 text-white font-semibold py-2 px-6 rounded-full transition-colors flex items-center gap-2"
+                    disabled={!commentText.trim() || isSubmittingComment}
+                    className="min-h-[44px] bg-orange-600 hover:bg-orange-700 disabled:bg-slate-200 disabled:text-zinc-400 disabled:cursor-not-allowed dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600 text-white font-semibold py-2 px-6 rounded-full transition-colors flex items-center gap-2 text-sm"
                   >
-                    Post Comment
+                    {isSubmittingComment
+                      ? isBn
+                        ? 'পোস্ট হচ্ছে...'
+                        : 'Posting...'
+                      : isBn
+                        ? 'প্রশ্ন / মন্তব্য পোস্ট করুন'
+                        : 'Post Question / Comment'}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -576,17 +758,97 @@ const ArticleDetailPage: React.FC = () => {
                 </div>
               </form>
             ) : (
-              <div className="mb-8 bg-slate-50 dark:bg-zinc-800/50 rounded-xl p-6 text-center border border-slate-200 dark:border-zinc-700/50">
-                <p className="text-zinc-600 dark:text-zinc-300 mb-4">
-                  Please sign in to join the conversation.
-                </p>
-                <Link
-                  to="/login"
-                  className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-full transition-colors"
-                >
-                  Sign In
-                </Link>
-              </div>
+              <form
+                onSubmit={handleAddComment}
+                className="mb-8 rounded-2xl bg-amber-50/60 dark:bg-zinc-800/60 border border-amber-200/70 dark:border-zinc-700/70 p-4 sm:p-5 space-y-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                    {isBn ? 'প্রশ্ন করুন বা মন্তব্য লিখুন' : 'Ask a Question or Leave a Comment'}
+                  </h3>
+                  <Link
+                    to="/login"
+                    className="text-xs font-semibold text-orange-600 dark:text-amber-400 hover:underline"
+                  >
+                    {isBn ? 'অথবা সাইন ইন করুন' : 'Or sign in'}
+                  </Link>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="article-guest-name"
+                    className="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5"
+                  >
+                    {isBn ? 'আপনার নাম *' : 'Your Name *'}
+                  </label>
+                  <input
+                    id="article-guest-name"
+                    type="text"
+                    required
+                    maxLength={80}
+                    value={guestName}
+                    onChange={(e) => handleGuestNameChange(e.target.value)}
+                    placeholder={
+                      isBn ? 'যেমন: সামিরা / টমির অভিভাবক' : "e.g., Samira / Milo's parent"
+                    }
+                    className="w-full min-h-[44px] bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-base sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                  />
+                </div>
+
+                <div className="relative">
+                  <label
+                    htmlFor="article-guest-comment"
+                    className="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5"
+                  >
+                    {isBn ? 'আপনার প্রশ্ন বা মন্তব্য *' : 'Your Question or Comment *'}
+                  </label>
+                  <textarea
+                    id="article-guest-comment"
+                    required
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder={
+                      isBn
+                        ? 'আপনার পোষা প্রাণী বা এই লেখাটি নিয়ে কোনো প্রশ্ন থাকলে এখানে লিখুন...'
+                        : 'Ask a question about your pet or leave a comment on this guide...'
+                    }
+                    className="w-full bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-700 rounded-xl p-4 pr-14 text-base sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none min-h-[104px]"
+                    maxLength={1000}
+                  />
+                  <div className="absolute bottom-3 right-3 text-xs text-zinc-400">
+                    {commentText.length}/1000
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {isBn
+                      ? 'কোনো অ্যাকাউন্ট ছাড়াই সরাসরি প্রশ্ন বা মন্তব্য করতে পারবেন।'
+                      : 'No account needed — post your question or comment right away.'}
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={!commentText.trim() || !guestName.trim() || isSubmittingComment}
+                    className="min-h-[44px] bg-orange-600 hover:bg-orange-700 disabled:bg-slate-200 disabled:text-zinc-400 disabled:cursor-not-allowed dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600 text-white font-semibold py-2 px-6 rounded-full transition-colors flex items-center gap-2 text-sm"
+                  >
+                    {isSubmittingComment
+                      ? isBn
+                        ? 'পোস্ট হচ্ছে...'
+                        : 'Posting...'
+                      : isBn
+                        ? 'প্রশ্ন / মন্তব্য পোস্ট করুন'
+                        : 'Post Question / Comment'}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </form>
             )}
 
             <div className="space-y-6">
@@ -595,41 +857,66 @@ const ArticleDetailPage: React.FC = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
               ) : comments.length > 0 ? (
-                comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
-                      {(comment.userName || 'U').charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <div className="bg-slate-50 dark:bg-zinc-800/50 rounded-2xl p-4 border border-slate-200 dark:border-zinc-700/50">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                            {comment.userName}
-                          </h4>
-                          <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {new Date(comment.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap text-sm md:text-base">
-                          {comment.text}
-                        </p>
+                comments.map((comment) => {
+                  const activeGuestId = !currentUser ? getExistingGuestId() : null;
+                  const isModerator = Boolean(
+                    currentUser?.role &&
+                    ['super_admin', 'store_manager', 'moderator'].includes(currentUser.role)
+                  );
+                  const canDelete =
+                    isModerator ||
+                    (Boolean(currentUser) && currentUser?.id?.toString() === comment.userId) ||
+                    (!currentUser &&
+                      Boolean(activeGuestId) &&
+                      comment.userId?.startsWith('guest_') &&
+                      comment.userId === activeGuestId);
+
+                  return (
+                    <div key={comment.id} className="flex gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
+                        {(comment.userName || 'U').charAt(0).toUpperCase()}
                       </div>
-                      {currentUser?.id?.toString() === comment.userId && (
-                        <div className="mt-2 ml-2">
-                          <button
-                            onClick={() => deleteComment(comment.id)}
-                            className="text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
-                          >
-                            Delete
-                          </button>
+                      <div className="flex-1">
+                        <div className="bg-slate-50 dark:bg-zinc-800/50 rounded-2xl p-4 border border-slate-200 dark:border-zinc-700/50">
+                          <div className="flex justify-between items-start gap-2 mb-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                                {comment.userName}
+                              </h4>
+                              {(comment.isGuest || comment.userId?.startsWith('guest')) && (
+                                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                                  {isBn ? 'ভিজিটর' : 'Visitor'}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400 shrink-0">
+                              {new Date(comment.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap text-sm md:text-base">
+                            {comment.text}
+                          </p>
                         </div>
-                      )}
+                        {canDelete && (
+                          <div className="mt-2 ml-2">
+                            <button
+                              type="button"
+                              onClick={() => void handleDeleteComment(comment.id)}
+                              className="text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
+                            >
+                              {isBn ? 'মুছে ফেলুন' : 'Delete'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-center text-zinc-500 dark:text-zinc-400 py-8">
-                  No comments yet. Be the first to share your thoughts!
+                  {isBn
+                    ? 'এখনো কোনো প্রশ্ন বা মন্তব্য নেই। প্রথম প্রশ্নটি আপনি করুন!'
+                    : 'No questions or comments yet. Be the first to ask or share your thoughts!'}
                 </p>
               )}
             </div>
@@ -688,40 +975,9 @@ const ArticleDetailPage: React.FC = () => {
                 ? t('related_articles')
                 : 'Related Articles'}
             </h2>
-            <nav className="space-y-4 md:space-y-6" aria-label="Related articles">
+            <nav className="space-y-4 md:space-y-5" aria-label="Related articles">
               {relatedArticles.map((a) => (
-                <Link
-                  to={`/blog/${a.slug || a.id}`}
-                  key={a.id}
-                  className="block group glass-card-ios p-3 hover:bg-white/95 dark:bg-zinc-900/95 dark:hover:bg-slate-800/70 transition-colors touch-manipulation"
-                >
-                  <div className="flex items-start space-x-3">
-                    <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg bg-slate-200 dark:bg-zinc-900/95">
-                      <img
-                        src={a.imageUrl || '/blog-images/blog-placeholder.png'}
-                        alt={`Thumbnail for ${a.title}`}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                        loading="lazy"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/blog-images/blog-placeholder.png';
-                        }}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-orange-600 transition-colors line-clamp-2 text-sm md:text-base">
-                        {a.title}
-                      </h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-300 mt-1">
-                        <time dateTime={a.date}>
-                          {new Date(a.date).toLocaleDateString('en-GB', {
-                            month: 'long',
-                            day: 'numeric',
-                          })}
-                        </time>
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                <RelatedArticleCard key={a.id} article={a} />
               ))}
             </nav>
           </div>

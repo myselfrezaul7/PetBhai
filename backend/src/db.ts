@@ -8,8 +8,21 @@ import {
   MOCK_ANIMALS,
   MOCK_BRANDS,
   MOCK_POSTS,
+  MOCK_QUESTIONS,
+  getBaselineReaders,
 } from './data/mockData';
-import type { User, Product, Article, Vet, Animal, Brand, Order, Post, Question } from './types';
+import type {
+  User,
+  Product,
+  Article,
+  ArticleComment,
+  Vet,
+  Animal,
+  Brand,
+  Order,
+  Post,
+  Question,
+} from './types';
 
 // Detect if running in serverless environment (Vercel, AWS Lambda, etc.)
 const isServerless = !!(
@@ -54,6 +67,7 @@ interface DatabaseSchema {
   users: User[];
   products: Product[];
   articles: Article[];
+  articleComments: Record<string, ArticleComment[]>;
   vets: Vet[];
   animals: Animal[];
   brands: Brand[];
@@ -81,13 +95,14 @@ const INITIAL_DATA: DatabaseSchema = {
   users: [...MOCK_USERS],
   products: [...MOCK_PRODUCTS],
   articles: [...MOCK_ARTICLES],
+  articleComments: {},
   vets: [...MOCK_VETS],
   animals: [...MOCK_ANIMALS],
   brands: [...MOCK_BRANDS],
   orders: [],
   posts: [],
   bannedUsers: [],
-  questions: [],
+  questions: [...MOCK_QUESTIONS],
 };
 
 export class PersistenceError extends Error {
@@ -113,15 +128,50 @@ class Database {
       if (!Array.isArray(this.data.bannedUsers)) {
         this.data.bannedUsers = [];
       }
-      if (!Array.isArray(this.data.questions)) {
-        this.data.questions = [];
+
+      let needsMigrationPersist = false;
+      if (!Array.isArray(this.data.questions) || this.data.questions.length === 0) {
+        this.data.questions = JSON.parse(JSON.stringify(MOCK_QUESTIONS));
+        needsMigrationPersist = true;
+      }
+      if (!this.data.articleComments || typeof this.data.articleComments !== 'object') {
+        this.data.articleComments = {};
+        needsMigrationPersist = true;
+      }
+
+      if (Array.isArray(this.data.articles)) {
+        for (const article of this.data.articles) {
+          const baseline = getBaselineReaders(article.id);
+          if (
+            typeof article.views !== 'number' ||
+            !Number.isFinite(article.views) ||
+            article.views < baseline
+          ) {
+            article.views = baseline;
+            needsMigrationPersist = true;
+          }
+          if (typeof article.likeCount !== 'number' || !Number.isFinite(article.likeCount)) {
+            article.likeCount = Array.isArray(article.likedBy) ? article.likedBy.length : 0;
+          }
+          if (!Array.isArray(article.likedBy)) {
+            article.likedBy = [];
+          }
+          if (typeof article.commentCount !== 'number' || !Number.isFinite(article.commentCount)) {
+            const storedComments = this.data.articleComments[String(article.id)] || [];
+            article.commentCount = storedComments.length;
+          }
+        }
       }
 
       const { cleanedPosts, removedCount } = stripLegacyMockPosts(this.data.posts);
       if (removedCount > 0) {
         this.data.posts = cleanedPosts;
-        this.persistToDisk(this.data);
+        needsMigrationPersist = true;
         console.log(`Removed ${removedCount} legacy mock community posts from database`);
+      }
+
+      if (needsMigrationPersist && !isServerless) {
+        this.persistToDisk(this.data);
       }
 
       if (Array.isArray(this.data.products)) {
@@ -320,6 +370,12 @@ class Database {
   }
   get articles() {
     return this.data.articles;
+  }
+  get articleComments() {
+    if (!this.data.articleComments || typeof this.data.articleComments !== 'object') {
+      this.data.articleComments = {};
+    }
+    return this.data.articleComments;
   }
   get vets() {
     return this.data.vets;

@@ -237,7 +237,7 @@ const PetTools: React.FC = () => {
           <SparklesIcon className="w-7 h-7 mr-2" />
           Pet Tools & Calculators
         </h2>
-        <p className="text-orange-100 mt-1">Free AI-powered tools for pet parents</p>
+        <p className="text-orange-100 mt-1">Free helpful calculators &amp; tools for pet parents</p>
       </div>
 
       {/* Tab Navigation */}

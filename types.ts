@@ -35,11 +35,6 @@ export interface Article {
   commentCount?: number;
 }
 
-export interface ChatMessage {
-  sender: 'user' | 'ai';
-  text: string;
-}
-
 export interface OrderStatusHistoryItem {
   status: string;
   timestamp: string;
@@ -354,6 +349,15 @@ export interface DeliveryArea {
   isSameDayAvailable?: boolean;
 }
 
+export interface ArticleComment {
+  id: string;
+  userId: string;
+  userName: string;
+  text: string;
+  createdAt: number;
+  isGuest?: boolean;
+}
+
 export interface Question {
   id: number;
   name: string;
@@ -362,7 +366,12 @@ export interface Question {
   question: string;
   createdAt: string;
   status?: 'pending' | 'answered' | 'rejected';
+  answer?: string;
+  answeredBy?: string;
+  answeredAt?: string;
   answeredBlogSlug?: string;
+  answeredBlogTitle?: string;
+  helpfulCount?: number;
 }
 
 declare global {

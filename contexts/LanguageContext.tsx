@@ -24,7 +24,6 @@ const translations: Translations = {
   nav_shop: { en: 'Shop', bn: 'শপ' },
   nav_community: { en: 'Community', bn: 'কমিউনিটি' },
   nav_services: { en: 'Services', bn: 'সেবাসমূহ' },
-  nav_ai_vet: { en: 'AI Vet', bn: 'এআই ভেট' },
   nav_blog: { en: 'Blog', bn: 'ব্লগ' },
   nav_adopt: { en: 'Adoption', bn: 'দত্তক গ্রহণ' },
   nav_plus: { en: 'PetBhai+', bn: 'পেটভাই+' },
@@ -66,7 +65,6 @@ const translations: Translations = {
   },
   btn_adopt: { en: 'Find a Friend', bn: 'নতুন সঙ্গী খুঁজুন' },
   btn_shop: { en: 'Shop Supplies', bn: 'কেনাকাটা করুন' },
-  btn_ai_vet: { en: 'Ask AI Vet', bn: 'এআই ভেট' },
 
   section_best_sellers: { en: 'Our Best Sellers', bn: 'সবার পছন্দের শীর্ষে' },
   section_best_sellers_sub: {

@@ -10,7 +10,30 @@ import {
   Animal,
   Brand,
   Comment,
+  Question,
 } from '../types';
+
+/**
+ * Deterministic baseline reader count shared between backend and frontend (range: 85–479).
+ */
+export const getBaselineReaders = (articleId: string | number): number => {
+  if (articleId === '' || articleId === null || articleId === undefined) {
+    return 0;
+  }
+
+  const raw = String(articleId).trim();
+  if (!raw) return 0;
+
+  let num = parseInt(raw, 10);
+  if (!Number.isFinite(num) || Number.isNaN(num)) {
+    num = 0;
+    for (let i = 0; i < raw.length; i++) {
+      num = (num * 31 + raw.charCodeAt(i)) % 100000;
+    }
+  }
+
+  return 85 + ((Math.abs(num) * 47) % 395);
+};
 
 export const MOCK_BRANDS: Brand[] = [
   // Row 1
@@ -1292,7 +1315,7 @@ export const MOCK_VETS: Vet[] = [
   },
 ];
 
-export const MOCK_ARTICLES: any[] = [
+const RAW_MOCK_ARTICLES: any[] = [
   {
     id: 45,
     image: '/blog-images/blog-desi-eye-care.png',
@@ -4010,6 +4033,86 @@ export const MOCK_ARTICLES: any[] = [
     category: 'Health',
     tags: ['First Aid', 'Emergency', 'Care'],
     featured: false,
+  },
+];
+
+export const MOCK_ARTICLES: any[] = RAW_MOCK_ARTICLES.map((article) => {
+  const baseline = getBaselineReaders(article.id);
+  const existingViews =
+    typeof article.views === 'number' && Number.isFinite(article.views) ? article.views : 0;
+  return {
+    ...article,
+    views: Math.max(existingViews, baseline),
+    likeCount: typeof article.likeCount === 'number' ? article.likeCount : 0,
+    likedBy: Array.isArray(article.likedBy) ? article.likedBy : [],
+    commentCount: typeof article.commentCount === 'number' ? article.commentCount : 0,
+  };
+});
+
+export const MOCK_QUESTIONS: Question[] = [
+  {
+    id: 1744000001001,
+    name: 'Tanvir, Dhanmondi',
+    topic: 'Cat Care',
+    question:
+      'ইনডোর বিড়ালকে কাঠের ফার্নিচার আঁচড়ানো থেকে কীভাবে বিরত রাখব? (How do I stop my indoor cat from scratching wooden furniture?)',
+    createdAt: '2026-04-11T14:20:00.000Z',
+    status: 'answered',
+    answer:
+      'বিড়ালের আঁচড়ানো একটি স্বাভাবিক ও স্বাস্থ্যকর আচরণ (নখ ধারালো রাখা ও স্ট্রেস কমানোর জন্য)। কাঠের ফার্নিচার বাঁচাতে সোফা বা খাটের ঠিক পাশেই একটি মজবুত সিসাল রোপ স্ক্র্যাচিং পোস্ট রাখুন এবং তাতে সামান্য ক্যাটনিপ ছিটিয়ে দিন। প্রতি ২–৩ সপ্তাহ অন্তর নিরাপদে নখের ধারালো ডগা কেটে দিন, আর ফার্নিচারে ডাবল-সাইডেড টেপ ব্যবহার করুন।\n\nPlace a sturdy sisal scratching post right beside the favorite furniture corner, entice your cat with a pinch of catnip, and safely trim only the sharp claw tips every 2–3 weeks. Calmly redirect your cat to the post and reward with a treat.',
+    answeredBy: 'PetBhai Vet Team',
+    answeredAt: '2026-04-12T10:30:00.000Z',
+    answeredBlogSlug: 'বিড়ালের নখ কাটার নিরাপদ উপায়-130',
+    answeredBlogTitle: 'বিড়ালের নখ কাটার নিরাপদ উপায়',
+    helpfulCount: 18,
+  },
+  {
+    id: 1744000001002,
+    name: 'Samira, Uttara',
+    topic: 'Dog Care',
+    question:
+      'গরমের দিনে ৪ মাস বয়সী দেশি কুকুরছানার সেরা খাবার রুটিন কী হওয়া উচিত? (What is the best feeding routine for a 4-month-old Deshi puppy during summer?)',
+    createdAt: '2026-04-14T16:40:00.000Z',
+    status: 'answered',
+    answer:
+      '৪ মাস বয়সী দেশি কুকুরছানাকে দিনে ৩ বার (সকাল, দুপুর ও সন্ধ্যা) সহজপাচ্য ও পুষ্টিকর খাবার দিন—যেমন লবণ ও মশলা ছাড়া সেদ্ধ মুরগি, নরম ভাত ও সামান্য সেদ্ধ কুমড়া অথবা পানিতে ভেজানো পাপি কিবল। গরমে দুপুরে এক চামচ চিনি ছাড়া টক দই ও পর্যাপ্ত ঠান্ডা পরিষ্কার পানি রাখুন এবং ভেজা খাবার বাটিতে ৩০ মিনিটের বেশি ফেলে রাখবেন না।\n\nFeed 3 balanced meals daily (morning, afternoon, evening) using soaked puppy kibble or plain boiled chicken with soft rice and pumpkin (no salt, onion, or spices). Keep fresh cool water available 24/7, offer a spoon of plain unsweetened yogurt in midday heat, and discard uneaten wet food after 30 minutes.',
+    answeredBy: 'PetBhai Vet Team',
+    answeredAt: '2026-04-15T09:15:00.000Z',
+    answeredBlogSlug: 'গরমে কুকুরকে সুস্থ ও সতেজ রাখতে করণীয়-104',
+    answeredBlogTitle: 'গরমে কুকুরকে সুস্থ ও সতেজ রাখতে করণীয়',
+    helpfulCount: 24,
+  },
+  {
+    id: 1744000001003,
+    name: 'Nabila, Mirpur',
+    topic: 'Health',
+    question:
+      'পার্শিয়ান বিড়ালের কানের ইনফেকশনের প্রাথমিক লক্ষণগুলো কীভাবে বুঝব? (How to recognize early symptoms of ear infection in Persian cats?)',
+    createdAt: '2026-04-17T19:10:00.000Z',
+    status: 'answered',
+    answer:
+      'প্রাথমিক লক্ষণগুলোর মধ্যে রয়েছে ঘন ঘন মাথা ঝাঁকানো, পা দিয়ে কান চুলকানো, কানের ভেতরে কফি-গুঁড়োর মতো কালচে ময়লা (ear mites-এর প্রধান লক্ষণ), লালচে ভাব, ফোলা বা দুর্গন্ধ বের হওয়া। কখনোই কটন বাড কানের গভীরে ঢোকাবেন না বা মানুষের ইয়ার ড্রপ ব্যবহার করবেন না—সঠিক ডায়াগনসিস ও নিরাপদ অ্যান্টি-মাইট/অ্যান্টি-ফাঙ্গাল ড্রপের জন্য ভেটের কাছে নিয়ে যান।\n\nWatch for frequent head shaking, scratching at the ears, dark crumbly coffee-ground-like wax (classic ear mites), redness, or a foul odor. Never insert cotton swabs deep into the ear canal or use human ear drops—have a veterinarian examine the ear with an otoscope for targeted ear medication.',
+    answeredBy: 'PetBhai Vet Team',
+    answeredAt: '2026-04-18T11:45:00.000Z',
+    answeredBlogSlug: 'বিড়ালের কানে মাইটস বা পোকা হলে বুঝবেন কীভাবে-139',
+    answeredBlogTitle: 'বিড়ালের কানে মাইটস বা পোকা হলে বুঝবেন কীভাবে?',
+    helpfulCount: 15,
+  },
+  {
+    id: 1744000001004,
+    name: 'Rahim, Banani',
+    topic: 'Nutrition',
+    question:
+      'প্রতিদিন সেদ্ধ মুরগির মাংসের সাথে মিষ্টি কুমড়া দেওয়া কি কুকুরের জন্য স্বাস্থ্যকর? (Is boiled chicken with pumpkin healthy for dogs on a daily basis?)',
+    createdAt: '2026-04-19T08:50:00.000Z',
+    status: 'answered',
+    answer:
+      'হাড়ছাড়া সেদ্ধ মুরগি ও সামান্য সেদ্ধ মিষ্টি কুমড়া (লবণ, তেল ও মশলা ছাড়া) কুকুরের হজমের জন্য খুব ভালো, তবে দীর্ঘমেয়াদে শুধু এই দুটি খাবার দিলে ক্যালসিয়াম, ওমেগা-৩ ও প্রয়োজনীয় ভিটামিনের ঘাটতি হতে পারে। তাই এটি মূল সুষম ডগ ফুডের (balanced kibble) সাথে টপার হিসেবে দিন অথবা ভেটের পরামর্শে ক্যালসিয়াম ও মাল্টিভিটামিন সাপ্লিমেন্ট যুক্ত করুন।\n\nPlain boneless boiled chicken and cooked pumpkin are gentle on digestion and rich in fiber, but alone they lack calcium, essential fatty acids, and trace minerals for long-term daily feeding. Serve them as a nutritious topper alongside complete balanced dog food, or follow a vet-formulated supplement plan for home-cooked meals.',
+    answeredBy: 'PetBhai Vet Team',
+    answeredAt: '2026-04-20T13:00:00.000Z',
+    answeredBlogSlug: 'পোষা প্রাণীর খাবার বাড়িতে তৈরি করার কিছু রেসিপি-159',
+    answeredBlogTitle: 'পোষা প্রাণীর খাবার বাড়িতে তৈরি করার কিছু রেসিপি',
+    helpfulCount: 27,
   },
 ];
 
